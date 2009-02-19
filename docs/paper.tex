@@ -73,14 +73,17 @@ usage: ./sphere --type [full|half] --coord [local|global] --iter [number]
 
 Дифференциальная задача:
 \begin{equation*}
-\Delta u(\phi, \lambda) = f(\phi, \lambda)
-u\|_{\partial\Omega} = u_0
+\begin{split}
+\Delta u(\phi, \lambda) = f(\phi, \lambda)\\
+u|_{\partial\Omega} = u_0
+\end{split}
 \end{equation*}
 
 Численная задача:
 \begin{equation*}
 \begin{split}
-(\frac{1}{cos\psi}\frac{\partial}{\partial \phi} \phi_i, cos\phi \frac{\partial}{\partial \phi} \phi_j) = -(f, \phi_j), \forall j, \forall i, \text{ для внутренних узлов } \\
+(\frac{1}{cos\psi}\frac{\partial}{\partial \phi} \phi_i, cos\phi \frac{\partial}{\partial \phi} \phi_j)
++(\frac{1}{cos\psi}\frac{\partial}{\partial \lambda}\phi_i, \frac{1}{cos\psi}\frac{\partial}{\partial \lambda}\phi_j ) = -(f, \phi_j), \forall j, \forall i, \text{ для внутренних узлов } \\
 u = u_0 \phi_i, \text { для граничных узлов, }
 \end{split}
 \end{equation*}
@@ -93,7 +96,7 @@ u = u_0 \phi_i, \text { для граничных узлов, }
 
 Система уравнений:
 \begin{equation*}
-\sum_j x_j \sum_{k: \{j\in\bigtriangleup_k, i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}\frac{1}{cos\psi}(\frac{\partial}{\partial \phi} \phi_i) cos\phi (\frac{\partial}{\partial \phi} \phi_j) ds = \sum_{k:\{i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}f \phi_j ds,
+\sum_j x_j \sum_{k: \{j\in\bigtriangleup_k, i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}\frac{1}{cos\psi}(\frac{\partial}{\partial \phi} \phi_i) cos\phi (\frac{\partial}{\partial \phi} \phi_j)+\frac{1}{cos^2\psi}\phi_i\phi_j ds = \sum_{k:\{i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}f \phi_j ds,
 \end{equation*}
 где
 \begin{equation*}
