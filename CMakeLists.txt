@@ -53,6 +53,7 @@ set_target_properties(test_integrate PROPERTIES LINK_FLAGS ${OMP})
 set_target_properties(rectangle PROPERTIES LINK_FLAGS ${OMP})
 set_target_properties(sphere PROPERTIES LINK_FLAGS ${OMP})
 set_target_properties(test_gmres PROPERTIES LINK_FLAGS ${OMP})
+set_target_properties(test_quadrature PROPERTIES LINK_FLAGS ${OMP})
 endif (DEFINED OMP)
 
 
