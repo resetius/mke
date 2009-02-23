@@ -182,4 +182,9 @@ typedef double (* integrate_cb_t)
  */
 void generate_matrix(Matrix & m, integrate_cb_t integrate_cb, void * user_data);
 
+/**
+ * Решает систему
+ */
+void mke_solve(double * answer, double * rp, Matrix & m, Mesh & mesh);
+
 #endif /* MKE_H */
