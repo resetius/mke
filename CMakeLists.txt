@@ -43,6 +43,7 @@ add_executable(test_polynom test_polynom.cpp)
 add_executable(test_integrate test_integrate.cpp)
 add_executable(test_gmres test_gmres.cpp)
 add_executable(test_quadrature test_quadrature.c)
+add_executable(test_funcgen test_funcgen.cpp)
 
 target_link_libraries(test_laplace mke ${UMFPACK})
 target_link_libraries(test_slaplace mke ${UMFPACK})
@@ -50,6 +51,7 @@ target_link_libraries(test_polynom mke ${UMFPACK})
 target_link_libraries(test_integrate mke ${UMFPACK})
 target_link_libraries(test_gmres mke)
 target_link_libraries(test_quadrature mke ${MATH})
+target_link_libraries(test_funcgen mke ${MATH})
 
 if (DEFINED OMP)
 set_target_properties(test_laplace PROPERTIES LINK_FLAGS ${OMP})
@@ -60,6 +62,7 @@ set_target_properties(rectangle PROPERTIES LINK_FLAGS ${OMP})
 set_target_properties(sphere PROPERTIES LINK_FLAGS ${OMP})
 set_target_properties(test_gmres PROPERTIES LINK_FLAGS ${OMP})
 set_target_properties(test_quadrature PROPERTIES LINK_FLAGS ${OMP})
+set_target_properties(test_funcgen PROPERTIES LINK_FLAGS ${OMP})
 endif (DEFINED OMP)
 
 

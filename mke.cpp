@@ -281,4 +281,5 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 			m.tr[i].p[1] + 1, 
 			m.tr[i].p[2] + 1);
 	}
+	fprintf(to, "# end %lu\n");
 }
