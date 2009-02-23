@@ -80,17 +80,6 @@ struct Triangle {
 	}
 };
 
-struct TriangleX {
-	Point p[3];
-
-	TriangleX(Point p1_, Point p2_, Point p3_)
-	{
-		p[0] = p1_;
-		p[1] = p2_;
-		p[2] = p3_;
-	}
-};
-
 struct Mesh {
 	typedef std::vector < Triangle > triangles_t;
 	typedef std::vector < Point > points_t; 
@@ -147,4 +136,50 @@ typedef double (* x_t)(double u, double v);
 
 void print_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
+
+class Matrix;
+
+/**
+ * Callback. Вызывается для всех функций phi_i, phi_j, определенных
+ * в точке point на треугольнике tr
+ */
+typedef double (* right_part_cb_t)
+(const Polynom & phi_i, 
+ const Polynom & phi_j, 
+ int point, /* номер точки */
+ int tr,    /* номер треугольника */
+ Mesh & mesh,
+ void * user_data /* сюда могу входить любые данные, 
+				     например значение F на пред шаге*/
+ );
+
+/**
+ * Создает матрицу системы.
+ * Вызывает right_part_cb_t для всех функций phi_i, phi_j, определенных
+ * в общей точке point на треугольнике tr
+ */
+void generate_right_part(double * b, right_part_cb_t right_part_cb, void * user_data);
+
+
+/**
+ * Callback. Вызывается для всех функций phi_i, phi_j, определенных
+ * в точке point на треугольнике tr
+ */
+typedef double (* integrate_cb_t)
+(const Polynom & phi_i, 
+ const Polynom & phi_j, 
+ int point, /* номер точки */
+ int tr,    /* номер треугольника */
+ Mesh & mesh,
+ void * user_data /* сюда могу входить любые данные,
+				     например значение на границе */
+ );
+
+/**
+ * Создает матрицу системы.
+ * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
+ * в общей точке point на треугольнике tr
+ */
+void generate_matrix(Matrix & m, integrate_cb_t integrate_cb, void * user_data);
+
 #endif /* MKE_H */

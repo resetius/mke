@@ -208,6 +208,17 @@ Polynom diff(const Polynom & p, int d)
 
 typedef double (*t_int)(int, int, double, double, double, double, double, double);
 
+struct TriangleX {
+	Point p[3];
+
+	TriangleX(Point p1_, Point p2_, Point p3_)
+	{
+		p[0] = p1_;
+		p[1] = p2_;
+		p[2] = p3_;
+	}
+};
+
 static double 
 integrate1(const Polynom & p, const TriangleX & tr, t_int trapezoid)
 {
