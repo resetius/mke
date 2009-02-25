@@ -40,6 +40,9 @@
 void laplace_solve(double * Ans, const Mesh & m, 
 				   const double * F, const double * bnd);
 
+void sphere_laplace_solve(double * Ans, const Mesh & m, 
+						  const double * F, const double * bnd);
+
 class SphereChafe {
 public:
 	struct integrate_cb_data
