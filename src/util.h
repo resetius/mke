@@ -97,6 +97,11 @@ void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x,
 
 void sparse_print(const struct Sparse * A, int n, FILE * f);
 
+/**
+ * r = k1 * a + k2 * b
+ */
+void vector_sum1(double * r, const double * a, const double *b, double k1, double k2, int n);
+
 double get_full_time();
 
 typedef double (*fx_t)(double x, void * data);

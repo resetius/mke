@@ -186,4 +186,14 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
  */
 void mke_solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
 
+/* добавляем краевые условия */
+void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
+
+/* убираем краевые условия */
+void mke_u2p(double * u, const double * p, const Mesh & m);
+
+void sphere_chafe_solve(double * Ans, const double * X0,
+						const Mesh & m, const double * bnd, 
+						double tau, double sigma, double mu);
+
 #endif /* MKE_H */

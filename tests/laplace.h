@@ -28,6 +28,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "solver.h"
+
 /**
  * обращает оператор лапласа на плоской области
  * @param Ans - ответ
@@ -38,8 +40,29 @@
 void laplace_solve(double * Ans, const Mesh & m, 
 				   const double * F, const double * bnd);
 
-/* обращает оператор лапласа на сфере */
-void sphere_laplace_solve(double * Ans, const Mesh & m, 
-						  const double * F, const double * bnd);
+class SphereChafe {
+public:
+	struct integrate_cb_data
+	{
+		double tau;
+		double mu;
+		double sigma;
+	};
+
+private:
+	const Mesh & m_;
+	Matrix laplace_; /* Ћапласиан */
+	Matrix A_;       /* ћатрица левой части */
+	double tau_;
+
+	integrate_cb_data data1_;
+
+public:
+	SphereChafe(const Mesh & m, double tau, double sigma, double mu);
+	~SphereChafe() {}
+
+	void solve(double * Ans, const double * X0,
+						const double * bnd);
+};
 
 #endif /* LAPL_H */

@@ -79,6 +79,7 @@ public:
 
 	// Ax = b
 	void solve(double * b, double * x);
+	void mult_vector(double * out, const double * in);
 
 	void print();
 };

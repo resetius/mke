@@ -80,18 +80,6 @@ static void vector_div_scalar(double * a, const double * b, double k, int n)
 }
 
 /**
- * r = k1 * a + k2 * b
- */
-static void vector_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
-{
-	int i;
-#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		r[i] = k1 * a[i] + k2 * b[i];
-	}
-}
-
-/**
  * r = a + k2 * b
  */
 static void vector_sum2(double * r, const double * a, const double *b, double k2, int n)

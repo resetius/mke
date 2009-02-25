@@ -63,6 +63,23 @@ void Matrix::add(int i, int j, double a) {
 #endif
 }
 
+void Matrix::mult_vector(double * out, const double * in)
+{
+#ifdef SPARSE
+	if (Ax_.empty()) {
+		make_sparse();
+	}
+	Sparse A;
+	A.Ap = &Ap_[0];
+	A.Ax = &Ax_[0];
+	A.Ai = &Ai_[0];
+
+	sparse_mult_vector_l(out, &A, in, n_);
+#else
+	matrix_mult_vector(out, &A_[0], in);
+#endif
+}
+
 void Matrix::solve(double * b, double * x)
 {
 #ifdef SPARSE

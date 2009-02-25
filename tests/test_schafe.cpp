@@ -123,6 +123,11 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
+	int i, steps = 1;
+	double tau   = 0.01;
+	double mu    = 1.0;
+	double sigma = -70;
+
 	vector < double > F;
 	vector < double > B;
 	vector < double > Ans;
@@ -143,19 +148,14 @@ int main(int argc, char *argv[])
 	init_func(mesh, rans, ans);
 	init_bnd(mesh, B, bnd);
 	Ans.resize(F.size());
-	sphere_laplace_solve(&Ans[0], mesh, &F[0], &B[0]);
-//	fprintf(stderr, "answer: 1\n");
-//	vector_print(&Ans[0], Ans.size());
-//	fprintf(stderr, "real:   2\n");
-//	vector_print(&rans[0], rans.size());
-	fprintf(stderr, "err=%.2le\n", nr2(&Ans[0], &rans[0], rans.size()));
 
-	{
-		FILE * f = fopen("answer.txt", "wb");
-		print_function(f, &Ans[0], mesh, x, y, z);
-		fclose(f);
+	SphereChafe schafe(mesh, tau, sigma, mu);
+	print_function(stdout, &F[0], mesh, x, y, z);
 
-		fprintf(stderr, "answer saved to 'answer.txt'\n");
+	for (i = 0; i < steps; ++i) {
+		schafe.solve(&Ans[0], &F[0], &B[0]);
+		print_function(stdout, &Ans[0], mesh, x, y, z);
 	}
+
 	return 0;
 }
