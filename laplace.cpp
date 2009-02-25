@@ -36,20 +36,27 @@
 
 using namespace std;
 
-double laplace_right_part_cb( const Polynom & phi_i,
-                              const Polynom & phi_j,
-                              int point, /* номер точки */
-                              int trk_i, /* номер треугольника */
-                              const Mesh & m,
-                              laplace_right_part_cb_data * d)
+struct laplace_right_part_cb_data
 {
-	double * F = d->F;
+	const double * F;
+	const double * bnd;
+};
+
+static double 
+laplace_right_part_cb( const Polynom & phi_i,
+                       const Polynom & phi_j,
+                       int point, /* номер точки */
+                       int trk_i, /* номер треугольника */
+                       const Mesh & m,
+                       laplace_right_part_cb_data * d)
+{
+	const double * F = d->F;
 	const Triangle & trk    = m.tr[trk_i];
 	double b;
 
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
-		double * bnd = d->bnd;
+		const double * bnd = d->bnd;
 		Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) 
 			+ diff(phi_j, 1) * diff(phi_i, 1);
 		b = - bnd[j0] * integrate(poly, trk, m.ps);
@@ -59,12 +66,13 @@ double laplace_right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
-double laplace_integrate_cb( const Polynom & phi_i,
-                             const Polynom & phi_j, 
-                             int point, /* номер точки */
-                             int trk_i, /* номер треугольника */
-                             const Mesh & m,
-                             void * user_data)
+static double 
+laplace_integrate_cb( const Polynom & phi_i,
+                      const Polynom & phi_j, 
+                      int point, /* номер точки */
+                      int trk_i, /* номер треугольника */
+                      const Mesh & m,
+                      void * user_data)
 {
 	const Triangle & trk  = m.tr[trk_i];
 	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
@@ -72,7 +80,8 @@ double laplace_integrate_cb( const Polynom & phi_i,
 	return a;
 }
 
-void laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd)
+void laplace_solve(double * Ans, const Mesh & m, 
+				   const double * F, const double * bnd)
 {
 	//пока используем первый порядок
 	int sz  = m.ps.size();
@@ -97,4 +106,3 @@ void laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd)
 	mke_solve(Ans, bnd, &b[0], A, m);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
-

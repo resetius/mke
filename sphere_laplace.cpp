@@ -64,21 +64,27 @@ static double laplace(const Polynom & phi_i, const Polynom & phi_j,
 	return laplace1(phi_i, phi_j, trk, ps) + laplace2(phi_i, phi_j, trk, ps);
 }
 
+struct slaplace_right_part_cb_data
+{
+	const double * F;
+	const double * bnd;
+};
+
 static double 
 slaplace_right_part_cb( const Polynom & phi_i,
                         const Polynom & phi_j,
                         int point, /* номер точки */
                         int trk_i, /* номер треугольника */
                         const Mesh & m,
-                        laplace_right_part_cb_data * d)
+                        slaplace_right_part_cb_data * d)
 {
-	double * F = d->F;
+	const double * F = d->F;
 	const Triangle & trk    = m.tr[trk_i];
 	double b;
 
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
-		double * bnd = d->bnd;
+		const double * bnd = d->bnd;
 		b = - bnd[j0] * laplace(phi_j, phi_i, trk, m.ps);
 	} else {
 		b = - F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
@@ -99,7 +105,8 @@ slaplace_integrate_cb( const Polynom & phi_i,
 	return a;
 }
 
-void sphere_laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd)
+void sphere_laplace_solve(double * Ans, const Mesh & m, 
+						  const double * F, const double * bnd)
 {
 	//пока используем первый порядок
 	int sz  = m.ps.size();
@@ -112,7 +119,7 @@ void sphere_laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd
 
 	Timer full;
 
-	laplace_right_part_cb_data d;
+	slaplace_right_part_cb_data d;
 	d.F   = F;
 	d.bnd = bnd;
 
@@ -125,3 +132,7 @@ void sphere_laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
+void sphere_chafe_solve(double * Ans, const double * X0,
+						const Mesh & m, const double * bnd, double tau)
+{
+}

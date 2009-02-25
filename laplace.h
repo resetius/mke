@@ -29,27 +29,17 @@
  */
 
 /**
+ * обращает оператор лапласа на плоской области
  * @param Ans - ответ
  * @param m - сетка
  * @param F - правая часть
  * @param bnd - краевое условие
  */
-void laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd);
+void laplace_solve(double * Ans, const Mesh & m, 
+				   const double * F, const double * bnd);
 
-typedef struct laplace_right_part_cb_data
-{
-	double * F;
-	double * bnd;
-};
-
-double laplace_right_part_cb( const Polynom & phi_i,
-                              const Polynom & phi_j,
-                              int point, /* номер точки */
-                              int tr,    /* номер треугольника */
-                              const Mesh & m,
-                              laplace_right_part_cb_data * data);
-
-
-void sphere_laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd);
+/* обращает оператор лапласа на сфере */
+void sphere_laplace_solve(double * Ans, const Mesh & m, 
+						  const double * F, const double * bnd);
 
 #endif /* LAPL_H */
