@@ -32,6 +32,8 @@
 
 #include "polynom.h"
 
+typedef unsigned int uint;
+
 struct Point {
 	double x;
 	double y;

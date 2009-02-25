@@ -107,7 +107,7 @@ double Polynom::apply(double x, double y) const
 
 void Polynom::operator /= (double k)
 {
-	for (size_t i = 0; i < koef_.size(); ++i) {
+	for (uint i = 0; i < koef_.size(); ++i) {
 		koef_[i] /= k;
 	}
 }
@@ -434,7 +434,7 @@ Polynom operator - (const Polynom &p1, const Polynom &p2)
 	assert(p1.n_ == p2.n_);
 
 	Polynom r(std::max(p1.deg_, p2.deg_), p1.n_);
-	for (size_t i = 0; i < r.koef_.size(); ++i) {
+	for (uint i = 0; i < r.koef_.size(); ++i) {
 		r.koef_[i] = p1.koef_[i] - p2.koef_[i];
 	}
 	return r;
@@ -445,7 +445,7 @@ Polynom operator + (const Polynom &p1, const Polynom &p2)
 	assert(p1.n_ == p2.n_);
 
 	Polynom r(std::max(p1.deg_, p2.deg_), p1.n_);
-	for (size_t i = 0; i < r.koef_.size(); ++i) {
+	for (uint i = 0; i < r.koef_.size(); ++i) {
 		r.koef_[i] = p1.koef_[i] + p2.koef_[i];
 	}
 	return r;
@@ -461,7 +461,7 @@ Polynom operator - (const Polynom &p1, double x)
 Polynom operator * (const Polynom &p1, double x)
 {
 	Polynom r(p1);
-	for (size_t i = 0; i < r.koef_.size(); ++i)
+	for (uint i = 0; i < r.koef_.size(); ++i)
 	{
 		r.koef_[i] *= x;
 	}

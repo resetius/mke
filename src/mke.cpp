@@ -50,7 +50,7 @@ vector < Polynom > Mesh::elem1(const Triangle & t) const
 	r.push_back((P2X - t.x(0, ps)) * (t.y(1, ps) - t.y(0, ps)) 
 		- (P2Y - t.y(0, ps)) * (t.x(1, ps) - t.x(0, ps)));
 
-	for (size_t i = 0; i < r.size(); ++i)
+	for (uint i = 0; i < 3; ++i)
 	{
 		r[i] /= r[i].apply(t.x(i, ps), t.y(i, ps));
 	}
@@ -226,7 +226,7 @@ make_inner:
 	outer.reserve(ps.size());
 	p2io.resize(ps.size());
 
-	for (size_t i = 0; i < ps.size(); ++i) {
+	for (uint i = 0; i < ps.size(); ++i) {
 		if (ps_flags[i] == 0) {
 			p2io[i] = inner.size();
 			inner.push_back(i);
@@ -249,7 +249,7 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 					x_t x, x_t y, x_t z)
 {
 	fprintf(to, "# points %lu\n", m.ps.size());
-	for (size_t i = 0; i < m.ps.size(); ++i) {
+	for (uint i = 0; i < m.ps.size(); ++i) {
 		double u = m.ps[i].x;
 		double v = m.ps[i].y;
 		double f = ans[i];
@@ -276,7 +276,7 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 	}
 
 	fprintf(to, "# triangles %lu\n", m.tr.size());
-	for (size_t i = 0; i < m.tr.size(); ++i) {
+	for (uint i = 0; i < m.tr.size(); ++i) {
 		fprintf(to, "%d %d %d\n", 
 			m.tr[i].p[0] + 1, 
 			m.tr[i].p[1] + 1, 
@@ -294,14 +294,14 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 	for (int i = 0; i < rs; ++i) {
 		// по внутренним точкам
 		int p = m.inner[i];
-		for (size_t tk = 0; tk < m.adj[p].size(); ++tk) {
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			Polynom phi_i           = m.elem1(trk, p);
 			vector < Polynom > phik = m.elem1(trk);
 			
-			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
+			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
 				int j    = m.p2io[p2]; //номер внутренней точки
 				if (m.ps_flags[p2] == 1) {
@@ -326,7 +326,7 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 	{
 		// по внутренним точкам
 		int p = m.inner[i];
-		for (size_t tk = 0; tk < m.adj[p].size(); ++tk) {
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
@@ -337,7 +337,7 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			// для вычисления постоянной поправки к правой части?
 			vector < Polynom > phik = m.elem1(trk);
 			
-			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
+			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
 				double a = right_part_cb(phi_i, phik[i0], p2, trk_i, m, user_data);
 				b[i]    += a;

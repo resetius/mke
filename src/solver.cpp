@@ -33,6 +33,8 @@
 #include "util.h"
 #include "gmres.h"
 
+typedef unsigned int uint;
+
 #ifdef SPARSE
 Matrix::Matrix(int n): n_(n), Ap_(n_ + 1), A_(n_)
 #ifndef GMRES
@@ -140,14 +142,14 @@ void Matrix::make_sparse()
 {
 	int nz = 0; // non-null elements
 	int idx = 0;
-	for (size_t i = 0; i < A_.size(); ++i) {
+	for (uint i = 0; i < A_.size(); ++i) {
 		nz += A_[i].size();
 	}
 	Ax_.resize(nz);
 	Ai_.resize(nz);
 
 	Ap_[0] = 0;
-	for (size_t i = 0; i < A_.size(); ++i)
+	for (uint i = 0; i < A_.size(); ++i)
 	{
 		Ap_[i + 1] = Ap_[i] + A_[i].size();
 		for (column_t::iterator it = A_[i].begin();
