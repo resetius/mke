@@ -123,7 +123,7 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 1;
+	int i, steps = 100;
 	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = -70;
@@ -151,10 +151,12 @@ int main(int argc, char *argv[])
 
 	SphereChafe schafe(mesh, tau, sigma, mu);
 	print_function(stdout, &F[0], mesh, x, y, z);
+	fflush(stdout);
 
 	for (i = 0; i < steps; ++i) {
-		schafe.solve(&Ans[0], &F[0], &B[0]);
-		print_function(stdout, &Ans[0], mesh, x, y, z);
+		schafe.solve(&F[0], &F[0], &B[0]);
+		print_function(stdout, &F[0], mesh, x, y, z);
+		fflush(stdout);
 	}
 
 	return 0;
