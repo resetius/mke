@@ -32,6 +32,7 @@
 
 #include "mke.h"
 #include "util.h"
+#include "solver.h"
 
 using namespace std;
 
@@ -282,4 +283,84 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 			m.tr[i].p[2] + 1);
 	}
 	fprintf(to, "# end %lu\n");
+}
+
+void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
+{
+	int rs  = m.inner.size();     // размерность
+
+	Timer t;
+#pragma omp parallel for
+	for (int i = 0; i < rs; ++i) {
+		// по внутренним точкам
+		int p = m.inner[i];
+		for (size_t tk = 0; tk < m.adj[p].size(); ++tk) {
+			// по треугольника в точке
+			int trk_i = m.adj[p][tk];
+			const Triangle & trk    = m.tr[trk_i];
+			Polynom phi_i           = m.elem1(trk, p);
+			vector < Polynom > phik = m.elem1(trk);
+			
+			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
+				int p2   = m.tr[trk_i].p[i0];
+				int j    = m.p2io[p2]; //номер внутренней точки
+				if (m.ps_flags[p2] == 1) {
+					; // граница
+				} else {
+					double a = integrate_cb(phi_i, phik[i0], p2, trk_i, m, user_data);
+					A.add(i, j, a);
+				}
+			}
+		}
+	}
+	fprintf(stderr, "generate_matrix: %lf \n", t.elapsed()); 
+}
+
+void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
+{
+	int rs  = m.inner.size();     // размерность
+
+	Timer t;
+#pragma omp parallel for
+	for (int i = 0; i < rs; ++i)
+	{
+		// по внутренним точкам
+		int p = m.inner[i];
+		for (size_t tk = 0; tk < m.adj[p].size(); ++tk) {
+			// по треугольника в точке
+			int trk_i = m.adj[p][tk];
+			const Triangle & trk    = m.tr[trk_i];
+			Polynom phi_i           = m.elem1(trk, p);
+			vector < Polynom > phik = m.elem1_inner(trk);
+			
+			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
+				int p2   = m.tr[trk_i].p[i0];
+				double a = right_part_cb(phi_i, phik[i0], p2, trk_i, m, user_data);
+				b[i]    += a;
+			}
+		}
+	}
+	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
+}
+
+void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
+{
+	int sz  = m.ps.size();
+	int rs  = m.inner.size();     // размерность
+	vector < double > x(rs);      // ответ
+
+	Timer t;
+	fprintf(stderr, "solve %dx%d: \n", rs, rs);
+	A.solve(&b[0], &x[0]);
+	fprintf(stderr, "mke_solve: %lf \n", t.elapsed());
+
+	for (int i = 0; i < sz; ++i) {
+		if (m.ps_flags[i] == 1) {
+			//внешняя
+			Ans[i] = bnd[m.p2io[i]];
+		} else {
+			//внутренняя
+			Ans[i] = x[m.p2io[i]];
+		}
+	}
 }

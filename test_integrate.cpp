@@ -159,6 +159,8 @@ void test_sphere_area()
 	fprintf(stderr, "S1 + S2 + S3 + S4 = %.16lf\n", S1 + S2 + S3 + S4);
 	fprintf(stderr, "                  = %.16lf\n", M_PI / 2);
 
+	fprintf(stderr, "... = %.16lf\n", M_PI/ 4. * (sin(M_PI / 2.) - sin(M_PI / 4.)));
+
 	fprintf(stderr, "done\n");
 }
 
@@ -168,8 +170,8 @@ int main()
 	//test_simple2();
 	//test_elem();
 	//test_simple3();
-	//test_sphere_area();
-	test_trapezoid_cos();
+	test_sphere_area();
+	//test_trapezoid_cos();
 	return 0;
 }
 

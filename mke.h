@@ -148,7 +148,7 @@ typedef double (* right_part_cb_t)
  const Polynom & phi_j, 
  int point, /* номер точки */
  int tr,    /* номер треугольника */
- Mesh & mesh,
+ const Mesh & mesh,
  void * user_data /* сюда могу входить любые данные, 
 				     например значение F на пред шаге*/
  );
@@ -158,7 +158,7 @@ typedef double (* right_part_cb_t)
  * Вызывает right_part_cb_t для всех функций phi_i, phi_j, определенных
  * в общей точке point на треугольнике tr
  */
-void generate_right_part(double * b, right_part_cb_t right_part_cb, void * user_data);
+void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
 
 
 /**
@@ -170,9 +170,8 @@ typedef double (* integrate_cb_t)
  const Polynom & phi_j, 
  int point, /* номер точки */
  int tr,    /* номер треугольника */
- Mesh & mesh,
- void * user_data /* сюда могу входить любые данные,
-				     например значение на границе */
+ const Mesh & mesh,
+ void * user_data /* сюда могу входить любые данные */
  );
 
 /**
@@ -180,11 +179,11 @@ typedef double (* integrate_cb_t)
  * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
  * в общей точке point на треугольнике tr
  */
-void generate_matrix(Matrix & m, integrate_cb_t integrate_cb, void * user_data);
+void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
 
 /**
  * Решает систему
  */
-void mke_solve(double * answer, double * rp, Matrix & m, Mesh & mesh);
+void mke_solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
 
 #endif /* MKE_H */

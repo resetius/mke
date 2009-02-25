@@ -32,8 +32,45 @@
 #include "mke.h"
 #include "util.h"
 #include "solver.h"
+#include "laplace.h"
 
 using namespace std;
+
+double laplace_right_part_cb( const Polynom & phi_i,
+                              const Polynom & phi_j,
+                              int point, /* номер точки */
+                              int trk_i, /* номер треугольника */
+                              const Mesh & m,
+                              laplace_right_part_cb_data * d)
+{
+	double * F = d->F;
+	const Triangle & trk    = m.tr[trk_i];
+	double b = - F[point] * integrate(phi_i * phi_j, trk, m.ps);
+
+	if (m.ps_flags[point] == 1) { // на границе
+		int j0       = m.p2io[point]; //номер внешней точки
+		double * bnd = d->bnd;
+		Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) 
+			+ diff(phi_j, 1) * diff(phi_i, 1);
+		b -= bnd[j0] * integrate(poly, trk, m.ps);
+	}
+	return b;
+}
+
+double laplace_integrate_cb( const Polynom & phi_i,
+                             const Polynom & phi_j, 
+                             int point, /* номер точки */
+                             int trk_i, /* номер треугольника */
+                             const Mesh & m,
+                             void * user_data)
+{
+	const Triangle & trk  = m.tr[trk_i];
+	int j = m.p2io[point]; //номер внутренней точки
+	
+	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
+	double a = integrate(poly, trk, m.ps);
+	return a;
+}
 
 void laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd)
 {
@@ -48,89 +85,14 @@ void laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd)
 
 	Timer full;
 
-	fprintf(stderr, "build 1: ");
-	Timer build;
+	laplace_right_part_cb_data d;
+	d.F   = F;
+	d.bnd = bnd;
 
-#pragma omp parallel for
-	for (int i = 0; i < rs; ++i)
-	{
-		// по внутренним точкам
-		int p = m.inner[i];
-		for (size_t tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольника в точке
-			int trk_i = m.adj[p][tk];
-			const Triangle & trk    = m.tr[trk_i];
-			Polynom phi_i           = m.elem1(trk, p);
-			vector < Polynom > phik = m.elem1_inner(trk);
-
-			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
-				int p2 = m.tr[trk_i].p[i0];
-				//Polynom tmp = phi_i * phik[i0];
-				b[i] += - F[p2] * integrate(phi_i * phik[i0], trk, m.ps);
-				//b[i] += - F[p2] * integrate(phik[i0], trk, m.ps);
-			}
-		}
-	}
-
-	fprintf(stderr, "%lf \n", build.elapsed()); build.restart();
-	//exit(0);
-	fprintf(stderr, "build 2: ");
-
-#pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
-		// по внутренним точкам
-		int p = m.inner[i];
-		for (size_t tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольника в точке
-			int trk_i = m.adj[p][tk];
-			const Triangle & trk    = m.tr[trk_i];
-			Polynom phi_i           = m.elem1(trk, p);
-			vector < Polynom > phik = m.elem1(trk);
-
-			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
-				int p2 = m.tr[trk_i].p[i0];
-				if (m.ps_flags[p2] == 1) {
-					//в случае ненулевых краевых условий это должно уйти в b[i]
-					int j0 = m.p2io[p2]; //номер внешней точки
-					Polynom poly = diff(phik[i0], 0) * diff(phi_i, 0)
-						+ diff(phik[i0], 1) * diff(phi_i, 1);
-					b[i] -= bnd[j0] * integrate(poly, trk, m.ps);
-				} else {
-					int j = m.p2io[p2]; //номер внутренней точки
-
-					Polynom poly = diff(phik[i0], 0) * diff(phi_i, 0) 
-						+ diff(phik[i0], 1) * diff(phi_i, 1);
-					double a = integrate(poly, trk, m.ps);
-					A.add(i, j, a);
-				}
-			}
-		}
-	}
-	fprintf(stderr, "%lf \n", build.elapsed()); 
+	generate_matrix(A, m, laplace_integrate_cb, 0);
+	generate_right_part(&b[0], m, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
+	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
+	mke_solve(Ans, bnd, &b[0], A, m);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
-
-//	printf("matrix:\n");
-//	matrix_print(&A[0], rs);
-
-//	printf("vector:\n");
-//	vector_print(&b[0], rs);
-
-	fprintf(stderr, "solve %dx%d: \n", rs, rs);
-//	A.print();
-
-	Timer solve;
-	A.solve(&b[0], &x[0]);
-	fprintf(stderr, "done: %lf \n", solve.elapsed());
-	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
-
-	for (int i = 0; i < sz; ++i) {
-		if (m.ps_flags[i] == 1) {
-			//внешняя
-			Ans[i] = bnd[m.p2io[i]];
-		} else {
-			//внутренняя
-			Ans[i] = x[m.p2io[i]];
-		}
-	}
 }
 
