@@ -36,40 +36,6 @@
 
 extern "C" {
 
-#if 1
-double
-ipow(double x, int p)
-{
-	int i;
-	double r = 1;
-	for (i = 0; i < p; i++) {
-		r *= x;
-	}
-	return r;
-}
-#endif
-
-#if 0
-double
-ipow(double x, int n)
-{
-	double p, y;
-	y = 1.0;
-	p = x;
-
-	while (1) {
-		if (n & 1) {
-			y = p * y;
-		}
-		n = n >> 1;
-		if (n == 0) {
-			return y;
-		}
-		p = p * p;
-	}
-}
-#endif
-
 /**
  * Gauss
  * Copyright (c) 2009 Andrey Kornev, Andrey Ivanchikov, Alexey Ozeritsky
