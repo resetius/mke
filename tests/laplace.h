@@ -57,6 +57,8 @@ private:
 	Matrix laplace_; /* Лапласиан */
 	Matrix A_;       /* Матрица левой части */
 	double tau_;
+	double mu_;
+	double sigma_;
 
 	integrate_cb_data data1_;
 

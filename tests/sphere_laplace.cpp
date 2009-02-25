@@ -225,10 +225,10 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	laplace_.mult_vector(&delta_u[0], &u[0]);
 
 	// u/dt + mu \Delta u / 2
-	vector_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, 0.5, rs);
+	vector_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, mu_ * 0.5, rs);
 
 	// u/dt + mu \Delta u / 2 - \sigma u / 2
-	vector_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -0.5, rs);
+	vector_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
 
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
