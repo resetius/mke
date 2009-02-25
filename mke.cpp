@@ -331,7 +331,11 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			Polynom phi_i           = m.elem1(trk, p);
-			vector < Polynom > phik = m.elem1_inner(trk);
+			//vector < Polynom > phik = m.elem1_inner(trk);
+			
+			// если граница не меняется по времени, то надо делать отдельный callback
+			// для вычисления постоянной поправки к правой части?
+			vector < Polynom > phik = m.elem1(trk);
 			
 			for (size_t i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];

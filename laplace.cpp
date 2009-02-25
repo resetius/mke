@@ -45,14 +45,16 @@ double laplace_right_part_cb( const Polynom & phi_i,
 {
 	double * F = d->F;
 	const Triangle & trk    = m.tr[trk_i];
-	double b = - F[point] * integrate(phi_i * phi_j, trk, m.ps);
+	double b;
 
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		double * bnd = d->bnd;
 		Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) 
 			+ diff(phi_j, 1) * diff(phi_i, 1);
-		b -= bnd[j0] * integrate(poly, trk, m.ps);
+		b = - bnd[j0] * integrate(poly, trk, m.ps);
+	} else {
+		b = - F[point] * integrate(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -91,6 +93,8 @@ void laplace_solve(double * Ans, const Mesh & m, double * F, double * bnd)
 
 	generate_matrix(A, m, laplace_integrate_cb, 0);
 	generate_right_part(&b[0], m, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
+	//A.print();
+	//vector_print(&b[0], rs);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
 	mke_solve(Ans, bnd, &b[0], A, m);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
