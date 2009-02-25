@@ -67,8 +67,6 @@ double laplace_integrate_cb( const Polynom & phi_i,
                              void * user_data)
 {
 	const Triangle & trk  = m.tr[trk_i];
-	int j = m.p2io[point]; //номер внутренней точки
-	
 	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
 	double a = integrate(poly, trk, m.ps);
 	return a;
