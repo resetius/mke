@@ -43,16 +43,31 @@ struct Polynom {
  * @param n - размерность (число независимых переменных, например полином от x, полином от x,y, полином от x,y,z)
  * @return полином
  */
-	Polynom(int deg, int n);
-	Polynom(int deg, int n, double * koef, int l);
-	~Polynom();
+	Polynom(int deg, int n)
+		: deg_(deg), n_(n), size_((deg + 1) * (deg + 1)), koef_(size_)
+	{
+	}
+
+	Polynom(int deg, int n, double * koef, int l)
+		: deg_(deg), n_(n), size_((deg + 1) * (deg + 1)), koef_(size_)
+	{
+		memcpy(&koef_[0], koef, l * sizeof(double));
+	}
+
+	~Polynom() {}
 
 	void print() const;
 
 	double apply(const double * x) const;
 	double apply(double x, double y) const;
 
-	void operator /= (double k);
+	void operator /= (double k) {
+		uint sz   = koef_.size();
+		double k1 = 1.0 / k;
+		for (uint i = 0; i < sz; ++i) {
+			koef_[i] *= k1;
+		}
+	}
 };
 
 extern const Polynom P2X; //p(x, y) = x
@@ -78,7 +93,22 @@ Polynom operator - (const Polynom &p1, const Polynom &p2);
 //!сумма полиномов
 Polynom operator + (const Polynom &p1, const Polynom &p2);
 
-Polynom operator - (const Polynom &p1, double k);
-Polynom operator * (const Polynom &p1, double k);
+inline Polynom operator - (const Polynom &p1, double x)
+{
+	Polynom r(p1);
+	r.koef_[0] -= x;
+	return r;
+}
+
+inline Polynom operator * (const Polynom &p1, double x)
+{
+	Polynom r(p1);
+	uint sz = r.koef_.size();
+	for (uint i = 0; i < sz; ++i)
+	{
+		r.koef_[i] *= x;
+	}
+	return r;
+}
 
 #endif /* POLYNOM_H */

@@ -41,21 +41,6 @@
 
 using namespace std;
 
-Polynom::Polynom(int deg, int n)
-	: deg_(deg), n_(n), size_((deg + 1) * (deg + 1)), koef_(size_)
-{
-}
-
-Polynom::Polynom(int deg, int n, double * koef, int l)
-	: deg_(deg), n_(n), size_((deg + 1) * (deg + 1)), koef_(size_)
-{
-	memcpy(&koef_[0], koef, l * sizeof(double));
-}
-
-Polynom::~Polynom()
-{
-}
-
 static double
 Polynom_apply_1(const Polynom * p, const double * x)
 {
@@ -103,13 +88,6 @@ double Polynom::apply(double x, double y) const
 {
 	double x1 [] = {x, y};
 	return apply(x1);
-}
-
-void Polynom::operator /= (double k)
-{
-	for (uint i = 0; i < koef_.size(); ++i) {
-		koef_[i] /= k;
-	}
 }
 
 //0,0 ; 0,1; 1,0; 1,1
@@ -447,23 +425,6 @@ Polynom operator + (const Polynom &p1, const Polynom &p2)
 	Polynom r(std::max(p1.deg_, p2.deg_), p1.n_);
 	for (uint i = 0; i < r.koef_.size(); ++i) {
 		r.koef_[i] = p1.koef_[i] + p2.koef_[i];
-	}
-	return r;
-}
-
-Polynom operator - (const Polynom &p1, double x)
-{
-	Polynom r(p1);
-	r.koef_[0] -= x;
-	return r;
-}
-
-Polynom operator * (const Polynom &p1, double x)
-{
-	Polynom r(p1);
-	for (uint i = 0; i < r.koef_.size(); ++i)
-	{
-		r.koef_[i] *= x;
 	}
 	return r;
 }

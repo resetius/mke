@@ -114,7 +114,7 @@ inline double CNK(int n,int k)
 	return Cnk[n][k];
 }
 
-static double 
+inline double 
 ssum(double x, int k, int n, double k1, double b1, 
 			  double k2, double b2)
 {
