@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
 	vector < double > U;
 	vector < double > B;
 	vector < double > Ans;
+	vector < double > P;
 
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
@@ -126,6 +127,7 @@ int main(int argc, char *argv[])
 
 	init_func(mesh, U, ans, 0.0);
 	Ans.resize(U.size());
+	P.resize(mesh.inner.size());
 
 	SphereChafe schafe(mesh, tau, sigma, mu);
 //	print_function(stdout, &F[0], mesh, x, y, z);
@@ -139,8 +141,13 @@ int main(int argc, char *argv[])
 		{
 			init_func(mesh, Ans, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), nr2(&U[0], &Ans[0], U.size()));
-			vector_print(&U[0], U.size());
-			vector_print(&Ans[0], U.size());
+//			vector_print(&U[0], U.size());
+//			vector_print(&Ans[0], U.size());
+
+			mke_u2p(&P[0], &U[0], mesh);
+			vector_print(&P[0], P.size());
+			mke_u2p(&P[0], &Ans[0], mesh);
+			vector_print(&P[0], P.size());
 		}
 
 //		print_function(stdout, &F[0], mesh, x, y, z);
