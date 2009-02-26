@@ -104,7 +104,7 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 5;
+	int i, steps = 1;
 	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = -70;
@@ -139,6 +139,8 @@ int main(int argc, char *argv[])
 		{
 			init_func(mesh, Ans, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), nr2(&U[0], &Ans[0], U.size()));
+			vector_print(&U[0], U.size());
+			vector_print(&Ans[0], U.size());
 		}
 
 //		print_function(stdout, &F[0], mesh, x, y, z);
