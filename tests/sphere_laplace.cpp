@@ -184,7 +184,7 @@ schafe_right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = - bnd[j0] * schafe_integrate_cb(phi_j, phi_i, 
+		b = - bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
 			point, trk_i, m, d->d2);
 	} else {
 		b = - F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
