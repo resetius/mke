@@ -32,6 +32,11 @@
 extern "C" {
 #endif
 
+
+#ifdef WIN32
+#define inline __inline
+#endif
+
 #if 1
 inline double
 ipow(double x, int p)

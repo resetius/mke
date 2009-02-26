@@ -30,6 +30,8 @@
 
 #include <vector>
 
+typedef unsigned int uint;
+
 struct Polynom {
 	int deg_;                     /* !<degree    */
 	int n_;                       /* !<dimension */
