@@ -46,53 +46,34 @@ void usage(const char * name)
 	exit(1);
 }
 
-double rp(double x, double y)
+double ans(double x, double y, double t)
 {
-	//return -16.0 * sin(y) * sin(4.0 * x) 
-	//	- sin(y) * sin(4.0 * x) / cos(x) / cos(x);
-
-	return -6.0 * sin(y) * sin(2.0 * x);
-
-	//return -1.0 / cos(x) / cos(x) * sin(y) * sin(2.0 * x) -
-	//	2.0 * sin(x) / cos(x) * sin(y) * cos(2.0 * x) -
-	//	4.0 * sin(y) * sin(2.0 * x);
-
-	//return -1.0 / cos(x) / cos(x) * sin(y) * sin(4.0 * x) -
-	//	4.0 * sin(x) / cos(x) * sin(y) * cos(4.0 * x) -
-	//	16.0 * sin(y) * sin(4.0 * x);
+	return exp(t) * sin(y) * sin(2.0 * x);
 }
 
-double ans(double x, double y)
+double bnd(double x, double y, double t)
 {
-	return sin(y) * sin(2.0 * x);
-	//return sin(y) * sin(4.0 * x);
-	//return 0.0;
-}
-
-double bnd(double x, double y)
-{
-	return ans(x, y);
-	//return 0.0;
+	return ans(x, y, t);
 }
 
 template < typename T >
-void init_bnd(Mesh & m, vector < double > & F, T f)
+void init_bnd(Mesh & m, vector < double > & F, T f, double t)
 {
 	F.resize(m.outer.size());
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
 		Point & p = m.ps[p0];
-		F[i] = f(p.x, p.y);
+		F[i] = f(p.x, p.y, t);
 	}
 }
 
 template < typename T >
-void init_func(Mesh & mesh, vector < double > & F, T f)
+void init_func(Mesh & mesh, vector < double > & F, T f, double t)
 {
 	F.resize(mesh.ps.size());
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
-		F[i] = f(mesh.ps[i].x, mesh.ps[i].y);
+		F[i] = f(mesh.ps[i].x, mesh.ps[i].y, t);
 	}
 }
 
@@ -123,15 +104,14 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 100;
+	int i, steps = 5;
 	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = -70;
 
-	vector < double > F;
+	vector < double > U;
 	vector < double > B;
 	vector < double > Ans;
-	vector < double > rans;
 
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
@@ -144,20 +124,27 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	init_func(mesh, F, rp);
-	init_func(mesh, rans, ans);
-	init_bnd(mesh, B, bnd);
-	Ans.resize(F.size());
+	init_func(mesh, U, ans, 0.0);
+	Ans.resize(U.size());
 
 	SphereChafe schafe(mesh, tau, sigma, mu);
-	print_function(stdout, &F[0], mesh, x, y, z);
-	fflush(stdout);
+//	print_function(stdout, &F[0], mesh, x, y, z);
+//	fflush(stdout);
 
 	for (i = 0; i < steps; ++i) {
-		schafe.solve(&F[0], &F[0], &B[0]);
-		print_function(stdout, &F[0], mesh, x, y, z);
-		fflush(stdout);
+		init_bnd(mesh, B, bnd, tau * i);
+		schafe.solve(&U[0], &U[0], &B[0]);
+
+		// check
+		{
+			init_func(mesh, Ans, ans, tau * (i + 1));
+			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), nr2(&U[0], &Ans[0], U.size()));
+		}
+
+//		print_function(stdout, &F[0], mesh, x, y, z);
+//		fflush(stdout);
 	}
 
 	return 0;
 }
+

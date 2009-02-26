@@ -132,9 +132,10 @@ void sphere_laplace_solve(double * Ans, const Mesh & m,
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
-static double f(double u)
+static double f(double u, double mu, double sigma)
 {
-	return -u * u * u;
+	return (1.0 * 6.0 * mu + sigma) * u;
+//	return -u * u * u;
 }
 
 static double 
@@ -233,7 +234,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i) {
-		u[i] = delta_u[i] + f(u[i]);
+		u[i] = delta_u[i] + f(u[i], mu_, sigma_);
 	}
 
 	mke_p2u(&p[0], &u[0], bnd, m_);
@@ -248,3 +249,4 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	//A_.print();
 	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
 }
+
