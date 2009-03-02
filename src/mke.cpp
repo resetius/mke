@@ -361,26 +361,27 @@ void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const M
 }
 
 /* добавляем краевые условия */
-void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m)
+void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 {
 	int sz  = m.ps.size();
 
 	for (int i = 0; i < sz; ++i) {
 		if (m.ps_flags[i] == 1) {
 			//внешняя
-			p[i] = bnd[m.p2io[i]];
+			u[i] = bnd[m.p2io[i]];
 		} else {
 			//внутренняя
-			p[i] = u[m.p2io[i]];
+			u[i] = p[m.p2io[i]];
 		}
 	}
 }
 
 /* убираем краевые условия */
-void mke_u2p(double * u, const double * p, const Mesh & m)
+void mke_u2p(double * p, const double * u, const Mesh & m)
 {
 	int j = 0;
 	for (int i = 0; i < (int)m.inner.size(); ++i) {
-		u[j++] = p[m.inner[i]];
+		p[j++] = u[m.inner[i]];
 	}
 }
+
