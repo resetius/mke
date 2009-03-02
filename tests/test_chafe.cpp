@@ -117,11 +117,11 @@ int main(int argc, char *argv[])
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
 
-	Chafe schafe(mesh, tau, sigma, mu);
+	Chafe chafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
 		init_bnd(mesh, B, bnd, tau * (i + 1));
-		schafe.solve(&U[0], &U[0], &B[0]);
+		chafe.solve(&U[0], &U[0], &B[0]);
 
 		// check
 		{
