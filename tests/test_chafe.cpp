@@ -48,7 +48,7 @@ void usage(const char * name)
 
 double ans(double x, double y, double t)
 {
-	return exp(t) * sin(y) * sin(2.0 * x);
+	return exp(t) * x * (x - 1) * y * (y - 1);
 }
 
 double bnd(double x, double y, double t)
@@ -86,21 +86,6 @@ double nr2(double * a, double * b, int n)
 	return sqrt(sum);
 }
 
-static double x(double u, double v)
-{
-	return cos(u) * cos(v);
-}
-
-static double y(double u, double v)
-{
-	return cos(u) * sin(v);
-}
-
-static double z(double u, double v)
-{
-	return sin(u);
-}
-
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
@@ -132,7 +117,7 @@ int main(int argc, char *argv[])
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
 
-	SphereChafe schafe(mesh, tau, sigma, mu);
+	Chafe schafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
 		init_bnd(mesh, B, bnd, tau * i);

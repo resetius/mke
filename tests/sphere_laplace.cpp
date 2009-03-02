@@ -193,7 +193,8 @@ schafe_right_part_cb( const Polynom & phi_i,
 }
 
 SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
-	: m_(m), laplace_(m.inner.size()), A_(m.inner.size()), tau_(tau)
+	: m_(m), laplace_(m.inner.size()), A_(m.inner.size()), 
+	tau_(tau), mu_(mu), sigma_(sigma)
 {
 	/* Лапласиан */
 	generate_matrix(laplace_, m_, slaplace_integrate_cb, 0);

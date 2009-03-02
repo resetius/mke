@@ -106,3 +106,126 @@ void laplace_solve(double * Ans, const Mesh & m,
 	mke_solve(Ans, bnd, &b[0], A, m);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
+
+static double f(double u, double mu, double sigma)
+{
+//	return (1.0 + 6.0 * mu + sigma) * u;
+//	return -u * u * u;
+	return u;
+}
+
+static double 
+chafe_integrate_cb( const Polynom & phi_i,
+                     const Polynom & phi_j, 
+                     int point, /* номер точки */
+                     int trk_i, /* номер треугольника */
+                     const Mesh & m,
+					 Chafe::integrate_cb_data * d)
+{
+	double tau   = d->tau;
+	double mu    = d->mu;
+	double sigma = d->sigma;
+
+	const Triangle & trk  = m.tr[trk_i];
+	double pt1, pt2;
+
+	pt1  = integrate_cos(phi_j * phi_i, trk, m.ps);
+	pt1 *= 1.0 / tau + sigma * 0.5;
+
+	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
+	double a = integrate(poly, trk, m.ps);
+
+	pt2  = -a;
+	pt2 *= -0.5 * mu;
+
+	return pt1 + pt2;
+}
+
+struct chafe_right_part_cb_data
+{
+	const double * F;
+	const double * bnd;
+	Chafe::integrate_cb_data * d2;
+};
+
+static double 
+chafe_right_part_cb( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      int point, /* номер точки */
+                      int trk_i, /* номер треугольника */
+                      const Mesh & m,
+                      chafe_right_part_cb_data * d)
+{
+	const double * F = d->F;
+	const Triangle & trk    = m.tr[trk_i];
+	double b;
+
+	if (m.ps_flags[point] == 1) { // на границе
+		int j0       = m.p2io[point]; //номер внешней точки
+		const double * bnd = d->bnd;
+		b = - bnd[j0] * chafe_integrate_cb(phi_i, phi_j, 
+			point, trk_i, m, d->d2);
+	} else {
+		b = F[point] * integrate(phi_i * phi_j, trk, m.ps);
+	}
+	return b;
+}
+
+Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
+	: m_(m), laplace_(m.inner.size()), A_(m.inner.size()), 
+	tau_(tau), mu_(mu), sigma_(sigma)
+{
+	/* Ћапласиан */
+	generate_matrix(laplace_, m_, laplace_integrate_cb, 0);
+
+	/* ћатрица левой части */
+	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+
+	data1_.tau   = tau;
+	data1_.sigma = sigma;
+	data1_.mu    = mu;
+	generate_matrix(A_, m_, (integrate_cb_t)chafe_integrate_cb, (void*)&data1_);
+}
+
+/**
+ * \f$\frac{du}{dt} = \mu \delta u - \sigma u + f (u)\f$
+ */
+void Chafe::solve(double * Ans, const double * X0,
+						const double * bnd)
+{
+	int rs  = m_.inner.size();
+	int sz  = m_.ps.size();
+	vector < double > u(rs);
+	vector < double > p(sz);
+	vector < double > delta_u(rs);
+
+	// генерируем правую часть
+	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
+
+	mke_u2p(&u[0], X0, m_);
+	laplace_.mult_vector(&delta_u[0], &u[0]);
+
+	// u/dt + mu \Delta u / 2
+	vector_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, mu_ * 0.5, rs);
+
+	// u/dt + mu \Delta u / 2 - \sigma u / 2
+	vector_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
+
+	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
+#pragma omp parallel for
+	for (int i = 0; i < rs; ++i) {
+		u[i] = delta_u[i] + f(u[i], mu_, sigma_);
+	}
+
+	mke_p2u(&p[0], &u[0], bnd, m_);
+	chafe_right_part_cb_data data2;
+	data2.F   = &p[0];
+	data2.bnd = bnd;
+	data2.d2  = &data1_;
+	generate_right_part(&delta_u[0], m_, 
+		(right_part_cb_t)chafe_right_part_cb, (void*)&data2);
+
+	//vector_print(&delta_u[0], rs);
+	//A_.print();
+	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
+}

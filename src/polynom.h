@@ -29,6 +29,7 @@
  */
 
 #include <vector>
+#include <string.h>
 
 typedef unsigned int uint;
 

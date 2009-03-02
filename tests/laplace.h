@@ -70,4 +70,31 @@ public:
 						const double * bnd);
 };
 
+class Chafe {
+public:
+	struct integrate_cb_data
+	{
+		double tau;
+		double mu;
+		double sigma;
+	};
+
+private:
+	const Mesh & m_;
+	Matrix laplace_; /* Лапласиан */
+	Matrix A_;       /* Матрица левой части */
+	double tau_;
+	double mu_;
+	double sigma_;
+
+	integrate_cb_data data1_;
+
+public:
+	Chafe(const Mesh & m, double tau, double sigma, double mu);
+	~Chafe() {}
+
+	void solve(double * Ans, const double * X0,
+						const double * bnd);
+};
+
 #endif /* LAPL_H */
