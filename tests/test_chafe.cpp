@@ -89,8 +89,8 @@ double nr2(double * a, double * b, int n)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 10;
-	double tau   = 0.0001;
+	int i, steps = 100;
+	double tau   = 0.001; //r5 => h = 0.03
 	double mu    = 1.0;
 	double sigma = +70;
 
