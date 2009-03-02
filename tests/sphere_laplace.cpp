@@ -134,7 +134,7 @@ void sphere_laplace_solve(double * Ans, const Mesh & m,
 
 static double f(double u, double mu, double sigma)
 {
-	return (1.0 * 6.0 * mu + sigma) * u;
+	return (1.0 + 6.0 * mu + sigma) * u;
 //	return -u * u * u;
 }
 
@@ -156,7 +156,7 @@ schafe_integrate_cb( const Polynom & phi_i,
 	pt1  = integrate_cos(phi_j * phi_i, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
-	pt2  = laplace(phi_j, phi_i, trk, m.ps);
+	pt2  = -laplace(phi_j, phi_i, trk, m.ps);
 	pt2 *= -0.5 * mu;
 
 	return pt1 + pt2;
@@ -187,7 +187,7 @@ schafe_right_part_cb( const Polynom & phi_i,
 		b = - bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
 			point, trk_i, m, d->d2);
 	} else {
-		b = - F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }

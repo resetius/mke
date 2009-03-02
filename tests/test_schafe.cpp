@@ -104,7 +104,7 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 1000;
+	int i, steps = 1;
 	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = -70;
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < steps; ++i) {
 		init_bnd(mesh, B, bnd, tau * i);
-//		schafe.solve(&U[0], &U[0], &B[0]);
+		schafe.solve(&U[0], &U[0], &B[0]);
 
 		// check
 		{
@@ -145,15 +145,15 @@ int main(int argc, char *argv[])
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
-//			mke_u2p(&P[0], &U[0], mesh);
-//			vector_print(&P[0], P.size());
-//			mke_u2p(&P[0], &Ans[0], mesh);
-//			vector_print(&P[0], P.size());
+			mke_u2p(&P[0], &U[0], mesh);
+			vector_print(&P[0], P.size());
+			mke_u2p(&P[0], &Ans[0], mesh);
+			vector_print(&P[0], P.size());
 		}
 
 //		print_function(stdout, &F[0], mesh, x, y, z);
-		print_function(stdout, &Ans[0], mesh, x, y, z);
-		fflush(stdout);
+//		print_function(stdout, &Ans[0], mesh, x, y, z);
+//		fflush(stdout);
 	}
 
 	return 0;
