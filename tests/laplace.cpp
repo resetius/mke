@@ -113,7 +113,9 @@ static double f(double u, double x, double y, double t,
 	// for test
 	// f(u) = \du/\dt -mu \Delta u + \sigma u
 	double lapl = exp(t) * (2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x);
-	return u - mu * lapl + sigma * u;
+	double uu = exp(t) * x * (x - 1) * y * (y - 1);
+	return uu - mu * lapl + sigma * uu;
+//	return u - mu * lapl + sigma * u;
 //	return -u * u * u;
 }
 
