@@ -107,11 +107,12 @@ void laplace_solve(double * Ans, const Mesh & m,
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
-static double f(double u, double x, double y, double mu, double sigma)
+static double f(double u, double x, double y, double t, 
+				double mu, double sigma)
 {
 	// for test
 	// f(u) = \du/\dt -mu \Delta u + \sigma u
-	double lapl = 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
+	double lapl = exp(t) * (2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x);
 	return u - mu * lapl + sigma * u;
 //	return -u * u * u;
 }
@@ -193,13 +194,14 @@ Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
  * \f$\frac{du}{dt} = \mu \delta u - \sigma u + f (u)\f$
  */
 void Chafe::solve(double * Ans, const double * X0,
-						const double * bnd)
+						const double * bnd, double t)
 {
 	int rs  = m_.inner.size();
 	int sz  = m_.ps.size();
 	vector < double > u(rs);
 	vector < double > p(sz);
 	vector < double > delta_u(rs);
+	vector < double > rp(rs);
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
@@ -213,14 +215,15 @@ void Chafe::solve(double * Ans, const double * X0,
 	// u/dt + mu \Delta u / 2 - \sigma u / 2
 	vector_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
 
+	// TODO: тут надо сделать метод простой итерации
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i) {
-		int point = m_.p2io[i];
+		int point = m_.inner[i];
 		double x  = m_.ps[point].x;
 		double y  = m_.ps[point].y;
 
-		u[i] = delta_u[i] + f(u[i], x, y, mu_, sigma_);
+		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
 	}
 
 	mke_p2u(&p[0], &u[0], bnd, m_);
@@ -228,12 +231,8 @@ void Chafe::solve(double * Ans, const double * X0,
 	data2.F   = &p[0];
 	data2.bnd = bnd;
 	data2.d2  = &data1_;
-	generate_right_part(&delta_u[0], m_, 
+	generate_right_part(&rp[0], m_, 
 		(right_part_cb_t)chafe_right_part_cb, (void*)&data2);
 
-//	fprintf(stderr, "rp:\n"); vector_print(&delta_u[0], rs);
-	//A_.print();
-	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
-
-//	fprintf(stderr, "A:\n"); A_.print();
+	mke_solve(Ans, bnd, &rp[0], A_, m_);
 }

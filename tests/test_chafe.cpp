@@ -89,10 +89,10 @@ double nr2(double * a, double * b, int n)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 1;
-	double tau   = 0.01;
+	int i, steps = 10;
+	double tau   = 0.0001;
 	double mu    = 1.0;
-	double sigma = 0.0;//-70;
+	double sigma = +70;
 
 	vector < double > U;
 	vector < double > B;
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < steps; ++i) {
 		init_bnd(mesh, B, bnd, tau * (i + 1));
-		chafe.solve(&U[0], &U[0], &B[0]);
+		chafe.solve(&U[0], &U[0], &B[0],  tau * (i));
 
 		// check
 		{

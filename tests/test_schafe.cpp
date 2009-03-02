@@ -104,10 +104,10 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 1;
-	double tau   = 0.01;
-	double mu    = 0.0;//1.0;
-	double sigma = 0.0;//-70;
+	int i, steps = 10;
+	double tau   = 0.0001;
+	double mu    = 1.0;
+	double sigma = +70;
 
 	vector < double > U;
 	vector < double > B;

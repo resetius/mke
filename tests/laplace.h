@@ -94,7 +94,7 @@ public:
 	~Chafe() {}
 
 	void solve(double * Ans, const double * X0,
-						const double * bnd);
+						const double * bnd, double t);
 };
 
 #endif /* LAPL_H */
