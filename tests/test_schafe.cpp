@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 	SphereChafe schafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
-		init_bnd(mesh, B, bnd, tau * i);
+		init_bnd(mesh, B, bnd, tau * (i + 1));
 		schafe.solve(&U[0], &U[0], &B[0]);
 
 		// check
@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
-			mke_u2p(&P[0], &U[0], mesh);
-			vector_print(&P[0], P.size());
-			mke_u2p(&P[0], &Ans[0], mesh);
-			vector_print(&P[0], P.size());
+			//mke_u2p(&P[0], &U[0], mesh);
+			//vector_print(&P[0], P.size());
+			//mke_u2p(&P[0], &Ans[0], mesh);
+			//vector_print(&P[0], P.size());
 		}
 
 //		print_function(stdout, &F[0], mesh, x, y, z);

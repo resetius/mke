@@ -326,6 +326,7 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 	{
 		// по внутренним точкам
 		int p = m.inner[i];
+		b[i]  = 0.0;
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];

@@ -107,11 +107,13 @@ void laplace_solve(double * Ans, const Mesh & m,
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
-static double f(double u, double mu, double sigma)
+static double f(double u, double x, double y, double mu, double sigma)
 {
-//	return (1.0 + 6.0 * mu + sigma) * u;
+	// for test
+	// f(u) = \du/\dt -mu \Delta u + \sigma u
+	double lapl = 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
+	return u - mu * lapl + sigma * u;
 //	return -u * u * u;
-	return u;
 }
 
 static double 
@@ -129,7 +131,7 @@ chafe_integrate_cb( const Polynom & phi_i,
 	const Triangle & trk  = m.tr[trk_i];
 	double pt1, pt2;
 
-	pt1  = integrate_cos(phi_j * phi_i, trk, m.ps);
+	pt1  = integrate(phi_j * phi_i, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
 	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
@@ -214,7 +216,11 @@ void Chafe::solve(double * Ans, const double * X0,
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i) {
-		u[i] = delta_u[i] + f(u[i], mu_, sigma_);
+		int point = m_.p2io[i];
+		double x  = m_.ps[point].x;
+		double y  = m_.ps[point].y;
+
+		u[i] = delta_u[i] + f(u[i], x, y, mu_, sigma_);
 	}
 
 	mke_p2u(&p[0], &u[0], bnd, m_);
@@ -225,7 +231,9 @@ void Chafe::solve(double * Ans, const double * X0,
 	generate_right_part(&delta_u[0], m_, 
 		(right_part_cb_t)chafe_right_part_cb, (void*)&data2);
 
-	//vector_print(&delta_u[0], rs);
+//	fprintf(stderr, "rp:\n"); vector_print(&delta_u[0], rs);
 	//A_.print();
 	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
+
+//	fprintf(stderr, "A:\n"); A_.print();
 }
