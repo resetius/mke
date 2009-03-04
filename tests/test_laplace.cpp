@@ -55,7 +55,7 @@ double rp(double x, double y)
 double ans(double x, double y)
 {
 	//return sin(M_PI * x) * sin(M_PI * y);
-	return x * (x - 1) * y * (y - 1) + 1.0;
+	return x * (x - 1) * y * (y - 1);// + 1.0;
 }
 
 double bnd(double x, double y)
@@ -120,6 +120,7 @@ void test_laplace(Mesh & mesh)
 	vector < double > LU1;
 	vector < double > B;
 	vector < double > P;
+	vector < double > P1;
 
 	init_func(mesh, U, ans);
 	init_func(mesh, LU, rp);
@@ -127,14 +128,17 @@ void test_laplace(Mesh & mesh)
 
 	LU1.resize(LU.size());
 	P.resize(mesh.inner.size());
+	P1.resize(mesh.inner.size());
 	laplace_calc(&LU1[0], &U[0], &B[0], mesh);
 
 	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
 
 	mke_u2p(&P[0], &LU[0], mesh);
 	vector_print(&P[0], P.size());
-	mke_u2p(&P[0], &LU1[0], mesh);
-	vector_print(&P[0], P.size());
+	mke_u2p(&P1[0], &LU1[0], mesh);
+	vector_print(&P1[0], P1.size());
+
+	fprintf(stderr, "laplace err=%.2le\n", nr2(&P[0], &P1[0], P.size()));
 }
 
 int main(int argc, char *argv[])
