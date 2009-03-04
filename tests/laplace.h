@@ -43,7 +43,7 @@ void laplace_solve(double * Ans, const Mesh & m,
 void sphere_laplace_solve(double * Ans, const Mesh & m, 
 						  const double * F, const double * bnd);
 
-void laplace_calc(double * Ans, const double * F, const Mesh & m);
+void laplace_calc(double * Ans, const double * F, const double * bnd, const Mesh & m);
 
 class SphereChafe {
 public:

@@ -118,14 +118,23 @@ void test_laplace(Mesh & mesh)
 	vector < double > U;
 	vector < double > LU;
 	vector < double > LU1;
+	vector < double > B;
+	vector < double > P;
 
 	init_func(mesh, U, ans);
 	init_func(mesh, LU, rp);
-	init_func(mesh, LU1, rp);
+	init_bnd(mesh, B, rp);
 
-	laplace_calc(&LU1[0], &LU[0], mesh);
+	LU1.resize(LU.size());
+	P.resize(mesh.inner.size());
+	laplace_calc(&LU1[0], &U[0], &B[0], mesh);
 
 	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
+
+	mke_u2p(&P[0], &LU[0], mesh);
+	vector_print(&P[0], P.size());
+	mke_u2p(&P[0], &LU1[0], mesh);
+	vector_print(&P[0], P.size());
 }
 
 int main(int argc, char *argv[])
