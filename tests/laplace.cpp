@@ -42,6 +42,19 @@ struct laplace_right_part_cb_data
 	const double * bnd;
 };
 
+static double
+laplace(const Polynom & phi_i,
+		const Polynom & phi_j,
+		int trk_i,
+		const Mesh & m
+       )
+{
+	const Triangle & trk    = m.tr[trk_i];
+	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0)
+		+ diff(phi_j, 1) * diff(phi_i, 1);
+	return -integrate(poly, trk, m.ps);
+}
+
 static double 
 laplace_right_part_cb( const Polynom & phi_i,
                        const Polynom & phi_j,
@@ -57,11 +70,9 @@ laplace_right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		const double * bnd = d->bnd;
-		Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) 
-			+ diff(phi_j, 1) * diff(phi_i, 1);
-		b = - bnd[j0] * integrate(poly, trk, m.ps);
+		b = - bnd[j0] * laplace(phi_i, phi_j, trk_i, m);
 	} else {
-		b = - F[point] * integrate(phi_i * phi_j, trk, m.ps);
+		b = F[point] * integrate(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -74,10 +85,7 @@ laplace_integrate_cb( const Polynom & phi_i,
                       const Mesh & m,
                       void * user_data)
 {
-	const Triangle & trk  = m.tr[trk_i];
-	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
-	double a = integrate(poly, trk, m.ps);
-	return a;
+	return laplace(phi_i, phi_j, trk_i, m);
 }
 
 void laplace_solve(double * Ans, const Mesh & m, 
@@ -137,10 +145,9 @@ chafe_integrate_cb( const Polynom & phi_i,
 	pt1  = integrate(phi_j * phi_i, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
-	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0) + diff(phi_j, 1) * diff(phi_i, 1);
-	double a = integrate(poly, trk, m.ps);
+	double a = laplace(phi_i, phi_j, trk_i, m);
 
-	pt2  = -a;
+	pt2  = a;
 	pt2 *= -0.5 * mu;
 
 	return pt1 + pt2;

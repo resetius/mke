@@ -61,7 +61,7 @@ static double laplace2(const Polynom & phi_i, const Polynom & phi_j,
 static double laplace(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps)
 {
-	return laplace1(phi_i, phi_j, trk, ps) + laplace2(phi_i, phi_j, trk, ps);
+	return -(laplace1(phi_i, phi_j, trk, ps) + laplace2(phi_i, phi_j, trk, ps));
 }
 
 struct slaplace_right_part_cb_data
@@ -85,9 +85,9 @@ slaplace_right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = - bnd[j0] * laplace(phi_j, phi_i, trk, m.ps);
+		b = -bnd[j0] * laplace(phi_j, phi_i, trk, m.ps);
 	} else {
-		b = - F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -153,7 +153,7 @@ schafe_integrate_cb( const Polynom & phi_i,
 	const Triangle & trk  = m.tr[trk_i];
 	double pt1, pt2;
 
-	pt1  = integrate_cos(phi_j * phi_i, trk, m.ps);
+	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
 	pt2  = -laplace(phi_j, phi_i, trk, m.ps);
@@ -186,6 +186,7 @@ schafe_right_part_cb( const Polynom & phi_i,
 		const double * bnd = d->bnd;
 		b = -bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
 			point, trk_i, m, d->d2);
+		//b = 0.0;
 	} else {
 		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
@@ -246,8 +247,9 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	generate_right_part(&delta_u[0], m_, 
 		(right_part_cb_t)schafe_right_part_cb, (void*)&data2);
 
-	//vector_print(&delta_u[0], rs);
-	//A_.print();
+	fprintf(stderr, "rp: \n");vector_print(&delta_u[0], rs);
+	fprintf(stderr, "matrix:\n");A_.print();
+//	laplace_.print();
 	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
 }
 
