@@ -183,6 +183,13 @@ chafe_right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
+void laplace_calc(double * Ans, const double * F, const Mesh & m)
+{
+	Matrix laplace_(m.inner.size());
+	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
+	laplace_.mult_vector(&Ans[0], &F[0]);
+}
+
 Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
 	: m_(m), laplace_(m.inner.size()), A_(m.inner.size()), 
 	tau_(tau), mu_(mu), sigma_(sigma)

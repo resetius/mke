@@ -94,14 +94,43 @@ double nr2(double * a, double * b, int n)
 	return sqrt(sum);
 }
 
-int main(int argc, char *argv[])
+void test_invert(Mesh & mesh)
 {
-	Mesh mesh;
 	vector < double > F;
 	vector < double > B;
 	vector < double > Ans;
 	vector < double > rans;
 
+	init_func(mesh, F, rp);
+	init_func(mesh, rans, ans);
+	init_bnd(mesh, B, bnd);
+	Ans.resize(F.size());
+	laplace_solve(&Ans[0], mesh, &F[0], &B[0]);
+//	fprintf(stderr, "1\n");
+//	vector_print(&Ans[0], Ans.size());
+//	fprintf(stderr, "2\n");
+//	vector_print(&rans[0], rans.size());
+	fprintf(stderr, "invert  err=%.2le\n", nr2(&Ans[0], &rans[0], rans.size()));
+}
+
+void test_laplace(Mesh & mesh)
+{
+	vector < double > U;
+	vector < double > LU;
+	vector < double > LU1;
+
+	init_func(mesh, U, ans);
+	init_func(mesh, LU, rp);
+	init_func(mesh, LU1, rp);
+
+	laplace_calc(&LU1[0], &LU[0], mesh);
+
+	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
+}
+
+int main(int argc, char *argv[])
+{
+	Mesh mesh;
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
 		if (!f) {
@@ -113,16 +142,8 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	init_func(mesh, F, rp);
-	init_func(mesh, rans, ans);
-	init_bnd(mesh, B, bnd);
-	Ans.resize(F.size());
-	laplace_solve(&Ans[0], mesh, &F[0], &B[0]);
-//	fprintf(stderr, "1\n");
-//	vector_print(&Ans[0], Ans.size());
-//	fprintf(stderr, "2\n");
-//	vector_print(&rans[0], rans.size());
-	fprintf(stderr, "err=%.2le\n", nr2(&Ans[0], &rans[0], rans.size()));
+	test_invert(mesh);
+	test_laplace(mesh);
 	return 0;
 }
 
