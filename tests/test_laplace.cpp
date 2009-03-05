@@ -111,7 +111,8 @@ void test_invert(Mesh & mesh)
 //	vector_print(&Ans[0], Ans.size());
 //	fprintf(stderr, "2\n");
 //	vector_print(&rans[0], rans.size());
-	fprintf(stderr, "invert  err=%.2le\n", nr2(&Ans[0], &rans[0], rans.size()));
+	fprintf(stderr, "invert  err=%.2le\n", 
+		mke_dist(&Ans[0], &rans[0], mesh));
 }
 
 void test_laplace(Mesh & mesh)
@@ -145,8 +146,8 @@ void test_laplace(Mesh & mesh)
 //	fprintf(stderr, "bnd\n");
 //	vector_print(&B[0], B.size());
 
-	init_bnd(mesh, B, ans);
-	laplace_solve(&LU[0], mesh, &LU1[0], &B[0]);
+//	init_bnd(mesh, B, ans);
+//	laplace_solve(&LU[0], mesh, &LU1[0], &B[0]);
 
 //	fprintf(stderr, "laplace err=%.2le\n", nr2(&U[0], &LU[0], U.size()));
 

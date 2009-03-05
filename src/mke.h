@@ -196,9 +196,9 @@ void mke_u2p(double * u, const double * p, const Mesh & m);
 
 /* сеточное скал€рное произведение двух функций */
 double mke_scalar(const double * u, const double * v, const Mesh & m);
-
+/* сеточна€ норма */
 double mke_norm(const double * u, const Mesh & m);
-
+/* сеточное рассто€ние */
 double mke_dist(const double * u, const double * v, const Mesh & m);
 
 #endif /* MKE_H */
