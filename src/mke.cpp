@@ -356,7 +356,7 @@ void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const M
 
 	Timer t;
 	fprintf(stderr, "solve %dx%d: \n", rs, rs);
-	A.solve(&b[0], &x[0]);
+	A.solve(&x[0], &b[0]);
 	fprintf(stderr, "mke_solve: %lf \n", t.elapsed());
 	mke_p2u(Ans, &x[0], bnd, m);
 }
@@ -386,7 +386,19 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 	}
 }
 
-double mke_scalar(const double * u, const double * v, const Mesh & m)
+double generic_scalar_cb
+(const Polynom & phi_i, 
+ const Polynom & phi_j, 
+ int trk_i,    /* номер треугольника */
+ const Mesh & m,
+ void * user_data /* сюда могу входить любые данные */
+ )
+{
+	const Triangle & trk    = m.tr[trk_i];
+	return integrate(phi_i * phi_j, trk, m.ps);
+}
+
+double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
 	int sz  = m.ps.size(); // размерность
 	vector < double > nr(sz);
@@ -407,7 +419,7 @@ double mke_scalar(const double * u, const double * v, const Mesh & m)
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j = m.tr[trk_i].p[i0];
-				nr[i] += u[i] * v[j] * integrate(phi_i * phik[i0], trk, m.ps);
+				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk_i, m, user_data);
 			}
 		}
 	}
@@ -419,15 +431,15 @@ double mke_scalar(const double * u, const double * v, const Mesh & m)
 	return s;
 }
 
-double mke_norm(const double * u, const Mesh & m)
+double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
-	return sqrt(mke_scalar(u, u, m));
+	return sqrt(mke_scalar(u, u, m, cb, user_data));
 }
 
-double mke_dist(const double * u, const double * v, const Mesh & m)
+double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
 	int sz  = m.ps.size(); // размерность
 	vector < double > diff(sz);
 	vector_diff(&diff[0], u, v, sz);
-	return mke_norm(&diff[0], m);
+	return mke_norm(&diff[0], m, cb, user_data);
 }

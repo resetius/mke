@@ -82,10 +82,10 @@ void Matrix::mult_vector(double * out, const double * in)
 #endif
 }
 
-void Matrix::solve(double * b, double * x)
+void Matrix::solve(double * x, const double * b)
 {
 #ifdef SPARSE
-	solve_sparse(b, x);
+	solve_sparse(x, b);
 #else
 
 #ifdef GMRES
@@ -172,7 +172,7 @@ void Matrix::make_sparse()
 	}
 }
 
-void Matrix::solve_sparse(double * b, double * x)
+void Matrix::solve_sparse(double * x, const double * b)
 {
 	if (Ax_.empty()) {
 		make_sparse();
@@ -182,21 +182,6 @@ void Matrix::solve_sparse(double * b, double * x)
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
-
-	//precond
-	if (0) {
-		int i, i0, j;
-		double * p = &Ax_[0];
-		for (j = 0; j < n_; ++j) {
-			for (i0 = Ap_[j]; i0 < Ap_[j + 1]; ++i0, ++p) {
-				i = Ai_[i0];
-				if (i == j) {
-					b[i] /= *p;
-					*p = 1.0;
-				}
-			}
-		}
-	}
 
 	gmres(&x[0], &A, &b[0], (Ax_t)sparse_mult_vector_l, n_, 100, 1000);
 #else // UMFPACK

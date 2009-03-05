@@ -68,7 +68,7 @@ class Matrix {
 	//заполняет Ap, Ai, Ax по промежуточным данным
 	void make_sparse();
 	void add_sparse(int i, int j, double a);
-	void solve_sparse(double * b, double * x);
+	void solve_sparse(double * x, const double * b);
 
 public:
 	Matrix(int n);
@@ -78,7 +78,7 @@ public:
 	void add(int i, int j, double a);
 
 	// Ax = b
-	void solve(double * b, double * x);
+	void solve(double * x, const double * b);
 	void mult_vector(double * out, const double * in);
 
 	void print();

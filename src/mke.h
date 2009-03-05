@@ -194,11 +194,35 @@ void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 /* убираем краевые услови€ */
 void mke_u2p(double * u, const double * p, const Mesh & m);
 
+/** 
+ * в следующих функци€х вызываетс€ 
+ * scalar_cb_t
+ * дл€ вычислени€ скал€рного произведени€ двух базисных функций 
+ * на треугольнике
+ */
+typedef double (* scalar_cb_t)
+(const Polynom & phi_i, 
+ const Polynom & phi_j, 
+ int tr,    /* номер треугольника */
+ const Mesh & mesh,
+ void * user_data /* сюда могу входить любые данные */
+ );
+
+/* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику */
+double generic_scalar_cb
+(const Polynom & phi_i, 
+ const Polynom & phi_j, 
+ int trk_i,    /* номер треугольника */
+ const Mesh & m,
+ void * user_data /* сюда могу входить любые данные */
+ );
+
 /* сеточное скал€рное произведение двух функций */
-double mke_scalar(const double * u, const double * v, const Mesh & m);
+double mke_scalar(const double * u, const double * v, 
+				  const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 /* сеточна€ норма */
-double mke_norm(const double * u, const Mesh & m);
+double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 /* сеточное рассто€ние */
-double mke_dist(const double * u, const double * v, const Mesh & m);
+double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 
 #endif /* MKE_H */
