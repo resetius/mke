@@ -105,7 +105,7 @@ void Matrix::print()
 	}
 
 	Sparse A;
-        A.Ap = &Ap_[0];
+	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 	sparse_print(&A, n_, stderr);

@@ -221,14 +221,14 @@ void laplace_calc(double * Ans, const double * F, const double * bnd, const Mesh
 	laplace_right_part_cb_data d;
 	d.F = F;
 	generate_right_part(&p1[0], m, (right_part_cb_t)lp_rp, &d);
-	idt_.solve(&p1[0], &p2[0]);
+	idt_.solve(&p2[0], &p1[0]);
 	mke_p2u(Ans, &p2[0], bnd, m);
 #endif
 
 #if 0
 	mke_u2p(&p1[0], &F[0], m);
 	laplace_.mult_vector(&p2[0], &p1[0]);
-	idt_.solve(&p2[0], &p3[0]);
+	idt_.solve(&p3[0], &p2[0]);
 	mke_p2u(Ans, &p3[0], bnd, m);
 #endif
 
