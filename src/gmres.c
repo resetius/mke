@@ -245,7 +245,7 @@ void gmres(double * x, const void * A, const double * b,
 
 	for (i = 0; i < max_it; ++i)
 	{
-		double e  = algorithm6_9(x, A, b, Ax, tol, n, k_dim);
+		double e  = algorithm6_9(x, A, b, Ax, tol * bn, n, k_dim);
 		//double xn = norm2(x, n);
 		e /= bn;
 		fprintf(stderr, "iters = %d, eps = %le\n", i, e);

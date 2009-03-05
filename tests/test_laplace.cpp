@@ -60,8 +60,9 @@ double ans(double x, double y)
 
 double bnd(double x, double y)
 {
+	return ans(x, y);
 	//return 0.0;
-	return 1.0;
+	//return 1.0;
 }
 
 template < typename T >
@@ -133,10 +134,13 @@ void test_laplace(Mesh & mesh)
 
 	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
 
-	mke_u2p(&P[0], &LU[0], mesh);
-	vector_print(&P[0], P.size());
-	mke_u2p(&P1[0], &LU1[0], mesh);
-	vector_print(&P1[0], P1.size());
+//	mke_u2p(&P[0], &LU[0], mesh);
+//	vector_print(&P[0], P.size());
+//	mke_u2p(&P1[0], &LU1[0], mesh);
+//	vector_print(&P1[0], P1.size());
+
+//	fprintf(stderr, "bnd\n");
+//	vector_print(&B[0], B.size());
 
 	fprintf(stderr, "laplace err=%.2le\n", nr2(&P[0], &P1[0], P.size()));
 }

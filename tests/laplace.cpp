@@ -194,20 +194,43 @@ static double id_cb(const Polynom & phi_i,
 	return integrate(phi_i * phi_j, trk, m.ps);
 }
 
+static double lp_rp(const Polynom & phi_i,
+		const Polynom & phi_j,
+		int point,
+		int trk_i,
+		const Mesh & m,
+		laplace_right_part_cb_data * d)
+{
+	const double * F = d->F;
+	double b = 0.0;
+	b = F[point] * laplace(phi_i, phi_j, trk_i, m);
+	return b;
+}
+
 void laplace_calc(double * Ans, const double * F, const double * bnd, const Mesh & m)
 {
 	vector < double > p1(m.inner.size());
 	vector < double > p2(m.inner.size());
 	vector < double > p3(m.inner.size());
-	Matrix laplace_(m.inner.size());
+//	Matrix laplace_(m.inner.size());
 	Matrix idt_(m.inner.size());
-	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
+//	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
 	generate_matrix(idt_, m, id_cb, 0);
 
+#if 1
+	laplace_right_part_cb_data d;
+	d.F = F;
+	generate_right_part(&p1[0], m, (right_part_cb_t)lp_rp, &d);
+	idt_.solve(&p1[0], &p2[0]);
+	mke_p2u(Ans, &p2[0], bnd, m);
+#endif
+
+#if 0
 	mke_u2p(&p1[0], &F[0], m);
 	laplace_.mult_vector(&p2[0], &p1[0]);
 	idt_.solve(&p2[0], &p3[0]);
 	mke_p2u(Ans, &p3[0], bnd, m);
+#endif
 }
 
 Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
