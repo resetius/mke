@@ -142,7 +142,10 @@ void test_laplace(Mesh & mesh)
 //	fprintf(stderr, "bnd\n");
 //	vector_print(&B[0], B.size());
 
-	fprintf(stderr, "laplace err=%.2le\n", nr2(&P[0], &P1[0], P.size()));
+	init_bnd(mesh, B, ans);
+	laplace_solve(&LU[0], mesh, &LU1[0], &B[0]);
+
+	fprintf(stderr, "laplace err=%.2le\n", nr2(&U[0], &LU[0], U.size()));
 }
 
 int main(int argc, char *argv[])
