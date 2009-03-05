@@ -319,6 +319,18 @@ void vector_sum1(double * r, const double * a, const double *b, double k1, doubl
 	}
 }
 
+/**
+ * r = a - b
+ */
+void vector_diff(double * r, const double * a, const double * b, int n)
+{
+	int i;
+#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		r[i] = a[i] - b[i];
+	}
+}
+
 void sparse_print(const struct Sparse * A, int n, FILE * f)
 {
 	int i, i0, j, k, i_old;

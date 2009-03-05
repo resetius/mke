@@ -212,9 +212,9 @@ void laplace_calc(double * Ans, const double * F, const double * bnd, const Mesh
 	vector < double > p1(m.inner.size());
 	vector < double > p2(m.inner.size());
 	vector < double > p3(m.inner.size());
-//	Matrix laplace_(m.inner.size());
+	Matrix laplace_(m.inner.size());
 	Matrix idt_(m.inner.size());
-//	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
+	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
 	generate_matrix(idt_, m, id_cb, 0);
 
 #if 1
@@ -229,6 +229,18 @@ void laplace_calc(double * Ans, const double * F, const double * bnd, const Mesh
 	mke_u2p(&p1[0], &F[0], m);
 	laplace_.mult_vector(&p2[0], &p1[0]);
 	idt_.solve(&p2[0], &p3[0]);
+	mke_p2u(Ans, &p3[0], bnd, m);
+#endif
+
+#if 0
+	laplace_right_part_cb_data d;
+	d.F = F;
+	d.bnd = bnd;
+	generate_right_part(&p1[0], m, 
+		(right_part_cb_t)laplace_right_part_cb, 
+		&d);
+
+	laplace_.mult_vector(&p3[0], &p1[0]);
 	mke_p2u(Ans, &p3[0], bnd, m);
 #endif
 }

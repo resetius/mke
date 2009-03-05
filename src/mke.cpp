@@ -386,3 +386,48 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 	}
 }
 
+double mke_scalar(const double * u, const double * v, const Mesh & m)
+{
+	int sz  = m.ps.size(); // размерность
+	vector < double > nr(sz);
+	double s = 0.0;
+
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i)
+	{
+		// по всем точкам
+		int p = i;
+		nr[i] = 0.0;
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+			// по треугольника в точке
+			int trk_i = m.adj[p][tk];
+			const Triangle & trk    = m.tr[trk_i];
+			Polynom phi_i           = m.elem1(trk, p);
+			vector < Polynom > phik = m.elem1(trk);
+			
+			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+				int j = m.tr[trk_i].p[i0];
+				nr[i] += u[i] * v[j] * integrate(phi_i * phik[i0], trk, m.ps);
+			}
+		}
+	}
+
+#pragma omp parallel for reduction(+:s)
+	for (int i = 0; i < sz; ++i) {
+		s = s + nr[i];
+	}
+	return s;
+}
+
+double mke_norm(const double * u, const Mesh & m)
+{
+	return sqrt(mke_scalar(u, u, m));
+}
+
+double mke_dist(const double * u, const double * v, const Mesh & m)
+{
+	int sz  = m.ps.size(); // размерность
+	vector < double > diff(sz);
+	vector_diff(&diff[0], u, v, sz);
+	return mke_norm(&diff[0], m);
+}

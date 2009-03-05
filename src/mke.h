@@ -194,8 +194,11 @@ void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 /* убираем краевые услови€ */
 void mke_u2p(double * u, const double * p, const Mesh & m);
 
-void sphere_chafe_solve(double * Ans, const double * X0,
-						const Mesh & m, const double * bnd, 
-						double tau, double sigma, double mu);
+/* сеточное скал€рное произведение двух функций */
+double mke_scalar(const double * u, const double * v, const Mesh & m);
+
+double mke_norm(const double * u, const Mesh & m);
+
+double mke_dist(const double * u, const double * v, const Mesh & m);
 
 #endif /* MKE_H */

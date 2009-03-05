@@ -92,18 +92,6 @@ static void vector_sum2(double * r, const double * a, const double *b, double k2
 }
 
 /**
- * r = a - b
- */
-static void vector_diff(double * r, const double * a, const double * b, int n)
-{
-	int i;
-#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		r[i] = a[i] - b[i];
-	}
-}
-
-/**
  * Demmel Algorithm  6.9 p 303
  */
 

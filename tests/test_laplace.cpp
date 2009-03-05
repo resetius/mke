@@ -48,14 +48,14 @@ void usage(const char * name)
 
 double rp(double x, double y)
 {
-	return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y);
-	//return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
+	//return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y);
+	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
 }
 
 double ans(double x, double y)
 {
-	return sin(M_PI * x) * sin(M_PI * y) + 1.0;
-	//return x * (x - 1) * y * (y - 1);// + 1.0;
+	//return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
+	return x * (x - 1) * y * (y - 1) + 1.0;
 }
 
 double bnd(double x, double y)
@@ -132,12 +132,15 @@ void test_laplace(Mesh & mesh)
 	P1.resize(mesh.inner.size());
 	laplace_calc(&LU1[0], &U[0], &B[0], mesh);
 
-	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
+//	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
+	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 
 //	mke_u2p(&P[0], &LU[0], mesh);
 //	vector_print(&P[0], P.size());
 //	mke_u2p(&P1[0], &LU1[0], mesh);
 //	vector_print(&P1[0], P1.size());
+//	fprintf(stderr, "laplace err=%.2le\n", nr2(&P[0], &P1[0], P.size()));
+//	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&P[0], &P1[0], mesh));
 
 //	fprintf(stderr, "bnd\n");
 //	vector_print(&B[0], B.size());
@@ -145,7 +148,9 @@ void test_laplace(Mesh & mesh)
 	init_bnd(mesh, B, ans);
 	laplace_solve(&LU[0], mesh, &LU1[0], &B[0]);
 
-	fprintf(stderr, "laplace err=%.2le\n", nr2(&U[0], &LU[0], U.size()));
+//	fprintf(stderr, "laplace err=%.2le\n", nr2(&U[0], &LU[0], U.size()));
+
+//	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
 
 int main(int argc, char *argv[])
