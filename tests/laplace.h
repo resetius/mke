@@ -64,23 +64,31 @@ public:
 };
 
 class SphereChafe {
-public:
-	struct integrate_cb_data
-	{
-		double tau;
-		double mu;
-		double sigma;
-	};
-
 private:
 	const Mesh & m_;
-	Matrix laplace_; /* Лапласиан */
-	Matrix A_;       /* Матрица левой части */
+	SphereLaplace laplace_; /* Лапласиан */
+	Matrix  A_;             /* Матрица левой части */
 	double tau_;
 	double mu_;
 	double sigma_;
 
-	integrate_cb_data data1_;
+	static double 
+	schafe_integrate_cb( const Polynom & phi_i,
+                     const Polynom & phi_j, 
+                     const Triangle & trk,
+                     const Mesh & m,
+                     int point,
+                     SphereChafe * d);
+
+	struct schafe_right_part_cb_data;
+
+	static double 
+	schafe_right_part_cb( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      const Triangle & trk,
+                      const Mesh & m,
+                      int point,
+                      schafe_right_part_cb_data * d);
 
 public:
 	SphereChafe(const Mesh & m, double tau, double sigma, double mu);

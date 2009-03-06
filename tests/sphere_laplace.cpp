@@ -179,17 +179,17 @@ static double f(double u, double mu, double sigma)
 //	return -u * u * u;
 }
 
-static double 
-schafe_integrate_cb( const Polynom & phi_i,
+double 
+SphereChafe::schafe_integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
-		     int point,
-		 SphereChafe::integrate_cb_data * d)
+                     int point,
+                     SphereChafe * d)
 {
-	double tau   = d->tau;
-	double mu    = d->mu;
-	double sigma = d->sigma;
+	double tau   = d->tau_;
+	double mu    = d->mu_;
+	double sigma = d->sigma_;
 
 	double pt1, pt2;
 
@@ -202,19 +202,19 @@ schafe_integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
-struct schafe_right_part_cb_data
+struct SphereChafe::schafe_right_part_cb_data
 {
 	const double * F;
 	const double * bnd;
-	SphereChafe::integrate_cb_data * d2;
+	SphereChafe  * d;
 };
 
-static double 
-schafe_right_part_cb( const Polynom & phi_i,
+double 
+SphereChafe::schafe_right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
-		      int point,
+                      int point,
                       schafe_right_part_cb_data * d)
 {
 	const double * F = d->F;
@@ -223,8 +223,8 @@ schafe_right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = -bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
-			trk, m, point, d->d2);
+		b = -bnd[j0] * SphereChafe::schafe_integrate_cb(phi_i, phi_j, 
+			trk, m, point, d->d);
 		//b = 0.0;
 	} else {
 		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
@@ -233,19 +233,13 @@ schafe_right_part_cb( const Polynom & phi_i,
 }
 
 SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
-	: m_(m), laplace_(m.inner.size()), A_(m.inner.size()), 
+	: m_(m), laplace_(m), A_(m.inner.size()), 
 	tau_(tau), mu_(mu), sigma_(sigma)
 {
-	/* Лапласиан */
-	generate_matrix(laplace_, m_, slaplace_integrate_cb, 0);
-
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 
-	data1_.tau   = tau;
-	data1_.sigma = sigma;
-	data1_.mu    = mu;
-	generate_matrix(A_, m_, (integrate_cb_t)schafe_integrate_cb, (void*)&data1_);
+	generate_matrix(A_, m_, (integrate_cb_t)schafe_integrate_cb, this);
 }
 
 /**
@@ -264,7 +258,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
 	mke_u2p(&u[0], X0, m_);
-	laplace_.mult_vector(&delta_u[0], &u[0]);
+	laplace_.calc2(&delta_u[0], X0);
 
 	// u/dt + mu \Delta u / 2
 	vector_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, mu_ * 0.5, rs);
@@ -282,7 +276,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	schafe_right_part_cb_data data2;
 	data2.F   = &p[0];
 	data2.bnd = bnd;
-	data2.d2  = &data1_;
+	data2.d   = this;
 	generate_right_part(&delta_u[0], m_, 
 		(right_part_cb_t)schafe_right_part_cb, (void*)&data2);
 
