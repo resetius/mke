@@ -73,13 +73,12 @@ struct slaplace_right_part_cb_data
 static double 
 slaplace_right_part_cb( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        int point, /* номер точки */
-                        int trk_i, /* номер треугольника */
+                        const Triangle & trk,
                         const Mesh & m,
+			int point,
                         slaplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	const Triangle & trk    = m.tr[trk_i];
 	double b;
 
 	if (m.ps_flags[point] == 1) { // на границе
@@ -95,12 +94,11 @@ slaplace_right_part_cb( const Polynom & phi_i,
 static double 
 slaplace_integrate_cb( const Polynom & phi_i,
                        const Polynom & phi_j, 
-                       int point, /* номер точки */
-                       int trk_i, /* номер треугольника */
+                       const Triangle & trk,
                        const Mesh & m,
+		       int point,
                        void * user_data)
 {
-	const Triangle & trk  = m.tr[trk_i];
 	double a = laplace(phi_j, phi_i, trk, m.ps);
 	return a;
 }
@@ -141,16 +139,15 @@ static double f(double u, double mu, double sigma)
 static double 
 schafe_integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
-                     int point, /* номер точки */
-                     int trk_i, /* номер треугольника */
+                     const Triangle & trk,
                      const Mesh & m,
-					 SphereChafe::integrate_cb_data * d)
+		     int point,
+		 SphereChafe::integrate_cb_data * d)
 {
 	double tau   = d->tau;
 	double mu    = d->mu;
 	double sigma = d->sigma;
 
-	const Triangle & trk  = m.tr[trk_i];
 	double pt1, pt2;
 
 	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
@@ -172,20 +169,19 @@ struct schafe_right_part_cb_data
 static double 
 schafe_right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
-                      int point, /* номер точки */
-                      int trk_i, /* номер треугольника */
+                      const Triangle & trk,
                       const Mesh & m,
+		      int point,
                       schafe_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	const Triangle & trk    = m.tr[trk_i];
 	double b;
 
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b = -bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
-			point, trk_i, m, d->d2);
+			trk, m, point, d->d2);
 		//b = 0.0;
 	} else {
 		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);

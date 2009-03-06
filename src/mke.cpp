@@ -307,7 +307,7 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 				if (m.ps_flags[p2] == 1) {
 					; // граница
 				} else {
-					double a = integrate_cb(phi_i, phik[i0], p2, trk_i, m, user_data);
+					double a = integrate_cb(phi_i, phik[i0], trk, m, p2, user_data);
 					A.add(i, j, a);
 				}
 			}
@@ -340,7 +340,7 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
-				double a = right_part_cb(phi_i, phik[i0], p2, trk_i, m, user_data);
+				double a = right_part_cb(phi_i, phik[i0], trk, m, p2, user_data);
 				b[i]    += a;
 			}
 		}
@@ -386,15 +386,8 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 	}
 }
 
-double generic_scalar_cb
-(const Polynom & phi_i, 
- const Polynom & phi_j, 
- int trk_i,    /* номер треугольника */
- const Mesh & m,
- void * user_data /* сюда могу входить любые данные */
- )
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data)
 {
-	const Triangle & trk    = m.tr[trk_i];
 	return integrate(phi_i * phi_j, trk, m.ps);
 }
 
@@ -419,7 +412,7 @@ double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j = m.tr[trk_i].p[i0];
-				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk_i, m, user_data);
+				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, user_data);
 			}
 		}
 	}

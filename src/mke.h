@@ -146,14 +146,15 @@ class Matrix;
  * в точке point на треугольнике tr
  */
 typedef double (* right_part_cb_t)
-(const Polynom & phi_i, 
- const Polynom & phi_j, 
- int point, /* номер точки */
- int tr,    /* номер треугольника */
- const Mesh & mesh,
- void * user_data /* сюда могу входить любые данные, 
-				     например значение F на пред шаге*/
- );
+(
+	const Polynom  & phi_i, 
+	const Polynom  & phi_j, 
+	const Triangle & tr,  /* треугольник */
+	const Mesh & mesh,    /* сетка       */
+	int point,            /* номер узла  */
+	void * user_data /* сюда могу входить любые данные, 
+	                    например значение F на пред шаге*/
+);
 
 /**
  * —оздает матрицу системы.
@@ -168,13 +169,14 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
  * в точке point на треугольнике tr
  */
 typedef double (* integrate_cb_t)
-(const Polynom & phi_i, 
- const Polynom & phi_j, 
- int point, /* номер точки */
- int tr,    /* номер треугольника */
- const Mesh & mesh,
- void * user_data /* сюда могу входить любые данные */
- );
+(
+	const Polynom & phi_i, 
+	const Polynom & phi_j, 
+	const Triangle & tr, /* номер треугольника */
+	const Mesh & mesh,   /* сетка */
+	int point,           /* номер точки */
+	void * user_data     /* сюда могу входить любые данные */
+);
 
 /**
  * —оздает матрицу системы.
@@ -201,21 +203,16 @@ void mke_u2p(double * u, const double * p, const Mesh & m);
  * на треугольнике
  */
 typedef double (* scalar_cb_t)
-(const Polynom & phi_i, 
- const Polynom & phi_j, 
- int tr,    /* номер треугольника */
- const Mesh & mesh,
- void * user_data /* сюда могу входить любые данные */
- );
+(
+	const Polynom & phi_i, 
+	const Polynom & phi_j, 
+	const Triangle & tr, /* номер треугольника */
+	const Mesh & mesh,   /* сетка */
+	void * user_data     /* сюда могу входить любые данные */
+);
 
 /* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику */
-double generic_scalar_cb
-(const Polynom & phi_i, 
- const Polynom & phi_j, 
- int trk_i,    /* номер треугольника */
- const Mesh & m,
- void * user_data /* сюда могу входить любые данные */
- );
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data);
 
 /* сеточное скал€рное произведение двух функций */
 double mke_scalar(const double * u, const double * v, 
@@ -226,3 +223,4 @@ double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb = generic_scala
 double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 
 #endif /* MKE_H */
+
