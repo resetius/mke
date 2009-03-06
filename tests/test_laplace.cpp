@@ -65,27 +65,6 @@ double bnd(double x, double y)
 	//return 1.0;
 }
 
-template < typename T >
-void init_bnd(Mesh & m, vector < double > & F, T f)
-{
-	F.resize(m.outer.size());
-	for (size_t i = 0; i < m.outer.size(); ++i) {
-		int p0 = m.outer[i];
-		Point & p = m.ps[p0];
-		F[i] = f(p.x, p.y);
-	}
-}
-
-template < typename T >
-void init_func(Mesh & mesh, vector < double > & F, T f)
-{
-	F.resize(mesh.ps.size());
-	for (size_t i = 0; i < mesh.ps.size(); ++i)
-	{
-		F[i] = f(mesh.ps[i].x, mesh.ps[i].y);
-	}
-}
-
 double nr2(double * a, double * b, int n)
 {
 	double sum = 0.0;
@@ -102,9 +81,9 @@ void test_invert(Mesh & mesh)
 	vector < double > Ans;
 	vector < double > rans;
 
-	init_func(mesh, F, rp);
-	init_func(mesh, rans, ans);
-	init_bnd(mesh, B, bnd);
+	mke_proj(mesh, F, rp);
+	mke_proj(mesh, rans, ans);
+	mke_proj_bnd(mesh, B, bnd);
 	Ans.resize(F.size());
 
 	Laplace l(mesh);
@@ -122,9 +101,9 @@ void test_laplace(Mesh & mesh)
 	vector < double > P;
 	vector < double > P1;
 
-	init_func(mesh, U, ans);
-	init_func(mesh, LU, rp);
-	init_bnd(mesh, B, rp);
+	mke_proj(mesh, U, ans);
+	mke_proj(mesh, LU, rp);
+	mke_proj_bnd(mesh, B, rp);
 
 	LU1.resize(LU.size());
 	P.resize(mesh.inner.size());
@@ -135,7 +114,7 @@ void test_laplace(Mesh & mesh)
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 
-	init_bnd(mesh, B, ans);
+	mke_proj_bnd(mesh, B, ans);
 	l.solve(&LU[0], &LU1[0], &B[0]);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));

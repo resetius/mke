@@ -225,5 +225,19 @@ double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb = generic_scala
 /* сеточное расстояние */
 double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 
-#endif /* MKE_H */
+typedef double (* f_xy_t)(double x, double y);
+typedef double (* f_xyt_t)(double x, double y, double t);
 
+/* проектирование непрерывной функции f(x,y) на сетку */
+void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xy_t f);
+
+/* проектирование непрерывной функции f(x,y) на границу сетки */
+void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xy_t f);
+
+/* проектирование непрерывной функции f(x,y,t) на сетку */
+void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xyt_t f, double t);
+
+/* проектирование непрерывной функции f(x,y,t) на границу сетки */
+void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xyt_t f, double t);
+
+#endif /* MKE_H */

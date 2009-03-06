@@ -75,27 +75,6 @@ double bnd(double x, double y)
 	//return 0.0;
 }
 
-template < typename T >
-void init_bnd(Mesh & m, vector < double > & F, T f)
-{
-	F.resize(m.outer.size());
-	for (size_t i = 0; i < m.outer.size(); ++i) {
-		int p0 = m.outer[i];
-		Point & p = m.ps[p0];
-		F[i] = f(p.x, p.y);
-	}
-}
-
-template < typename T >
-void init_func(Mesh & mesh, vector < double > & F, T f)
-{
-	F.resize(mesh.ps.size());
-	for (size_t i = 0; i < mesh.ps.size(); ++i)
-	{
-		F[i] = f(mesh.ps[i].x, mesh.ps[i].y);
-	}
-}
-
 double nr2(double * a, double * b, int n)
 {
 	double sum = 0.0;
@@ -120,14 +99,65 @@ static double z(double u, double v)
 	return sin(u);
 }
 
-int main(int argc, char *argv[])
+
+
+void test_invert(const Mesh & mesh)
 {
-	Mesh mesh;
 	vector < double > F;
 	vector < double > B;
 	vector < double > Ans;
 	vector < double > rans;
 
+	mke_proj(mesh, F, rp);
+	mke_proj(mesh, rans, ans);
+	mke_proj_bnd(mesh, B, bnd);
+	Ans.resize(F.size());
+
+	SphereLaplace l(mesh);
+	l.solve(&Ans[0], &F[0], &B[0]);
+
+	fprintf(stderr, "err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
+
+	{
+		FILE * f = fopen("invert_answer.txt", "wb");
+		print_function(f, &Ans[0], mesh, x, y, z);
+		fclose(f);
+
+		fprintf(stderr, "invert answer saved to 'invert_answer.txt'\n");
+	}
+}
+
+void test_laplace(const Mesh & mesh)
+{
+	vector < double > U;
+	vector < double > LU;
+	vector < double > LU1;
+	vector < double > B;
+	vector < double > P;
+	vector < double > P1;
+
+	mke_proj(mesh, U, ans);
+	mke_proj(mesh, LU, rp);
+	mke_proj_bnd(mesh, B, rp);
+
+	LU1.resize(LU.size());
+	P.resize(mesh.inner.size());
+	P1.resize(mesh.inner.size());
+
+	SphereLaplace l(mesh);
+	l.calc1(&LU1[0], &U[0], &B[0]);
+
+	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
+
+	mke_proj_bnd(mesh, B, ans);
+	l.solve(&LU[0], &LU1[0], &B[0]);
+
+	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
+}
+
+int main(int argc, char *argv[])
+{
+	Mesh mesh;
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
 		if (!f) {
@@ -139,22 +169,8 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	init_func(mesh, F, rp);
-	init_func(mesh, rans, ans);
-	init_bnd(mesh, B, bnd);
-	Ans.resize(F.size());
+	test_invert(mesh);
+	test_laplace(mesh);
 
-	SphereLaplace l(mesh);
-	l.solve(&Ans[0], &F[0], &B[0]);
-
-	fprintf(stderr, "err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
-
-	{
-		FILE * f = fopen("answer.txt", "wb");
-		print_function(f, &Ans[0], mesh, x, y, z);
-		fclose(f);
-
-		fprintf(stderr, "answer saved to 'answer.txt'\n");
-	}
 	return 0;
 }

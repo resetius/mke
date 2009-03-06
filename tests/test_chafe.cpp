@@ -56,27 +56,6 @@ double bnd(double x, double y, double t)
 	return ans(x, y, t);
 }
 
-template < typename T >
-void init_bnd(Mesh & m, vector < double > & F, T f, double t)
-{
-	F.resize(m.outer.size());
-	for (size_t i = 0; i < m.outer.size(); ++i) {
-		int p0 = m.outer[i];
-		Point & p = m.ps[p0];
-		F[i] = f(p.x, p.y, t);
-	}
-}
-
-template < typename T >
-void init_func(Mesh & mesh, vector < double > & F, T f, double t)
-{
-	F.resize(mesh.ps.size());
-	for (size_t i = 0; i < mesh.ps.size(); ++i)
-	{
-		F[i] = f(mesh.ps[i].x, mesh.ps[i].y, t);
-	}
-}
-
 double nr2(double * a, double * b, int n)
 {
 	double sum = 0.0;
@@ -110,7 +89,7 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	init_func(mesh, U, ans, 0.0);
+	mke_proj(mesh, U, ans, 0.0);
 	Ans.resize(U.size());
 	P.resize(mesh.inner.size());
 
@@ -120,12 +99,12 @@ int main(int argc, char *argv[])
 	Chafe chafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
-		init_bnd(mesh, B, bnd, tau * (i + 1));
+		mke_proj_bnd(mesh, B, bnd, tau * (i + 1));
 		chafe.solve(&U[0], &U[0], &B[0],  tau * (i));
 
 		// check
 		{
-			init_func(mesh, Ans, ans, tau * (i + 1));
+			mke_proj(mesh, Ans, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
 				mke_dist(&U[0], &Ans[0], mesh));
 //			vector_print(&U[0], U.size());

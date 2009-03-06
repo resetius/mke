@@ -196,7 +196,7 @@ SphereChafe::schafe_integrate_cb( const Polynom & phi_i,
 	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
-	pt2  = -laplace(phi_j, phi_i, trk, m.ps);
+	pt2  =  laplace(phi_j, phi_i, trk, m.ps);
 	pt2 *= -0.5 * mu;
 
 	return pt1 + pt2;
@@ -280,8 +280,8 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	generate_right_part(&delta_u[0], m_, 
 		(right_part_cb_t)schafe_right_part_cb, (void*)&data2);
 
-	fprintf(stderr, "rp: \n");vector_print(&delta_u[0], rs);
-	fprintf(stderr, "matrix:\n");A_.print();
+//	fprintf(stderr, "rp: \n");vector_print(&delta_u[0], rs);
+//	fprintf(stderr, "matrix:\n");A_.print();
 //	laplace_.print();
 	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
 }
