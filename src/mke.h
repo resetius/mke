@@ -214,6 +214,9 @@ typedef double (* scalar_cb_t)
 /* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику */
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data);
 
+/* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику на сфере */
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data);
+
 /* сеточное скал€рное произведение двух функций */
 double mke_scalar(const double * u, const double * v, 
 				  const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);

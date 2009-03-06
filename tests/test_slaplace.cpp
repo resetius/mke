@@ -143,12 +143,11 @@ int main(int argc, char *argv[])
 	init_func(mesh, rans, ans);
 	init_bnd(mesh, B, bnd);
 	Ans.resize(F.size());
-	sphere_laplace_solve(&Ans[0], mesh, &F[0], &B[0]);
-//	fprintf(stderr, "answer: 1\n");
-//	vector_print(&Ans[0], Ans.size());
-//	fprintf(stderr, "real:   2\n");
-//	vector_print(&rans[0], rans.size());
-	fprintf(stderr, "err=%.2le\n", nr2(&Ans[0], &rans[0], rans.size()));
+
+	SphereLaplace l(mesh);
+	l.solve(&Ans[0], &F[0], &B[0]);
+
+	fprintf(stderr, "err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
 
 	{
 		FILE * f = fopen("answer.txt", "wb");

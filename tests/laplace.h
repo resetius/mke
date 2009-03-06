@@ -30,9 +30,38 @@
 
 #include "solver.h"
 
+/**
+ * Сферический Лаплас
+ */
+class SphereLaplace {
+	Matrix idt_;
+	Matrix laplace_;
+	const Mesh & m_;
 
-void sphere_laplace_solve(double * Ans, const Mesh & m, 
-						  const double * F, const double * bnd);
+public:
+	SphereLaplace(const Mesh & m);
+
+	/**
+	 * Находит оператор Лапласа функции F во внутренних
+	 * точках. В точках границы просто кладет значение из bnd.
+	 */
+	void calc1(double * Ans, const double * F, const double * bnd);
+
+	/**
+	 * Находит оператор Лапласа функции F во внутренних точках.
+	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
+	 */
+	void calc2(double * Ans, const double * F);
+
+/**
+ * обращает оператор лапласа на плоской области
+ * @param Ans - ответ
+ * @param m - сетка
+ * @param F - правая часть
+ * @param bnd - краевое условие
+ */
+	void solve(double * Ans, const double * F, const double * bnd);
+};
 
 class SphereChafe {
 public:
@@ -61,6 +90,9 @@ public:
 						const double * bnd);
 };
 
+/**
+ * Лаплас на плоской сетке
+ */
 class Laplace {
 	Matrix idt_;
 	Matrix laplace_;
@@ -92,14 +124,6 @@ public:
 };
 
 class Chafe {
-public:
-	struct integrate_cb_data
-	{
-		double tau;
-		double mu;
-		double sigma;
-	};
-
 private:
 	const Mesh & m_;
 	Laplace laplace_; /* Лапласиан */
@@ -108,7 +132,21 @@ private:
 	double mu_;
 	double sigma_;
 
-	integrate_cb_data data1_;
+	static double chafe_integrate_cb(const Polynom & phi_i, 
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m, int point,
+		const Chafe * d);
+
+	struct chafe_right_part_cb_data;
+
+	static double 
+	chafe_right_part_cb( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      const Triangle & trk,
+                      const Mesh & m,
+                      int point,
+                      chafe_right_part_cb_data * d);
 
 public:
 	Chafe(const Mesh & m, double tau, double sigma, double mu);

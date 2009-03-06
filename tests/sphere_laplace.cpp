@@ -103,17 +103,16 @@ slaplace_integrate_cb( const Polynom & phi_i,
 	return a;
 }
 
-void sphere_laplace_solve(double * Ans, const Mesh & m, 
-						  const double * F, const double * bnd)
+void SphereLaplace::solve(double * Ans,
+			  const double * F, const double * bnd)
 {
 	//пока используем первый порядок
-	int sz  = m.ps.size();
-	int ntr = m.tr.size();
-	int rs  = m.inner.size();     //размерность
+	int sz  = m_.ps.size();
+	int ntr = m_.tr.size();
+	int rs  = m_.inner.size();     //размерность
 
 	vector < double > b(rs);      // правая часть
 	vector < double > x(rs);      // ответ
-	Matrix A(rs);
 
 	Timer full;
 
@@ -121,13 +120,57 @@ void sphere_laplace_solve(double * Ans, const Mesh & m,
 	d.F   = F;
 	d.bnd = bnd;
 
-	generate_matrix(A, m, slaplace_integrate_cb, 0);
-	generate_right_part(&b[0], m, (right_part_cb_t)(slaplace_right_part_cb), (void*)&d);
-	//A.print();
-	//vector_print(&b[0], rs);
+	generate_right_part(&b[0], m_, (right_part_cb_t)(slaplace_right_part_cb), (void*)&d);
+
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
-	mke_solve(Ans, bnd, &b[0], A, m);
+	mke_solve(Ans, bnd, &b[0], laplace_, m_);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
+}
+
+static double id_cb(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point,
+		void *)
+{
+	return integrate_cos(phi_i * phi_j, trk, m.ps);
+}
+
+static double lp_rp(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point,
+		slaplace_right_part_cb_data * d)
+{
+	const double * F = d->F;
+	return F[point] * laplace(phi_j, phi_i, trk, m.ps);;
+}
+
+SphereLaplace::SphereLaplace(const Mesh & m): m_(m), 
+	idt_(m.inner.size()),
+	laplace_(m.inner.size())
+{
+	generate_matrix(idt_, m, id_cb, 0);
+	generate_matrix(laplace_, m, slaplace_integrate_cb, 0);
+}
+
+void SphereLaplace::calc2(double * Ans, const double * F)
+{
+	vector < double > p1(m_.inner.size());
+
+	slaplace_right_part_cb_data d;
+	d.F = F;
+	generate_right_part(&p1[0], m_, (right_part_cb_t)lp_rp, &d);
+	idt_.solve(Ans, &p1[0]);
+}
+
+void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
+{
+	vector < double > p1(m_.inner.size());
+	calc2(&p1[0], F);
+	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
 static double f(double u, double mu, double sigma)

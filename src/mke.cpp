@@ -391,6 +391,11 @@ double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tri
 	return integrate(phi_i * phi_j, trk, m.ps);
 }
 
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data)
+{
+	return integrate_cos(phi_i * phi_j, trk, m.ps);
+}
+
 double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
 	int sz  = m.ps.size(); // размерность

@@ -116,16 +116,16 @@ static double f(double u, double x, double y, double t, double mu, double sigma)
 //	return -u * u * u;
 }
 
-static double 
-chafe_integrate_cb( const Polynom & phi_i,
+double 
+Chafe::chafe_integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk, 
                      const Mesh & m, int point, 
-		     Chafe::integrate_cb_data * d)
+		     const Chafe * d)
 {
-	double tau   = d->tau;
-	double mu    = d->mu;
-	double sigma = d->sigma;
+	double tau   = d->tau_;
+	double mu    = d->mu_;
+	double sigma = d->sigma_;
 
 	double pt1, pt2;
 
@@ -138,15 +138,15 @@ chafe_integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
-struct chafe_right_part_cb_data
+struct Chafe::chafe_right_part_cb_data
 {
 	const double * F;
 	const double * bnd;
-	Chafe::integrate_cb_data * d2;
+	const Chafe * d;
 };
 
-static double 
-chafe_right_part_cb( const Polynom & phi_i,
+double 
+Chafe::chafe_right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
@@ -159,8 +159,8 @@ chafe_right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point] == 1) { // на границе
 		int j0       = m.p2io[point]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = - bnd[j0] * chafe_integrate_cb(phi_i, phi_j, 
-			trk, m, point, d->d2);
+		b = - bnd[j0] * Chafe::chafe_integrate_cb(phi_i, phi_j, 
+			trk, m, point, d->d);
 	} else {
 		b = F[point] * integrate(phi_i * phi_j, trk, m.ps);
 	}
@@ -219,11 +219,7 @@ Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-
-	data1_.tau   = tau;
-	data1_.sigma = sigma;
-	data1_.mu    = mu;
-	generate_matrix(A_, m_, (integrate_cb_t)chafe_integrate_cb, (void*)&data1_);
+	generate_matrix(A_, m_, (integrate_cb_t)chafe_integrate_cb, this);
 }
 
 /**
@@ -266,7 +262,7 @@ void Chafe::solve(double * Ans, const double * X0,
 	chafe_right_part_cb_data data2;
 	data2.F   = &p[0];
 	data2.bnd = bnd;
-	data2.d2  = &data1_;
+	data2.d   = this;
 	generate_right_part(&rp[0], m_, 
 		(right_part_cb_t)chafe_right_part_cb, (void*)&data2);
 
