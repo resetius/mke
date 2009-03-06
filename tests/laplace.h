@@ -30,20 +30,9 @@
 
 #include "solver.h"
 
-/**
- * обращает оператор лапласа на плоской области
- * @param Ans - ответ
- * @param m - сетка
- * @param F - правая часть
- * @param bnd - краевое условие
- */
-void laplace_solve(double * Ans, const Mesh & m, 
-				   const double * F, const double * bnd);
 
 void sphere_laplace_solve(double * Ans, const Mesh & m, 
 						  const double * F, const double * bnd);
-
-void laplace_calc(double * Ans, const double * F, const double * bnd, const Mesh & m);
 
 class SphereChafe {
 public:
@@ -72,6 +61,36 @@ public:
 						const double * bnd);
 };
 
+class Laplace {
+	Matrix idt_;
+	Matrix laplace_;
+	const Mesh & m_;
+
+public:
+	Laplace(const Mesh & m);
+
+	/**
+	 * Находит оператор Лапласа функции F во внутренних
+	 * точках. В точках границы просто кладет значение из bnd.
+	 */
+	void calc1(double * Ans, const double * F, const double * bnd);
+
+	/**
+	 * Находит оператор Лапласа функции F во внутренних точках.
+	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
+	 */
+	void calc2(double * Ans, const double * F);
+
+/**
+ * обращает оператор лапласа на плоской области
+ * @param Ans - ответ
+ * @param m - сетка
+ * @param F - правая часть
+ * @param bnd - краевое условие
+ */
+	void solve(double * Ans, const double * F, const double * bnd);
+};
+
 class Chafe {
 public:
 	struct integrate_cb_data
@@ -83,8 +102,8 @@ public:
 
 private:
 	const Mesh & m_;
-	Matrix laplace_; /* Лапласиан */
-	Matrix A_;       /* Матрица левой части */
+	Laplace laplace_; /* Лапласиан */
+	Matrix A_;        /* Матрица левой части */
 	double tau_;
 	double mu_;
 	double sigma_;

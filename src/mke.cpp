@@ -404,14 +404,14 @@ double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_
 		int p = i;
 		nr[i] = 0.0;
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольника в точке
-			int trk_i = m.adj[p][tk];
+			// по треугольникам в точке
+			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			Polynom phi_i           = m.elem1(trk, p);
 			vector < Polynom > phik = m.elem1(trk);
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
-				int j = m.tr[trk_i].p[i0];
+				int j  = trk.p[i0];
 				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, user_data);
 			}
 		}

@@ -106,11 +106,9 @@ void test_invert(Mesh & mesh)
 	init_func(mesh, rans, ans);
 	init_bnd(mesh, B, bnd);
 	Ans.resize(F.size());
-	laplace_solve(&Ans[0], mesh, &F[0], &B[0]);
-//	fprintf(stderr, "1\n");
-//	vector_print(&Ans[0], Ans.size());
-//	fprintf(stderr, "2\n");
-//	vector_print(&rans[0], rans.size());
+
+	Laplace l(mesh);
+	l.solve(&Ans[0], &F[0], &B[0]);
 	fprintf(stderr, "invert  err=%.2le\n", 
 		mke_dist(&Ans[0], &rans[0], mesh));
 }
@@ -131,27 +129,16 @@ void test_laplace(Mesh & mesh)
 	LU1.resize(LU.size());
 	P.resize(mesh.inner.size());
 	P1.resize(mesh.inner.size());
-	laplace_calc(&LU1[0], &U[0], &B[0], mesh);
 
-//	fprintf(stderr, "laplace err=%.2le\n", nr2(&LU[0], &LU1[0], LU.size()));
+	Laplace l(mesh);
+	l.calc1(&LU1[0], &U[0], &B[0]);
+
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 
-//	mke_u2p(&P[0], &LU[0], mesh);
-//	vector_print(&P[0], P.size());
-//	mke_u2p(&P1[0], &LU1[0], mesh);
-//	vector_print(&P1[0], P1.size());
-//	fprintf(stderr, "laplace err=%.2le\n", nr2(&P[0], &P1[0], P.size()));
-//	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&P[0], &P1[0], mesh));
+	init_bnd(mesh, B, ans);
+	l.solve(&LU[0], &LU1[0], &B[0]);
 
-//	fprintf(stderr, "bnd\n");
-//	vector_print(&B[0], B.size());
-
-//	init_bnd(mesh, B, ans);
-//	laplace_solve(&LU[0], mesh, &LU1[0], &B[0]);
-
-//	fprintf(stderr, "laplace err=%.2le\n", nr2(&U[0], &LU[0], U.size()));
-
-//	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
+	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
 
 int main(int argc, char *argv[])

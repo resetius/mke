@@ -126,7 +126,8 @@ int main(int argc, char *argv[])
 		// check
 		{
 			init_func(mesh, Ans, ans, tau * (i + 1));
-			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), nr2(&U[0], &Ans[0], U.size()));
+			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
+				mke_dist(&U[0], &Ans[0], mesh));
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
