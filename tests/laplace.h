@@ -28,6 +28,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "mke.h"
 #include "solver.h"
 
 /**
@@ -121,13 +122,13 @@ public:
 	 */
 	void calc2(double * Ans, const double * F);
 
-/**
- * обращает оператор лапласа на плоской области
- * @param Ans - ответ
- * @param m - сетка
- * @param F - правая часть
- * @param bnd - краевое условие
- */
+	/**
+	 * обращает оператор лапласа на плоской области
+	 * @param Ans - ответ
+	 * @param m - сетка
+	 * @param F - правая часть
+	 * @param bnd - краевое условие
+	 */
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
