@@ -173,9 +173,15 @@ void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
-static double f(double u, double mu, double sigma)
+static double f(double u, double x, double y, double t, 
+				double mu, double sigma)
 {
-	return (1.0 + 6.0 * mu + sigma) * u;
+	double a = exp(t) * sin(y) * sin(2.0 * x);
+	double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
+
+	return a - mu * b + sigma * a;
+
+//	return (1.0 + 6.0 * mu + sigma) * u;
 //	return -u * u * u;
 }
 
@@ -196,7 +202,7 @@ SphereChafe::schafe_integrate_cb( const Polynom & phi_i,
 	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
-	pt2  =  laplace(phi_j, phi_i, trk, m.ps);
+	pt2  =  laplace(phi_i, phi_j, trk, m.ps);
 	pt2 *= -0.5 * mu;
 
 	return pt1 + pt2;
@@ -246,13 +252,14 @@ SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
  * \f$\frac{du}{dt} = \mu \delta u - \sigma u + f (u)\f$
  */
 void SphereChafe::solve(double * Ans, const double * X0,
-						const double * bnd)
+						const double * bnd, double t)
 {
 	int rs  = m_.inner.size();
 	int sz  = m_.ps.size();
 	vector < double > u(rs);
 	vector < double > p(sz);
 	vector < double > delta_u(rs);
+	vector < double > rp(rs);
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
@@ -269,7 +276,11 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i) {
-		u[i] = delta_u[i] + f(u[i], mu_, sigma_);
+		int point = m_.inner[i];
+		double x  = m_.ps[point].x;
+		double y  = m_.ps[point].y;
+
+		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
 	}
 
 	mke_p2u(&p[0], &u[0], bnd, m_);
@@ -277,12 +288,12 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	data2.F   = &p[0];
 	data2.bnd = bnd;
 	data2.d   = this;
-	generate_right_part(&delta_u[0], m_, 
+	generate_right_part(&rp[0], m_, 
 		(right_part_cb_t)schafe_right_part_cb, (void*)&data2);
 
 //	fprintf(stderr, "rp: \n");vector_print(&delta_u[0], rs);
 //	fprintf(stderr, "matrix:\n");A_.print();
 //	laplace_.print();
-	mke_solve(Ans, bnd, &delta_u[0], A_, m_);
+	mke_solve(Ans, bnd, &rp[0], A_, m_);
 }
 

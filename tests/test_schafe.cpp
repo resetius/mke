@@ -83,9 +83,9 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 10;
-	double tau   = 0.0001;
-	double mu    = 0.0;//1.0;
+	int i, steps = 100;
+	double tau   = 0.001;
+	double mu    = 1.0;
 	double sigma = +70;
 
 	vector < double > U;
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < steps; ++i) {
 		mke_proj_bnd(mesh, B, bnd, tau * (i + 1));
-		schafe.solve(&U[0], &U[0], &B[0]);
+		schafe.solve(&U[0], &U[0], &B[0], tau * (i));
 
 		// check
 		{

@@ -95,7 +95,7 @@ public:
 	~SphereChafe() {}
 
 	void solve(double * Ans, const double * X0,
-						const double * bnd);
+						const double * bnd, double t);
 };
 
 /**
