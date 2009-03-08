@@ -10,14 +10,18 @@ if (NOT WIN32)
 if (NOT CYGWIN)
 	set(ICC ".*icpc.*")
 	if (CMAKE_CXX_COMPILER MATCHES ${ICC})
-		set(OMP "-openmp")
+		set(OMP_CFLAGS "-openmp")
+		set(OMP_LFLAGS "-openmp")
+		set(OMP_LIBS   "")
 		set(ICC_LIBRARIES "./lib-icc") # CHANGE IT!
 		set(ICC_STOCK_FORTRAN_LIBRARIES "/opt/intel/Compiler/11.0/081/lib/intel64/") #CHANGE IT!
 		set(FLIB "ifcoremt")
 		link_directories(${ICC_LIBRARIES} ${ICC_STOCK_FORTRAN_LIBRARIES})
 		set(UMFPACK umfpack amd blas ${FLIB})
 	else (CMAKE_CXX_COMPILER MATCHES ${ICC})
-		set(OMP "-fopenmp")
+		set(OMP_CFLAGS "-fopenmp")
+		set(OMP_LFLAGS "-fopenmp")
+		set(OMP_LIBS   "")
 		set(FLIB "gfortran")
 		#set(UMFPACK umfpack amd)
 	endif (CMAKE_CXX_COMPILER MATCHES ${ICC})
@@ -27,7 +31,11 @@ else (NOT WIN32)
 set(MATH "")
 endif (NOT WIN32)
 
-add_definitions(${OMP})
+if (MSVC)
+set(OMP_CFLAGS "/openmp")
+endif (MSVC)
+
+add_definitions(${OMP_CFLAGS})
 add_definitions(-DGMRES) # comment it if you want umfpack
 add_definitions(-DSPARSE)
 
