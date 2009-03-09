@@ -33,6 +33,8 @@
 
 #include "gmres.h"
 
+void vector_diff(double * r, const double * a, const double * b, int n);
+
 static double norm2(const double * v, int n)
 {
 	double s = 0.0;

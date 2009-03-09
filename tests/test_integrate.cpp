@@ -115,8 +115,12 @@ void test_sphere_area()
 
 	double S1, S2, S3, S4;
 
+	// треугольник, состоящий из 4х треугольников:
+	//   S2
+	//   S4
+	// S1  S3
 	{
-		Point p1(0, 0), p2(0, M_PI / 4.0), p3(M_PI / 4.0, 0);
+		Point p1(0, 0), p2(0, M_PI / 8.0), p3(M_PI / 8.0, 0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -126,7 +130,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(0, M_PI / 4.0), p2(0, M_PI / 2.0), p3(M_PI / 4, M_PI / 2.0);
+		Point p1(0, M_PI / 8.0), p2(0, M_PI / 4.0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -136,7 +140,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(0, M_PI / 4.0), p2(M_PI / 4, 0), p3(M_PI / 4, M_PI / 2.0);
+		Point p1(0, M_PI / 8.0), p2(M_PI / 8, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -146,7 +150,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(M_PI / 4.0, 0), p2(M_PI / 2, 0), p3(M_PI / 4, M_PI / 2.0);
+		Point p1(M_PI / 8.0, 0), p2(M_PI / 4, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -157,9 +161,53 @@ void test_sphere_area()
 	}
 
 	fprintf(stderr, "S1 + S2 + S3 + S4 = %.16lf\n", S1 + S2 + S3 + S4);
+	fprintf(stderr, "S1 +      S3      = %.16lf\n", S1 + S3);
 	fprintf(stderr, "                  = %.16lf\n", M_PI / 2);
 
 	fprintf(stderr, "... = %.16lf\n", M_PI/ 4. * (sin(M_PI / 2.) - sin(M_PI / 4.)));
+
+
+	// swap x<->y
+	{
+		Point p1(0, 0), p2(M_PI / 8.0, 0), p3(0, M_PI / 8.0);
+		Mesh::points_t ps;
+		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
+		Triangle t1(0, 1, 2);
+		S1 = integrate_cos(p, t1, ps);
+
+		fprintf(stderr, "S1 = %.16lf\n", S1);
+	}
+
+	{
+		Point p1(M_PI / 8.0, 0), p2(M_PI / 4.0, 0), p3(M_PI / 8, M_PI / 8.0);
+		Mesh::points_t ps;
+		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
+		Triangle t1(0, 1, 2);
+		S3 = integrate_cos(p, t1, ps);
+
+		fprintf(stderr, "S3 = %.16lf\n", S3);
+	}
+
+	{
+		Point p1(M_PI / 8.0, 0), p2(0, M_PI / 8), p3(M_PI / 8, M_PI / 8.0);
+		Mesh::points_t ps;
+		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
+		Triangle t1(0, 1, 2);
+		S4 = integrate_cos(p, t1, ps);
+
+		fprintf(stderr, "S4 = %.16lf\n", S4);
+	}
+
+	{
+		Point p1(0, M_PI / 8.0), p2(0, M_PI / 4), p3(M_PI / 8, M_PI / 8.0);
+		Mesh::points_t ps;
+		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
+		Triangle t1(0, 1, 2);
+		S2 = integrate_cos(p, t1, ps);
+		//S2 = 0.460075592;
+
+		fprintf(stderr, "S2 = %.16lf\n", S2);
+	}
 
 	fprintf(stderr, "done\n");
 }
