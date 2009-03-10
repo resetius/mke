@@ -194,24 +194,24 @@ struct f_cos_data
 /* x^k y^{n+1}/{n+1} cos x | */
 static double f_cos(double x, f_cos_data * d)
 {
-	double pt1 = (ipow((d->k2 * x + d->b2) / cos(x), d->n + 1) 
-			- ipow((d->k1 * x + d->b1) / cos(x), d->n + 1)) / (double)(d->n + 1);
+	double pt1 = (ipow((d->k2 * x + d->b2), d->n + 1) 
+			- ipow((d->k1 * x + d->b1), d->n + 1)) / (double)(d->n + 1);
 	return ipow(x, d->k) * pt1 * cos(x);
 }
 
 /* x^k y^{n+1}/{n+1} sin x | */
 static double f_sin(double x, f_cos_data * d)
 {
-	double pt1 = (ipow((d->k2 * x + d->b2) / cos(x), d->n + 1)
-			- ipow((d->k1 * x + d->b1) / cos(x), d->n + 1)) / (double)(d->n + 1);
+	double pt1 = (ipow((d->k2 * x + d->b2), d->n + 1)
+			- ipow((d->k1 * x + d->b1), d->n + 1)) / (double)(d->n + 1);
 	return ipow(x, d->k) * pt1 * sin(x);
 }
 
 /* x^k y^{n+1}/{n+1}/cos x | */
 static double f_1_cos(double x, f_cos_data * d)
 {
-	double pt1 = (ipow((d->k2 * x + d->b2) / cos(x), d->n + 1)
-			- ipow((d->k1 * x + d->b1) / cos(x), d->n + 1)) / (double)(d->n + 1);
+	double pt1 = (ipow((d->k2 * x + d->b2), d->n + 1)
+			- ipow((d->k1 * x + d->b1), d->n + 1)) / (double)(d->n + 1);
 	return ipow(x, d->k) * pt1 / cos(x);
 }
 
