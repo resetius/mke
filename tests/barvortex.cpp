@@ -29,6 +29,9 @@
 #include <assert.h>
 #include "barvortex.h"
 
+/**
+ * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
+ */
 Jacobian::Jacobian(const Mesh & m): m_(m)
 {
 }
