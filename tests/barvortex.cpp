@@ -28,6 +28,7 @@
 
 #include <assert.h>
 #include <vector>
+#include <math.h>
 
 #include "barvortex.h"
 
@@ -40,8 +41,8 @@ jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
 	Polynom pt1 = diff(phi_i, 1) * diff(phi_j, 0);
 	Polynom pt2 = diff(phi_i, 0) * diff(phi_j, 1);
 
-	Point p = m.ps[j];
-	return pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y);
+	Point p = m.ps[i];
+	return -(pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y)) / cos(p.x);
 }
 
 static double id_cb(const Polynom & phi_i,
@@ -74,21 +75,33 @@ static double lp_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int point_i,
-		int point_j,
-		double * d)
+		int i,
+		int j,
+		std::pair < const double * , const double * > * pp)
 {
-	return d[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+	const double * u = pp->first;
+	const double * v = pp->second;
+	//return d[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+
+	Polynom pt1  = diff(phi_i, 1) * diff(phi_j, 0);
+	Polynom pt2  = diff(phi_i, 0) * diff(phi_j, 1);
+	Polynom poly = (pt2 - pt1) * phi_j;
+
+	double r = u[i] * v[j] * integrate(poly, trk, m.ps);
+	return r;
 }
 
 void Jacobian::calc2(double * Ans, const double * u, const double * v)
 {
 	vector < double > rp(m_.inner.size());
 	int sz = m_.ps.size();
-	vector < double > j1(sz);
-	convolution(&j1[0], u, v, m_, (scalar_cb_t)jacobian, 0);
+//	vector < double > j1(sz);
+//	convolution(&j1[0], u, v, m_, (scalar_cb_t)jacobian, 0);
 
-	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &j1[0]);
+//	mke_u2p(Ans, &j1[0], m_);
+
+	std::pair < const double * , const double * > pp = make_pair(u, v);
+	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &pp);
 	idt_.solve(Ans, &rp[0]);
 }
 
