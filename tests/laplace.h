@@ -78,7 +78,7 @@ private:
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
-                     int point,
+                     int point_i, int point_j,
                      SphereChafe * d);
 
 	struct schafe_right_part_cb_data;
@@ -88,7 +88,7 @@ private:
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
-                      int point,
+                      int point_i, int point_j,
                       schafe_right_part_cb_data * d);
 
 public:
@@ -144,7 +144,7 @@ private:
 	static double chafe_integrate_cb(const Polynom & phi_i, 
 		const Polynom & phi_j,
 		const Triangle & trk,
-		const Mesh & m, int point,
+		const Mesh & m, int point_i, int point_j,
 		const Chafe * d);
 
 	struct chafe_right_part_cb_data;
@@ -154,7 +154,7 @@ private:
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
-                      int point,
+                      int point_i, int point_j,
                       chafe_right_part_cb_data * d);
 
 public:

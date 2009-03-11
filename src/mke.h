@@ -153,7 +153,8 @@ typedef double (* right_part_cb_t)
 	const Polynom  & phi_j, 
 	const Triangle & tr,  /* треугольник */
 	const Mesh & mesh,    /* сетка       */
-	int point,            /* номер узла  */
+	int point_i,          /* номер узла  */
+	int point_j,
 	void * user_data /* сюда могу входить любые данные, 
 	                    например значение F на пред шаге*/
 );
@@ -176,7 +177,8 @@ typedef double (* integrate_cb_t)
 	const Polynom & phi_j, 
 	const Triangle & tr, /* номер треугольника */
 	const Mesh & mesh,   /* сетка */
-	int point,           /* номер точки */
+	int point_i,         /* номер точки */
+	int point_j,
 	void * user_data     /* сюда могу входить любые данные */
 );
 
@@ -243,3 +245,4 @@ void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xyt_t f, double t
 void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xyt_t f, double t);
 
 #endif /* MKE_H */
+

@@ -75,18 +75,19 @@ slaplace_right_part_cb( const Polynom & phi_i,
                         const Polynom & phi_j,
                         const Triangle & trk,
                         const Mesh & m,
-			int point,
+			int point_i,
+			int point_j,
                         slaplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
 	double b;
 
-	if (m.ps_flags[point] == 1) { // на границе
-		int j0       = m.p2io[point]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) { // на границе
+		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b = -bnd[j0] * laplace(phi_j, phi_i, trk, m.ps);
 	} else {
-		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -96,7 +97,8 @@ slaplace_integrate_cb( const Polynom & phi_i,
                        const Polynom & phi_j, 
                        const Triangle & trk,
                        const Mesh & m,
-		       int point,
+		       int point_i,
+		       int point_j,
                        void * user_data)
 {
 	double a = laplace(phi_j, phi_i, trk, m.ps);
@@ -131,7 +133,8 @@ static double id_cb(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int point,
+		int point_i,
+		int point_j,
 		void *)
 {
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
@@ -141,11 +144,12 @@ static double lp_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int point,
+		int point_i,
+		int point_j,
 		slaplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	return F[point] * laplace(phi_j, phi_i, trk, m.ps);;
+	return F[point_j] * laplace(phi_j, phi_i, trk, m.ps);;
 }
 
 SphereLaplace::SphereLaplace(const Mesh & m): m_(m), 
@@ -190,7 +194,7 @@ SphereChafe::schafe_integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
-                     int point,
+                     int point_i, int point_j,
                      SphereChafe * d)
 {
 	double tau   = d->tau_;
@@ -220,20 +224,20 @@ SphereChafe::schafe_right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
-                      int point,
+                      int point_i, int point_j,
                       schafe_right_part_cb_data * d)
 {
 	const double * F = d->F;
 	double b;
 
-	if (m.ps_flags[point] == 1) { // на границе
-		int j0       = m.p2io[point]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) { // на границе
+		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b = -bnd[j0] * SphereChafe::schafe_integrate_cb(phi_i, phi_j, 
-			trk, m, point, d->d);
+			trk, m, point_i, point_j, d->d);
 		//b = 0.0;
 	} else {
-		b = F[point] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }

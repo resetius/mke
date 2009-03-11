@@ -307,7 +307,7 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 				if (m.ps_flags[p2] == 1) {
 					; // граница
 				} else {
-					double a = integrate_cb(phi_i, phik[i0], trk, m, p2, user_data);
+					double a = integrate_cb(phi_i, phik[i0], trk, m, p, p2, user_data);
 					A.add(i, j, a);
 				}
 			}
@@ -340,7 +340,7 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
-				double a = right_part_cb(phi_i, phik[i0], trk, m, p2, user_data);
+				double a = right_part_cb(phi_i, phik[i0], trk, m, p, p2, user_data);
 				b[i]    += a;
 			}
 		}
