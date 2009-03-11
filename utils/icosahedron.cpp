@@ -318,6 +318,13 @@ double v(double x, double y, double z)
 void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, int type, bool local)
 {
 	fprintf(stdout, "# points %lu\n", points.size());
+	fprintf(stdout, "# zone1 ; zone2 ; zone 3; ... \n");
+	if (local) {
+		fprintf(stdout, "# u v \n");
+	} else {
+		fprintf(stdout, "# x y z \n");
+	}
+
 	for (vector < Vector >::const_iterator it = points.begin(); 
 		it != points.end(); ++it)
 	{
@@ -333,7 +340,7 @@ void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, in
 		 * z = sin u
 		 */
 		if (local) {
-			fprintf(stdout, "%.16lf %.16lf %.16lf\n", u(x, y, z), v(x, y, z), 0.0);
+			fprintf(stdout, "%.16lf %.16lf \n", u(x, y, z), v(x, y, z));
 		} else {
 			fprintf(stdout, "%.16lf %.16lf %.16lf\n", x, y, z);
 		}
