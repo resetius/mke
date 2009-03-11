@@ -27,7 +27,11 @@
  */
 
 #include <assert.h>
+#include <vector>
+
 #include "barvortex.h"
+
+using namespace std;
 
 static double 
 jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 
@@ -52,6 +56,9 @@ void Jacobian::calc1(double * Ans, const double * u, const double * v, const dou
 
 void Jacobian::calc2(double * Ans, const double * u, const double * v)
 {
+	int sz = m_.ps.size();
+	vector < double > j1(sz);
+	convolution(&j1[0], u, v, m_, (scalar_cb_t)jacobian, 0);
 	assert(0);
 }
 
