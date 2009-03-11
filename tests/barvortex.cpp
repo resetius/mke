@@ -37,16 +37,30 @@ static double
 jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 
 	 const Mesh & m, int i, int j, void * data)
 {
-	double pt1 = integrate_cos(diff(phi_i, 1) * diff(phi_j, 0), trk, m.ps);
-	double pt2 = integrate_cos(diff(phi_i, 0) * diff(phi_j, 1), trk, m.ps);
-	return pt1 - pt2;
+	Polynom pt1 = diff(phi_i, 1) * diff(phi_j, 0);
+	Polynom pt2 = diff(phi_i, 0) * diff(phi_j, 1);
+
+	Point p = m.ps[j];
+	return pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y);
+}
+
+static double id_cb(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point_i,
+		int point_j,
+		void *)
+{
+	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
 
 /**
  * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
  */
-Jacobian::Jacobian(const Mesh & m): m_(m)
+Jacobian::Jacobian(const Mesh & m): m_(m), idt_(m.inner.size())
 {
+	generate_matrix(idt_, m, id_cb, 0);
 }
 
 void Jacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)
@@ -56,12 +70,26 @@ void Jacobian::calc1(double * Ans, const double * u, const double * v, const dou
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
+static double lp_rp(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point_i,
+		int point_j,
+		double * d)
+{
+	return d[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+}
+
 void Jacobian::calc2(double * Ans, const double * u, const double * v)
 {
+	vector < double > rp(m_.inner.size());
 	int sz = m_.ps.size();
 	vector < double > j1(sz);
 	convolution(&j1[0], u, v, m_, (scalar_cb_t)jacobian, 0);
-	mke_u2p(Ans, &j1[0], m_);
+
+	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &j1[0]);
+	idt_.solve(Ans, &rp[0]);
 }
 
 BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)

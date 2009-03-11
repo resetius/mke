@@ -28,6 +28,8 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <stdlib.h>
+
 #include "barvortex.h"
 
 using namespace std;
@@ -48,19 +50,31 @@ double f2(double x, double y)
 	return cos(x) * cos(y);
 }
 
+double an(double x, double y)
+{
+	return (-sin(x)*cos(y)*sin(x)*cos(y)-cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
+}
+
 void test_jacobian(const Mesh & m)
 {
 	Jacobian j(m);
 	vector < double > F1;
 	vector < double > F2;
 	vector < double > ans1;
+	vector < double > rans1;
+	vector < double > bnd;
 
 	mke_proj(m, F1, f1);
-	mke_proj(m, F1, f1);
+	mke_proj(m, F2, f2);
+	mke_proj(m, rans1, an);
+	mke_proj_bnd(m, bnd, an);
 
 
-	ans1.resize(m.inner.size());
-	j.calc2(&ans1[0], &F1[0], &F2[0]);
+	ans1.resize(m.ps.size());
+	j.calc1(&ans1[0], &F1[0], &F2[0], &bnd[0]);
+
+	fprintf(stderr, "jacobian  err=%.2le\n", 
+		mke_dist(&ans1[0], &rans1[0], m, sphere_scalar_cb));
 }
 
 int main(int argc, char *argv[])
@@ -79,5 +93,6 @@ int main(int argc, char *argv[])
 	}
 
 	test_jacobian(mesh);
+	return 0;
 }
 

@@ -29,9 +29,11 @@
  */
 
 #include "laplace.h"
+#include "solver.h"
 
 class Jacobian {
 	const Mesh & m_;
+	Matrix idt_;
 
 public:
 	Jacobian(const Mesh & m);
