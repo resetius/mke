@@ -51,7 +51,9 @@ Jacobian::Jacobian(const Mesh & m): m_(m)
 
 void Jacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)
 {
-	assert(0);
+	vector < double > p1(m_.inner.size());
+	calc2(&p1[0], u, v);
+	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
 void Jacobian::calc2(double * Ans, const double * u, const double * v)
@@ -59,7 +61,7 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	int sz = m_.ps.size();
 	vector < double > j1(sz);
 	convolution(&j1[0], u, v, m_, (scalar_cb_t)jacobian, 0);
-	assert(0);
+	mke_u2p(Ans, &j1[0], m_);
 }
 
 BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)
