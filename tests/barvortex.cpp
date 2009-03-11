@@ -30,12 +30,11 @@
 #include "barvortex.h"
 
 static double 
-jacobian(const double * u, const double * v,
-         const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, int i, int j, 
-	 const Mesh & m)
+jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 
+	 const Mesh & m, int i, int j, void * data)
 {
-	double pt1 = u[i] * v[j] * integrate_cos(diff(phi_i, 1) * diff(phi_j, 0), trk, m.ps);
-	double pt2 = u[i] * v[j] * integrate_cos(diff(phi_i, 0) * diff(phi_j, 1), trk, m.ps);
+	double pt1 = integrate_cos(diff(phi_i, 1) * diff(phi_j, 0), trk, m.ps);
+	double pt2 = integrate_cos(diff(phi_i, 0) * diff(phi_j, 1), trk, m.ps);
 	return pt1 - pt2;
 }
 
