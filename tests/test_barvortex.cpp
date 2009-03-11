@@ -38,6 +38,31 @@ void usage(const char * name)
 	exit(1);
 }
 
+double f1(double x, double y)
+{
+	return sin(x) * sin(y);
+}
+
+double f2(double x, double y)
+{
+	return cos(x) * cos(y);
+}
+
+void test_jacobian(const Mesh & m)
+{
+	Jacobian j(m);
+	vector < double > F1;
+	vector < double > F2;
+	vector < double > ans1;
+
+	mke_proj(m, F1, f1);
+	mke_proj(m, F1, f1);
+
+
+	ans1.resize(m.inner.size());
+	j.calc2(&ans1[0], &F1[0], &F2[0]);
+}
+
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
@@ -52,4 +77,7 @@ int main(int argc, char *argv[])
 	} else {
 		usage(argv[0]);
 	}
+
+	test_jacobian(mesh);
 }
+
