@@ -396,18 +396,16 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tria
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
 
-double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
+void convolution(double * ans, const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
 	int sz  = m.ps.size(); // размерность
-	vector < double > nr(sz);
-	double s = 0.0;
 
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
 		// по всем точкам
 		int p = i;
-		nr[i] = 0.0;
+		ans[i] = 0.0;
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольникам в точке
 			int trk_i               = m.adj[p][tk];
@@ -417,11 +415,18 @@ double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j  = trk.p[i0];
-				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, i, j, user_data);
+				ans[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, i, j, user_data);
 			}
 		}
 	}
+}
 
+double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
+{
+	int sz  = m.ps.size();
+	double s = 0.0;
+	vector < double > nr(sz);
+	convolution(&nr[0], u, v, m, cb, user_data);
 #pragma omp parallel for reduction(+:s)
 	for (int i = 0; i < sz; ++i) {
 		s = s + nr[i];

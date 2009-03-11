@@ -223,7 +223,7 @@ double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tri
 /* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику на сфере */
 double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * user_data);
 
-//void ;
+void convolution(double * ans, const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data);
 
 /* сеточное скал€рное произведение двух функций */
 double mke_scalar(const double * u, const double * v, 
