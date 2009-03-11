@@ -160,12 +160,12 @@ void Mesh::load(FILE * f)
 	// triangles
 	do
 	{
-		int n1, n2, n3, tid;
+		int n1, n2, n3, tid, z = 0;
 
 		if (*s == '#') 
 			break;
 
-		if (sscanf (s, "%d%d%d", &n1, &n2, &n3) != 3)
+		if (sscanf (s, "%d%d%d ; %d", &n1, &n2, &n3, &z) < 3)
 		{
 			goto bad;
 		}
@@ -183,7 +183,7 @@ void Mesh::load(FILE * f)
 			goto bad;
 		}
 
-		Triangle t(n1, n2, n3);
+		Triangle t(n1, n2, n3, 0);
 		tid = tr.size();
 		tr.push_back (t);
 		if ((int)adj.size() <= n1) adj.resize(n1 + 1);

@@ -59,13 +59,15 @@ inline Point operator + (const Point & p1, const Point & p2)
 }
 
 struct Triangle {
-	int p[3];
+	int p[3];  /* point numbers */
+	int z;     /* zone number   */
 
-	Triangle(int p1_, int p2_, int p3_)
+	Triangle(int p1_, int p2_, int p3_, int zone = 0)
 	{
 		p[0] = p1_;
 		p[1] = p2_;
 		p[2] = p3_;
+		z    = zone;
 	}
 
 	double x(int i, const std::vector < Point > & ps) const {
