@@ -320,7 +320,12 @@ void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, in
 	fprintf(stdout, "# points %lu\n", points.size());
 	fprintf(stdout, "# zone1 ; zone2 ; zone 3; ... \n");
 	if (local) {
-		fprintf(stdout, "# u v \n");
+		fprintf(stdout, "# u = theta  [-pi/2, pi/2]\n"
+				"# v = lambda [0, 2pi]\n"
+				"# x = cos u cos v \n"
+				"# y = cos u sin v \n"
+				"# z = sin u \n"
+				"# u v \n");
 	} else {
 		fprintf(stdout, "# x y z \n");
 	}
@@ -340,7 +345,16 @@ void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, in
 		 * z = sin u
 		 */
 		if (local) {
-			fprintf(stdout, "%.16lf %.16lf \n", u(x, y, z), v(x, y, z));
+			double u_ = u(x, y, z), v_ = v(x, y, z);
+			// zone 1
+			fprintf(stdout, "%.16lf %.16lf ", u_, v_);
+			// zone 2
+			if (v_ > M_PI) {
+				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_ - M_PI);
+			} else {
+				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_ + M_PI);
+			}
+			fprintf(stdout, "\n");
 		} else {
 			fprintf(stdout, "%.16lf %.16lf %.16lf\n", x, y, z);
 		}
@@ -350,7 +364,42 @@ void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, in
 	for (vector < Triangle >::const_iterator it = mesh.begin(); 
 		it != mesh.end(); ++it)
 	{
-		fprintf(stdout, "%lu %lu %lu\n", it->v1 + 1, it->v2 + 1, it->v3 + 1);
+		fprintf(stdout, "%lu %lu %lu ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
+		if (local) {
+			double x1, y1, z1, x2, y2, z2, x3, y3, z3;
+			double u1, v1, u2, v2, u3, v3;
+
+			x1 = points[it->v1].x;
+			y1 = points[it->v1].y;
+			z1 = points[it->v1].z;
+
+			x2 = points[it->v2].x;
+			y2 = points[it->v2].y;
+			z2 = points[it->v2].z;
+
+			x3 = points[it->v3].x;
+			y3 = points[it->v3].y;
+			z3 = points[it->v3].z;
+
+			u1 = u(x1, y1, z1);
+			v1 = v(x1, y1, z1);
+
+			u2 = u(x2, y2, z2);
+			v2 = v(x2, y2, z2);
+
+			u3 = u(x3, y3, z3);
+			v3 = v(x3, y3, z3);
+
+			if ((v1 - 0.5 * M_PI) * (v2 - 0.5 * M_PI) < 0 ||
+			    (v1 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0 ||
+			    (v2 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0) 
+			{
+				// in zone 2
+				fprintf(stdout, " ; 2 ");
+			}
+		}
+
+		fprintf(stdout, "\n");
 	}
 	
 	if (type == 1 || type == 2) {
