@@ -386,12 +386,12 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 	}
 }
 
-double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data)
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * )
 {
 	return integrate(phi_i * phi_j, trk, m.ps);
 }
 
-double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data)
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * user_data)
 {
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
@@ -417,7 +417,7 @@ double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j  = trk.p[i0];
-				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, user_data);
+				nr[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, i, j, user_data);
 			}
 		}
 	}

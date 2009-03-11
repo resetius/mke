@@ -212,14 +212,18 @@ typedef double (* scalar_cb_t)
 	const Polynom & phi_j, 
 	const Triangle & tr, /* номер треугольника */
 	const Mesh & mesh,   /* сетка */
+	int point_i,
+	int point_j,
 	void * user_data     /* сюда могу входить любые данные */
 );
 
 /* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику */
-double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data);
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * );
 
 /* тут вычисл€етс€ интеграл от произведени€ функций по треугольнику на сфере */
-double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, void * user_data);
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * user_data);
+
+//void ;
 
 /* сеточное скал€рное произведение двух функций */
 double mke_scalar(const double * u, const double * v, 
