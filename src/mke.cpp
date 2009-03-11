@@ -139,8 +139,8 @@ void Mesh::load(FILE * f)
 		if (*s == '#')
 			break;
 
-		a = sscanf (s, "%lf%lf%lf", &x, &y, &z);
-		if (a != 3 && a != 2)
+		a = sscanf (s, "%lf%lf", &x, &y);
+		if (a != 2)
 		{
 			goto bad;
 		}
