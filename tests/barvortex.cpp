@@ -160,6 +160,10 @@ BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)
 {
 }
 
+/**
+ * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
+ * L = Laplace
+ */
 void BarVortex::calc(double * Ans, const double * F, const double * bnd, double t)
 {
 	assert(0);
