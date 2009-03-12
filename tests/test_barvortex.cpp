@@ -53,7 +53,10 @@ double f2(double x, double y)
 
 double an(double x, double y)
 {
-	return (-sin(x)*cos(y)*sin(x)*cos(y)-cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
+	return (-sin(x)*cos(y)*sin(x)*cos(y)+cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
+	//return (-sin(x)*cos(y)*sin(x)*cos(y)) / cos(x);
+	//return (-cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
+
 	//return cos(x) * sin(y) / cos(x);	
 	//return sin(x) * cos(y) / cos(x);
 }
