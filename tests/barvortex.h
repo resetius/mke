@@ -28,6 +28,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <vector>
+
 #include "laplace.h"
 #include "solver.h"
 
@@ -55,6 +57,8 @@ class BarVortex {
 	const Mesh & m_;
 	SphereLaplace l_;
 	Jacobian j_;
+
+	std::vector < double > lh_; // l + h
 
 public:
 	BarVortex(const Mesh & m);

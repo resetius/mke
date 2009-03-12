@@ -60,7 +60,7 @@ static double id_cb(const Polynom & phi_i,
 /**
  * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
  */
-Jacobian::Jacobian(const Mesh & m): m_(m), idt_(m.inner.size())
+Jacobian::Jacobian(const Mesh & m): m_(m), idt_((int)m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 }
@@ -126,8 +126,8 @@ static double diff_2_cos_rp(const Polynom & phi_i,
 
 void Jacobian::calc2(double * Ans, const double * u, const double * v)
 {
-	int rs = m_.inner.size();
-	int sz = m_.ps.size();
+	int rs = (int)m_.inner.size();
+	int sz = (int)m_.ps.size();
 #if 0
 	vector < double > rp(sz);
 	convolution(&rp[0], u, v, m_, (scalar_cb_t)jacobian, 0);
@@ -144,28 +144,34 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	idt_.solve(&pt1[0], &rp[0]);
 	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
 	idt_.solve(&tmp[0], &rp[0]);
-	vector_mult(&pt1[0], &pt1[0], &tmp[0], pt1.size());
+	vector_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
 
 	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
 	idt_.solve(&pt2[0], &rp[0]);
 	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
 	idt_.solve(&tmp[0], &rp[0]);
-	vector_mult(&pt2[0], &pt2[0], &tmp[0], pt1.size());
+	vector_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
 
-	vector_diff(Ans, &pt1[0], &pt2[0], pt1.size());
+	vector_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
 #endif
 }
 
 BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)
 {
+	lh_.resize(m_.ps.size());
 }
 
 /**
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
-void BarVortex::calc(double * Ans, const double * F, const double * bnd, double t)
+void BarVortex::calc(double * Ans, const double * X0, 
+					 const double * bnd, double t)
 {
+	int rs = (int)m_.inner.size();
+	int sz = (int)m_.ps.size();
+
+	vector < double > omega(rs);
+	l_.calc2(&omega[0], X0);
 	assert(0);
 }
-

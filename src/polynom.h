@@ -65,7 +65,7 @@ struct Polynom {
 	double apply(double x, double y) const;
 
 	void operator /= (double k) {
-		uint sz   = koef_.size();
+		uint sz   = (uint)koef_.size();
 		double k1 = 1.0 / k;
 		for (uint i = 0; i < sz; ++i) {
 			koef_[i] *= k1;
@@ -106,7 +106,7 @@ inline Polynom operator - (const Polynom &p1, double x)
 inline Polynom operator * (const Polynom &p1, double x)
 {
 	Polynom r(p1);
-	uint sz = r.koef_.size();
+	uint sz = (uint)r.koef_.size();
 	for (uint i = 0; i < sz; ++i)
 	{
 		r.koef_[i] *= x;

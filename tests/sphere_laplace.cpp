@@ -109,9 +109,9 @@ void SphereLaplace::solve(double * Ans,
 			  const double * F, const double * bnd)
 {
 	//пока используем первый порядок
-	int sz  = m_.ps.size();
-	int ntr = m_.tr.size();
-	int rs  = m_.inner.size();     //размерность
+	int sz  = (int)m_.ps.size();
+	int ntr = (int)m_.tr.size();
+	int rs  = (int)m_.inner.size();     //размерность
 
 	vector < double > b(rs);      // правая часть
 	vector < double > x(rs);      // ответ
@@ -153,8 +153,8 @@ static double lp_rp(const Polynom & phi_i,
 }
 
 SphereLaplace::SphereLaplace(const Mesh & m): m_(m), 
-	idt_(m.inner.size()),
-	laplace_(m.inner.size())
+	idt_((int)m.inner.size()),
+	laplace_((int)m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, slaplace_integrate_cb, 0);
@@ -243,7 +243,7 @@ SphereChafe::schafe_right_part_cb( const Polynom & phi_i,
 }
 
 SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
-	: m_(m), laplace_(m), A_(m.inner.size()), 
+	: m_(m), laplace_(m), A_((int)m.inner.size()), 
 	tau_(tau), mu_(mu), sigma_(sigma)
 {
 	/* Матрица левой части */
@@ -258,8 +258,8 @@ SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
 void SphereChafe::solve(double * Ans, const double * X0,
 						const double * bnd, double t)
 {
-	int rs  = m_.inner.size();
-	int sz  = m_.ps.size();
+	int rs  = (int)m_.inner.size();
+	int sz  = (int)m_.ps.size();
 	vector < double > u(rs);
 	vector < double > p(sz);
 	vector < double > delta_u(rs);
