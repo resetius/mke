@@ -54,6 +54,8 @@ double f2(double x, double y)
 double an(double x, double y)
 {
 	return (-sin(x)*cos(y)*sin(x)*cos(y)-cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
+	//return cos(x) * sin(y) / cos(x);	
+	//return sin(x) * cos(y) / cos(x);
 }
 
 void test_jacobian(const Mesh & m)
@@ -70,18 +72,17 @@ void test_jacobian(const Mesh & m)
 	mke_proj(m, rans1, an);
 	mke_proj_bnd(m, bnd, an);
 
-
 	ans1.resize(m.ps.size());
 	j.calc1(&ans1[0], &F1[0], &F2[0], &bnd[0]);
 
 	fprintf(stderr, "jacobian  err=%.2le\n", 
 		mke_dist(&ans1[0], &rans1[0], m, sphere_scalar_cb));
 
-	vector < double > p1(m.inner.size());
-	mke_u2p(&p1[0], &rans1[0], m);
-	vector_print(&p1[0], p1.size());
-	mke_u2p(&p1[0], &ans1[0], m);
-	vector_print(&p1[0], p1.size());
+//	vector < double > p1(m.inner.size());
+//	mke_u2p(&p1[0], &rans1[0], m);
+//	vector_print(&p1[0], p1.size());
+//	mke_u2p(&p1[0], &ans1[0], m);
+//	vector_print(&p1[0], p1.size());
 
 	//vector_print(&rans1[0], rans1.size());
 	//vector_print(&ans1[0], ans1.size());

@@ -31,6 +31,7 @@
 #include <math.h>
 
 #include "barvortex.h"
+#include "util.h"
 
 using namespace std;
 
@@ -71,38 +72,81 @@ void Jacobian::calc1(double * Ans, const double * u, const double * v, const dou
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
-static double lp_rp(const Polynom & phi_i,
+static double diff_1_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
 		int i,
 		int j,
-		std::pair < const double * , const double * > * pp)
+		const double * u)
 {
-	const double * u = pp->first;
-	const double * v = pp->second;
-	//return d[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+	Polynom poly = diff(phi_j, 0) * phi_i;
+	double r = u[j] * integrate(poly, trk, m.ps);
+	return r;
+}
 
-	Polynom pt1  = diff(phi_i, 1) * diff(phi_j, 0);
-	Polynom pt2  = diff(phi_i, 0) * diff(phi_j, 1);
-	Polynom poly = (pt2 - pt1) * phi_j;
+static double diff_1_cos_rp(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int i,
+		int j,
+		const double * u)
+{
+	Polynom poly = diff(phi_j, 0) * phi_i;
+	double r = u[j] * integrate_cos(poly, trk, m.ps);
+	return r;
+}
 
-	double r = u[i] * v[j] * integrate(poly, trk, m.ps);
+static double diff_2_rp(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int i,
+		int j,
+		const double * u)
+{
+	Polynom poly = diff(phi_j, 1) * phi_i;
+	double r = u[j] * integrate(poly, trk, m.ps);
+	return r;
+}
+
+static double diff_2_cos_rp(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int i,
+		int j,
+		const double * u)
+{
+	Polynom poly = diff(phi_j, 1) * phi_i;
+	double r = u[j] * integrate_cos(poly, trk, m.ps);
 	return r;
 }
 
 void Jacobian::calc2(double * Ans, const double * u, const double * v)
 {
-	vector < double > rp(m_.inner.size());
+	int rs = m_.inner.size();
 	int sz = m_.ps.size();
-//	vector < double > j1(sz);
-//	convolution(&j1[0], u, v, m_, (scalar_cb_t)jacobian, 0);
 
-//	mke_u2p(Ans, &j1[0], m_);
+	vector < double > rp(rs);
+	vector < double > pt1(rs);
+	vector < double > pt2(rs);
+	double * tmp = Ans;
 
-	std::pair < const double * , const double * > pp = make_pair(u, v);
-	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &pp);
-	idt_.solve(Ans, &rp[0]);
+	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
+	idt_.solve(&pt1[0], &rp[0]);
+	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
+	idt_.solve(&tmp[0], &rp[0]);
+	vector_mult(&pt1[0], &pt1[0], &tmp[0], pt1.size());
+
+	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
+	idt_.solve(&pt2[0], &rp[0]);
+	generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
+	idt_.solve(&tmp[0], &rp[0]);
+	vector_mult(&pt2[0], &pt2[0], &tmp[0], pt1.size());
+
+	vector_diff(Ans, &pt1[0], &pt2[0], pt1.size());
 }
 
 BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)

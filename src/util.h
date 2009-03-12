@@ -140,6 +140,17 @@ void sparse_print(const struct Sparse * A, int n, FILE * f);
  */
 void vector_sum1(double * r, const double * a, const double *b, double k1, double k2, int n);
 
+/**
+ * r = a + b
+ */
+void vector_sum(double * r, const double * a, const double *b, int n);
+
+/**
+ * поэлементное умножение
+ * r = a * b
+ */
+void vector_mult(double * r, const double * a, const double * b, int n);
+
 void vector_diff(double * r, const double * a, const double * b, int n);
 
 double get_full_time();

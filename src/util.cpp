@@ -323,6 +323,24 @@ void vector_sum1(double * r, const double * a, const double *b, double k1, doubl
 	}
 }
 
+void vector_sum(double * r, const double * a, const double *b, int n)
+{
+	int i;
+#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		r[i] = a[i] + b[i];
+	}
+}
+
+void vector_mult(double * r, const double * a, const double *b, int n)
+{
+	int i;
+#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		r[i] = a[i] * b[i];
+	}
+}
+
 /**
  * r = a - b
  */
