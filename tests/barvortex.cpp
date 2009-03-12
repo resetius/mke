@@ -43,7 +43,7 @@ jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
 	Polynom pt2 = diff(phi_i, 0) * diff(phi_j, 1);
 
 	Point p = m.ps[i];
-	return -(pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y)) / cos(p.x);
+	return (pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y)) / cos(p.x);
 }
 
 static double id_cb(const Polynom & phi_i,
@@ -128,7 +128,13 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 {
 	int rs = m_.inner.size();
 	int sz = m_.ps.size();
+#if 0
+	vector < double > rp(sz);
+	convolution(&rp[0], u, v, m_, (scalar_cb_t)jacobian, 0);
+	mke_u2p(Ans, &rp[0], m_);
+#endif
 
+#if 1
 	vector < double > rp(rs);
 	vector < double > pt1(rs);
 	vector < double > pt2(rs);
@@ -147,6 +153,7 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	vector_mult(&pt2[0], &pt2[0], &tmp[0], pt1.size());
 
 	vector_diff(Ans, &pt1[0], &pt2[0], pt1.size());
+#endif
 }
 
 BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)

@@ -81,11 +81,11 @@ void test_jacobian(const Mesh & m)
 	fprintf(stderr, "jacobian  err=%.2le\n", 
 		mke_dist(&ans1[0], &rans1[0], m, sphere_scalar_cb));
 
-//	vector < double > p1(m.inner.size());
-//	mke_u2p(&p1[0], &rans1[0], m);
-//	vector_print(&p1[0], p1.size());
-//	mke_u2p(&p1[0], &ans1[0], m);
-//	vector_print(&p1[0], p1.size());
+	//vector < double > p1(m.inner.size());
+	//mke_u2p(&p1[0], &rans1[0], m);
+	//vector_print(&p1[0], p1.size());
+	//mke_u2p(&p1[0], &ans1[0], m);
+	//vector_print(&p1[0], p1.size());
 
 	//vector_print(&rans1[0], rans1.size());
 	//vector_print(&ans1[0], ans1.size());
