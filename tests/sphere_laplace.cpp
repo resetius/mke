@@ -58,7 +58,7 @@ static double laplace2(const Polynom & phi_i, const Polynom & phi_j,
 	return integrate_1_cos(diff(phi_i, 1) * diff(phi_j, 1), trk, ps);
 }
 
-static double laplace(const Polynom & phi_i, const Polynom & phi_j, 
+double laplace(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps)
 {
 	return -(laplace1(phi_i, phi_j, trk, ps) + laplace2(phi_i, phi_j, trk, ps));
@@ -300,4 +300,3 @@ void SphereChafe::solve(double * Ans, const double * X0,
 //	laplace_.print();
 	mke_solve(Ans, bnd, &rp[0], A_, m_);
 }
-

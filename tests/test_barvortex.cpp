@@ -91,6 +91,26 @@ void test_jacobian(const Mesh & m)
 	//vector_print(&ans1[0], ans1.size());
 }
 
+void test_barvortex(const Mesh & m)
+{
+	double tau = 0.001;
+	int steps = 1;
+	BarVortex bv(m, tau, 1.6e-2, 8e-5);
+
+	vector < double > u;
+	vector < double > bnd;
+
+	mke_proj(m, u, f1);
+	mke_proj_bnd(m, bnd, f1);
+
+	for (int i = 0; i < steps; ++i) {
+		bv.calc(&u[0], &u[0], &bnd[0], (double)i * tau);
+
+		fprintf(stderr, "norm = %le\n",
+			mke_norm(&u[0], m, sphere_scalar_cb));
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
@@ -106,7 +126,8 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	test_jacobian(mesh);
+	//test_jacobian(mesh);
+	test_barvortex(mesh);
 	return 0;
 }
 

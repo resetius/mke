@@ -57,11 +57,32 @@ class BarVortex {
 	const Mesh & m_;
 	SphereLaplace l_;
 	Jacobian j_;
+	Matrix A_;
 
 	std::vector < double > lh_; // l + h
 
+	double tau_;
+	double sigma_;
+	double mu_;
+
+	static double integrate_cb( const Polynom & phi_i,
+                     const Polynom & phi_j, 
+                     const Triangle & trk,
+                     const Mesh & m,
+                     int point_i, int point_j,
+                     BarVortex * d);
+
+	struct right_part_cb_data;
+	static double 
+	right_part_cb( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      const Triangle & trk,
+                      const Mesh & m,
+                      int point_i, int point_j,
+                      right_part_cb_data * d);
+
 public:
-	BarVortex(const Mesh & m);
+	BarVortex(const Mesh & m, double tau, double sigma, double mu);
 
 	/**
 	 * F   -- значение функции на предыдущем шаге по времени

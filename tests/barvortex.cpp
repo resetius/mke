@@ -156,9 +156,81 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 #endif
 }
 
-BarVortex::BarVortex(const Mesh & m): m_(m), l_(m), j_(m)
+double laplace(const Polynom & phi_i, const Polynom & phi_j, 
+		const Triangle & trk, const Mesh::points_t & ps);
+
+double 
+BarVortex::integrate_cb( const Polynom & phi_i,
+                     const Polynom & phi_j, 
+                     const Triangle & trk,
+                     const Mesh & m,
+                     int point_i, int point_j,
+                     BarVortex * d)
+{
+	double tau   = d->tau_;
+	double mu    = d->mu_;
+	double sigma = d->sigma_;
+
+	double pt1, pt2;
+
+	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
+	pt1 *= 1.0 / tau + sigma * 0.5;
+
+	pt2  =  laplace(phi_j, phi_i, trk, m.ps);
+	pt2 *= -0.5 * mu;
+
+	return pt1 + pt2;
+}
+
+BarVortex::BarVortex(const Mesh & m, double tau, 
+					 double sigma, double mu)
+					 : m_(m), l_(m), j_(m), A_(m.inner.size()),
+					 tau_(tau), sigma_(sigma), mu_(mu)
 {
 	lh_.resize(m_.ps.size());
+
+	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
+	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
+}
+
+static double f(double x, double y, double t, 
+				double mu, double sigma)
+{
+	double a = exp(t) * sin(y) * sin(2.0 * x);
+	double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
+
+	return a - mu * b + sigma * a;
+}
+
+struct BarVortex::right_part_cb_data
+{
+	const double * F;
+	const double * bnd;
+	BarVortex  * d;
+};
+
+double 
+BarVortex::right_part_cb( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      const Triangle & trk,
+                      const Mesh & m,
+                      int point_i, int point_j,
+                      right_part_cb_data * d)
+{
+	const double * F = d->F;
+	double b;
+
+	if (m.ps_flags[point_j] == 1) { // на границе
+		int j0       = m.p2io[point_j]; //номер внешней точки
+		const double * bnd = d->bnd;
+		b = -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
+			trk, m, point_i, point_j, d->d);
+		//b = 0.0;
+	} else {
+		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
+	}
+	return b;
 }
 
 /**
@@ -171,7 +243,60 @@ void BarVortex::calc(double * Ans, const double * X0,
 	int rs = (int)m_.inner.size();
 	int sz = (int)m_.ps.size();
 
+	vector < double > omega1(sz);
+	vector < double > lomega(rs);
+	vector < double > rp(rs);
+
 	vector < double > omega(rs);
-	l_.calc2(&omega[0], X0);
-	assert(0);
+	vector < double > u(rs);
+	vector < double > omega_lh(sz);
+	vector < double > jac(rs);
+
+	vector < double > p1(sz);
+
+	// генерируем правую часть
+	// w/dt + mu \Delta w / 2 - \sigma w/2 -
+	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+
+	// omega = L (u)
+	l_.calc1(&omega1[0], X0, bnd);    //TODO: а чему у нас на краях равно omega?
+	// L omega
+	l_.calc2(&lomega[0], &omega1[0]);
+	mke_u2p(&omega[0], &omega1[0], m_);
+	mke_u2p(&u[0], &X0[0], m_);
+
+	// w/dt + mu \Delta w / 2
+	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
+
+	// w/dt + mu \Delta w / 2 - \sigma w/2
+	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
+
+	// 0.5(w+w) + l + h
+	vector_sum(&omega_lh[0], &omega1[0], &lh_[0], rs);
+	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
+	j_.calc2(&jac[0], &X0[0], &omega_lh[0]);
+	// w/dt + mu \Delta w / 2 - \sigma w/2 -
+	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+	for (int i = 0; i < rs; ++i) {
+		int point = m_.inner[i];
+		double x  = m_.ps[point].x;
+		double y  = m_.ps[point].y;
+
+		omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
+	}
+
+	mke_p2u(&p1[0], &omega[0], bnd, m_); //TODO: а чему у нас на краях равно omega?
+
+	right_part_cb_data data2;
+	data2.F   = &p1[0];
+	data2.bnd = bnd;
+	data2.d   = this;
+
+	generate_right_part(&rp[0], m_, 
+		(right_part_cb_t)right_part_cb, (void*)&data2);
+
+	//TODO: тут граничное условие на омега!
+	mke_solve(&omega1[0], bnd, &rp[0], A_, m_);
+	//TODO: а тут граничное условие на пси!
+	l_.solve(Ans, &omega1[0], bnd);
 }
