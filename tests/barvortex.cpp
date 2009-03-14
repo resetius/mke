@@ -228,7 +228,7 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 			trk, m, point_i, point_j, d->d);
 		//b = 0.0;
 	} else {
-		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -295,11 +295,9 @@ void BarVortex::calc(double * psi, const double * X_0,
 			omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
 		}
 
-		mke_p2u(&p1[0], &omega[0], bnd, m_); //TODO: а чему у нас на краях равно omega?
-
 		right_part_cb_data data2;
-		data2.F   = &p1[0];
-		data2.bnd = bnd;
+		data2.F   = &omega[0];
+		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
 		data2.d   = this;
 
 		generate_right_part(&rp[0], m_, 
