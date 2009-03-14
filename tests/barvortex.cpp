@@ -286,6 +286,7 @@ void BarVortex::calc(double * psi, const double * X_0,
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
 		// w/dt + mu \Delta w / 2 - \sigma w/2 -
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+#pragma omp parallel for
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
 			double x  = m_.ps[point].x;
