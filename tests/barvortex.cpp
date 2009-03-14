@@ -277,8 +277,6 @@ void BarVortex::calc(double * psi, const double * X_0,
 	// w/dt + mu \Delta w / 2 - \sigma w/2
 	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
 
-	memcpy(&prev_psi[0], psi, sz * sizeof(double));
-
 	while (true) {
 		// 0.5(w+w) + l + h
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
