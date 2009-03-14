@@ -237,33 +237,39 @@ BarVortex::right_part_cb( const Polynom & phi_i,
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
-void BarVortex::calc(double * Ans, const double * X0, 
+void BarVortex::calc(double * psi, const double * X_0, 
 					 const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size();
 	int sz = (int)m_.ps.size();
 
-	vector < double > omega1(sz);
-	vector < double > lomega(rs);
+	vector < double > omega_0(sz); // omega_0 = L (X_0)
+	vector < double > omega_1(sz);
+	vector < double > lomega(rs);  // L(omega)
 	vector < double > rp(rs);
 
-	vector < double > omega(rs);
-	vector < double > u(rs);
-	vector < double > omega_lh(sz);
-	vector < double > jac(rs);
+	vector < double > omega(rs);    // = omega_1 без границы
+	vector < double > u(rs);        // = psi без границы
+	vector < double > omega_lh(sz); // omega + l + h
+	vector < double > jac(rs);      // jacobian
 
 	vector < double > p1(sz);
+	vector < double > prev_psi(sz);
 
 	// генерируем правую часть
 	// w/dt + mu \Delta w / 2 - \sigma w/2 -
 	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 
 	// omega = L (u)
-	l_.calc1(&omega1[0], X0, bnd);    //TODO: а чему у нас на краях равно omega?
-	// L omega
-	l_.calc2(&lomega[0], &omega1[0]);
-	mke_u2p(&omega[0], &omega1[0], m_);
-	mke_u2p(&u[0], &X0[0], m_);
+	l_.calc1(&omega_0[0], X_0, bnd);    //TODO: а чему у нас на краях равно omega?
+	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
+	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
+
+
+	// L (omega)
+	l_.calc2(&lomega[0], &omega_1[0]);
+	mke_u2p(&omega[0], &omega_1[0], m_);
+	mke_u2p(&u[0], &psi[0], m_);
 
 	// w/dt + mu \Delta w / 2
 	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
@@ -271,32 +277,49 @@ void BarVortex::calc(double * Ans, const double * X0,
 	// w/dt + mu \Delta w / 2 - \sigma w/2
 	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
 
-	// 0.5(w+w) + l + h
-	vector_sum(&omega_lh[0], &omega1[0], &lh_[0], rs);
-	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
-	j_.calc2(&jac[0], &X0[0], &omega_lh[0]);
-	// w/dt + mu \Delta w / 2 - \sigma w/2 -
-	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
-	for (int i = 0; i < rs; ++i) {
-		int point = m_.inner[i];
-		double x  = m_.ps[point].x;
-		double y  = m_.ps[point].y;
+	while (true) {
+		// 0.5(w+w) + l + h
+		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
+		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
+		vector_sum1(&prev_psi[0], &X_0[0], &psi[0], 0.5, 0.5, sz);
+		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
+		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
+		// w/dt + mu \Delta w / 2 - \sigma w/2 -
+		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+		for (int i = 0; i < rs; ++i) {
+			int point = m_.inner[i];
+			double x  = m_.ps[point].x;
+			double y  = m_.ps[point].y;
 
-		omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
+			omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
+		}
+
+		mke_p2u(&p1[0], &omega[0], bnd, m_); //TODO: а чему у нас на краях равно omega?
+
+		right_part_cb_data data2;
+		data2.F   = &p1[0];
+		data2.bnd = bnd;
+		data2.d   = this;
+
+		generate_right_part(&rp[0], m_, 
+			(right_part_cb_t)right_part_cb, (void*)&data2);
+
+		//TODO: тут граничное условие на омега!
+		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
+		//TODO: а тут граничное условие на пси!
+		memcpy(&prev_psi[0], psi, sz * sizeof(double));
+		l_.solve(psi, &omega_1[0], bnd);
+		{
+			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
+			if (nr < 1e-10) {
+				break;
+			}
+		}
+
+		// update 
+		// L (omega)
+		l_.calc2(&lomega[0], &omega_1[0]);
+		mke_u2p(&omega[0], &omega_1[0], m_);
+		mke_u2p(&u[0], &psi[0], m_);
 	}
-
-	mke_p2u(&p1[0], &omega[0], bnd, m_); //TODO: а чему у нас на краях равно omega?
-
-	right_part_cb_data data2;
-	data2.F   = &p1[0];
-	data2.bnd = bnd;
-	data2.d   = this;
-
-	generate_right_part(&rp[0], m_, 
-		(right_part_cb_t)right_part_cb, (void*)&data2);
-
-	//TODO: тут граничное условие на омега!
-	mke_solve(&omega1[0], bnd, &rp[0], A_, m_);
-	//TODO: а тут граничное условие на пси!
-	l_.solve(Ans, &omega1[0], bnd);
 }
