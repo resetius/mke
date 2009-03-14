@@ -350,15 +350,23 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 
 void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
 {
+	int rs  = m.inner.size();     // размерность
+	vector < double > x(rs);      // ответ
+
+	mke_solve2(&x[0], b, A, m);
+	mke_p2u(Ans, &x[0], bnd, m);
+}
+
+void mke_solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
+{
 	int sz  = m.ps.size();
 	int rs  = m.inner.size();     // размерность
 	vector < double > x(rs);      // ответ
 
 	Timer t;
 	fprintf(stderr, "solve %dx%d: \n", rs, rs);
-	A.solve(&x[0], &b[0]);
+	A.solve(Ans, &b[0]);
 	fprintf(stderr, "mke_solve: %lf \n", t.elapsed());
-	mke_p2u(Ans, &x[0], bnd, m);
 }
 
 /* добавляем краевые условия */

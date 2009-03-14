@@ -194,6 +194,12 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
  */
 void mke_solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
 
+/**
+ * Решает систему.
+ * answer - это только значения во внутренних точках!
+ */
+void mke_solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
+
 /* добавляем краевые условия */
 void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 
