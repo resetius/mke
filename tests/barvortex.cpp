@@ -312,9 +312,5 @@ void BarVortex::calc(double * psi, const double * X_0,
 				break;
 			}
 		}
-
-		// update 
-		// L (omega)
-		l_.calc2(&lomega[0], &omega_1[0]);
 	}
 }
