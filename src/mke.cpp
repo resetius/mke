@@ -366,6 +366,7 @@ void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 {
 	int sz  = m.ps.size();
 
+#pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
 		if (m.ps_flags[i] == 1) {
 			//внешн€€
@@ -381,7 +382,8 @@ void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 void mke_u2p(double * p, const double * u, const Mesh & m)
 {
 	int j = 0;
-	for (int i = 0; i < (int)m.inner.size(); ++i) {
+	int rs = (int)m.inner.size();
+	for (int i = 0; i < rs; ++i) {
 		p[j++] = u[m.inner[i]];
 	}
 }
