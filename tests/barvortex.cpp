@@ -249,7 +249,6 @@ void BarVortex::calc(double * psi, const double * X_0,
 	vector < double > rp(rs);
 
 	vector < double > omega(rs);    // = omega_1 без границы
-	vector < double > u(rs);        // = psi без границы
 	vector < double > omega_lh(sz); // omega + l + h
 	vector < double > jac(rs);      // jacobian
 
@@ -269,7 +268,6 @@ void BarVortex::calc(double * psi, const double * X_0,
 	// L (omega)
 	l_.calc2(&lomega[0], &omega_1[0]);
 	mke_u2p(&omega[0], &omega_1[0], m_);
-	mke_u2p(&u[0], &psi[0], m_);
 
 	// w/dt + mu \Delta w / 2
 	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
@@ -318,7 +316,5 @@ void BarVortex::calc(double * psi, const double * X_0,
 		// update 
 		// L (omega)
 		l_.calc2(&lomega[0], &omega_1[0]);
-		mke_u2p(&omega[0], &omega_1[0], m_);
-		mke_u2p(&u[0], &psi[0], m_);
 	}
 }
