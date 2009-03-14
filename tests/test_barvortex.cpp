@@ -94,7 +94,7 @@ void test_jacobian(const Mesh & m)
 void test_barvortex(const Mesh & m)
 {
 	double tau = 0.001;
-	int steps = 1;
+	int steps = 100;
 	BarVortex bv(m, tau, 1.6e-2, 8e-5);
 
 	vector < double > u;
@@ -106,7 +106,7 @@ void test_barvortex(const Mesh & m)
 	for (int i = 0; i < steps; ++i) {
 		bv.calc(&u[0], &u[0], &bnd[0], (double)i * tau);
 
-		fprintf(stderr, "norm = %le\n",
+		fprintf(stderr, " === NORM = %le\n",
 			mke_norm(&u[0], m, sphere_scalar_cb));
 	}
 }
