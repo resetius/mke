@@ -112,7 +112,7 @@ void test_barvortex(const Mesh & m)
 	for (int i = 0; i < steps; ++i) {
 		bv.calc(&u[0], &u[0], &bnd[0], (double)i * tau);
 
-		fprintf(stderr, " === NORM = %le\n",
+		fprintf(stdout, " === NORM = %le\n",
 			mke_norm(&u[0], m, sphere_scalar_cb));
 	}
 }

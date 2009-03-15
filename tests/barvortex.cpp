@@ -308,6 +308,7 @@ void BarVortex::calc(double * psi, const double * X_0,
 		l_.solve(psi, &omega_1[0], bnd);
 		{
 			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
+		//	fprintf(stdout, "%le\n", nr);
 			if (nr < 1e-8) {
 				break;
 			}
