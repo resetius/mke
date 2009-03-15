@@ -63,19 +63,22 @@ double an(double x, double y)
 
 void test_jacobian(const Mesh & m)
 {
+	int sz = m.ps.size();
+	int rs = m.inner.size();
+	int os = m.outer.size();
+
 	Jacobian j(m);
-	vector < double > F1;
-	vector < double > F2;
-	vector < double > ans1;
-	vector < double > rans1;
-	vector < double > bnd;
+	vector < double > F1(sz);
+	vector < double > F2(sz);
+	vector < double > ans1(sz);
+	vector < double > rans1(sz);
+	vector < double > bnd(os);
 
-	mke_proj(m, F1, f1);
-	mke_proj(m, F2, f2);
-	mke_proj(m, rans1, an);
-	mke_proj_bnd(m, bnd, an);
+	mke_proj(&F1[0], m, f1);
+	mke_proj(&F2[0], m, f2);
+	mke_proj(&rans1[0], m, an);
+	mke_proj_bnd(&bnd[0], m, an);
 
-	ans1.resize(m.ps.size());
 	j.calc1(&ans1[0], &F1[0], &F2[0], &bnd[0]);
 
 	fprintf(stderr, "jacobian  err=%.2le\n", 
@@ -93,15 +96,18 @@ void test_jacobian(const Mesh & m)
 
 void test_barvortex(const Mesh & m)
 {
+	int sz = m.ps.size();
+	int os = m.outer.size();
+
 	double tau = 0.001;
 	int steps = 100;
 	BarVortex bv(m, tau, 1.6e-2, 8e-5);
 
-	vector < double > u;
-	vector < double > bnd;
+	vector < double > u(sz);
+	vector < double > bnd(os);
 
-	mke_proj(m, u, f1);
-	mke_proj_bnd(m, bnd, f1);
+	mke_proj(&u[0], m, f1);
+	mke_proj_bnd(&bnd[0], m, f1);
 
 	for (int i = 0; i < steps; ++i) {
 		bv.calc(&u[0], &u[0], &bnd[0], (double)i * tau);

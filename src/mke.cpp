@@ -134,7 +134,7 @@ void Mesh::load(FILE * f)
 	// points
 	do
 	{
-		double x, y, z;
+		double x, y;
 
 		if (*s == '#')
 			break;
@@ -457,18 +457,16 @@ double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t 
 	return mke_norm(&diff[0], m, cb, user_data);
 }
 
-void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xy_t f)
+void mke_proj(double * F, const Mesh & mesh, f_xy_t f)
 {
-	F.resize(mesh.ps.size());
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
 		F[i] = f(mesh.ps[i].x, mesh.ps[i].y);
 	}
 }
 
-void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xy_t f)
+void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
 {
-	F.resize(m.outer.size());
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0];
@@ -476,18 +474,16 @@ void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xy_t f)
 	}
 }
 
-void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xyt_t f, double t)
+void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 {
-	F.resize(mesh.ps.size());
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
 		F[i] = f(mesh.ps[i].x, mesh.ps[i].y, t);
 	}
 }
 
-void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xyt_t f, double t)
+void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
 {
-	F.resize(m.outer.size());
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0];

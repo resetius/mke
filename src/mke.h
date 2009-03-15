@@ -243,16 +243,16 @@ typedef double (* f_xy_t)(double x, double y);
 typedef double (* f_xyt_t)(double x, double y, double t);
 
 /* проектирование непрерывной функции f(x,y) на сетку */
-void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xy_t f);
+void mke_proj(double * F, const Mesh & mesh, f_xy_t f);
 
 /* проектирование непрерывной функции f(x,y) на границу сетки */
-void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xy_t f);
+void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f);
 
 /* проектирование непрерывной функции f(x,y,t) на сетку */
-void mke_proj(const Mesh & mesh, std::vector < double > & F, f_xyt_t f, double t);
+void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 
 /* проектирование непрерывной функции f(x,y,t) на границу сетки */
-void mke_proj_bnd(const Mesh & m, std::vector < double > & F, f_xyt_t f, double t);
+void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
 #endif /* MKE_H */
 

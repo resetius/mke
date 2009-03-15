@@ -88,10 +88,13 @@ int main(int argc, char *argv[])
 	double mu    = 1.0;
 	double sigma = +70;
 
-	vector < double > U;
-	vector < double > B;
-	vector < double > Ans;
-	vector < double > P;
+	int sz = mesh.ps.size();
+	int rs = mesh.inner.size();
+
+	vector < double > U(sz);
+	vector < double > B(mesh.outer.size());
+	vector < double > Ans(sz);
+	vector < double > P(rs);
 
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
@@ -104,9 +107,7 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	mke_proj(mesh, U, ans, 0.0);
-	Ans.resize(U.size());
-	P.resize(mesh.inner.size());
+	mke_proj(&U[0], mesh, ans, 0.0);
 
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
@@ -114,12 +115,12 @@ int main(int argc, char *argv[])
 	SphereChafe schafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
-		mke_proj_bnd(mesh, B, bnd, tau * (i + 1));
+		mke_proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
 		schafe.solve(&U[0], &U[0], &B[0], tau * (i));
 
 		// check
 		{
-			mke_proj(mesh, Ans, ans, tau * (i + 1));
+			mke_proj(&Ans[0], mesh, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
 				mke_dist(&U[0], &Ans[0], mesh, sphere_scalar_cb));
 //			vector_print(&U[0], U.size());

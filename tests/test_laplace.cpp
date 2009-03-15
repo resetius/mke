@@ -76,15 +76,18 @@ double nr2(double * a, double * b, int n)
 
 void test_invert(Mesh & mesh)
 {
-	vector < double > F;
-	vector < double > B;
-	vector < double > Ans;
-	vector < double > rans;
+	int sz = mesh.ps.size();
+	int rs = mesh.inner.size();
+	int os = mesh.outer.size();
 
-	mke_proj(mesh, F, rp);
-	mke_proj(mesh, rans, ans);
-	mke_proj_bnd(mesh, B, bnd);
-	Ans.resize(F.size());
+	vector < double > F(sz);
+	vector < double > B(os);
+	vector < double > Ans(sz);
+	vector < double > rans(sz);
+
+	mke_proj(&F[0], mesh, rp);
+	mke_proj(&rans[0], mesh, ans);
+	mke_proj_bnd(&B[0], mesh, bnd);
 
 	Laplace l(mesh);
 	l.solve(&Ans[0], &F[0], &B[0]);
@@ -94,27 +97,27 @@ void test_invert(Mesh & mesh)
 
 void test_laplace(Mesh & mesh)
 {
-	vector < double > U;
-	vector < double > LU;
-	vector < double > LU1;
-	vector < double > B;
-	vector < double > P;
-	vector < double > P1;
+	int sz = mesh.ps.size();
+	int rs = mesh.inner.size();
+	int os = mesh.outer.size();
 
-	mke_proj(mesh, U, ans);
-	mke_proj(mesh, LU, rp);
-	mke_proj_bnd(mesh, B, rp);
+	vector < double > U(sz);
+	vector < double > LU(sz);
+	vector < double > LU1(sz);
+	vector < double > B(os);
+	vector < double > P(rs);
+	vector < double > P1(rs);
 
-	LU1.resize(LU.size());
-	P.resize(mesh.inner.size());
-	P1.resize(mesh.inner.size());
+	mke_proj(&U[0], mesh, ans);
+	mke_proj(&LU[0], mesh, rp);
+	mke_proj_bnd(&B[0], mesh, rp);
 
 	Laplace l(mesh);
 	l.calc1(&LU1[0], &U[0], &B[0]);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 
-	mke_proj_bnd(mesh, B, ans);
+	mke_proj_bnd(&B[0], mesh, ans);
 	l.solve(&LU[0], &LU1[0], &B[0]);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
