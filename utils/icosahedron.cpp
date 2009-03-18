@@ -143,6 +143,44 @@ void build_icosahedron(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
+void build_test2(vector < Triangle > & r, vector < Vector > & p)
+{
+	double t = (1.0 + sqrt(5.0)) / 2.0;
+
+	double points[][3] = {
+		{t, 1.0, 0.0},   // 0
+		{-t, 1.0, 0.0},  // 1
+		{t, -1.0, 0.0},  // 2
+
+		{-t, -1.0, 0.0}, // 3
+		{1.0, 0.0, t},   // 4
+		{1.0, 0.0, -t},  // 5
+
+		{-1.0, 0.0, t},  // 6
+		{-1.0, 0.0, -t}, // 7
+	};
+
+	int triangles[][3] = {
+		{7, 3,  1},
+		{4, 2, 0},
+		{5,  0,  2},
+		{6,  1, 3},
+	};
+
+	int v = 8;
+	int f = 4;
+	int i;
+
+	for (i = 0; i < f; ++i) {
+		Triangle t1(triangles[i][0], triangles[i][1], triangles[i][2]);
+		r.push_back(t1);
+	}
+
+	for (i = 0; i < v; ++i) {
+		p.push_back(points[i]);
+	}
+}
+
 void build_hemisphere(vector < Triangle > & r, vector < Vector > & p)
 {
 	double points[][3] = {
@@ -473,6 +511,8 @@ int main(int argc, char * argv[])
 				type = 1;
 			} else if (!strcmp(argv[i + 1], "test")) {
 				type = 2;
+			} else if (!strcmp(argv[i + 1], "test2")) {
+				type = 3;
 			} else {
 				usage(argv[0]);
 			}
@@ -514,6 +554,8 @@ int main(int argc, char * argv[])
 	case 2:
 		build_test(mesh, points);
 		break;
+	case 3:
+		build_test2(mesh, points);
 	default:
 		assert(0);
 	}
