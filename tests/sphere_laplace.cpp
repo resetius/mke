@@ -281,8 +281,8 @@ void SphereChafe::solve(double * Ans, const double * X0,
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i) {
 		int point = m_.inner[i];
-		double x  = m_.ps[point].x;
-		double y  = m_.ps[point].y;
+		double x  = m_.ps[point].p_[0].x;
+		double y  = m_.ps[point].p_[0].y;
 
 		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
 	}

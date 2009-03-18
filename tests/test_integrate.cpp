@@ -10,6 +10,7 @@
 
 using namespace std;
 
+#if 0
 void test_simple()
 {
 	fprintf(stderr, "test_simple\n");
@@ -212,13 +213,15 @@ void test_sphere_area()
 	fprintf(stderr, "done\n");
 }
 
+#endif
+
 int main()
 {
 	//test_simple();
 	//test_simple2();
 	//test_elem();
 	//test_simple3();
-	test_sphere_area();
+	//test_sphere_area();
 	//test_trapezoid_cos();
 	return 0;
 }

@@ -23,7 +23,7 @@ void init_func(Mesh & mesh, vector < double > & F, double t, T f)
 	F.resize(mesh.ps.size());
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
-		F[i] = f(mesh.ps[i].x, mesh.ps[i].y, t);
+		F[i] = f(mesh.ps[i].p_[0].x, mesh.ps[i].p_[0].y, t);
 	}
 }
 
