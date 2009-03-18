@@ -59,10 +59,18 @@ inline Point operator + (const Point & p1, const Point & p2)
 }
 
 struct MeshPoint {
-	std::vector < Point > p_;
+	std::vector < Point > p;
 
-	void add(const Point & p) {
-		p_.push_back(p);
+	void add(const Point & p1) {
+		p.push_back(p1);
+	}
+
+	double x(int zone = 0) const {
+		return p[zone].x;
+	}
+
+	double y(int zone = 0) const {
+		return p[zone].y;
 	}
 };
 
@@ -79,11 +87,11 @@ struct Triangle {
 	}
 
 	double x(int i, const std::vector < MeshPoint > & ps) const {
-		return ps[p[i]].p_[z].x;
+		return ps[p[i]].x(z);
 	}
 
 	double y(int i, const std::vector < MeshPoint > & ps) const {
-		return ps[p[i]].p_[z].y;
+		return ps[p[i]].y(z);
 	}
 
 	//void print(const std::vector < Point > & ps) const {

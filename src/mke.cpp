@@ -253,8 +253,8 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 {
 	fprintf(to, "# points %lu\n", m.ps.size());
 	for (uint i = 0; i < m.ps.size(); ++i) {
-		double u = m.ps[i].p_[0].x;
-		double v = m.ps[i].p_[0].y;
+		double u = m.ps[i].x();
+		double v = m.ps[i].y();
 		double f = ans[i];
 
 		if (x) {
@@ -464,7 +464,7 @@ void mke_proj(double * F, const Mesh & mesh, f_xy_t f)
 {
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
-		F[i] = f(mesh.ps[i].p_[0].x, mesh.ps[i].p_[0].y);
+		F[i] = f(mesh.ps[i].x(), mesh.ps[i].y());
 	}
 }
 
@@ -472,7 +472,7 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
 {
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
-		const Point & p = m.ps[p0].p_[0];
+		const Point & p = m.ps[p0].p[0];
 		F[i] = f(p.x, p.y);
 	}
 }
@@ -481,7 +481,7 @@ void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 {
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
-		F[i] = f(mesh.ps[i].p_[0].x, mesh.ps[i].p_[0].y, t);
+		F[i] = f(mesh.ps[i].x(), mesh.ps[i].y(), t);
 	}
 }
 
@@ -489,7 +489,7 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
 {
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
-		const Point & p = m.ps[p0].p_[0];
+		const Point & p = m.ps[p0].p[0];
 		F[i] = f(p.x, p.y, t);
 	}
 }

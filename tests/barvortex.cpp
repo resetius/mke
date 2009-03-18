@@ -42,7 +42,7 @@ jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
 	Polynom pt1 = diff(phi_i, 1) * diff(phi_j, 0);
 	Polynom pt2 = diff(phi_i, 0) * diff(phi_j, 1);
 
-	Point p = m.ps[i];
+	Point p = m.ps[i].p[0];
 	return (pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y)) / cos(p.x);
 }
 
@@ -287,8 +287,8 @@ void BarVortex::calc(double * psi, const double * X_0,
 #pragma omp parallel for
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
-			double x  = m_.ps[point].p_[0].x;
-			double y  = m_.ps[point].p_[0].y;
+			double x  = m_.ps[point].x();
+			double y  = m_.ps[point].y();
 
 			omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
 		}

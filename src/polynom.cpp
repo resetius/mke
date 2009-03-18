@@ -323,7 +323,7 @@ static double integrate_(const Polynom & p, const Triangle & tr, const vector < 
 	return integrate1(p, t1) + integrate1(p, t2);
 #endif
 	int zone = tr.z;
-	TriangleX t1(ps[tr.p[0]].p_[zone], ps[tr.p[1]].p_[zone], ps[tr.p[2]].p_[zone]);
+	TriangleX t1(ps[tr.p[0]].p[zone], ps[tr.p[1]].p[zone], ps[tr.p[2]].p[zone]);
 	return integrate1(p, t1, trapezoid);
 }
 
