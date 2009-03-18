@@ -58,6 +58,14 @@ inline Point operator + (const Point & p1, const Point & p2)
 	return Point(p1.x + p2.x, p1.y + p2.y);
 }
 
+struct MeshPoint {
+	std::vector < Point > p_;
+
+	void add(const Point & p) {
+		p_.push_back(p);
+	}
+};
+
 struct Triangle {
 	int p[3];  /* point numbers */
 	int z;     /* zone number   */
@@ -70,23 +78,23 @@ struct Triangle {
 		z    = zone;
 	}
 
-	double x(int i, const std::vector < Point > & ps) const {
-		return ps[p[i]].x;
+	double x(int i, const std::vector < MeshPoint > & ps) const {
+		return ps[p[i]].p_[z].x;
 	}
 
-	double y(int i, const std::vector < Point > & ps) const {
-		return ps[p[i]].y;
+	double y(int i, const std::vector < MeshPoint > & ps) const {
+		return ps[p[i]].p_[z].y;
 	}
 
-	void print(const std::vector < Point > & ps) const {
-		fprintf(stderr, "(%.2lf,%.2lf)-(%.2lf,%.2lf)-(%.2lf,%.2lf)\n",
-			x(0, ps), y(0, ps), x(1, ps), y(1, ps), x(2, ps), y(2, ps));
-	}
+	//void print(const std::vector < Point > & ps) const {
+	//	fprintf(stderr, "(%.2lf,%.2lf)-(%.2lf,%.2lf)-(%.2lf,%.2lf)\n",
+	//		x(0, ps), y(0, ps), x(1, ps), y(1, ps), x(2, ps), y(2, ps));
+	//}
 };
 
 struct Mesh {
 	typedef std::vector < Triangle > triangles_t;
-	typedef std::vector < Point > points_t; 
+	typedef std::vector < MeshPoint > points_t; 
 	typedef std::vector < int > points_flags_t;
 	triangles_t tr;
 	points_t ps;

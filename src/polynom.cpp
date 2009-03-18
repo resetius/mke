@@ -278,7 +278,7 @@ integrate1(const Polynom & p, const TriangleX & tr, t_int trapezoid)
 	else return -int1 - int2;
 }
 
-static double integrate_(const Polynom & p, const Triangle & tr, const vector < Point > & ps, t_int trapezoid)
+static double integrate_(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps, t_int trapezoid)
 {
 #if 0
 	double x1, x2, x3;
@@ -322,26 +322,27 @@ static double integrate_(const Polynom & p, const Triangle & tr, const vector < 
 
 	return integrate1(p, t1) + integrate1(p, t2);
 #endif
-	TriangleX t1(ps[tr.p[0]], ps[tr.p[1]], ps[tr.p[2]]);
+	int zone = tr.z;
+	TriangleX t1(ps[tr.p[0]].p_[zone], ps[tr.p[1]].p_[zone], ps[tr.p[2]].p_[zone]);
 	return integrate1(p, t1, trapezoid);
 }
 
-double integrate(const Polynom & p, const Triangle & tr, const vector < Point > & ps)
+double integrate(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
 {
 	return integrate_(p, tr, ps, trapezoid_integral);
 }
 
-double integrate_cos(const Polynom & p, const Triangle & tr, const vector < Point > & ps)
+double integrate_cos(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
 {
 	return integrate_(p, tr, ps, trapezoid_integral_cos);
 }
 
-double integrate_sin(const Polynom & p, const Triangle & tr, const vector < Point > & ps)
+double integrate_sin(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
 {
 	return integrate_(p, tr, ps, trapezoid_integral_sin);
 }
 
-double integrate_1_cos(const Polynom & p, const Triangle & tr, const vector < Point > & ps)
+double integrate_1_cos(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
 {
 	return integrate_(p, tr, ps, trapezoid_integral_1_cos);
 }

@@ -78,17 +78,18 @@ extern const Polynom P2Y; //p(x, y) = y
 
 struct Triangle;
 struct Point;
+struct MeshPoint;
 
 //!возвращает производную полинома p по переменной i
 Polynom diff(const Polynom & p, int i);
 //!возвращает интеграл полинома p по треугольнику t
-double integrate(const Polynom & p, const Triangle & t, const std::vector < Point > & ps);
+double integrate(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
 //!int p cos x dx dy
-double integrate_cos(const Polynom & p, const Triangle & t, const std::vector < Point > & ps);
+double integrate_cos(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
 //!int p sin x dx dy
-double integrate_sin(const Polynom & p, const Triangle & t, const std::vector < Point > & ps);
+double integrate_sin(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
 //!int p / cos(x) dx dy
-double integrate_1_cos(const Polynom & p, const Triangle & t, const std::vector < Point > & ps);
+double integrate_1_cos(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
 //!произведение полиномов
 Polynom operator * (const Polynom &p1, const Polynom &p2);
 //!разность полиномов
