@@ -113,7 +113,6 @@ Polynom Mesh::elem1(const Triangle & t, int p) const
 void Mesh::load(FILE * f)
 {
 	int size;
-	int a;
 	int lineno = 1;
 
 #define _BUF_SZ 32768
@@ -135,18 +134,19 @@ void Mesh::load(FILE * f)
 	do
 	{
 		double x, y;
+		const char * sep = "; ";
+		char * str;
 
 		if (*s == '#')
 			break;
 
-		a = sscanf (s, "%lf%lf", &x, &y);
-		if (a != 2)
-		{
-			goto bad;
-		}
-
 		MeshPoint p;
-		p.add(Point(x, y));
+
+		for (str = strtok(s, sep); str; str = strtok(0, sep))
+		{
+			sscanf (s, "%lf%lf", &x, &y);
+			p.add(Point(x, y));
+		}
 
 		ps.push_back (p); lineno++;
 	}
@@ -186,7 +186,7 @@ void Mesh::load(FILE * f)
 			goto bad;
 		}
 
-		Triangle t(n1, n2, n3, 0);
+		Triangle t(n1, n2, n3, z);
 		tid = tr.size();
 		tr.push_back (t);
 		if ((int)adj.size() <= n1) adj.resize(n1 + 1);
