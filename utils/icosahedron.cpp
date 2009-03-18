@@ -432,11 +432,17 @@ void usage(const char * name)
 	fprintf(stderr, "--type\n"
 			"   full -- fulsphere\n"
 			"   half -- hemisphere\n"
+			"   test -- \n"
 			"--coord\n"
 			"   local -- (u,v)\n"
 			"   global -- (x,y,z)\n"
 			"--iter\n"
-			"   number -- number of iterations\n");
+			"   number -- number of iterations\n"
+			" \n\n"
+			" You can use Vizualizer 3D v3.2 or higher to vizualize this data\n"
+			" You must remove boundary section from the output \n"
+			" before sending the data to Vizualizer 3D \n"
+			" ");
 	exit(1);
 }
 
