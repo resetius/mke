@@ -58,6 +58,10 @@ inline Point operator + (const Point & p1, const Point & p2)
 	return Point(p1.x + p2.x, p1.y + p2.y);
 }
 
+/** 
+ * Точка на сетке может входить одновременно в несколько областей, 
+ * для поддержки этой возможности нужен этот класс
+ */
 struct MeshPoint {
 	std::vector < Point > p;
 
