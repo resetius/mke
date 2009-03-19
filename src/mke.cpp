@@ -134,7 +134,7 @@ void Mesh::load(FILE * f)
 	do
 	{
 		double x, y;
-		const char * sep = "; ";
+		const char * sep = ";";
 		char * str;
 
 		if (*s == '#')
@@ -144,7 +144,8 @@ void Mesh::load(FILE * f)
 
 		for (str = strtok(s, sep); str; str = strtok(0, sep))
 		{
-			sscanf (s, "%lf%lf", &x, &y);
+			x = 0; y = 0;
+			sscanf (str, "%lf%lf", &x, &y);
 			p.add(Point(x, y));
 		}
 
