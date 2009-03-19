@@ -221,7 +221,7 @@ int main()
 	//test_simple2();
 	//test_elem();
 	//test_simple3();
-	//test_sphere_area();
+	test_sphere_area();
 	//test_trapezoid_cos();
 	return 0;
 }
