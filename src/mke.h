@@ -65,6 +65,16 @@ inline Point operator + (const Point & p1, const Point & p2)
 struct MeshPoint {
 	std::vector < Point > p;
 
+	MeshPoint() {}
+	
+	MeshPoint(double x1, double y1) {
+		add(Point(x1, y1));
+	}
+
+	MeshPoint(double *x1) {
+		add(Point(x1));
+	}
+
 	void add(const Point & p1) {
 		p.push_back(p1);
 	}
