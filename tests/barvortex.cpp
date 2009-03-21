@@ -182,12 +182,21 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
+static double coriolis(double phi, double lambda)
+{
+	double omg = 0.0000727000000000;
+	double l = omg * 2.0 * sin(phi);
+	double h = cos(2.0 * lambda) * ipow(sin(2.0 * phi), 2);;
+	return l + h;
+}
+
 BarVortex::BarVortex(const Mesh & m, double tau, 
 					 double sigma, double mu)
 					 : m_(m), l_(m), j_(m), A_(m.inner.size()),
 					 tau_(tau), sigma_(sigma), mu_(mu)
 {
 	lh_.resize(m_.ps.size());
+	mke_proj(&lh_[0], m_, coriolis);
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
@@ -197,10 +206,11 @@ BarVortex::BarVortex(const Mesh & m, double tau,
 static double f(double x, double y, double t, 
 				double mu, double sigma)
 {
-	double a = exp(t) * sin(y) * sin(2.0 * x);
-	double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
+//	double a = exp(t) * sin(y) * sin(2.0 * x);
+//	double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
 
-	return a - mu * b + sigma * a;
+//	return a - mu * b + sigma * a;
+	return 0.0;
 }
 
 struct BarVortex::right_part_cb_data
@@ -237,7 +247,7 @@ BarVortex::right_part_cb( const Polynom & phi_i,
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
-void BarVortex::calc(double * psi, const double * X_0, 
+void BarVortex::calc(double * psi, const double * x0, 
 					 const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size();
@@ -255,12 +265,15 @@ void BarVortex::calc(double * psi, const double * X_0,
 	vector < double > p1(sz);
 	vector < double > prev_psi(sz);
 
+	vector < double > X_0(sz);
+	memcpy(&X_0[0], x0, sz * sizeof(double));
+
 	// генерируем правую часть
 	// w/dt + mu \Delta w / 2 - \sigma w/2 -
 	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 
 	// omega = L (u)
-	l_.calc1(&omega_0[0], X_0, bnd);    //TODO: а чему у нас на краях равно omega?
+	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
 	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
 	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
 

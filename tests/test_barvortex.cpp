@@ -94,6 +94,21 @@ void test_jacobian(const Mesh & m)
 	//vector_print(&ans1[0], ans1.size());
 }
 
+static double x(double u, double v)
+{
+	return cos(u) * cos(v);
+}
+
+static double y(double u, double v)
+{
+	return cos(u) * sin(v);
+}
+
+static double z(double u, double v)
+{
+	return sin(u);
+}
+
 void test_barvortex(const Mesh & m)
 {
 	int sz = m.ps.size();
@@ -104,16 +119,19 @@ void test_barvortex(const Mesh & m)
 	BarVortex bv(m, tau, 1.6e-2, 8e-5);
 
 	vector < double > u(sz);
-	vector < double > bnd(os);
+	vector < double > bnd(std::max(os, 1));
 
 	mke_proj(&u[0], m, f1);
-	mke_proj_bnd(&bnd[0], m, f1);
+	if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
 
+	setbuf(stdout, 0);
 	for (int i = 0; i < steps; ++i) {
 		bv.calc(&u[0], &u[0], &bnd[0], (double)i * tau);
 
-		fprintf(stdout, " === NORM = %le\n",
+		fprintf(stderr, " === NORM = %le\n",
 			mke_norm(&u[0], m, sphere_scalar_cb));
+
+		print_function(stdout, &u[0], m, x, y, z);
 	}
 }
 

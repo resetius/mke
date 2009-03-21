@@ -225,7 +225,7 @@ end:
 void gmres(double * x, const void * A, const double * b, 
 			 Ax_t Ax, int n, int k_dim, int max_it)
 {
-	double tol = 1e-10;
+	double tol = 1e-7;
 	double bn  = norm2(b, n);
 	int i;
 
