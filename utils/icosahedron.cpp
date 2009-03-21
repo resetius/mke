@@ -461,6 +461,19 @@ void print_mesh(const vector < Triangle > & mesh,
 			} else {
 				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_ + M_PI);
 			}
+
+			if (type == 0 || type == 1) {
+				// zone 3
+				u_ = u(x, -z, y);
+				v_ = v(x, -z, y);
+				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_);
+
+				// zone 4
+				u_ = u(x, z, -y);
+				v_ = v(x, z, -y);
+				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_);
+			}
+
 			fprintf(stdout, "\n");
 		} else {
 			fprintf(stdout, "%.16lf %.16lf %.16lf\n", x, y, z);
@@ -497,12 +510,29 @@ void print_mesh(const vector < Triangle > & mesh,
 			u3 = u(x3, y3, z3);
 			v3 = v(x3, y3, z3);
 
-			if ((v1 - 0.5 * M_PI) * (v2 - 0.5 * M_PI) < 0 ||
-			    (v1 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0 ||
-			    (v2 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0) 
-			{
-				// in zone 2
-				fprintf(stdout, " ; 2 ");
+			if (type == 0 || type == 1) {
+				if (z1 > 0.9 || z2 > 0.9 || z3 > 0.9) {
+					// in zone 4
+					fprintf(stdout, " ; 4 ");
+				} else if (z1 < -0.9 || z2 < -0.9 || z3 < -0.9) {
+					// in zone 3
+					fprintf(stdout, " ; 3 ");
+				} else 
+				if ((v1 - 0.5 * M_PI) * (v2 - 0.5 * M_PI) < 0 ||
+					(v1 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0 ||
+					(v2 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0) 
+				{
+					// in zone 2
+					fprintf(stdout, " ; 2 ");
+				}
+			} else {
+				if ((v1 - 0.5 * M_PI) * (v2 - 0.5 * M_PI) < 0 ||
+					(v1 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0 ||
+					(v2 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0) 
+				{
+					// in zone 2
+					fprintf(stdout, " ; 2 ");
+				}
 			}
 		}
 
