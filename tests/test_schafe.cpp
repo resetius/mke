@@ -88,14 +88,6 @@ int main(int argc, char *argv[])
 	double mu    = 1.0;
 	double sigma = +70;
 
-	int sz = mesh.ps.size();
-	int rs = mesh.inner.size();
-
-	vector < double > U(sz);
-	vector < double > B(mesh.outer.size());
-	vector < double > Ans(sz);
-	vector < double > P(rs);
-
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
 		if (!f) {
@@ -106,6 +98,14 @@ int main(int argc, char *argv[])
 	} else {
 		usage(argv[0]);
 	}
+
+	int sz = mesh.ps.size();
+	int rs = mesh.inner.size();
+
+	vector < double > U(sz);
+	vector < double > B(mesh.outer.size());
+	vector < double > Ans(sz);
+	vector < double > P(rs);
 
 	mke_proj(&U[0], mesh, ans, 0.0);
 

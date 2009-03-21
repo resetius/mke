@@ -164,7 +164,7 @@ void Mesh::load(FILE * f)
 	// triangles
 	do
 	{
-		int n1, n2, n3, tid, z = 0;
+		int n1, n2, n3, tid, z = 1;
 
 		if (*s == '#') 
 			break;
@@ -178,6 +178,7 @@ void Mesh::load(FILE * f)
 		--n1;
 		--n2;
 		--n3;
+		--z;
 		if (n1 >= size || n2 >= size || n3 >= size)
 		{
 			goto bad;
