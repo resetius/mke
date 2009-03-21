@@ -10,11 +10,11 @@
 
 using namespace std;
 
-#if 0
+#if 1
 void test_simple()
 {
 	fprintf(stderr, "test_simple\n");
-	Point p1(0, 0), p2(1, 0), p3(1, 1);
+	MeshPoint p1(0, 0), p2(1, 0), p3(1, 1);
 	Mesh::points_t ps;
 	ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 	Triangle t1(0, 1, 2);
@@ -38,7 +38,7 @@ void test_simple3()
 {
 	double ans = 0.0;
 	fprintf(stderr, "test_simple\n");
-	Point p1(0, 0), p2(1, 0), p3(1, 1);
+	MeshPoint p1(0, 0), p2(1, 0), p3(1, 1);
 	Mesh::points_t ps;
 	ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 	Triangle t1(0, 1, 2);
@@ -121,7 +121,7 @@ void test_sphere_area()
 	//   S4
 	// S1  S3
 	{
-		Point p1(0, 0), p2(0, M_PI / 8.0), p3(M_PI / 8.0, 0);
+		MeshPoint p1(0, 0), p2(0, M_PI / 8.0), p3(M_PI / 8.0, 0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -131,7 +131,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(0, M_PI / 8.0), p2(0, M_PI / 4.0), p3(M_PI / 8, M_PI / 8.0);
+		MeshPoint p1(0, M_PI / 8.0), p2(0, M_PI / 4.0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -141,7 +141,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(0, M_PI / 8.0), p2(M_PI / 8, 0), p3(M_PI / 8, M_PI / 8.0);
+		MeshPoint p1(0, M_PI / 8.0), p2(M_PI / 8, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -151,7 +151,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(M_PI / 8.0, 0), p2(M_PI / 4, 0), p3(M_PI / 8, M_PI / 8.0);
+		MeshPoint p1(M_PI / 8.0, 0), p2(M_PI / 4, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -170,7 +170,7 @@ void test_sphere_area()
 
 	// swap x<->y
 	{
-		Point p1(0, 0), p2(M_PI / 8.0, 0), p3(0, M_PI / 8.0);
+		MeshPoint p1(0, 0), p2(M_PI / 8.0, 0), p3(0, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -180,7 +180,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(M_PI / 8.0, 0), p2(M_PI / 4.0, 0), p3(M_PI / 8, M_PI / 8.0);
+		MeshPoint p1(M_PI / 8.0, 0), p2(M_PI / 4.0, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -190,7 +190,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(M_PI / 8.0, 0), p2(0, M_PI / 8), p3(M_PI / 8, M_PI / 8.0);
+		MeshPoint p1(M_PI / 8.0, 0), p2(0, M_PI / 8), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -200,7 +200,7 @@ void test_sphere_area()
 	}
 
 	{
-		Point p1(0, M_PI / 8.0), p2(0, M_PI / 4), p3(M_PI / 8, M_PI / 8.0);
+		MeshPoint p1(0, M_PI / 8.0), p2(0, M_PI / 4), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
 		Triangle t1(0, 1, 2);
@@ -221,7 +221,7 @@ int main()
 	//test_simple2();
 	//test_elem();
 	//test_simple3();
-	//test_sphere_area();
+	test_sphere_area();
 	//test_trapezoid_cos();
 	return 0;
 }
