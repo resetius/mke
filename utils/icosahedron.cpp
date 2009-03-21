@@ -35,6 +35,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 
 using namespace std;
 
@@ -260,6 +261,71 @@ void build_test(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
+bool ok(Vector & v)
+{
+	if ((fabs(v.z - 1.0) < 1e-10) || (fabs(v.z + 1.0) < 1e-10)) {
+		return false;
+	}
+
+	return true;
+}
+
+void filter_mesh(vector < Triangle > & mesh, 
+				 vector < Vector > & points, 
+				 vector < int > & boundary,
+				 int type)
+{
+	if (type != 3) {
+		return;
+	}
+
+	vector < Vector > new_points;
+	vector < Triangle > new_mesh;
+	vector < int > nums(points.size());
+
+	for (size_t i = 0; i < points.size(); ++i) {
+		Vector & p = points[i];
+
+		if (ok(p)) {
+			nums[i] = new_points.size();
+			new_points.push_back(p);
+		}
+	}
+
+	set < int > bnd;
+	for (size_t i = 0; i < mesh.size(); ++i) {
+		Triangle & t = mesh[i];
+
+		Vector & p1 = points[t.v1];
+		Vector & p2 = points[t.v2];
+		Vector & p3 = points[t.v3];
+
+		if (ok(p1) && ok(p2) && ok(p3)) {
+			t.v1 = nums[t.v1];
+			t.v2 = nums[t.v2];
+			t.v3 = nums[t.v3];
+			new_mesh.push_back(t);
+		} else {
+			if (ok(p1)) {
+				bnd.insert(nums[t.v1]);
+			}
+
+			if (ok(p2)) {
+				bnd.insert(nums[t.v2]);
+			}
+
+			if (ok(p3)) {
+				bnd.insert(nums[t.v3]);
+			}
+		}
+	}
+
+	boundary.insert(boundary.end(), bnd.begin(), bnd.end());
+
+	new_mesh.swap(mesh);
+	new_points.swap(points);
+}
+
 void divide(vector < Triangle > & mesh, vector < Vector > & points, bool save_z)
 {
 	vector < Triangle > new_mesh;
@@ -353,7 +419,10 @@ double v(double x, double y, double z)
 	return v1;
 }
 
-void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, int type, bool local)
+void print_mesh(const vector < Triangle > & mesh, 
+				vector < Vector > & points, 
+				vector < int > & boundary,
+				int type, bool local)
 {
 	fprintf(stdout, "# points %lu\n", points.size());
 	fprintf(stdout, "# zone1 ; zone2 ; zone 3; ... \n");
@@ -461,6 +530,11 @@ void print_mesh(const vector < Triangle > & mesh, vector < Vector > & points, in
 				}
 			}
 		}
+	} else if (!boundary.empty()) {
+		fprintf(stdout, "# boundary %lu \n", boundary.size());
+		for (size_t i = 0; i < boundary.size(); ++i) {
+			fprintf(stdout, "%lu \n", boundary[i] + 1);
+		}
 	}
 }
 
@@ -543,6 +617,7 @@ int main(int argc, char * argv[])
 
 	vector < Triangle > mesh;
 	vector < Vector >  points;
+	vector < int >  boundary;
 
 	switch (type) {
 	case 1:
@@ -555,14 +630,15 @@ int main(int argc, char * argv[])
 		build_test(mesh, points);
 		break;
 	case 3:
-		build_test2(mesh, points);
+		build_icosahedron(mesh, points);
 	default:
 		assert(0);
 	}
 
 	normalize_mesh(mesh, points, type == 2);
 	iterate_mesh(mesh, points, iters, type == 2);
-	print_mesh(mesh, points, type, local);
+	filter_mesh(mesh, points, boundary, type);
+	print_mesh(mesh, points, boundary, type, local);
 	return 0;
 }
 
