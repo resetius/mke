@@ -485,7 +485,7 @@ void print_mesh(const vector < Triangle > & mesh,
 		it != mesh.end(); ++it)
 	{
 		fprintf(stdout, "%lu %lu %lu ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
-		if (local) {
+		if (1) {
 			double x1, y1, z1, x2, y2, z2, x3, y3, z3;
 			double u1, v1, u2, v2, u3, v3;
 
@@ -518,17 +518,15 @@ void print_mesh(const vector < Triangle > & mesh,
 					// in zone 3
 					fprintf(stdout, " ; 3 ");
 				} else 
-				if ((v1 - 0.5 * M_PI) * (v2 - 0.5 * M_PI) < 0 ||
-					(v1 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0 ||
-					(v2 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0) 
+				if (   v1 < M_PI_2 || v2  < M_PI_2 || v2 < M_PI_2
+					|| v1 > 1.5 * M_PI || v2  > 1.5 * M_PI || v2 > 1.5 * M_PI)
 				{
 					// in zone 2
 					fprintf(stdout, " ; 2 ");
 				}
 			} else {
-				if ((v1 - 0.5 * M_PI) * (v2 - 0.5 * M_PI) < 0 ||
-					(v1 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0 ||
-					(v2 - 0.5 * M_PI) * (v3 - 0.5 * M_PI) < 0) 
+				if (   v1 < M_PI_2 || v2  < M_PI_2 || v2 < M_PI_2
+					|| v1 > 1.5 * M_PI || v2  > 1.5 * M_PI || v2 > 1.5 * M_PI)
 				{
 					// in zone 2
 					fprintf(stdout, " ; 2 ");
