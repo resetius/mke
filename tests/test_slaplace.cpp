@@ -52,11 +52,15 @@ double rp(double x, double y)
 	
 	double sx = sin(x);
 	double cx = cos(x);
+	double sy = sin(y);
 	double cy = cos(y);
 
-	return cy * (-sx * sx + cx * cx +
-		2.0 * sx * cx * cy -
-		cx * cx * cx * cy);
+	double ans = 0.0;
+	ans += cy * (-sx * sx + cx * cx +
+		2.0 * sx * cx * cy * sx -
+		cx * cx * cx * cy) / cx;
+	ans += (cy - cx * cy * cy + cx * sy * sy) / cx;
+	return ans;
 }
 
 double ans(double x, double y)
