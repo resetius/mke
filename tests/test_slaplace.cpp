@@ -56,10 +56,21 @@ double rp(double x, double y)
 	double cy = cos(y);
 
 	double ans = 0.0;
+
+	// 0.5 * ipow(cx * cy - 1.0, 2)
 	ans += cy * (-sx * sx + cx * cx +
 		2.0 * sx * cx * cy * sx -
 		cx * cx * cx * cy) / cx;
 	ans += (cy - cx * cy * cy + cx * sy * sy) / cx;
+
+	// ipow(cx * cy - sx, 2)
+	ans += (2.0 * cx * sx * sx * (cy * cy - 1.0) + 
+		cx * cx * cx * (1.0 - cy * cy) + 5.0 * sx * cx * cx * cy -
+		sx * sx * sx * cy) * 2.0 / cx;
+
+	ans += (sx * cy - 2.0 * cx * cy * cy + 2.0 * cx * cy * cy) / cx / cx;
+
+	// 2.0 * ipow(sx - 3, 2)
 	return ans;
 }
 
@@ -67,9 +78,14 @@ double ans(double x, double y)
 {
 	//return sin(y) * sin(2.0 * x);
 
-	return 0.5 * ipow(cos(x) * cos(y) - 1.0, 2);/* +
-		ipow(cos(x) * cos(y) - sin(x), 2) +
-		2.0 * ipow(sin(x) - 3, 2);*/
+	double sx = sin(x);
+	double cx = cos(x);
+	//double sy = sin(y);
+	double cy = cos(y);
+
+	return 0.5 * ipow(cx * cy - 1.0, 2) +
+		ipow(cx * cy - sx, 2); /*+
+		2.0 * ipow(sx - 3, 2);*/
 }
 
 double bnd(double x, double y)
@@ -101,8 +117,6 @@ static double z(double u, double v)
 	return sin(u);
 }
 
-
-
 void test_invert(const Mesh & mesh)
 {
 	int sz = mesh.ps.size();
@@ -129,6 +143,14 @@ void test_invert(const Mesh & mesh)
 		fclose(f);
 
 		fprintf(stderr, "invert answer saved to 'invert_answer.txt'\n");
+
+		f = fopen("answer.txt", "wb");
+		print_function(f, &rans[0], mesh, x, y, z);
+		fclose(f);
+
+		f = fopen("rp.txt", "wb");
+		print_function(f, &F[0], mesh, x, y, z);
+		fclose(f);
 	}
 }
 
