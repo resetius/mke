@@ -48,31 +48,29 @@ void usage(const char * name)
 
 double rp(double x, double y)
 {
-	//return -16.0 * sin(y) * sin(4.0 * x) 
-	//	- sin(y) * sin(4.0 * x) / cos(x) / cos(x);
+	//return -6.0 * sin(y) * sin(2.0 * x);
+	
+	double sx = sin(x);
+	double cx = cos(x);
+	double cy = cos(y);
 
-	return -6.0 * sin(y) * sin(2.0 * x);
-
-	//return -1.0 / cos(x) / cos(x) * sin(y) * sin(2.0 * x) -
-	//	2.0 * sin(x) / cos(x) * sin(y) * cos(2.0 * x) -
-	//	4.0 * sin(y) * sin(2.0 * x);
-
-	//return -1.0 / cos(x) / cos(x) * sin(y) * sin(4.0 * x) -
-	//	4.0 * sin(x) / cos(x) * sin(y) * cos(4.0 * x) -
-	//	16.0 * sin(y) * sin(4.0 * x);
+	return cy * (-sx * sx + cx * cx +
+		2.0 * sx * cx * cy -
+		cx * cx * cx * cy);
 }
 
 double ans(double x, double y)
 {
-	return sin(y) * sin(2.0 * x);
-	//return sin(y) * sin(4.0 * x);
-	//return 0.0;
+	//return sin(y) * sin(2.0 * x);
+
+	return 0.5 * ipow(cos(x) * cos(y) - 1.0, 2);/* +
+		ipow(cos(x) * cos(y) - sin(x), 2) +
+		2.0 * ipow(sin(x) - 3, 2);*/
 }
 
 double bnd(double x, double y)
 {
 	return ans(x, y);
-	//return 0.0;
 }
 
 double nr2(double * a, double * b, int n)
