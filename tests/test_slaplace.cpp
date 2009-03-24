@@ -69,7 +69,9 @@ double rp(double x, double y)
 		2 * cx * (cx * cy - sx) * (-cx * cy + sx)) / cx;
 	       
 	ans += (2 * cx * cx * sy * sy - 2 * (cx * cy - sx) * cx * cy) / cx / cx;
+
 	// 2.0 * ipow(sx - 3, 2)
+	ans += -8 * (sx - 3.0) * sx + 4.0 * cx * cx;
 	return ans;
 }
 
@@ -83,8 +85,8 @@ double ans(double x, double y)
 	double cy = cos(y);
 
 	return 0.5 * ipow(cx * cy - 1.0, 2) +
-		ipow(cx * cy - sx, 2);
-//		2.0 * ipow(sx - 3, 2);
+		ipow(cx * cy - sx, 2) +
+		2.0 * ipow(sx - 3, 2);
 }
 
 double bnd(double x, double y)
