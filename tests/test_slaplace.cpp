@@ -58,18 +58,17 @@ double rp(double x, double y)
 	double ans = 0.0;
 
 	// 0.5 * ipow(cx * cy - 1.0, 2)
-	ans += cy * (-sx * sx + cx * cx +
-		2.0 * sx * cx * cy * sx -
-		cx * cx * cx * cy) / cx;
-	ans += (cy - cx * cy * cy + cx * sy * sy) / cx;
+	ans += (sx * sx * (cx * cy - 1) * cy +
+		cx * sx * sx * cy * cy -
+		cx * cx * (cx * cy - 1) * cy) / cx;
+	ans += sy * sy - (cx * cy - 1) * cy / cx;
 
 	// ipow(cx * cy - sx, 2)
-	ans += (2.0 * cx * sx * sx * (cy * cy - 1.0) + 
-		cx * cx * cx * (1.0 - cy * cy) + 5.0 * sx * cx * cx * cy -
-		sx * sx * sx * cy) * 2.0 / cx;
-
-	ans += (sx * cy - 2.0 * cx * cy * cy + 2.0 * cx * cy * cy) / cx / cx;
-
+	ans += (-2 * sx * (cx * cy - sy) * (-sx * cy - cx) +
+		2 * cx  * ipow(-sx * cy - cx, 2) +
+		2 * cx * (cx * cy - sx) * (-cx * cy + sx)) / cx;
+	       
+	ans += (2 * cx * cx * sy * sy - 2 * (cx * cy - sx) * cx * cy) / cx / cx;
 	// 2.0 * ipow(sx - 3, 2)
 	return ans;
 }
@@ -84,8 +83,8 @@ double ans(double x, double y)
 	double cy = cos(y);
 
 	return 0.5 * ipow(cx * cy - 1.0, 2) +
-		ipow(cx * cy - sx, 2); /*+
-		2.0 * ipow(sx - 3, 2);*/
+		ipow(cx * cy - sx, 2);
+//		2.0 * ipow(sx - 3, 2);
 }
 
 double bnd(double x, double y)
