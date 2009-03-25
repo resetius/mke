@@ -659,6 +659,7 @@ int main(int argc, char * argv[])
 		break;
 	case 3:
 		build_icosahedron(mesh, points);
+		break;
 	default:
 		assert(0);
 	}

@@ -464,9 +464,11 @@ double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t 
 
 void mke_proj(double * F, const Mesh & mesh, f_xy_t f)
 {
-	for (size_t i = 0; i < mesh.ps.size(); ++i)
+	size_t sz = mesh.ps.size();
+	for (size_t i = 0; i < sz; ++i)
 	{
-		F[i] = f(mesh.ps[i].x(), mesh.ps[i].y());
+		const Point & p = mesh.ps[i].p[0];
+		F[i] = f(p.x, p.y);
 	}
 }
 

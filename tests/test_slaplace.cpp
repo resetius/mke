@@ -57,20 +57,20 @@ double rp(double x, double y)
 
 	double ans = 0.0;
 
-	// 0.5 * ipow(cx * cy - 1.0, 2)
-	ans += (sx * sx * (cx * cy - 1) * cy +
-		cx * sx * sx * cy * cy -
-		cx * cx * (cx * cy - 1) * cy) / cx;
-	ans += sy * sy - (cx * cy - 1) * cy / cx;
+	ans += (sx * sx * (cx * cy - 1) * cy);
+	ans += - (cx * cy - 1) * cy;
+	ans += -2 * sx * (cx * cy - sx) * (-sx * cy - cx);
+	ans += -2 * (cx * cy - sx) * cy;
+	if (fabs(ans) > 1e-15) {
+		ans /= cx;
+	}
 
-	// ipow(cx * cy - sx, 2)
-	ans += -2 * sx * (cx * cy - sx) * (-sx * cy - cx) / cx +
-		2 * ipow(-sx * cy - cx, 2) +
-		2 * (cx * cy - sx) * (-cx * cy + sx);
-	       
-	ans += 2 * sy * sy - 2 * (cx * cy - sx) * cy / cx;
-
-	// 2.0 * ipow(sx - 3, 2)
+	ans += sx * sx * cy * cy;
+	ans += -cx * (cx * cy - 1) * cy;
+	ans += sy * sy;
+	ans += 2 * ipow(-sx * cy - cx, 2);
+	ans += 2 * (cx * cy - sx) * (-cx * cy + sx);
+	ans += 2 * sy * sy;
 	ans += -8 * (sx - 3.0) * sx + 4.0 * cx * cx;
 	return ans;
 }
@@ -125,7 +125,7 @@ void test_invert(const Mesh & mesh)
 	int os = mesh.outer.size();
 
 	vector < double > F(sz);
-	vector < double > B(os);
+	vector < double > B(std::max(os, 1));
 	vector < double > Ans(sz);
 	vector < double > rans(sz);
 
@@ -164,7 +164,7 @@ void test_laplace(const Mesh & mesh)
 	vector < double > U(sz);
 	vector < double > LU(sz);
 	vector < double > LU1(sz);
-	vector < double > B(os);
+	vector < double > B(std::max(os, 1));
 	vector < double > P(rs);
 	vector < double > P1(rs);
 
