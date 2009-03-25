@@ -64,11 +64,11 @@ double rp(double x, double y)
 	ans += sy * sy - (cx * cy - 1) * cy / cx;
 
 	// ipow(cx * cy - sx, 2)
-	ans += (-2 * sx * (cx * cy - sy) * (-sx * cy - cx) +
-		2 * cx  * ipow(-sx * cy - cx, 2) +
-		2 * cx * (cx * cy - sx) * (-cx * cy + sx)) / cx;
+	ans += -2 * sx * (cx * cy - sx) * (-sx * cy - cx) / cx +
+		2 * ipow(-sx * cy - cx, 2) +
+		2 * (cx * cy - sx) * (-cx * cy + sx);
 	       
-	ans += (2 * cx * cx * sy * sy - 2 * (cx * cy - sx) * cx * cy) / cx / cx;
+	ans += 2 * sy * sy - 2 * (cx * cy - sx) * cy / cx;
 
 	// 2.0 * ipow(sx - 3, 2)
 	ans += -8 * (sx - 3.0) * sx + 4.0 * cx * cx;
