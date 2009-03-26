@@ -275,7 +275,7 @@ void filter_mesh(vector < Triangle > & mesh,
 				 vector < int > & boundary,
 				 int type)
 {
-	if (type != 3) {
+	if (type < 3) {
 		return;
 	}
 
@@ -510,7 +510,7 @@ void print_mesh(const vector < Triangle > & mesh,
 			u3 = u(x3, y3, z3);
 			v3 = v(x3, y3, z3);
 
-			if (type == 0 || type == 1) {
+			if (type == 0 || type == 1 || type == 4) {
 				if (z1 > 0.9 || z2 > 0.9 || z3 > 0.9) {
 					// in zone 4
 					fprintf(stdout, " ; 4 ");
@@ -615,6 +615,8 @@ int main(int argc, char * argv[])
 				type = 2;
 			} else if (!strcmp(argv[i + 1], "test2")) {
 				type = 3;
+			} else if (!strcmp(argv[i + 1], "test3")) {
+				type = 4;
 			} else {
 				usage(argv[0]);
 			}
@@ -658,6 +660,7 @@ int main(int argc, char * argv[])
 		build_test(mesh, points);
 		break;
 	case 3:
+	case 4:
 		build_icosahedron(mesh, points);
 		break;
 	default:
