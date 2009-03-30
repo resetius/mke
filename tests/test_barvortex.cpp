@@ -115,7 +115,7 @@ void test_barvortex(const Mesh & m)
 	int os = m.outer.size();
 
 	double tau = 0.001;
-	int steps = 100;
+	int steps = 100000;
 	BarVortex bv(m, tau, 1.6e-2, 8e-5);
 
 	vector < double > u(sz);

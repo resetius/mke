@@ -261,13 +261,22 @@ void build_test(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
-bool ok(Vector & v)
+bool ok1(Vector & v)
 {
 	if ((fabs(v.z - 1.0) < 1e-10) || (fabs(v.z + 1.0) < 1e-10)) {
 		return false;
 	}
 
 	return true;
+}
+
+bool ok2(Vector & v)
+{
+	if (v.z < -0.9) {
+		return false;
+	}
+
+	return true;	
 }
 
 void filter_mesh(vector < Triangle > & mesh, 
@@ -282,6 +291,7 @@ void filter_mesh(vector < Triangle > & mesh,
 	vector < Vector > new_points;
 	vector < Triangle > new_mesh;
 	vector < int > nums(points.size());
+	bool (* ok)(Vector & v) = (type == 3) ? ok1 : ok2;
 
 	for (size_t i = 0; i < points.size(); ++i) {
 		Vector & p = points[i];
