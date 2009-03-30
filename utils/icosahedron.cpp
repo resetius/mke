@@ -472,7 +472,7 @@ void print_mesh(const vector < Triangle > & mesh,
 				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_ + M_PI);
 			}
 
-			if (type == 0 || type == 1) {
+			if (type == 0 || type == 1 || type == 4) {
 				// zone 3
 				u_ = u(x, -z, y);
 				v_ = v(x, -z, y);
