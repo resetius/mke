@@ -547,13 +547,21 @@ void print_mesh(const vector < Triangle > & mesh,
 		fprintf(stdout, "\n");
 	}
 	
-	if (type == 1 || type == 2) {
+	if (type == 1 || type == 2 || type == 0) {
 		fprintf(stdout, "# boundary \n");
 		for (size_t i = 0; i < points.size(); ++i) {
 			double x = points[i].x;
 			double y = points[i].y;
 			double z = points[i].z;
 
+			if (type == 0 && 
+				fabs(z + 1.0) < 1e-14) 
+			{
+				// south pole
+				fprintf(stdout, "%lu \n", i + 1);
+			}
+
+			if (type == 1 || type == 2)
 			if (fabs(points[i].z) < 1e-15) {
 				fprintf(stdout, "%lu \n", i + 1);
 			} else if (type == 2) {

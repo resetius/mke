@@ -54,8 +54,8 @@ double rp(double x, double y)
 
 double ans(double x, double y)
 {
-	//return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
-	return x * (x - 1) * y * (y - 1) + 1.0;
+	//return sin(M_PI * x) * sin(M_PI * y) + 1.0;
+	return x * (x - 1) * y * (y - 1);// + 1.0;
 }
 
 double bnd(double x, double y)
