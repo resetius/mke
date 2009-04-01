@@ -29,6 +29,23 @@
 
 \section{О методе конечных элементов}
 
+\subsection{Базисные  функции}
+Используются линейные базисные функции. Каждая базисная функция
+$\phi_i$ равна единице в узле с номером $i$ и нулю в остальных
+узлах. Функция отлична от нуля на треугольниках, содержащих узел с
+номером $i$. 
+Три базисные функции на треугольнике с координатами $x_1,x_2,x_3, y_1,y_2,y_3$:
+\begin{equation*}
+\begin{split}
+\psi_1=(x-x_2)(y_3-y_2)-(y-y_2)(x_3-x2),\\
+\psi_2=(x-x_1)(y_3-y_1)-(y-y_1)(x_3-x1),\\
+\psi_3=(x-x_1)(y_2-y_1)-(y-y_1)(x_2-x1).
+\end{split}
+\end{equation*} 
+\begin{equation*}
+\phi_i=\frac{\psi_i}{\psi_i(x_i,y_i)}
+\end{equation*}
+
 \section{Уравнение Лапласа на сфере}
 Рассмотрим уравнение Лапласа на сфере:
 \begin{equation*}
@@ -113,8 +130,11 @@ y' = y,
 Численная задача:
 \begin{equation*}
 \begin{split}
-(\frac{1}{cos\psi}\frac{\partial}{\partial \phi} \phi_i, cos\phi \frac{\partial}{\partial \phi} \phi_j)
-+(\frac{1}{cos\psi}\frac{\partial}{\partial \lambda}\phi_i, \frac{1}{cos\psi}\frac{\partial}{\partial \lambda}\phi_j ) = -(f, \phi_j), \forall j, \forall i, \text{ для внутренних узлов } \\
+(\frac{1}{cos\psi}\frac{\partial}{\partial \phi} \phi_i, cos\phi
+  \frac{\partial}{\partial \phi} \phi_j) 
++(\frac{1}{cos\psi}\frac{\partial}{\partial \lambda}\phi_i,
+\frac{1}{cos\psi}\frac{\partial}{\partial \lambda}\phi_j ) = -(f,
+\phi_j), \forall j, \forall i, \text{ для внутренних узлов } \\ 
 u = u_0 \phi_i, \text { для граничных узлов, }
 \end{split}
 \end{equation*}
@@ -127,7 +147,11 @@ u = u_0 \phi_i, \text { для граничных узлов, }
 
 Система уравнений:
 \begin{equation*}
-\sum_j x_j \sum_{k: \{j\in\bigtriangleup_k, i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}\frac{1}{cos\psi}(\frac{\partial}{\partial \phi} \phi_i) cos\phi (\frac{\partial}{\partial \phi} \phi_j)+\frac{1}{cos^2\psi}\phi_i\phi_j ds = \sum_{k:\{i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}f \phi_j ds,
+\sum_j x_j \sum_{k: \{j\in\bigtriangleup_k,
+  i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}\frac{1}{cos\psi}(\frac{\partial}{\partial
+  \phi} \phi_i) cos\phi (\frac{\partial}{\partial \phi}
+\phi_j)+\frac{1}{cos^2\psi}\phi_i\phi_j ds =
+\sum_{k:\{i\in\bigtriangleup_k\}}\int_{\bigtriangleup_k}f \phi_j ds, 
 \end{equation*}
 где
 \begin{equation*}
@@ -135,51 +159,18 @@ u(\phi,\lambda)=\sum_i x_i \phi_i(\phi, \lambda),\\
 f(\phi,\lambda)=\sum_i f_i \phi_i(\phi, \lambda).
 \end{equation*}
 
-\subsection{Базисные  функции}
-Используются линейные базисные функции. Каждая базисная функция $\phi_i$ равна единице в узле с номером $i$ и нулю в остальных узлах. Функция отлична от нуля на треугольниках, содержащих узел с номером $i$.
-Три базисные функции на треугольнике с координатами $x_1,x_2,x_3, y_1,y_2,y_3$:
+При решении данной системы уравнений нужно будет считать интегралы вида:
 \begin{equation*}
 \begin{split}
-\psi_1=(x-x_2)(y_3-y_2)-(y-y_2)(x_3-x2),\\
-\psi_2=(x-x_1)(y_3-y_1)-(y-y_1)(x_3-x1),\\
-\psi_3=(x-x_1)(y_2-y_1)-(y-y_1)(x_2-x1).
-\end{split}
-\end{equation*} 
-\begin{equation*}
-\phi_i=\frac{\psi_i}{\psi_i(x_i,y_i)}
-\end{equation*}
-
-см. файл mke.cpp: функции elem1, elem1\_inner.
-Каждая функция представляется полиномом от двух переменных $(x,y)$.
-
-см. файл polynom.h: класс Polynom содержит вектор коэффициэнтов, доступны все операции с полиномами. Поддерживаются только полином от $(x)$ и от $(x,y)$.
-
-\subsubsection{Интегрирование  полиномов} 
-mke.cpp: функция integrate - вычисление интегралов вида:
-\begin{equation*}
-\begin{split}
-\int_\bigtriangleup P(x,y) dx dy,\\
-\int_\bigtriangleup P(x,y) cos(x) dx dy,\\
-\int_\bigtriangleup P(x,y) / cos(x) dx dy.
+\int_\bigtriangleup x^k y^n dx dy,\\
+\int_\bigtriangleup x^k y^n cos(x) dx dy,\\
+\int_\bigtriangleup x^k y^n / cos(x) dx dy.
 \end{split}
 \end{equation*}
-
-util.cpp: функция trapezoid\_integrate - вычисление интегралов вида:
-\begin{equation*}
-\begin{split}
-\int_\bigtriangleup x^k y^n dx dy\text { - считается аналитически }, \\
-\int_\bigtriangleup x^k y^n cos x dx dy\text{ - используется квадратура Гаусса-Кронрода 15 } ,\\
-\int_\bigtriangleup \frac{x^k y^n}{cos x} dx dy\text{ - используется квадратура Гаусса-Кронрода 15 }.
-\end{split}
-\end{equation*}
-
-\section{Сборка и запуск}
-\begin{verbatim}
-cmake -DCMAKE_BUILD_TYPE=Release
-make
-./sphere --type test --iters 5 --coord local > mesh.txt
-./test_slaplace mesh.txt
-\end{verbatim}
+Первый интеграл можно вычислить аналитически. Остальные два интеграла
+можно считать так: вначале проинтегрировать по $y$, а потом использовать
+квадратурную формулу для вычисления одномерного интеграла по $x$. Для
+тестов использовалась квадратура Гаусса-Кронрода, использующая 15 узлов.
 
 \begin{thebibliography}{999}
 \bibitem{bogach3} Богачев К. Ю., {\it  Практикум на ЭВМ.  Методы
