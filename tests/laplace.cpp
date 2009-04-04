@@ -62,13 +62,14 @@ laplace_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b;
 
+	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+
 	if (m.ps_flags[point_j] == 1) {         // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = - bnd[j0] * laplace(phi_i, phi_j, trk, m);
-	} else {
-		b =   F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+		b += - bnd[j0] * laplace(phi_i, phi_j, trk, m);
 	}
+
 	return b;
 }
 
@@ -158,13 +159,13 @@ Chafe::chafe_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b;
 
+	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = - bnd[j0] * Chafe::chafe_integrate_cb(phi_i, phi_j, 
+		b += - bnd[j0] * Chafe::chafe_integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, d->d);
-	} else {
-		b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -187,7 +188,15 @@ static double lp_rp(const Polynom & phi_i,
 		laplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	return F[point_j] * laplace(phi_i, phi_j, trk, m);;
+	double b = F[point_j] * laplace(phi_i, phi_j, trk, m);;
+
+	if (m.ps_flags[point_j] == 1)
+	{
+		int j0       = m.p2io[point_j];
+		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
+				trk, m, point_i, point_j, 0);
+	}
+	return b;
 }
 
 Laplace::Laplace(const Mesh & m): m_(m), 
@@ -200,18 +209,29 @@ Laplace::Laplace(const Mesh & m): m_(m),
 
 void Laplace::calc2(double * Ans, const double * F)
 {
-	vector < double > p1(m_.inner.size());
+	vector < double > rp(m_.inner.size());
 
 	laplace_right_part_cb_data d;
 	d.F = F;
-	generate_right_part(&p1[0], m_, (right_part_cb_t)lp_rp, &d);
-	idt_.solve(Ans, &p1[0]);
+	d.bnd = 0;
+	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
+	idt_.solve(Ans, &rp[0]);
 }
 
 void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 {
 	vector < double > p1(m_.inner.size());
-	calc2(&p1[0], F);
+
+	//calc2(&p1[0], F);
+
+	vector < double > rp(m_.inner.size());
+
+	laplace_right_part_cb_data d;
+	d.F = F;
+	d.bnd = bnd;
+	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
+	idt_.solve(&p1[0], &rp[0]);
+
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
