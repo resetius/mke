@@ -32,35 +32,39 @@
 Лапласа.
 
 \section*{О методе конечных элементов}
+Рассмотрим дифференциальное уравнение.
 \begin{equation*}
-Lu = f,
+\begin{split}
+Lu = f,\\
 u|_\Omega=u_0.
+\end{split}
 \end{equation*}
 
+Слова про разбиение $\Omega$ и про то, что такое $\phi_j$.
 \begin{equation*}
-(Lu, v_j) = (f, v_j), \text{ для всех } v_j,
+(Lu, \phi_j) = (f, \phi_j), \text{ для всех } \phi_j,
 \end{equation*}
 где $j$ - внутренняя точка $\Omega$.
 
 \begin{equation*}
-u(x,y)=\sum u_i \cdot v_i (x, y),\ u_i=u(x_i,y_i).
+u(x,y)=\sum u_i \cdot \phi_i (x, y),\ u_i=u(x_i,y_i).
 \end{equation*}
 
 \begin{equation*}
-f(x,y)=\sum f_k \cdot v_k (x, y),\ f_i=f(x_i,y_i).
+f(x,y)=\sum f_k \cdot \phi_k (x, y),\ f_i=f(x_i,y_i).
 \end{equation*}
 
 \begin{equation*}
-\sum u_i \cdot (v_i, v_j) = \sum f_k \cdot (v_k, v_j).
+\sum u_i \cdot (\phi_i, \phi_j) = \sum f_k \cdot (\phi_k, \phi_j).
 \end{equation*}
 $(v_i, v_j)$ отлично от нуля только, если существует треугольник,
 которому одновременно принадлежат точки $i$ и $j$. $i$ - может быть и
 граничной точкой, в этом случае $u_i$ известно и, поэтому,
-соответствующее слагаемое $u_i\cdot (v_i, v_j)$ пойдет в правую часть.
+соответствующее слагаемое $u_i\cdot (\phi_i, \phi_j)$ пойдет в правую часть.
 
 Вектор правой части:
 \begin{equation*}
-b_j= \sum f_k \cdot (v_k, v_j) - u_i\cdot (v_i, v_j)
+b_j= \sum f_k \cdot (\phi_k, \phi_j) - u_i\cdot (\phi_i, \phi_j)
 \end{equation*}
 
 \subsection*{Базисные  функции}
