@@ -122,7 +122,7 @@ void test_barvortex(const Mesh & m)
 	vector < double > bnd(std::max(os, 1));
 
 	mke_proj(&u[0], m, f1);
-	if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
+	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
 
 	setbuf(stdout, 0);
 	for (int i = 0; i < steps; ++i) {
