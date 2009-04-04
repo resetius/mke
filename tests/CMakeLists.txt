@@ -24,7 +24,7 @@ target_link_libraries(test_polynom mke ${UMFPACK})
 target_link_libraries(test_integrate mke ${UMFPACK})
 target_link_libraries(test_gmres mke)
 target_link_libraries(test_quadrature mke ${MATH})
-target_link_libraries(test_funcgen mke ${MATH})
+target_link_libraries(test_funcgen mke ${MATH} ${UMFPACK})
 
 if (DEFINED OMP_LFLAGS)
 set_target_properties(test_laplace PROPERTIES LINK_FLAGS ${OMP_LFLAGS})
