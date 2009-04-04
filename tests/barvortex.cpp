@@ -231,15 +231,15 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b;
 
+	b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, d->d);
-		//b = 0.0;
-	} else {
-		b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
+			trk, m, point_i, point_j, d->d);		
 	}
+
 	return b;
 }
 

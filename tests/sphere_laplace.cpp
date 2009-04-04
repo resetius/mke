@@ -152,7 +152,7 @@ static double lp_rp(const Polynom & phi_i,
 	const double * F = d->F;
 	double b = F[point_j] * laplace(phi_j, phi_i, trk, m.ps);;
 
-	if (m.ps_flags[point_j] == 1) { // на границе
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
 				trk, m, point_i, point_j, 0);
