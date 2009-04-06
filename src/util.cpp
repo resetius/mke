@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -376,6 +377,19 @@ void sparse_print(const struct Sparse * A, int n, FILE * f)
 }
 
 
+#ifdef WIN32
+void set_fpe_except()
+{
+	int cw = _controlfp(0, 0);
+	cw &=~(EM_OVERFLOW|EM_UNDERFLOW|EM_INEXACT|EM_ZERODIVIDE|EM_DENORMAL);
+	_controlfp(cw, MCW_EM);
+}
+#else
+void set_fpe_except()
+{
+}
+#endif
+
 #include <time.h>
  
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
@@ -439,3 +453,4 @@ double get_full_time()
 }
 
 } /* extern "C" */
+

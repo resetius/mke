@@ -119,6 +119,9 @@ void test_laplace(Mesh & mesh)
 
 	mke_proj_bnd(&B[0], mesh, ans);
 	l.solve(&LU[0], &LU1[0], &B[0]);
+	
+	vector_print(&U[0], U.size());
+	vector_print(&LU[0], LU.size());
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
