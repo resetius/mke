@@ -158,6 +158,8 @@ double get_full_time();
 typedef double (*fx_t)(double x, void * data);
 double gauss_kronrod15(double a, double b, fx_t fm, void * data);
 
+void set_fpe_except();
+
 #ifdef __cplusplus
 }
 #endif

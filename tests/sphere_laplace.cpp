@@ -184,6 +184,7 @@ void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 	vector < double > p1(m_.inner.size());
 
 //	calc2(&p1[0], F);
+#if 1
 	vector < double > rp(m_.inner.size());
 
 	slaplace_right_part_cb_data d;
@@ -191,7 +192,7 @@ void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 	d.bnd = bnd;
 	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
 	idt_.solve(&p1[0], &rp[0]);
-
+#endif
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 

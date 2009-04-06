@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
 	} else {
 		usage(argv[0]);
 	}
+	set_fpe_except();
 
 	//test_jacobian(mesh);
 	test_barvortex(mesh);
