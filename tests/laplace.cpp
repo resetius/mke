@@ -188,15 +188,17 @@ static double lp_rp(const Polynom & phi_i,
 		laplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	double b = F[point_j] * laplace(phi_i, phi_j, trk, m);;
+	//double b = F[point_j] * laplace(phi_i, phi_j, trk, m);
 
-	if (m.ps_flags[point_j] == 1 && d->bnd)
+	return F[point_j] * laplace(phi_i, phi_j, trk, m);
+
+	/*if (m.ps_flags[point_j] == 1 && d->bnd)
 	{
 		int j0       = m.p2io[point_j];
 		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
 				trk, m, point_i, point_j, 0);
-	}
-	return b;
+	}*/
+//	return b;
 }
 
 Laplace::Laplace(const Mesh & m): m_(m), 
