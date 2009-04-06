@@ -58,6 +58,10 @@ vector < Polynom > Mesh::elem1(const Triangle & t) const
 	return r;
 }
 
+/**
+ * warning: использу€ эту функцию нельз€ определить к какой точке 
+ * относитс€ базисна€ функци€ !
+ */
 vector < Polynom > Mesh::elem1_inner(const Triangle & t) const
 {
 	vector < Polynom > r;
@@ -296,7 +300,7 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 
 	Timer t;
 #pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
+	for (int i = 0; i < rs; ++i) { // номер строки
 		// по внутренним точкам
 		int p = m.inner[i];
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
@@ -308,7 +312,8 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
-				int j    = m.p2io[p2]; //номер внутренней точки
+				int j    = m.p2io[p2]; // номер внутренней точки
+				                       // номер столбца
 				if (m.ps_flags[p2] == 1) {
 					; // граница
 				} else {
@@ -337,7 +342,6 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			Polynom phi_i           = m.elem1(trk, p);
-			//vector < Polynom > phik = m.elem1_inner(trk);
 			
 			// если граница не мен€етс€ по времени, то надо делать отдельный callback
 			// дл€ вычислени€ посто€нной поправки к правой части?

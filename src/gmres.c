@@ -34,12 +34,13 @@
 #include "gmres.h"
 
 void vector_diff(double * r, const double * a, const double * b, int n);
+double get_full_time();
 
 static double norm2(const double * v, int n)
 {
 	double s = 0.0;
 	int i;
-#pragma omp parallel for reduction(+:s)
+//#pragma omp parallel for reduction(+:s)
 	for (i = 0; i < n; ++i) {
 		s = s + v[i] * v[i];
 	}
@@ -50,7 +51,7 @@ static double scalar2(const double * a, const double * b, int n)
 {
 	double s = 0.0;
 	int i;
-#pragma omp parallel for reduction(+:s)
+//#pragma omp parallel for reduction(+:s)
 	for (i = 0; i < n; ++i) {
 		s = s + a[i] * b[i];
 	}
@@ -63,7 +64,7 @@ static double scalar2(const double * a, const double * b, int n)
 static void vector_mult_scalar(double * a, const double * b, double k, int n)
 {
 	int i;
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		a[i] = b[i] * k;
 	}
@@ -75,7 +76,7 @@ static void vector_mult_scalar(double * a, const double * b, double k, int n)
 static void vector_div_scalar(double * a, const double * b, double k, int n)
 {
 	int i;
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		a[i] = b[i] / k;
 	}
@@ -87,7 +88,7 @@ static void vector_div_scalar(double * a, const double * b, double k, int n)
 static void vector_sum2(double * r, const double * a, const double *b, double k2, int n)
 {
 	int i;
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] + k2 * b[i];
 	}
@@ -235,10 +236,13 @@ void gmres(double * x, const void * A, const double * b,
 
 	for (i = 0; i < max_it; ++i)
 	{
+		double t1 = get_full_time();
 		double e  = algorithm6_9(x, A, b, Ax, tol * bn, n, k_dim);
+		double t2 = get_full_time();
 		//double xn = norm2(x, n);
 		e /= bn;
-		fprintf(stderr, "  gmres: iters = %d, eps = %le\n", i, e);
+		fprintf(stderr, "  gmres: iters = %d, eps = %le, t = %lf\n", i, e, 
+			(t2 - t1) / 100.0);
 		if (e < tol) {
 			return;
 		}

@@ -82,13 +82,14 @@ slaplace_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b;
 
+	b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
+
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b = -bnd[j0] * laplace(phi_j, phi_i, trk, m.ps);
-	} else {
-		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b += -bnd[j0] * laplace(phi_j, phi_i, trk, m.ps);
 	}
+
 	return b;
 }
 
@@ -149,7 +150,14 @@ static double lp_rp(const Polynom & phi_i,
 		slaplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	return F[point_j] * laplace(phi_j, phi_i, trk, m.ps);;
+	double b = F[point_j] * laplace(phi_j, phi_i, trk, m.ps);;
+
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
+		int j0       = m.p2io[point_j]; //номер внешней точки
+		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
+				trk, m, point_i, point_j, 0);
+	}
+	return b;
 }
 
 SphereLaplace::SphereLaplace(const Mesh & m): m_(m), 
@@ -162,18 +170,28 @@ SphereLaplace::SphereLaplace(const Mesh & m): m_(m),
 
 void SphereLaplace::calc2(double * Ans, const double * F)
 {
-	vector < double > p1(m_.inner.size());
+	vector < double > rp(m_.inner.size());
 
 	slaplace_right_part_cb_data d;
-	d.F = F;
-	generate_right_part(&p1[0], m_, (right_part_cb_t)lp_rp, &d);
-	idt_.solve(Ans, &p1[0]);
+	d.F   = F;
+	d.bnd = 0;
+	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
+	idt_.solve(Ans, &rp[0]);
 }
 
 void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 {
 	vector < double > p1(m_.inner.size());
-	calc2(&p1[0], F);
+
+//	calc2(&p1[0], F);
+	vector < double > rp(m_.inner.size());
+
+	slaplace_right_part_cb_data d;
+	d.F   = F;
+	d.bnd = bnd;
+	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
+	idt_.solve(&p1[0], &rp[0]);
+
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 

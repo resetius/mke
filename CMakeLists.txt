@@ -23,7 +23,8 @@ if (NOT CYGWIN)
 		set(OMP_LFLAGS "-fopenmp")
 		set(OMP_LIBS   "")
 		set(FLIB "gfortran")
-		#set(UMFPACK umfpack amd)
+		include_directories(/usr/include/suitesparse/)
+		set(UMFPACK umfpack amd)
 	endif (CMAKE_CXX_COMPILER MATCHES ${ICC})
 endif (NOT CYGWIN)
 set(MATH m)
@@ -34,10 +35,11 @@ endif (NOT WIN32)
 if (MSVC)
 	#set(OMP_CFLAGS "/openmp")
 	add_definitions(/D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-DGMRES)
 endif (MSVC)
 
 add_definitions(${OMP_CFLAGS})
-add_definitions(-DGMRES) # comment it if you want umfpack
+#add_definitions(-DGMRES) # comment it if you want umfpack
 add_definitions(-DSPARSE)
 
 add_subdirectory(src)
