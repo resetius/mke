@@ -382,7 +382,7 @@ void sparse_print(const struct Sparse * A, int n, FILE * f)
 void set_fpe_except()
 {
 	int cw = _controlfp(0, 0);
-	cw &=~(EM_OVERFLOW|EM_UNDERFLOW|EM_INEXACT|EM_ZERODIVIDE|EM_DENORMAL);
+	cw &=~(EM_OVERFLOW|EM_UNDERFLOW|EM_ZERODIVIDE|EM_DENORMAL);
 	_controlfp(cw, MCW_EM);
 }
 #else

@@ -33,7 +33,7 @@ set(MATH "")
 endif (NOT WIN32)
 
 if (MSVC)
-	#set(OMP_CFLAGS "/openmp")
+	set(OMP_CFLAGS "/openmp")
 	add_definitions(/D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-DGMRES)
 endif (MSVC)
