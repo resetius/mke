@@ -68,10 +68,10 @@ double nr2(double * a, double * b, int n)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 100;
+	int i, steps = 10000;
 	double tau   = 0.001; //r5 => h = 0.03
 	double mu    = 1.0;
-	double sigma = +70;
+	double sigma = -70;
 
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");

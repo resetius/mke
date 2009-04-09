@@ -378,6 +378,7 @@ void sparse_print(const struct Sparse * A, int n, FILE * f)
 
 
 #ifdef WIN32
+#include <windows.h>
 void set_fpe_except()
 {
 	int cw = _controlfp(0, 0);

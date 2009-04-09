@@ -273,7 +273,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 
 	// omega = L (u)
-	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
+	l_.calc1(&omega_0[0], &X_0[0], 0 /*bnd*/);    //TODO: а чему у нас на краях равно omega?
 	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
 	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
 

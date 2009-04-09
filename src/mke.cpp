@@ -387,7 +387,11 @@ void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 	for (int i = 0; i < sz; ++i) {
 		if (m.ps_flags[i] == 1) {
 			//внешн€€
-			u[i] = bnd[m.p2io[i]];
+			if (bnd) {
+				u[i] = bnd[m.p2io[i]];
+			} else {
+				u[i] = 0;
+			}
 		} else {
 			//внутренн€€
 			u[i] = p[m.p2io[i]];
@@ -501,3 +505,4 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
 		F[i] = f(p.x, p.y, t);
 	}
 }
+
