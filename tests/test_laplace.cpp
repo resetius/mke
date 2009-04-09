@@ -104,21 +104,22 @@ void test_laplace(Mesh & mesh)
 	vector < double > U(sz);
 	vector < double > LU(sz);
 	vector < double > LU1(sz);
-	vector < double > B(os);
+	vector < double > B1(os);
+	vector < double > B2(os);
 	vector < double > P(rs);
 	vector < double > P1(rs);
 
 	mke_proj(&U[0], mesh, ans);
 	mke_proj(&LU[0], mesh, rp);
-	mke_proj_bnd(&B[0], mesh, rp);
+	mke_proj_bnd(&B1[0], mesh, rp);
+	mke_proj_bnd(&B2[0], mesh, ans);
 
 	Laplace l(mesh);
-	l.calc1(&LU1[0], &U[0], &B[0]);
+	l.calc1(&LU1[0], &U[0], &B1[0]);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 
-	mke_proj_bnd(&B[0], mesh, ans);
-	l.solve(&LU[0], &LU1[0], &B[0]);
+	l.solve(&LU[0], &LU1[0], &B2[0]);
 	
 	vector_print(&U[0], U.size());
 	vector_print(&LU[0], LU.size());

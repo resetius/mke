@@ -191,7 +191,7 @@ static double lp_rp(const Polynom & phi_i,
 	double b = F[point_j] * laplace(phi_i, phi_j, trk, m);
 
 	//return F[point_j] * laplace(phi_i, phi_j, trk, m);
-#if 0
+#if 1
 	if (m.ps_flags[point_j] == 1 && d->bnd)
 	{
 		int j0       = m.p2io[point_j];
@@ -221,6 +221,13 @@ void Laplace::calc2(double * Ans, const double * F)
 	idt_.solve(Ans, &rp[0]);
 }
 
+/**
+ * Оператор Лапласа на границе не определен, поэтому вставляйте сюда
+ * границу только если вы знаете, что делаете!
+ *
+ * Если этот оператор Лапласа входит в праву часть уравнения, то
+ * напишите 0 вместо границы.
+ */
 void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 {
 	vector < double > p1(m_.inner.size());
