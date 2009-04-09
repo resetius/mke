@@ -290,7 +290,8 @@ void Chafe::solve(double * Ans, const double * X0,
 		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
 	}
 
-	mke_p2u(&p[0], &u[0], bnd, m_);
+	// правую часть на границе не знаем !
+	mke_p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	chafe_right_part_cb_data data2;
 	data2.F   = &p[0];
 	data2.bnd = bnd;

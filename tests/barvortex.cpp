@@ -328,3 +328,4 @@ void BarVortex::calc(double * psi, const double * x0,
 		}
 	}
 }
+
