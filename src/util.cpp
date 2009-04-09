@@ -388,6 +388,13 @@ void set_fpe_except()
 #else
 void set_fpe_except()
 {
+	//http://www.website.masmforum.com/tutorials/fptute/fpuchap1.htm
+	unsigned m;
+	asm ("fstcw %0" : : "m" (*&m));
+	asm ("fwait");
+	m ^= 0x7f;
+	asm ("fldcw %0" : : "m" (*&m));
+	asm ("fwait");
 }
 #endif
 
