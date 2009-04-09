@@ -246,32 +246,36 @@ integrate1(const Polynom & p, const TriangleX & tr, t_int trapezoid)
 	k1 = (y2 - y1) / (x2 - x1);
 	b1 = (y1 * x2 - x1 * y2) / (x2 - x1);
 
-	k2 = (y2 - y3) / (x2 - x3);
-	b2 = (y3 * x2 - x3 * y2) / (x2 - x3);
-
- 	k3 = (y3 - y1) / (x3 - x1);
- 	b3 = (y1 * x3 - x1 * y3) / (x3 - x1);
-
-	//fprintf(stderr, "    (%.2lf,%.2lf)-(%.2lf,%.2lf)-(%.2lf,%.2lf)\n", x1, y1, x2, y2, x3, y3);
-	
 	deg = p.deg_;
-	for (k = 0; k <= deg; ++k) { //x
-		for (n = 0; n <= deg; ++n) { //y
-			int1 += p.koef_[k * (deg + 1) + n] * 
-				trapezoid(k, n, k1, b1, k3, b3, x1, x3);
+
+	if (fabs(x1 - x3) > 1e-15) {
+		k3 = (y3 - y1) / (x3 - x1);
+		b3 = (y1 * x3 - x1 * y3) / (x3 - x1);
+
+		for (k = 0; k <= deg; ++k) { //x
+			for (n = 0; n <= deg; ++n) { //y
+				int1 += p.koef_[k * (deg + 1) + n] * 
+					trapezoid(k, n, k1, b1, k3, b3, x1, x3);
+			}
 		}
+	} else {
+		int1 = 0;
 	}
 
-	for (k = 0; k <= deg; ++k) { //x
-		for (n = 0; n <= deg; ++n) { //y
-			int2 += p.koef_[k * (deg + 1) + n] * 
-				trapezoid(k, n, k1, b1, k2, b2, x3, x2);
+	if (fabs(x3 - x2) > 1e-15) {
+		k2 = (y2 - y3) / (x2 - x3);
+		b2 = (y3 * x2 - x3 * y2) / (x2 - x3);
+
+		for (k = 0; k <= deg; ++k) { //x
+			for (n = 0; n <= deg; ++n) { //y
+				int2 += p.koef_[k * (deg + 1) + n] * 
+					trapezoid(k, n, k1, b1, k2, b2, x3, x2);
+			}
 		}
+	} else {
+		int2 = 0;
 	}
 
-	if (fabs(x1 - x3) < 1e-15) int1 = 0;
-	if (fabs(x3 - x2) < 1e-15) int2 = 0;
-	
 	if (y3 >= y1 && y3 >= y2) return int1 + int2;
 	else if (y3 <= y1 && y3 <= y2) return -int1 - int2;
 	else if (y3 >= k1 * x3 + b1) return int1 + int2;
