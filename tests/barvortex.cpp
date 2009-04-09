@@ -250,8 +250,8 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 void BarVortex::calc(double * psi, const double * x0, 
 					 const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size();
-	int sz = (int)m_.ps.size();
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
 
 	vector < double > omega_0(sz); // omega_0 = L (X_0)
 	vector < double > omega_1(sz);
@@ -288,8 +288,11 @@ void BarVortex::calc(double * psi, const double * x0,
 	// w/dt + mu \Delta w / 2 - \sigma w/2
 	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
 
+	// в lomega содержится правая часть, которая не меняется при итерациях!
+	// правая часть только на границе !
+
 	while (true) {
-		// 0.5(w+w) + l + h
+		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
 		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
 		vector_sum1(&prev_psi[0], &X_0[0], &psi[0], 0.5, 0.5, sz);
@@ -306,8 +309,10 @@ void BarVortex::calc(double * psi, const double * x0,
 			omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
 		}
 
+		// значения правой части на границе не знаем !
+		mke_p2u(&p1[0], &omega[0], 0, m_);
 		right_part_cb_data data2;
-		data2.F   = &omega[0];
+		data2.F   = &p1[0];
 		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
 		data2.d   = this;
 
