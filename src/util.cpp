@@ -392,7 +392,12 @@ void set_fpe_except()
 	unsigned m;
 	asm ("fstcw %0" : : "m" (*&m));
 	asm ("fwait");
-	m ^= 0x7f;
+	m ^= 0x7f; //turn on all exceptions!
+	m |= (1 << 8);
+	m |= (1 << 9);
+	m ^= (1 << 8);
+	m ^= (1 << 9);
+	m |= (1 << 9); // double precision
 	asm ("fldcw %0" : : "m" (*&m));
 	asm ("fwait");
 }
