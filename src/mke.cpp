@@ -114,7 +114,7 @@ Polynom Mesh::elem1(const Triangle & t, int p) const
 	return Polynom(1, 2);
 }
 
-void Mesh::load(FILE * f)
+bool Mesh::load(FILE * f)
 {
 	int size;
 	int lineno = 1;
@@ -245,12 +245,12 @@ make_inner:
 		}
 	}
 
-	return;
+	return true;
 
 bad:
 	{
 		fprintf(stderr, "bad file format, line = %d\n", lineno);
-		exit(1);
+		return false;
 	}
 }
 

@@ -134,7 +134,7 @@ struct Mesh {
 	// соответствие номера в массиве ps номеру в массиве inner или outer
 	std::vector < int > p2io;
 
-	void load(FILE * f);
+	bool load(FILE * f);
 
 	/**
 	 * первый порядок

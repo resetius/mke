@@ -192,7 +192,9 @@ int main(int argc, char *argv[])
 		if (!f) {
 			usage(argv[0]);
 		}
-		mesh.load(f);
+		if (!mesh.load(f)) {
+			usage(argv[0]);
+		}
 		fclose(f);
 	} else {
 		usage(argv[0]);
