@@ -78,6 +78,9 @@ struct Data {
 	{
 #ifdef WIN32
 		if (fd_ >= (file_t)-1) CloseHandle(fd_);
+		if (map_) CloseHandle(map_);
+		if (d_) UnmapViewOfFile(d_);
+		map_ = 0;
 #else
 		if (d_) munmap(d_, sz_);
 		if (fd_ >= 0) close(fd_);
@@ -87,7 +90,28 @@ struct Data {
 	}
 
 	bool load(const char * path) {
-#ifndef WIN32
+#ifdef WIN32
+		fd_ = CreateFile(path, GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (fd_ < 0) {
+			return false;
+		}
+
+		map_ = CreateFileMapping(fd_, NULL, PAGE_READONLY, NULL, NULL, path);
+		if (!map_) {
+			CloseHandle(fd_);
+			return false;
+		}
+
+		d_ = (int16_t *)MapViewOfFile(map_, FILE_MAP_READ, NULL, NULL, NULL);
+		if (!d_) {
+			CloseHandle(fd_);
+			CloseHandle(map_);
+			return false;
+		}
+
+		return true;
+#else
 		struct stat buf;
 		fd_ = open(path, O_RDONLY);
 		if (fd_ < 0) {
@@ -106,27 +130,6 @@ struct Data {
 		d_ = (int16_t*)mmap(0, sz_, PROT_READ, MAP_SHARED, fd_, 0);
 		if (d_ == (void*)-1) {
 			close(fd_); fd_ = -1;
-			return false;
-		}
-
-		return true;
-#else
-		fd_ = CreateFile(path, GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-		if (fd_ < 0) {
-			return false;
-		}
-
-		map_ = CreateFileMapping(fd_, NULL, PAGE_READONLY, NULL, NULL, path);
-		if (!map_) {
-			CloseHandle(fd_);
-			return false;
-		}
-
-		d_ = (int16_t *)MapViewOfFile(map_, FILE_MAP_READ, NULL, NULL, NULL);
-		if (!d_) {
-			CloseHandle(fd_);
-			CloseHandle(map_);
 			return false;
 		}
 
