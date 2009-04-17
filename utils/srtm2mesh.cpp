@@ -187,7 +187,7 @@ void print_relief(vector < double > & relief, SimpleMesh & mesh, int type)
 
 		sz = mesh.triangles.size();
 		for (size_t i = 0; i < sz; ++i) {
-			fprintf(stdout, "%s\n", mesh.triangles[i]);
+			fprintf(stdout, "%s\n", mesh.triangles[i].c_str());
 		}
 		fprintf(stdout, "#");
 	}
