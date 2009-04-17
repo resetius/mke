@@ -102,6 +102,7 @@ struct Data {
 		assert(0 <= v && v<= 2 * M_PI);
 		j = (int)((v * (43200.0 - 1.0)) / 2.0 / M_PI);
 		i = (int)((u + M_PI / 2) * (21600.0 - 1.0) / M_PI);
+		i = 21599 - i;
 
 		return (double)(htons(d_[i * 43200 + j]));
 #else
