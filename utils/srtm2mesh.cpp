@@ -32,20 +32,81 @@
 
 #include <vector>
 #include <string>
+#include <assert.h>
+
+#ifndef WIN32
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <stdint.h>
+#endif
 
 using namespace std;
 
 struct Data {
-	Data()
+#ifndef WIN32
+	int16_t * d_;
+	int fd_;
+	size_t sz_;
+#endif
+
+	Data(): d_(0), fd_(-1)
 	{
 	}
 
+	~Data()
+	{
+		if (d_) munmap(d_, sz_);
+		if (fd_ >= 0) close(fd_);
+
+		d_  = 0;
+		fd_ = -1;
+	}
+
 	bool load(const char * path) {
+#ifndef WIN32
+		struct stat buf;
+		fd_ = open(path, O_RDONLY);
+		if (fd_ < 0) {
+			return false;
+		}
+
+		if (stat(path, &buf) == 0) {
+			sz_ = buf.st_size;
+		} else {
+			close(fd_); fd_ = -1;
+			return false;
+		}
+
+		assert(sz_ >= 2 * 43200 * 21600);
+
+		d_ = (int16_t*)mmap(0, sz_, PROT_READ, MAP_SHARED, fd_, 0);
+		if (d_ == (void*)-1) {
+			close(fd_); fd_ = -1;
+			return false;
+		}
+
 		return true;
+#else
+		return false;
+#endif
 	}
 
 	double get(double u, double v) {
+#ifndef WIN32
+		int i, j;
+		assert(-M_PI / 2 <= u && u <= M_PI / 2);
+		assert(0 <= v && v<= 2 * M_PI);
+		j = (int)((v * (43200.0 - 1.0)) / 2.0 / M_PI);
+		i = (int)((u + M_PI / 2) * (21600.0 - 1.0) / M_PI);
+
+		return (double)(htons(d_[i * 43200 + j]));
+#else
 		return 0.0;
+#endif
 	}
 };
 
@@ -187,7 +248,7 @@ void print_relief(vector < double > & relief, SimpleMesh & mesh, int type)
 
 		sz = mesh.triangles.size();
 		for (size_t i = 0; i < sz; ++i) {
-			fprintf(stdout, "%s\n", mesh.triangles[i].c_str());
+			fprintf(stdout, "%s", mesh.triangles[i].c_str());
 		}
 		fprintf(stdout, "#");
 	}
@@ -195,8 +256,8 @@ void print_relief(vector < double > & relief, SimpleMesh & mesh, int type)
 
 void usage(const char * name)
 {
-	fprintf(stderr, "usage: %s --strm [strmpath] --type [f|tri] --mesh [mesh.txt]\n", name);
-	fprintf(stderr, "--strm [strmpath] -- path to strm directory (. is default)\n"
+	fprintf(stderr, "usage: %s --srtm [srtmpath] --type [f|tri] --mesh [mesh.txt]\n", name);
+	fprintf(stderr, "--srtm [srtmpath] -- path to srtm directory (. is default)\n"
 		"--type [f|tri] -- type of output\n"
 		"    f    - only f data (elevation)\n"
 		"    tri  - full data (for vizualizer 3d)\n"
@@ -207,7 +268,7 @@ void usage(const char * name)
 int main(int argc, char * argv[])
 {
 	vector < double > relief;
-	const char * strm_path = ".";
+	const char * srtm_path = ".";
 	const char * mesh_file = "mesh.txt";
 	int output_type   = 0; //0 - f only, 1 - full
 	SimpleMesh mesh;
@@ -221,6 +282,7 @@ int main(int argc, char * argv[])
 			usage(argv[0]);
 		} else if (!strcmp(argv[i], "--type")) {
 			if (i == argc - 1) {
+				fprintf(stderr, "--type requires an argument\n");
 				usage(argv[0]);
 			}
 
@@ -231,16 +293,18 @@ int main(int argc, char * argv[])
 			}
 		} else if (!strcmp(argv[i], "--mesh")) {
 			if (i == argc - 1) {
+				fprintf(stderr, "--mesh requires an argument\n");
 				usage(argv[0]);
 			}
 
 			mesh_file = argv[i + 1];
-		} else if (!strcmp(argv[i], "--strm")) {
+		} else if (!strcmp(argv[i], "--srtm")) {
 			if (i == argc - 1) {
+				fprintf(stderr, "--srtm requires an argument\n");
 				usage(argv[0]);
 			}
 
-			strm_path = argv[i + 1];
+			srtm_path = argv[i + 1];
 		}
 	}
 
@@ -255,8 +319,8 @@ int main(int argc, char * argv[])
 		usage(argv[0]);
 	}
 
-	if (!data.load(strm_path)) {
-		fprintf(stderr, "cannot load data %s\n", strm_path);
+	if (!data.load(srtm_path)) {
+		fprintf(stderr, "cannot load data %s\n", srtm_path);
 		usage(argv[0]);
 	}
 
@@ -265,3 +329,4 @@ int main(int argc, char * argv[])
 
 	return 0;
 }
+
