@@ -34,7 +34,12 @@
 #include <string>
 #include <assert.h>
 
-#ifndef WIN32
+#ifdef WIN32
+#include <windows.h>
+#define htons(x) \
+	(((((unsigned short)(x)) >>8) & 0xff) | \
+                ((((unsigned short)(x)) & 0xff)<<8))
+#else
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -46,38 +51,39 @@
 
 using namespace std;
 
-struct Data {
-#ifndef WIN32
-	int16_t * d_;
-	int fd_;
-	size_t sz_;
+#ifdef WIN32
+	typedef __int16 int16_t;
+	typedef HANDLE file_t;
 #else
-	FILE * fd_;
+	typedef int file_t;
 #endif
 
-	Data(): 
-#ifndef WIN32
-		d_(0), 
-		fd_(-1)
+struct Data {
+	int16_t * d_;
+
+#ifdef WIN32
+	HANDLE fd_;
+	HANDLE map_;
 #else
-		fd_(0)
+	int fd_;
+	size_t sz_;
 #endif
+
+	Data(): d_(0), 
+		fd_((file_t)-1)
 	{
 	}
 
 	~Data()
 	{
-#ifndef WIN32
+#ifdef WIN32
+		if (fd_ >= (file_t)-1) CloseHandle(fd_);
+#else
 		if (d_) munmap(d_, sz_);
 		if (fd_ >= 0) close(fd_);
-
-		d_  = 0;
-		fd_ = -1;
-#else
-		if (fd_) fclose(fd_);
-
-		fd_ = 0;
 #endif
+		d_  = 0;
+		fd_ = (file_t)-1;
 	}
 
 	bool load(const char * path) {
@@ -105,12 +111,26 @@ struct Data {
 
 		return true;
 #else
-		fd_ = fopen(path, "rb");
-		if (!fd_) {
+		fd_ = CreateFile(path, GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+		if (fd_ < 0) {
 			return false;
-		} else {
-			return true;
 		}
+
+		map_ = CreateFileMapping(fd_, NULL, PAGE_READONLY, NULL, NULL, path);
+		if (!map_) {
+			CloseHandle(fd_);
+			return false;
+		}
+
+		d_ = (int16_t *)MapViewOfFile(map_, FILE_MAP_READ, NULL, NULL, NULL);
+		if (!d_) {
+			CloseHandle(fd_);
+			CloseHandle(map_);
+			return false;
+		}
+
+		return true;
 #endif
 	}
 
@@ -122,16 +142,7 @@ struct Data {
 		i = (int)((u + M_PI / 2) * (21600.0 - 1.0) / M_PI);
 		i = 21599 - i;
 
-#ifndef WIN32
 		return (double)(htons(d_[i * 43200 + j]));
-#else
-		__int64 off = (i * 43200 + j) * 2;
-		short r1, r;
-		_fseeki64(fd_, off, SEEK_SET);
-		fread(&r1, 2, 1, fd_);
-		r = (short)(((int)r1) << 8 | ((int)r1) >> 8);
-		return (double)r;
-#endif
 	}
 };
 
