@@ -51,19 +51,33 @@ struct Data {
 	int16_t * d_;
 	int fd_;
 	size_t sz_;
+#else
+	FILE * fd_;
 #endif
 
-	Data(): d_(0), fd_(-1)
+	Data(): 
+#ifndef WIN32
+		d_(0), 
+		fd_(-1)
+#else
+		fd_(0)
+#endif
 	{
 	}
 
 	~Data()
 	{
+#ifndef WIN32
 		if (d_) munmap(d_, sz_);
 		if (fd_ >= 0) close(fd_);
 
 		d_  = 0;
 		fd_ = -1;
+#else
+		if (fd_) fclose(fd_);
+
+		fd_ = 0;
+#endif
 	}
 
 	bool load(const char * path) {
@@ -91,12 +105,16 @@ struct Data {
 
 		return true;
 #else
-		return false;
+		fd_ = fopen(path, "rb");
+		if (!fd) {
+			return false;
+		} else {
+			return true;
+		}
 #endif
 	}
 
 	double get(double u, double v) {
-#ifndef WIN32
 		int i, j;
 		assert(-M_PI / 2 <= u && u <= M_PI / 2);
 		assert(0 <= v && v<= 2 * M_PI);
@@ -104,9 +122,15 @@ struct Data {
 		i = (int)((u + M_PI / 2) * (21600.0 - 1.0) / M_PI);
 		i = 21599 - i;
 
+#ifndef WIN32
 		return (double)(htons(d_[i * 43200 + j]));
 #else
-		return 0.0;
+		off_t off = (i * 43200 + j) * 2;
+		int16_t r1, r;
+		fseek(fd_, off, SEEK_SET);
+		fread(&r1, 2, 1, fd_);
+		r = r1 << 8 | r1 >> 8;
+		return (double)r;
 #endif
 	}
 };
