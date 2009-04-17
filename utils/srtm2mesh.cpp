@@ -106,7 +106,7 @@ struct Data {
 		return true;
 #else
 		fd_ = fopen(path, "rb");
-		if (!fd) {
+		if (!fd_) {
 			return false;
 		} else {
 			return true;
@@ -125,11 +125,11 @@ struct Data {
 #ifndef WIN32
 		return (double)(htons(d_[i * 43200 + j]));
 #else
-		off_t off = (i * 43200 + j) * 2;
-		int16_t r1, r;
-		fseek(fd_, off, SEEK_SET);
+		__int64 off = (i * 43200 + j) * 2;
+		short r1, r;
+		_fseeki64(fd_, off, SEEK_SET);
 		fread(&r1, 2, 1, fd_);
-		r = r1 << 8 | r1 >> 8;
+		r = (short)(((int)r1) << 8 | ((int)r1) >> 8);
 		return (double)r;
 #endif
 	}
