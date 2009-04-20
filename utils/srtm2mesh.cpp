@@ -145,7 +145,7 @@ struct Data {
 		i = (int)((u + M_PI / 2) * (21600.0 - 1.0) / M_PI);
 		i = 21599 - i;
 
-		return (double)(htons(d_[i * 43200 + j]));
+		return (double)((int16_t)htons(d_[i * 43200 + j]));
 	}
 };
 
