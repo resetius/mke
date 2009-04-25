@@ -36,12 +36,12 @@
 using namespace std;
 
 double 
-BarVortex::integrate_cb( const Polynom & phi_i,
+Baroclin::integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
                      int point_i, int point_j,
-                     BarVortex * d)
+                     Baroclin * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -66,7 +66,7 @@ static double coriolis(double phi, double lambda)
 	return l + h;
 }
 
-BarVortex::BarVortex(const Mesh & m, double tau, 
+Baroclin::Baroclin(const Mesh & m, double tau, 
 					 double sigma, double mu)
 					 : m_(m), l_(m), j_(m), A_(m.inner.size()),
 					 tau_(tau), sigma_(sigma), mu_(mu)
@@ -89,15 +89,15 @@ static double f(double x, double y, double t,
 	return 0.0;
 }
 
-struct BarVortex::right_part_cb_data
+struct Baroclin::right_part_cb_data
 {
 	const double * F;
 	const double * bnd;
-	BarVortex  * d;
+	Baroclin  * d;
 };
 
 double 
-BarVortex::right_part_cb( const Polynom & phi_i,
+Baroclin::right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
@@ -112,7 +112,7 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
+		b += -bnd[j0] * Baroclin::integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, d->d);		
 	}
 
@@ -120,11 +120,13 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 }
 
 /**
+ * (u1, u2) -> (u11, u21)
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
-void BarVortex::calc(double * psi, const double * x0, 
-					 const double * bnd, double t)
+void Baroclin::calc(double * u11,  double * u21, 
+		const double * u1, const double * u2, 
+		const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -142,7 +144,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	vector < double > prev_psi(sz);
 
 	vector < double > X_0(sz);
-	memcpy(&X_0[0], x0, sz * sizeof(double));
+	memcpy(&X_0[0], u1, sz * sizeof(double));
 
 	// генерируем правую часть
 	// w/dt + mu \Delta w / 2 - \sigma w/2 -
@@ -151,7 +153,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	// omega = L (u)
 	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
 	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
-	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
+	memcpy(&u11[0], &X_0[0], sizeof(double) * sz);
 
 
 	// L (omega)
@@ -171,7 +173,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
 		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
-		vector_sum1(&prev_psi[0], &X_0[0], &psi[0], 0.5, 0.5, sz);
+		vector_sum1(&prev_psi[0], &X_0[0], &u11[0], 0.5, 0.5, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
 		// w/dt + mu \Delta w / 2 - \sigma w/2 -
@@ -198,10 +200,10 @@ void BarVortex::calc(double * psi, const double * x0,
 		//TODO: тут граничное условие на омега!
 		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
 		//TODO: а тут граничное условие на пси!
-		memcpy(&prev_psi[0], psi, sz * sizeof(double));
-		l_.solve(psi, &omega_1[0], bnd);
+		memcpy(&prev_psi[0], u11, sz * sizeof(double));
+		l_.solve(u11, &omega_1[0], bnd);
 		{
-			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
+			double nr = mke_dist(&prev_psi[0], &u11[0], m_, sphere_scalar_cb);
 			//fprintf(stdout, "%le\n", nr);
 			if (nr < 1e-8) {
 				break;

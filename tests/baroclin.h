@@ -34,7 +34,7 @@
 #include "solver.h"
 #include "jacobian.h"
 
-class BarVortex {
+class Baroclin {
 	const Mesh & m_;
 	SphereLaplace l_;
 	Jacobian j_;
@@ -51,7 +51,7 @@ class BarVortex {
                      const Triangle & trk,
                      const Mesh & m,
                      int point_i, int point_j,
-                     BarVortex * d);
+                     Baroclin * d);
 
 	struct right_part_cb_data;
 	static double 
@@ -63,14 +63,19 @@ class BarVortex {
                       right_part_cb_data * d);
 
 public:
-	BarVortex(const Mesh & m, double tau, double sigma, double mu);
+	Baroclin(const Mesh & m, double tau, double sigma, double mu);
 
 	/**
-	 * F   -- значение функции на предыдущем шаге по времени
+	 * u1  -- ответ
+	 * u2  -- ответ
+	 * u11  -- значение функции на предыдущем шаге по времени
+	 * u21  -- значение функции на предыдущем шаге по времени
 	 * bnd -- граничное условие
 	 * t   -- время
 	 */
-	void calc(double * Ans, const double * F, const double * bnd, double t);
+	void calc(double * u11,  double * u21, 
+		const double * u1, const double * u2, 
+		const double * bnd, double t);
 };
 
 #endif /* BARVORTEX_H */

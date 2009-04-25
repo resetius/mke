@@ -51,49 +51,6 @@ double f2(double x, double y)
 	return cos(x) * cos(y);
 }
 
-double an(double x, double y)
-{
-	return (-sin(x)*cos(y)*sin(x)*cos(y)+cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
-	//return (-sin(x)*cos(y)*sin(x)*cos(y)) / cos(x);
-	//return (-cos(x)*sin(y)*cos(x)*sin(y))/cos(x);
-
-	//return cos(x) * sin(y) / cos(x);	
-	//return sin(x) * cos(y) / cos(x);
-}
-
-void test_jacobian(const Mesh & m)
-{
-	int sz = m.ps.size();
-	int rs = m.inner.size();
-	int os = m.outer.size();
-
-	Jacobian j(m);
-	vector < double > F1(sz);
-	vector < double > F2(sz);
-	vector < double > ans1(sz);
-	vector < double > rans1(sz);
-	vector < double > bnd(os);
-
-	mke_proj(&F1[0], m, f1);
-	mke_proj(&F2[0], m, f2);
-	mke_proj(&rans1[0], m, an);
-	mke_proj_bnd(&bnd[0], m, an);
-
-	j.calc1(&ans1[0], &F1[0], &F2[0], &bnd[0]);
-
-	fprintf(stderr, "jacobian  err=%.2le\n", 
-		mke_dist(&ans1[0], &rans1[0], m, sphere_scalar_cb));
-
-	//vector < double > p1(m.inner.size());
-	//mke_u2p(&p1[0], &rans1[0], m);
-	//vector_print(&p1[0], p1.size());
-	//mke_u2p(&p1[0], &ans1[0], m);
-	//vector_print(&p1[0], p1.size());
-
-	//vector_print(&rans1[0], rans1.size());
-	//vector_print(&ans1[0], ans1.size());
-}
-
 static double x(double u, double v)
 {
 	return cos(u) * cos(v);
@@ -109,29 +66,33 @@ static double z(double u, double v)
 	return sin(u);
 }
 
-void test_barvortex(const Mesh & m)
+void test_boclinic(const Mesh & m)
 {
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
 	double tau = 0.001;
 	int steps = 100000;
-	BarVortex bv(m, tau, 1.6e-2, 8e-5);
+	Baroclin bc(m, tau, 1.6e-2, 8e-5);
 
-	vector < double > u(sz);
+	vector < double > u1(sz);
+	vector < double > u2(sz);
 	vector < double > bnd(std::max(os, 1));
 
-	mke_proj(&u[0], m, f1);
-	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
+	mke_proj(&u1[0], m, f1);
+	mke_proj(&u2[0], m, f2);
 
 	setbuf(stdout, 0);
 	for (int i = 0; i < steps; ++i) {
-		bv.calc(&u[0], &u[0], &bnd[0], (double)i * tau);
+		bc.calc(&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], (double)i * tau);
 
-		fprintf(stderr, " === NORM = %le\n",
-			mke_norm(&u[0], m, sphere_scalar_cb));
+		fprintf(stderr, " === NORM1 = %le\n",
+			mke_norm(&u1[0], m, sphere_scalar_cb));
+		fprintf(stderr, " === NORM2 = %le\n",
+			mke_norm(&u2[0], m, sphere_scalar_cb));
 
-		print_function(stdout, &u[0], m, x, y, z);
+		print_function(stdout, &u1[0], m, x, y, z);
+		print_function(stdout, &u2[0], m, x, y, z);
 	}
 }
 
@@ -153,8 +114,7 @@ int main(int argc, char *argv[])
 	}
 	set_fpe_except();
 
-	//test_jacobian(mesh);
-	test_barvortex(mesh);
+	test_boclinic(mesh);
 	return 0;
 }
 
