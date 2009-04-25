@@ -66,6 +66,10 @@ public:
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
+/* for sphere */
+double laplace(const Polynom & phi_i, const Polynom & phi_j, 
+		const Triangle & trk, const Mesh::points_t & ps);
+
 class SphereChafe {
 private:
 	const Mesh & m_;
