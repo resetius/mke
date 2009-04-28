@@ -156,8 +156,8 @@ void test_barvortex (const Mesh & m)
 		bv.calc (&u[0], &u[0], &bnd[0], t);
 
 		if (i % 10 == 0) {
-			fprintf (stderr, " === NORM = %le\n",
-			         mke_norm (&u[0], m, sphere_scalar_cb) );
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf\n",
+			         mke_norm (&u[0], m, sphere_scalar_cb), t, T );
 			// 3d print
 			print_function (stdout, &u[0], m, x, y, z);
 			// flat print
