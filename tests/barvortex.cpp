@@ -63,12 +63,22 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
 		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp), coriolis_(coriolis)
 {
-	lh_.resize(m_.ps.size());
+	int sz = (int)m_.ps.size();
+	lh_.resize(sz);
 	mke_proj(&lh_[0], m_, coriolis);
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
+
+	f_.resize(sz);
+	for (int i = 0; i < sz; ++i) {
+		double x = m_.ps[i].x();
+		double y = m_.ps[i].y();
+
+		f_[i] = rp_(x, y, mu_, sigma_);
+	}
+	l_.calc1(&f_[0], &f_[0], 0); // < !!!!
 }
 
 struct BarVortex::right_part_cb_data
@@ -161,10 +171,10 @@ void BarVortex::calc(double * psi, const double * x0,
 #pragma omp parallel for
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
-			double x  = m_.ps[point].x();
-			double y  = m_.ps[point].y();
+//			double x  = m_.ps[point].x();
+//			double y  = m_.ps[point].y();
 
-			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
+			omega[i] = lomega[i] - jac[i] + f_[point];
 		}
 
 		// значения правой части на границе не знаем !

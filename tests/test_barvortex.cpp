@@ -114,9 +114,8 @@ double u0 (double x, double y)
 	return sin (x) * sin (y);
 }
 
-double rp (double x, double y, double t, double mu, double sigma)
+double rp (double x, double y, double mu, double sigma)
 {
-	// double a = exp(t) * sin(y) * sin(2.0 * x);
 	// double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
 	// return a - mu * b + sigma * a;
 	// return 0.0;

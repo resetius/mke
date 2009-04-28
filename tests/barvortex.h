@@ -36,7 +36,7 @@
 
 class BarVortex {
 public:
-	typedef double (*rp_t ) (double phi, double lambda, double t, double mu, double sigma);
+	typedef double (*rp_t ) (double phi, double lambda, double mu, double sigma);
 	typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
@@ -46,6 +46,7 @@ private:
 	Matrix A_;
 
 	std::vector < double > lh_; // l + h
+	std::vector < double > f_;  // f right part
 
 	double tau_;
 	double sigma_;
