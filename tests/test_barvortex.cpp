@@ -111,7 +111,8 @@ static double z (double u, double v)
 
 double u0 (double x, double y)
 {
-	return sin (x) * sin (y);
+	return 0.0;
+	//return sin (x) * sin (y);
 }
 
 double rp (double x, double y, double mu, double sigma)
@@ -119,14 +120,14 @@ double rp (double x, double y, double mu, double sigma)
 	// double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
 	// return a - mu * b + sigma * a;
 	// return 0.0;
-	return -3.5 * sigma * ipow (cos (x), 3);
+	return -3.5 * sigma * ipow (sin (x), 3);
 }
 
 double coriolis (double phi, double lambda)
 {
 	double omg = 0.0000727000000000;
 	double l = omg * 2.0 * sin (phi);
-	double h = cos (2.0 * lambda) * ipow (sin (2.0 * phi), 2);;
+	double h = cos (2.0 * lambda) * ipow (sin (2.0 * phi), 2);
 	return l + h;
 }
 
