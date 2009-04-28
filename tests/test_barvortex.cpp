@@ -119,7 +119,8 @@ double rp (double x, double y, double t, double mu, double sigma)
 	// double a = exp(t) * sin(y) * sin(2.0 * x);
 	// double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
 	// return a - mu * b + sigma * a;
-	return 0.0;
+	// return 0.0;
+	return sin(y) * sin(2.0 * x);
 }
 
 void test_barvortex (const Mesh & m)
@@ -145,7 +146,10 @@ void test_barvortex (const Mesh & m)
 		fprintf (stderr, " === NORM = %le\n",
 		         mke_norm (&u[0], m, sphere_scalar_cb) );
 
+		// 3d print
 		print_function (stdout, &u[0], m, x, y, z);
+		// flat print
+		// print_function (stdout, &u[0], m, 0, 0, 0);
 	}
 }
 
