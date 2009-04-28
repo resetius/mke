@@ -125,9 +125,13 @@ void SphereLaplace::solve(double * Ans,
 
 	generate_right_part(&b[0], m_, (right_part_cb_t)(slaplace_right_part_cb), (void*)&d);
 
+#ifdef _DEBUG
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
+#endif
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);
+#ifdef _DEBUG
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
+#endif
 }
 
 static double id_cb(const Polynom & phi_i,

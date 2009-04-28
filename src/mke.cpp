@@ -323,7 +323,9 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 			}
 		}
 	}
+#ifdef _DEBUG
 	fprintf(stderr, "generate_matrix: %lf \n", t.elapsed()); 
+#endif
 }
 
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
@@ -354,7 +356,9 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			}
 		}
 	}
+#ifdef _DEBUG
 	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
+#endif
 }
 
 void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
@@ -372,10 +376,14 @@ void mke_solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 	int rs  = m.inner.size();     // размерность
 	vector < double > x(rs);      // ответ
 
+#ifdef _DEBUG
 	Timer t;
 	fprintf(stderr, "solve %dx%d: \n", rs, rs);
+#endif
 	A.solve(Ans, &b[0]);
+#ifdef _DEBUG
 	fprintf(stderr, "mke_solve: %lf \n", t.elapsed());
+#endif
 }
 
 /* добавляем краевые условия */
