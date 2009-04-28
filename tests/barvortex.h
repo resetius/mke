@@ -35,6 +35,10 @@
 #include "jacobian.h"
 
 class BarVortex {
+public:
+	typedef double (*rp_t ) (double x, double y, double t, double mu, double sigma);
+
+private:
 	const Mesh & m_;
 	SphereLaplace l_;
 	Jacobian j_;
@@ -45,6 +49,7 @@ class BarVortex {
 	double tau_;
 	double sigma_;
 	double mu_;
+	rp_t rp_;
 
 	static double integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
@@ -63,7 +68,7 @@ class BarVortex {
                       right_part_cb_data * d);
 
 public:
-	BarVortex(const Mesh & m, double tau, double sigma, double mu);
+	BarVortex(const Mesh & m, rp_t rp, double tau, double sigma, double mu);
 
 	/**
 	 * F   -- значение функции на предыдущем шаге по времени
@@ -74,3 +79,4 @@ public:
 };
 
 #endif /* BARVORTEX_H */
+

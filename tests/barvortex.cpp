@@ -66,10 +66,10 @@ static double coriolis(double phi, double lambda)
 	return l + h;
 }
 
-BarVortex::BarVortex(const Mesh & m, double tau, 
-					 double sigma, double mu)
-					 : m_(m), l_(m), j_(m), A_(m.inner.size()),
-					 tau_(tau), sigma_(sigma), mu_(mu)
+BarVortex::BarVortex(const Mesh & m, rp_t rp, double tau, 
+		double sigma, double mu)
+		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
+		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp)
 {
 	lh_.resize(m_.ps.size());
 	mke_proj(&lh_[0], m_, coriolis);
@@ -77,16 +77,6 @@ BarVortex::BarVortex(const Mesh & m, double tau,
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
-}
-
-static double f(double x, double y, double t, 
-				double mu, double sigma)
-{
-//	double a = exp(t) * sin(y) * sin(2.0 * x);
-//	double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
-
-//	return a - mu * b + sigma * a;
-	return 0.0;
 }
 
 struct BarVortex::right_part_cb_data
@@ -182,7 +172,7 @@ void BarVortex::calc(double * psi, const double * x0,
 			double x  = m_.ps[point].x();
 			double y  = m_.ps[point].y();
 
-			omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
+			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
 		}
 
 		// значения правой части на границе не знаем !
