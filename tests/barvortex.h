@@ -36,7 +36,8 @@
 
 class BarVortex {
 public:
-	typedef double (*rp_t ) (double x, double y, double t, double mu, double sigma);
+	typedef double (*rp_t ) (double phi, double lambda, double t, double mu, double sigma);
+	typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
 	const Mesh & m_;
@@ -50,6 +51,7 @@ private:
 	double sigma_;
 	double mu_;
 	rp_t rp_;
+	coriolis_t coriolis_;
 
 	static double integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
@@ -68,7 +70,7 @@ private:
                       right_part_cb_data * d);
 
 public:
-	BarVortex(const Mesh & m, rp_t rp, double tau, double sigma, double mu);
+	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
 
 	/**
 	 * F   -- значение функции на предыдущем шаге по времени

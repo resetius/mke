@@ -58,18 +58,10 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
-static double coriolis(double phi, double lambda)
-{
-	double omg = 0.0000727000000000;
-	double l = omg * 2.0 * sin(phi);
-	double h = cos(2.0 * lambda) * ipow(sin(2.0 * phi), 2);;
-	return l + h;
-}
-
-BarVortex::BarVortex(const Mesh & m, rp_t rp, double tau, 
+BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
 		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
-		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp)
+		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp), coriolis_(coriolis)
 {
 	lh_.resize(m_.ps.size());
 	mke_proj(&lh_[0], m_, coriolis);

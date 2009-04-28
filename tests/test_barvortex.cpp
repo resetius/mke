@@ -120,7 +120,15 @@ double rp (double x, double y, double t, double mu, double sigma)
 	// double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
 	// return a - mu * b + sigma * a;
 	// return 0.0;
-	return sin(y) * sin(2.0 * x);
+	return -3.5 * sigma * ipow (cos (x), 3);
+}
+
+double coriolis (double phi, double lambda)
+{
+	double omg = 0.0000727000000000;
+	double l = omg * 2.0 * sin (phi);
+	double h = cos (2.0 * lambda) * ipow (sin (2.0 * phi), 2);;
+	return l + h;
 }
 
 void test_barvortex (const Mesh & m)
@@ -130,7 +138,7 @@ void test_barvortex (const Mesh & m)
 
 	double tau = 0.001;
 	int steps = 100000;
-	BarVortex bv (m, rp, tau, 1.6e-2, 8e-5);
+	BarVortex bv (m, rp, coriolis, tau, 1.6e-2, 8e-5);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1) );
