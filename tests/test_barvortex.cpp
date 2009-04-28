@@ -136,7 +136,11 @@ void test_barvortex (const Mesh & m)
 	int os = m.outer.size();
 
 	double tau = 0.001;
-	int steps = 100000;
+	double t;
+	double T = 2.0 * 30.0 * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
 	BarVortex bv (m, rp, coriolis, tau, 1.6e-2, 8e-5);
 
 	vector < double > u (sz);
@@ -146,17 +150,21 @@ void test_barvortex (const Mesh & m)
 	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
 
 	setbuf (stdout, 0);
-	for (int i = 0; i < steps; ++i)
+
+	while (t < T)
 	{
-		bv.calc (&u[0], &u[0], &bnd[0], (double) i * tau);
+		bv.calc (&u[0], &u[0], &bnd[0], t);
 
-		fprintf (stderr, " === NORM = %le\n",
-		         mke_norm (&u[0], m, sphere_scalar_cb) );
-
-		// 3d print
-		print_function (stdout, &u[0], m, x, y, z);
-		// flat print
-		// print_function (stdout, &u[0], m, 0, 0, 0);
+		if (i % 10 == 0) {
+			fprintf (stderr, " === NORM = %le\n",
+			         mke_norm (&u[0], m, sphere_scalar_cb) );
+			// 3d print
+			print_function (stdout, &u[0], m, x, y, z);
+			// flat print
+			// print_function (stdout, &u[0], m, 0, 0, 0);
+		}
+		i += 1;
+		t += tau;
 	}
 }
 
