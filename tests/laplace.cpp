@@ -230,6 +230,7 @@ void Laplace::calc2(double * Ans, const double * F)
  */
 void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 {
+#if 0
 	vector < double > p1(m_.inner.size());
 
 	//calc2(&p1[0], F);
@@ -243,6 +244,14 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 	idt_.solve(&p1[0], &rp[0]);
 
 	mke_p2u(Ans, &p1[0], bnd, m_);
+#endif
+	vector < double > in(m_.inner.size());
+	vector < double > out(m_.inner.size());
+
+	mke_u2p(&in[0], F, m_);
+	laplace_.mult_vector(&out[0], &in[0]);
+	idt_.solve(&out[0], &out[0]);
+	mke_p2u(Ans, &out[0], bnd, m_);
 }
 
 Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
