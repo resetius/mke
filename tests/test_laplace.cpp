@@ -91,6 +91,15 @@ void test_invert(Mesh & mesh)
 
 	Laplace l(mesh);
 	l.solve(&Ans[0], &F[0], &B[0]);
+	{
+		FILE * f = fopen("lu_1_real.txt", "w");
+		print_function(f, &rans[0], mesh);
+		fclose(f);
+		f = fopen("lu_1_calc.txt", "w");
+		print_function(f, &Ans[0], mesh);
+		fclose(f);
+	}
+
 	fprintf(stderr, "invert  err=%.2le\n", 
 		mke_dist(&Ans[0], &rans[0], mesh));
 }
@@ -115,15 +124,23 @@ void test_laplace(Mesh & mesh)
 	mke_proj_bnd(&B2[0], mesh, ans);
 
 	Laplace l(mesh);
-	l.calc1(&LU1[0], &U[0], &B1[0]);
+	l.calc1(&LU1[0], &U[0], 0/*&B1[0]*/);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
+	{
+		FILE * f = fopen("lu_real.txt", "w");
+		print_function (f, &LU[0], mesh);
+		fclose(f);
+		f = fopen("lu_calc.txt", "w");
+		print_function (f, &LU1[0], mesh);
+		fclose(f);
+	}
 
 	l.solve(&LU[0], &LU1[0], &B2[0]);
 	
-	vector_print(&U[0], U.size());
-	vector_print(&LU[0], LU.size());
-
+//	vector_print(&U[0], U.size());
+//	vector_print(&LU[0], LU.size());
+	
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
 
