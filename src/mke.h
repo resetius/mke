@@ -141,10 +141,6 @@ struct Mesh {
 	 * возвращает все элементы треугольника
 	 */
 	std::vector < Polynom > elem1(const Triangle & t) const;
-	/**
-	 * тоже самое, но возвращает только элементы внутренних точек
-	 */
-	std::vector < Polynom > elem1_inner(const Triangle & t) const;
 
 	/**
 	 * первый порядок

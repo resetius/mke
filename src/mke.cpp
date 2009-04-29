@@ -58,39 +58,6 @@ vector < Polynom > Mesh::elem1(const Triangle & t) const
 	return r;
 }
 
-/**
- * warning: использу€ эту функцию нельз€ определить к какой точке 
- * относитс€ базисна€ функци€ !
- */
-vector < Polynom > Mesh::elem1_inner(const Triangle & t) const
-{
-	vector < Polynom > r;
-	// p0
-	if (ps_flags[t.p[0]] == 0) {
-		Polynom p = ((P2X - t.x(1, ps)) * (t.y(2, ps) - t.y(1, ps))
-				- (P2Y - t.y(1, ps)) * (t.x(2, ps) - t.x(1, ps)));
-		p /= p.apply(t.x(0, ps), t.y(0, ps));
-		r.push_back(p);
-	}
-
-	// p1
-	if (ps_flags[t.p[1]] == 0) {
-		Polynom p = ((P2X - t.x(0, ps)) * (t.y(2, ps) - t.y(0, ps))
-				- (P2Y - t.y(0, ps)) * (t.x(2, ps) - t.x(0, ps)));
-		p /= p.apply(t.x(1, ps), t.y(1, ps));
-		r.push_back(p);
-	}
-
-	// p2
-	if (ps_flags[t.p[2]] == 0) {
-		Polynom p = ((P2X - t.x(0, ps)) * (t.y(1, ps) - t.y(0, ps))
-				- (P2Y - t.y(0, ps)) * (t.x(1, ps) - t.x(0, ps)));
-		p /= p.apply(t.x(2, ps), t.y(2, ps));
-		r.push_back(p);
-	}
-	return r;
-}
-
 Polynom Mesh::elem1(const Triangle & t, int p) const
 {
 	if (p == t.p[0]) {
