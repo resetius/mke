@@ -124,7 +124,7 @@ void test_laplace(Mesh & mesh)
 	mke_proj_bnd(&B2[0], mesh, ans);
 
 	Laplace l(mesh);
-	l.calc1(&LU1[0], &U[0], 0/*&B1[0]*/);
+	l.calc1(&LU1[0], &U[0], &B1[0]);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 	{

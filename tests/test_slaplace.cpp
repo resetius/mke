@@ -178,6 +178,14 @@ void test_laplace(const Mesh & mesh)
 	l.calc1(&LU1[0], &U[0], &B1[0]);
 
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
+	{
+		FILE * f = fopen("slu_real.txt", "w");
+		print_function(f, &LU[0], mesh, x, y, z);
+		fclose(f);
+		f = fopen("slu_calc.txt", "w");
+		print_function(f, &LU1[0], mesh, x, y, z);
+		fclose(f);
+	}
 
 	l.solve(&LU[0], &LU1[0], &B2[0]);
 
@@ -205,3 +213,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
