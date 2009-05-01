@@ -139,6 +139,11 @@ double an1 (double x, double y, double t)
 	return x*sin(y+t)*ipow(cos(x),4);
 }
 
+double omg_an1 (double x, double y, double t)
+{
+	return -sin(y+t)*ipow(cos(x),2)*(9*sin(x)*cos(x)+20*x*ipow(cos(x),2)-15*x);
+}
+
 double rp1(double x, double y, double t, double mu, double sigma)
 {
 	return 390*mu*sin(y+t)*x*ipow(cos(x),2)
@@ -180,22 +185,22 @@ void test_barvortex (const Mesh & m)
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
-	double tau = 0.05;
+	double tau = 0.005;
 	double t = 0;
 	double T = 2.0 * 30.0 * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
-	double mu    = 0.0; //8e-5;
-	double sigma = 0.0; //1.6e-2;
+	double mu    = 8e-5;   //8e-5;
+	double sigma = 1.6e-2; //1.6e-2;
 
-	BarVortex bv (m, rp2, coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp1, coriolis, tau, sigma, mu);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
 	vector < double > Ans(sz);
 
-	mke_proj (&u[0], m, u0);
+	mke_proj (&u[0], m, an1, 0);
 	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
 
 	setbuf (stdout, 0);

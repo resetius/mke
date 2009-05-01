@@ -99,21 +99,19 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b = 0.0;
 
-	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+	b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, d->d);		
-	} else {
-		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 
 	return b;
 }
 
-
+#if 0
 void BarVortex::calc(double * Ans, const double * x0, 
 					 const double * bnd, double t)
 {
@@ -162,18 +160,17 @@ void BarVortex::calc(double * Ans, const double * x0,
 	generate_right_part(&rp[0], m_, 
 		(right_part_cb_t)right_part_cb, (void*)&data2);
 
-
-	vector < double > tmp(sz);
-	mke_solve(&tmp[0], bnd, &rp[0], A_, m_);
-
-	laplace_.solve(Ans, &tmp[0], bnd);
+	vector < double > omg(sz);
+	mke_solve(&omg[0], bnd, &rp[0], A_, m_);
+	laplace_.solve(Ans, &omg[0], bnd);
 }
+#endif
 
 /**
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
-#if 0
+#if 1
 void BarVortex::calc(double * psi, const double * x0, 
 					 const double * bnd, double t)
 {
@@ -189,7 +186,6 @@ void BarVortex::calc(double * psi, const double * x0,
 	vector < double > omega_lh(sz); // omega + l + h
 	vector < double > jac(rs);      // jacobian
 
-//	vector < double > p1(sz);
 	vector < double > prev_psi(sz);
 
 	vector < double > X_0(sz);
@@ -204,16 +200,15 @@ void BarVortex::calc(double * psi, const double * x0,
 	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
 	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
 
-
 	// L (omega)
 	l_.calc2(&lomega[0], &omega_1[0]);
 	mke_u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
-//	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
+	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
 
 	// w/dt + mu \Delta w / 2 - \sigma w/2
-//	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
+	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
 
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
@@ -233,16 +228,12 @@ void BarVortex::calc(double * psi, const double * x0,
 			double x  = m_.ps[point].x();
 			double y  = m_.ps[point].y();
 
-			omega[i] = omega[i] / tau_ + rp_(x, y, t, mu_, sigma_);
-			//omega[i] = lomega[i] /*- jac[i]*/ + 
-			//	rp_(x, y, t, mu_, sigma_);
+			//omega[i] = omega[i] / tau_ + rp_(x, y, t, mu_, sigma_);
+			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
 				//f_[point];
 		}
 
-		// значения правой части на границе не знаем !
-//		mke_p2u(&p1[0], &omega[0], 0, m_);
 		right_part_cb_data data2;
-//		data2.F   = &p1[0];
 		//генератор правой части учитывает то, что функция задана внутри!!!
 		data2.F   = &omega[0];
 		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
@@ -259,11 +250,10 @@ void BarVortex::calc(double * psi, const double * x0,
 		{
 			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
 			//fprintf(stdout, "%le\n", nr);
-			if (nr < 1e-8) {
+			if (nr < 1e-5) {
 				break;
 			}
 		}
-		break;
 	}
 }
 #endif
