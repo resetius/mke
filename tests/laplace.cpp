@@ -188,16 +188,23 @@ static double lp_rp(const Polynom & phi_i,
 		laplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	double b = F[point_j] * laplace(phi_i, phi_j, trk, m);
+	double b = 0.0;
+	
+	b = F[point_i] * laplace(phi_i, phi_j, trk, m);
 
 	//return F[point_j] * laplace(phi_i, phi_j, trk, m);
 #if 1
-	if (m.ps_flags[point_j] == 1 && d->bnd)
+	if (m.ps_flags[point_j] == 1)
 	{
-		int j0       = m.p2io[point_j];
-		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
-				trk, m, point_i, point_j, 0);
+		b -= - F[point_i] * id_cb(phi_i, phi_j, trk, m, point_i, point_j, 0);
 	}
+
+	//if (m.ps_flags[point_j] == 1 && d->bnd)
+	//{
+	//	int j0       = m.p2io[point_j];
+	//	b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
+	//			trk, m, point_i, point_j, 0);
+	//}
 #endif
 	return b;
 }
@@ -230,7 +237,7 @@ void Laplace::calc2(double * Ans, const double * F)
  */
 void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 {
-#if 0
+#if 1
 	vector < double > p1(m_.inner.size());
 
 	//calc2(&p1[0], F);
@@ -239,12 +246,13 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 
 	laplace_right_part_cb_data d;
 	d.F = F;
-	d.bnd = bnd;
+	d.bnd = 0;//bnd;
 	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
 	idt_.solve(&p1[0], &rp[0]);
 
 	mke_p2u(Ans, &p1[0], bnd, m_);
 #endif
+#if 0
 	vector < double > in(m_.inner.size());
 	vector < double > out(m_.inner.size());
 
@@ -252,6 +260,7 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 	laplace_.mult_vector(&out[0], &in[0]);
 	idt_.solve(&out[0], &out[0]);
 	mke_p2u(Ans, &out[0], bnd, m_);
+#endif
 }
 
 Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)

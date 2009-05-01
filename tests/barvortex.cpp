@@ -130,7 +130,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	vector < double > omega_lh(sz); // omega + l + h
 	vector < double > jac(rs);      // jacobian
 
-	vector < double > p1(sz);
+//	vector < double > p1(sz);
 	vector < double > prev_psi(sz);
 
 	vector < double > X_0(sz);
@@ -180,9 +180,11 @@ void BarVortex::calc(double * psi, const double * x0,
 		}
 
 		// значения правой части на границе не знаем !
-		mke_p2u(&p1[0], &omega[0], 0, m_);
+//		mke_p2u(&p1[0], &omega[0], 0, m_);
 		right_part_cb_data data2;
-		data2.F   = &p1[0];
+//		data2.F   = &p1[0];
+		//генератор правой части учитывает то, что функция задана внутри!!!
+		data2.F   = &omega[0];
 		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
 		data2.d   = this;
 

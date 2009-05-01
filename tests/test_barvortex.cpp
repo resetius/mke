@@ -125,22 +125,13 @@ double rp (double x, double y, double mu, double sigma)
 
 double coriolis (double phi, double lambda)
 {
+#if 0
 	double omg = 0.0000727000000000;
 	double l = omg * 2.0 * sin (phi);
 	double h = cos (2.0 * lambda) * ipow (sin (2.0 * phi), 2);
 	return l + h;
-}
-
-struct Double {
-	Double() {}
-	Double(double d) {}
-	Double(const Double & d) {}
-};
-
-inline double operator ^ (Double a, int b)
-{
-	return 1.0;
-	//return ipow(a, b);
+#endif
+	return 0.0;
 }
 
 double an1 (double x, double y, double t)
@@ -166,12 +157,16 @@ double rp1(double x, double y, double t, double mu, double sigma)
 		ipow(cos(x),2);
 }
 
+#include <windows.h>
+
+#undef max
+
 void test_barvortex (const Mesh & m)
 {
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
-	double tau = 0.001;
+	double tau = 0.05;
 	double t = 0;
 	double T = 2.0 * 30.0 * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
@@ -180,7 +175,8 @@ void test_barvortex (const Mesh & m)
 	BarVortex bv (m, rp1, coriolis, tau, 1.6e-2, 8e-5);
 
 	vector < double > u (sz);
-	vector < double > bnd (std::max (os, 1) );
+	vector < double > bnd (std::max (os, 1));
+	vector < double > Ans(sz);
 
 	mke_proj (&u[0], m, u0);
 	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
@@ -190,8 +186,8 @@ void test_barvortex (const Mesh & m)
 	while (t < T)
 	{
 		bv.calc (&u[0], &u[0], &bnd[0], t);
-
-		if (i % 10 == 0) {
+#if 1
+		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf\n",
 			         mke_norm (&u[0], m, sphere_scalar_cb), t, T );
 			// 3d print
@@ -199,8 +195,18 @@ void test_barvortex (const Mesh & m)
 			// flat print
 			// print_function (stdout, &u[0], m, 0, 0, 0);
 		}
+#endif
+
 		i += 1;
 		t += tau;
+
+		{
+			mke_proj(&Ans[0], m, an1, t);
+			fprintf(stderr, "time %lf/ norm %le\n", t, 
+				mke_dist(&u[0], &Ans[0], m, sphere_scalar_cb));
+//			print_function (stdout, &Ans[0], m, x, y, z);
+		}
+//		Sleep(500);
 	}
 }
 
@@ -226,6 +232,8 @@ int main (int argc, char *argv[])
 		usage (argv[0]);
 	}
 	set_fpe_except();
+
+	mesh.info();
 
 	//test_jacobian(mesh);
 	test_barvortex (mesh);

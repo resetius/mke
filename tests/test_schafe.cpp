@@ -83,8 +83,8 @@ static double z(double u, double v)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	int i, steps = 100;
-	double tau   = 0.001;
+	int i, steps = 10000;
+	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = +70;
 
@@ -133,6 +133,9 @@ int main(int argc, char *argv[])
 			//mke_u2p(&P[0], &Ans[0], mesh);
 			//vector_print(&P[0], P.size());
 		}
+
+		fprintf(stderr, "OUTPUT !!! \n");
+		print_function(stdout, &U[0], mesh, x, y, z);
 
 //		print_function(stdout, &F[0], mesh, x, y, z);
 //		print_function(stdout, &Ans[0], mesh, x, y, z);

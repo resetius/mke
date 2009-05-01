@@ -157,6 +157,8 @@ struct Mesh {
 	Polynom elem2(const Triangle & t);
 	//!третий порядок
 	Polynom elem3(const Triangle & t);
+
+	void info();
 };
 
 /**

@@ -126,7 +126,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 
 	gamma_0 = norm2(r, n);
 
-	if (gamma_0 < eps) {
+	if (gamma_0 <= eps) {
 		ret = gamma_0;
 		goto end;
 	}
@@ -233,6 +233,10 @@ void gmres(double * x, const void * A, const double * b,
 	/* x0 = b */
 	memcpy(x, b, n * sizeof(double));
 	fprintf(stderr, "  gmres: ||b|| = %le\n", bn);
+
+	if (bn < tol) {
+		return;
+	}
 
 	for (i = 0; i < max_it; ++i)
 	{

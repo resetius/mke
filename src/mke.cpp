@@ -221,6 +221,14 @@ bad:
 	}
 }
 
+void Mesh::info()
+{
+	fprintf(stderr, "points: %lu\n", ps.size());
+	fprintf(stderr, "inner points: %lu\n", inner.size());
+	fprintf(stderr, "outer points: %lu\n", outer.size());
+	fprintf(stderr, "triangles: %lu\n", tr.size());
+}
+
 void print_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x, x_t y, x_t z)
 {
@@ -290,9 +298,9 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 			}
 		}
 	}
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	fprintf(stderr, "generate_matrix: %lf \n", t.elapsed()); 
-#endif
+//#endif
 }
 
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
@@ -323,9 +331,9 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			}
 		}
 	}
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
-#endif
+//#endif
 }
 
 void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)

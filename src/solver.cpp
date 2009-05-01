@@ -84,6 +84,8 @@ void Matrix::mult_vector(double * out, const double * in)
 
 void Matrix::solve(double * x, const double * b)
 {
+	Timer t;
+
 #ifdef SPARSE
 	solve_sparse(x, b);
 #else
@@ -95,6 +97,8 @@ void Matrix::solve(double * x, const double * b)
 #endif
 
 #endif
+
+	fprintf(stderr, "solver time: %lf\n", t.elapsed());
 }
 
 void Matrix::print()
