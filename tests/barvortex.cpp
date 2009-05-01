@@ -50,10 +50,10 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 	double pt1, pt2;
 
 	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
-	pt1 *= 1.0 / tau + sigma;// * 0.5;
+	pt1 *= 1.0 / tau + sigma * 0.5;
 
 	pt2  =  laplace(phi_j, phi_i, trk, m.ps);
-	pt2 *= -/*0.5 **/ mu;
+	pt2 *= -0.5 * mu;
 
 	return pt1 + pt2;
 }
@@ -97,24 +97,83 @@ BarVortex::right_part_cb( const Polynom & phi_i,
                       right_part_cb_data * d)
 {
 	const double * F = d->F;
-	double b;
+	double b = 0.0;
 
-	b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, d->d);		
+	} else {
+		b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 
 	return b;
+}
+
+
+void BarVortex::calc(double * Ans, const double * x0, 
+					 const double * bnd, double t)
+{
+
+	int rs  = (int)m_.inner.size();
+	int sz  = (int)m_.ps.size();
+	vector < double > u(rs);
+	vector < double > p(sz);
+	vector < double > delta_u(rs);
+	vector < double > rp(rs);
+
+	vector < double > X0(sz);
+
+	SphereLaplace & laplace_ = l_;
+
+	// генерируем правую часть
+	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
+
+	laplace_.calc1(&X0[0], x0, bnd);
+
+	mke_u2p(&u[0], &X0[0], m_);
+	laplace_.calc2(&delta_u[0], &X0[0]);
+
+	// u/dt + mu \Delta u / 2
+	vector_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, mu_ * 0.5, rs);
+
+	// u/dt + mu \Delta u / 2 - \sigma u / 2
+	vector_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
+
+	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
+#pragma omp parallel for
+	for (int i = 0; i < rs; ++i) {
+		int point = m_.inner[i];
+		double x  = m_.ps[point].x();
+		double y  = m_.ps[point].y();
+
+		u[i] = delta_u[i] + rp_(x, y, t, mu_, sigma_);
+	}
+
+	// правую часть на границе не знаем !!!
+	mke_p2u(&p[0], &u[0], 0 /*bnd*/, m_);
+	right_part_cb_data data2;
+	data2.F   = &p[0];
+	data2.bnd = bnd;
+	data2.d   = this;
+	generate_right_part(&rp[0], m_, 
+		(right_part_cb_t)right_part_cb, (void*)&data2);
+
+
+	vector < double > tmp(sz);
+	mke_solve(&tmp[0], bnd, &rp[0], A_, m_);
+
+	laplace_.solve(Ans, &tmp[0], bnd);
 }
 
 /**
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
+#if 0
 void BarVortex::calc(double * psi, const double * x0, 
 					 const double * bnd, double t)
 {
@@ -207,3 +266,4 @@ void BarVortex::calc(double * psi, const double * x0,
 		break;
 	}
 }
+#endif

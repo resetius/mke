@@ -193,7 +193,7 @@ void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 
 	slaplace_right_part_cb_data d;
 	d.F   = F;
-	d.bnd = bnd;
+	d.bnd = 0;
 	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
 	idt_.solve(&p1[0], &rp[0]);
 #endif
