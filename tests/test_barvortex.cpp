@@ -186,7 +186,10 @@ void test_barvortex (const Mesh & m)
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
-	BarVortex bv (m, rp2, coriolis, tau, 1.6e-2, 8e-5);
+	double mu    = 0.0; //8e-5;
+	double sigma = 0.0; //1.6e-2;
+
+	BarVortex bv (m, rp2, coriolis, tau, sigma, mu);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
@@ -199,8 +202,8 @@ void test_barvortex (const Mesh & m)
 
 	while (t < T)
 	{
-		bv.calc (&u[0], &u[0], &bnd[0], t);
 #if 1
+		bv.calc (&u[0], &u[0], &bnd[0], t);
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf\n",
 			         mke_norm (&u[0], m, sphere_scalar_cb), t, T );

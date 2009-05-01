@@ -200,6 +200,8 @@ void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
+
+#if 0
 static double f(double u, double x, double y, double t, 
 				double mu, double sigma)
 {
@@ -210,6 +212,13 @@ static double f(double u, double x, double y, double t,
 
 //	return (1.0 + 6.0 * mu + sigma) * u;
 //	return -u * u * u;
+}
+#endif
+
+static double f(double u, double x, double y, double t, 
+				double mu, double sigma)
+{
+	return ;
 }
 
 double 

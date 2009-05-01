@@ -48,7 +48,8 @@ void usage(const char * name)
 
 double ans(double x, double y, double t)
 {
-	return exp(t) * sin(y) * sin(2.0 * x);
+	//return exp(t) * sin(y) * sin(2.0 * x);
+	return x*sin(y+t)*ipow(cos(x),4);
 }
 
 double bnd(double x, double y, double t)
