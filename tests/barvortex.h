@@ -36,7 +36,8 @@
 
 class BarVortex {
 public:
-	typedef double (*rp_t ) (double phi, double lambda, double mu, double sigma);
+	typedef double (*rp_t ) (double phi, double lambda, double t,
+		double mu, double sigma);
 	typedef double (*coriolis_t) (double phi, double lambda);
 
 private:

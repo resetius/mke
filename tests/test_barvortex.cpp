@@ -131,6 +131,41 @@ double coriolis (double phi, double lambda)
 	return l + h;
 }
 
+struct Double {
+	Double() {}
+	Double(double d) {}
+	Double(const Double & d) {}
+};
+
+inline double operator ^ (Double a, int b)
+{
+	return 1.0;
+	//return ipow(a, b);
+}
+
+double an1 (double x, double y, double t)
+{
+	return x*sin(y+t)*ipow(cos(x),4);
+}
+
+double rp1(double x, double y, double t, double mu, double sigma)
+{
+	return 390*mu*sin(y+t)*x*ipow(cos(x),2)
+		+147*mu*sin(y+t)*sin(x)*cos(x)-
+		400*mu*sin(y+t)*x*
+		ipow(cos(x),4)-360*mu*sin(y+t)*
+		sin(x)*ipow(cos(x),3)-20*sigma*sin(y+t)*
+		ipow(cos(x),4)*x+15*sigma*sin(y+t)*
+		ipow(cos(x),2)*x-9*sigma*sin(y+t)*
+		ipow(cos(x),3)*sin(x)+30*cos(y+t)*
+		ipow(cos(x),4)*sin(y+t)*x*x*sin(x)+9*cos(y+t)*
+		ipow(cos(x),6)*sin(y+t)*sin(x)-45*mu*sin(y+t)*x-
+		9*cos(y+t)*ipow(cos(x),5)*sin(y+t)*x-20*x*cos(y+t)*
+		ipow(cos(x),4)-9*cos(y+t)*
+		ipow(cos(x),3)*sin(x)+15*x*cos(y+t)*
+		ipow(cos(x),2);
+}
+
 void test_barvortex (const Mesh & m)
 {
 	int sz = m.ps.size();
@@ -142,7 +177,7 @@ void test_barvortex (const Mesh & m)
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
-	BarVortex bv (m, rp, coriolis, tau, 1.6e-2, 8e-5);
+	BarVortex bv (m, rp1, coriolis, tau, 1.6e-2, 8e-5);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1) );
