@@ -218,7 +218,10 @@ static double f(double u, double x, double y, double t,
 static double f(double u, double x, double y, double t, 
 				double mu, double sigma)
 {
-	return ;
+	return ipow(cos(x),2)*
+		(x*cos(y+t)*ipow(cos(x),2)
+		+sigma*sin(y+t)*ipow(cos(x),2)*x+9*mu*sin(y+t)*sin(x)*cos(x)
+		-15*mu*sin(y+t)*x+20*mu*sin(y+t)*x*ipow(cos(x),2));
 }
 
 double 
