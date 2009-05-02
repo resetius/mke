@@ -101,7 +101,7 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 
 	b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1) { // на границе
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
