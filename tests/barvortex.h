@@ -80,6 +80,20 @@ public:
 	 * t   -- время
 	 */
 	void calc(double * Ans, const double * F, const double * bnd, double t);
+
+
+	/**
+	 * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
+	 * L = Laplace
+	 */
+	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
+
+	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
+
+	void S_step(double * Ans, const double * F);
+	void L_step(double * Ans, const double * F, const double * z);
+	void L_1_step(double * Ans, const double * F, const double * z);
+	void LT_step(double * Ans, const double * F, const double * z);
 };
 
 #endif /* BARVORTEX_H */

@@ -169,7 +169,7 @@ void Baroclin::calc(double * u11,  double * u21,
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
 
-	while (true) {
+	for (int it = 0; it < 5; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
 		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
@@ -188,9 +188,8 @@ void Baroclin::calc(double * u11,  double * u21,
 		}
 
 		// значения правой части на границе не знаем !
-		mke_p2u(&p1[0], &omega[0], 0, m_);
 		right_part_cb_data data2;
-		data2.F   = &p1[0];
+		data2.F   = &omega[0];
 		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
 		data2.d   = this;
 

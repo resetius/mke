@@ -101,7 +101,7 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 
 	b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1) { // на границе
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
@@ -257,3 +257,185 @@ void BarVortex::calc(double * psi, const double * x0,
 	}
 }
 #endif
+
+/**
+ * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
+ * L = Laplace
+ */
+
+void BarVortex::calc_L(double * psi, const double * x0, const double * z,
+					 const double * bnd, double t)
+{
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
+
+	vector < double > lz(sz);
+	vector < double > lz1(sz);
+	vector < double > omega_0(sz); // omega_0 = L (X_0)
+	vector < double > omega_1(sz);
+	vector < double > lomega(rs);  // L(omega)
+	vector < double > rp(rs);
+
+	vector < double > omega(rs);    // = omega_1 без границы
+	vector < double > omega_lh(sz); // omega + l + h
+	vector < double > jac1(rs);     // jacobian
+	vector < double > jac2(rs);     // jacobian
+
+	vector < double > prev_psi(sz);
+
+	vector < double > X_0(sz);
+	memcpy(&X_0[0], x0, sz * sizeof(double));
+
+	// генерируем правую часть
+	// w/dt + mu \Delta w / 2 - \sigma w/2 -
+	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+
+	// omega = L (u)
+	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
+	l_.calc1(&lz[0], &z[0], bnd);
+
+	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
+	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
+
+	// L (omega)
+	l_.calc2(&lomega[0], &omega_1[0]);
+	mke_u2p(&omega[0], &omega_1[0], m_);
+
+	// w/dt + mu \Delta w / 2
+	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
+
+	// w/dt + mu \Delta w / 2 - \sigma w/2
+	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
+
+	// в lomega содержится правая часть, которая не меняется при итерациях!
+	// правая часть только на границе !
+
+	for (int it = 0; it < 10; ++it) {
+		// J(0.5(u+u), L(z)+l+h) + J(z, 0.5(w+w))
+		// 0.5(w+w) <- для вычисления Якобиана это надо знать и на границе!
+		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
+		//L(z)+l+h
+		vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
+		//0.5(u+u)
+		vector_sum1(&prev_psi[0], &X_0[0], &psi[0], 0.5, 0.5, sz);
+
+		// J(0.5(u+u), L(z)+l+h)
+		j_.calc2(&jac1[0], &prev_psi[0], &lz1[0]);
+		// J(z, 0.5(w+w))
+		j_.calc2(&jac2[0], &z[0], &omega_lh[0]);
+		// w/dt + mu \Delta w / 2 - \sigma w/2 -
+		// - J(0.5(u+u), L(z)+l+h) + J(z, 0.5(w+w))
+#pragma omp parallel for
+		for (int i = 0; i < rs; ++i) {
+			int point = m_.inner[i];
+			double x  = m_.ps[point].x();
+			double y  = m_.ps[point].y();
+
+			omega[i] = lomega[i] - jac1[i] - jac1[i];
+		}
+
+		right_part_cb_data data2;
+		//генератор правой части учитывает то, что функция задана внутри!!!
+		data2.F   = &omega[0];
+		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
+		data2.d   = this;
+
+		generate_right_part(&rp[0], m_, 
+			(right_part_cb_t)right_part_cb, (void*)&data2);
+
+		//TODO: тут граничное условие на омега!
+		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
+		//TODO: а тут граничное условие на пси!
+		memcpy(&prev_psi[0], psi, sz * sizeof(double));
+		l_.solve(psi, &omega_1[0], bnd);
+		{
+			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
+			//fprintf(stdout, "%le\n", nr);
+			if (nr < 1e-5) {
+				break;
+			}
+		}
+	}
+}
+
+void BarVortex::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
+{
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
+
+	vector < double > lz(sz);
+
+	vector < double > pt1(sz); //лаплас, умноженный на коэф
+	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3(sz); //якобиан, умноженный на коэф
+
+	l_.calc1(&lz[0], z, bnd);
+	l_.solve(&v1[0], v, bnd);
+
+	{
+		vector < double > tmp(rs);
+		vector < double > rp(rs);
+		mke_u2p(&tmp[0], v1, m_);
+		right_part_cb_data data2;
+		data2.F   = &tmp[0];
+		data2.bnd = bnd;
+		data2.d   = this;
+		generate_right_part(&rp[0], m_, 
+			(right_part_cb_t)right_part_cb, (void*)&data2);
+		mke_solve(&v1[0], bnd, &rp[0], A_, m_);
+	}
+
+	l_.calc1(&pt1[0], v1, bnd);
+	vector_mult_scalar(&pt1[0], &pt1[0], 1.0 / tau_ - 0.5 * sigma_, sz);
+
+	l_.calc1(&pt2[0], v1, bnd);
+	l_.calc1(&pt2[0], &pt2[0], bnd);
+
+	vector_mult_scalar(&pt2[0], &pt2[0], 0.5 * mu_, sz);
+
+	{
+		// JT
+		double * h1 = &pt3[0];
+		vector < double > p_lapl(sz);
+		vector < double > tmp(sz);
+
+		j_.calc1(&tmp[0], v1, &lh_[0], bnd);
+		j_.calc1(&p_lapl[0], z, v1, bnd);
+		l_.calc1(&p_lapl[0], &p_lapl[0], bnd);
+		j_.calc1(h1, v1, &lz[0], bnd);
+
+		vector_sum(h1, h1, &p_lapl[0], sz);
+		vector_sum(h1, h1, &tmp[0], sz);
+	}
+
+	memset(v1, 0, sz * sizeof(double));
+	vector_sum(v1, v1, &pt1[0], sz);
+	vector_sum(v1, v1, &pt2[0], sz);
+	vector_sum(v1, v1, &pt3[0], sz);
+}
+
+void BarVortex::S_step(double * Ans, const double * F)
+{
+	calc(Ans, F, 0, 0);
+}
+
+/**
+ * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
+ * L = Laplace
+ */
+void BarVortex::L_step(double * Ans, const double * F, const double * z)
+{
+	calc_L(Ans, F, z, 0, 0);
+}
+
+void BarVortex::L_1_step(double * Ans, const double * F, const double * z)
+{
+	tau_ = -tau_;
+	L_step(Ans, F, z);
+	tau_ = -tau_;
+}
+
+void BarVortex::LT_step(double * Ans, const double * F, const double * z)
+{
+	calc_LT(Ans, F, z, 0, 0);
+}
