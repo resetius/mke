@@ -115,23 +115,27 @@ double u0 (double x, double y)
 	//return sin (x) * sin (y);
 }
 
-double rp (double x, double y, double mu, double sigma)
+double rp (double x, double y, double t, double mu, double sigma)
 {
 	// double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
 	// return a - mu * b + sigma * a;
 	// return 0.0;
-	return -3.5 * sigma * ipow (sin (x), 3);
+
+	// lapl from -3.5 * sigma * ipow (sin (x), 3);
+	return -21.*sigma*(2.*ipow(cos(x),2)-1.)*sin(x);
+}
+
+double zero_coriolis (double phi, double lambda)
+{
+	return 0.0;
 }
 
 double coriolis (double phi, double lambda)
 {
-#if 0
 	double omg = 0.0000727000000000;
 	double l = omg * 2.0 * sin (phi);
 	double h = cos (2.0 * lambda) * ipow (sin (2.0 * phi), 2);
 	return l + h;
-#endif
-	return 0.0;
 }
 
 double an1 (double x, double y, double t)
@@ -185,7 +189,7 @@ void test_barvortex (const Mesh & m)
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
-	double tau = 0.005;
+	double tau = 0.0005;
 	double t = 0;
 	double T = 2.0 * 30.0 * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
@@ -194,13 +198,16 @@ void test_barvortex (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	BarVortex bv (m, rp1, coriolis, tau, sigma, mu);
+	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
 	vector < double > Ans(sz);
 
-	mke_proj (&u[0], m, an1, 0);
+	//mke_proj (&u[0], m, an1, 0);
+	mke_proj (&u[0], m, u0);
+
 	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
 
 	setbuf (stdout, 0);
@@ -221,7 +228,7 @@ void test_barvortex (const Mesh & m)
 
 		i += 1;
 		t += tau;
-
+#if 0
 		{
 			mke_proj(&Ans[0], m, an1, t);
 			fprintf(stderr, "time %lf/ norm %le\n", t, 
@@ -229,6 +236,7 @@ void test_barvortex (const Mesh & m)
 //			print_function (stdout, &Ans[0], m, x, y, z);
 		}
 //		Sleep(500);
+#endif
 	}
 }
 

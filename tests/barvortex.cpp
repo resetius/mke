@@ -213,7 +213,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
 
-	while (true) {
+	for (int it = 0; it < 10; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
 		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);

@@ -36,10 +36,9 @@
 
 using namespace std;
 
-vector < Polynom > Mesh::elem1(const Triangle & t) const
+int Mesh::elem1(vector < Polynom > & r, const Triangle & t, int p) const
 {
-	vector < Polynom > r;
-
+	r.reserve(3);
 	// p0
 	r.push_back((P2X - t.x(1, ps)) * (t.y(2, ps) - t.y(1, ps)) 
 		- (P2Y - t.y(1, ps)) * (t.x(2, ps) - t.x(1, ps)));
@@ -55,30 +54,13 @@ vector < Polynom > Mesh::elem1(const Triangle & t) const
 		r[i] /= r[i].apply(t.x(i, ps), t.y(i, ps));
 	}
 
-	return r;
-}
-
-Polynom Mesh::elem1(const Triangle & t, int p) const
-{
 	if (p == t.p[0]) {
-		Polynom p = (P2X - t.x(1, ps)) * (t.y(2, ps) - t.y(1, ps)) 
-			- (P2Y - t.y(1, ps)) * (t.x(2, ps) - t.x(1, ps));
-		p /= p.apply(t.x(0, ps), t.y(0, ps));
-		return p;
+		return 0;
 	} else if (p == t.p[1]) {
-		Polynom p = (P2X - t.x(0, ps)) * (t.y(2, ps) - t.y(0, ps)) 
-			- (P2Y - t.y(0, ps)) * (t.x(2, ps) - t.x(0, ps));
-		p /= p.apply(t.x(1, ps), t.y(1, ps));
-		return p;
-	} else if (p == t.p[2]) {
-		Polynom p =(P2X - t.x(0, ps)) * (t.y(1, ps) - t.y(0, ps)) 
-			- (P2Y - t.y(0, ps)) * (t.x(1, ps) - t.x(0, ps));
-		p /= p.apply(t.x(2, ps), t.y(2, ps));
-		return p;
+		return 1;
 	} else {
-		assert(0);
+		return 2;
 	}
-	return Polynom(1, 2);
 }
 
 bool Mesh::load(FILE * f)
@@ -278,13 +260,16 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 	for (int i = 0; i < rs; ++i) { // номер строки
 		// по внутренним точкам
 		int p = m.inner[i];
+		vector < Polynom > phik;
+
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+			phik.clear();
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			Polynom phi_i           = m.elem1(trk, p);
-			vector < Polynom > phik = m.elem1(trk);
-			
+			int pi                  = m.elem1(phik, trk, p);
+			Polynom & phi_i         = phik[pi];
+
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
 				int j    = m.p2io[p2]; // номер внутренней точки
@@ -298,31 +283,34 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 			}
 		}
 	}
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	fprintf(stderr, "generate_matrix: %lf \n", t.elapsed()); 
-//#endif
+#endif
 }
 
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
 	int rs  = m.inner.size();     // размерность
+	vector < Polynom > phik;
 
 	Timer t;
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i)
 	{
 		// по внутренним точкам
+		vector < Polynom > phik;
 		int p = m.inner[i];
 		b[i]  = 0.0;
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+			phik.clear();
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			Polynom phi_i           = m.elem1(trk, p);
+			int pi                  = m.elem1(phik, trk, p);
+			Polynom & phi_i         = phik[pi];
 			
 			// если граница не меняется по времени, то надо делать отдельный callback
 			// для вычисления постоянной поправки к правой части?
-			vector < Polynom > phik = m.elem1(trk);
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
@@ -331,9 +319,9 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 			}
 		}
 	}
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
-//#endif
+#endif
 }
 
 void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
@@ -412,12 +400,15 @@ void convolution(double * ans, const double * u, const double * v, const Mesh & 
 		// по всем точкам
 		int p = i;
 		ans[i] = 0.0;
+		vector < Polynom > phik;
+
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+			phik.clear();
 			// по треугольникам в точке
 			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			Polynom phi_i           = m.elem1(trk, p);
-			vector < Polynom > phik = m.elem1(trk);
+			int pi                  = m.elem1(phik, trk, p);
+			Polynom & phi_i         = phik[pi];
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j  = trk.p[i0];

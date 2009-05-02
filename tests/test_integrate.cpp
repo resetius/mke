@@ -67,7 +67,7 @@ void print_poly(vector < Polynom > & p)
 		p[i].print();
 	}
 }
-
+#if 0
 void test_elem()
 {
 	Mesh m;
@@ -88,7 +88,7 @@ void test_elem()
 
 	fclose(f);
 }
-
+#endif
 void test_trapezoid_cos()
 {
 	double a, b; 

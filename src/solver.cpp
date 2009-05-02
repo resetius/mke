@@ -97,8 +97,9 @@ void Matrix::solve(double * x, const double * b)
 #endif
 
 #endif
-
+#ifdef _DEBUG
 	fprintf(stderr, "solver time: %lf\n", t.elapsed());
+#endif
 }
 
 void Matrix::print()
