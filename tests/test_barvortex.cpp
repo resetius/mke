@@ -122,7 +122,7 @@ double rp (double x, double y, double t, double mu, double sigma)
 	// return 0.0;
 
 	// lapl from -3.5 * sigma * ipow (sin (x), 3);
-	return -21.*sigma*(2.*ipow(cos(x),2)-1.)*sin(x);
+	return -sigma*(2.*ipow(cos(x),2)-1.)*sin(x);
 }
 
 double zero_coriolis (double phi, double lambda)
@@ -180,9 +180,10 @@ double rp2(double x, double y, double t, double mu, double sigma)
 		ipow(cos(x),4)+147*mu*sin(y+t)*sin(x)*cos(x)-45*mu*sin(y+t)*x;
 }
 
+#ifdef WIN32
 #include <windows.h>
-
 #undef max
+#endif
 
 void test_barvortex (const Mesh & m)
 {
