@@ -91,6 +91,7 @@ struct MeshPoint {
 struct Triangle {
 	int p[3];  /* point numbers */
 	int z;     /* zone number   */
+	std::vector < Polynom > phik;
 
 	Triangle(int p1_, int p2_, int p3_, int zone = 0)
 	{
@@ -108,10 +109,44 @@ struct Triangle {
 		return ps[p[i]].y(z);
 	}
 
-	//void print(const std::vector < Point > & ps) const {
-	//	fprintf(stderr, "(%.2lf,%.2lf)-(%.2lf,%.2lf)-(%.2lf,%.2lf)\n",
-	//		x(0, ps), y(0, ps), x(1, ps), y(1, ps), x(2, ps), y(2, ps));
-	//}
+	void prepare(const std::vector < MeshPoint > & ps)
+	{
+		std::vector < Polynom > & r = phik;
+		if (r.empty()) {
+			r.reserve(3);
+
+			// p0
+			r.push_back((P2X - x(1, ps)) * (y(2, ps) - y(1, ps)) 
+				- (P2Y - y(1, ps)) * (x(2, ps) - x(1, ps)));
+			// p1
+			r.push_back((P2X - x(0, ps)) * (y(2, ps) - y(0, ps)) 
+				- (P2Y - y(0, ps)) * (x(2, ps) - x(0, ps)));
+			// p2
+			r.push_back((P2X - x(0, ps)) * (y(1, ps) - y(0, ps)) 
+				- (P2Y - y(0, ps)) * (x(1, ps) - x(0, ps)));
+
+			for (uint i = 0; i < 3; ++i)
+			{
+				r[i] /= r[i].apply(x(i, ps), y(i, ps));
+			}
+		}
+	}
+
+	const std::vector < Polynom > & elem1() const
+	{
+		return phik;
+	}
+
+	const Polynom & elem1(int p1) const
+	{
+		if (p1 == p[0]) {
+			return phik[0];
+		} else if (p1 == p[1]) {
+			return phik[1];
+		} else {
+			return phik[2];
+		}
+	}
 };
 
 struct Mesh {
@@ -135,24 +170,7 @@ struct Mesh {
 	std::vector < int > p2io;
 
 	bool load(FILE * f);
-
-	/**
-	 * первый пор€док
-	 * возвращает все элементы треугольника в r
-	 * возвращает номер элемента треугольника в заданной точке
-	 */
-	int elem1(std::vector < Polynom > & r, const Triangle & t, int p) const;
-
-	// если хотим строить интерпол€цию высших пор€дков, то надо
-	// сделать спец функцию, котора€ будет добавл€ть в треугольники
-	// выделенные точки
-	// пока это не работает
-
-	//!второй пор€док
-	Polynom elem2(const Triangle & t);
-	//!третий пор€док
-	Polynom elem3(const Triangle & t);
-
+	void prepare();
 	void info();
 };
 

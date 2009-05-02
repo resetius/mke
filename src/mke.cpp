@@ -36,33 +36,6 @@
 
 using namespace std;
 
-int Mesh::elem1(vector < Polynom > & r, const Triangle & t, int p) const
-{
-	r.reserve(3);
-	// p0
-	r.push_back((P2X - t.x(1, ps)) * (t.y(2, ps) - t.y(1, ps)) 
-		- (P2Y - t.y(1, ps)) * (t.x(2, ps) - t.x(1, ps)));
-	// p1
-	r.push_back((P2X - t.x(0, ps)) * (t.y(2, ps) - t.y(0, ps)) 
-		- (P2Y - t.y(0, ps)) * (t.x(2, ps) - t.x(0, ps)));
-	// p2
-	r.push_back((P2X - t.x(0, ps)) * (t.y(1, ps) - t.y(0, ps)) 
-		- (P2Y - t.y(0, ps)) * (t.x(1, ps) - t.x(0, ps)));
-
-	for (uint i = 0; i < 3; ++i)
-	{
-		r[i] /= r[i].apply(t.x(i, ps), t.y(i, ps));
-	}
-
-	if (p == t.p[0]) {
-		return 0;
-	} else if (p == t.p[1]) {
-		return 1;
-	} else {
-		return 2;
-	}
-}
-
 bool Mesh::load(FILE * f)
 {
 	int size;
@@ -70,6 +43,8 @@ bool Mesh::load(FILE * f)
 
 #define _BUF_SZ 32768
 	char s[_BUF_SZ];
+
+	fprintf(stderr, "loading mesh ... \n");
 
 	fgets (s, _BUF_SZ - 1, f); lineno++;
 
@@ -180,6 +155,8 @@ bool Mesh::load(FILE * f)
 	while (fgets (s, _BUF_SZ - 1, f) );
 
 make_inner:
+	fprintf(stderr, "done ... \n");
+	fprintf(stderr, "preparing mesh ... \n");
 	inner.reserve(ps.size());
 	outer.reserve(ps.size());
 	p2io.resize(ps.size());
@@ -194,12 +171,23 @@ make_inner:
 		}
 	}
 
+	prepare();
+	fprintf(stderr, "done ... \n");
+
 	return true;
 
 bad:
 	{
 		fprintf(stderr, "bad file format, line = %d\n", lineno);
 		return false;
+	}
+}
+
+void Mesh::prepare()
+{
+	triangles_t::iterator it, b = tr.begin(), e = tr.end();
+	for (it = b; it != e; ++it) {
+		it->prepare(ps);
 	}
 }
 
@@ -260,15 +248,14 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 	for (int i = 0; i < rs; ++i) { // номер строки
 		// по внутренним точкам
 		int p = m.inner[i];
-		vector < Polynom > phik;
+		;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			phik.clear();
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			int pi                  = m.elem1(phik, trk, p);
-			Polynom & phi_i         = phik[pi];
+			const vector < Polynom > & phik = trk.elem1();
+			const Polynom & phi_i           = trk.elem1(p);
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
@@ -298,16 +285,14 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 	for (int i = 0; i < rs; ++i)
 	{
 		// по внутренним точкам
-		vector < Polynom > phik;
 		int p = m.inner[i];
 		b[i]  = 0.0;
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			phik.clear();
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			int pi                  = m.elem1(phik, trk, p);
-			Polynom & phi_i         = phik[pi];
+			const vector < Polynom > & phik = trk.elem1();
+			const Polynom & phi_i           = trk.elem1(p);
 			
 			// если граница не меняется по времени, то надо делать отдельный callback
 			// для вычисления постоянной поправки к правой части?
@@ -400,15 +385,13 @@ void convolution(double * ans, const double * u, const double * v, const Mesh & 
 		// по всем точкам
 		int p = i;
 		ans[i] = 0.0;
-		vector < Polynom > phik;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			phik.clear();
 			// по треугольникам в точке
 			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			int pi                  = m.elem1(phik, trk, p);
-			Polynom & phi_i         = phik[pi];
+			const vector < Polynom > & phik = trk.elem1();
+			const Polynom & phi_i           = trk.elem1(p);
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j  = trk.p[i0];
