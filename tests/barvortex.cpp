@@ -216,7 +216,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
 
-	for (int it = 0; it < 10; ++it) {
+	for (int it = 0; it < 20; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], THETA, 1.0 - THETA, sz);
 		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
@@ -251,7 +251,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		{
 			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
 			//fprintf(stdout, "%le\n", nr);
-			if (nr < 1e-5) {
+			if (nr < 1e-8) {
 				break;
 			}
 		}

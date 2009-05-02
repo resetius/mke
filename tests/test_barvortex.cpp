@@ -190,7 +190,7 @@ void test_barvortex (const Mesh & m)
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
-	double tau = 0.0005;
+	double tau = 0.05;
 	double t = 0;
 	double T = 2.0 * 30.0 * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
