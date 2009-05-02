@@ -80,6 +80,11 @@ public:
 	 * t   -- время
 	 */
 	void calc(double * Ans, const double * F, const double * bnd, double t);
+
+	void S_step(double * Ans, const double * F);
+	void L_step(double * Ans, const double * F);
+	void L_1_step(double * Ans, const double * F);
+	void LT_step(double * Ans, const double * F);
 };
 
 #endif /* BARVORTEX_H */

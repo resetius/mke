@@ -257,3 +257,20 @@ void BarVortex::calc(double * psi, const double * x0,
 	}
 }
 #endif
+
+void BarVortex::S_step(double * Ans, const double * F)
+{
+	calc(Ans, F, 0, 0);
+}
+
+void BarVortex::L_step(double * Ans, const double * F)
+{
+}
+
+void BarVortex::L_1_step(double * Ans, const double * F)
+{
+}
+
+void BarVortex::LT_step(double * Ans, const double * F)
+{
+}
