@@ -141,6 +141,11 @@ void sparse_print(const struct Sparse * A, int n, FILE * f);
 void vector_sum1(double * r, const double * a, const double *b, double k1, double k2, int n);
 
 /**
+ * a = b * k
+ */
+void vector_mult_scalar(double * a, const double * b, double k, int n);
+
+/**
  * r = a + b
  */
 void vector_sum(double * r, const double * a, const double *b, int n);

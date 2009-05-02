@@ -59,18 +59,6 @@ static double scalar2(const double * a, const double * b, int n)
 }
 
 /**
- * a = b * k
- */
-static void vector_mult_scalar(double * a, const double * b, double k, int n)
-{
-	int i;
-//#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		a[i] = b[i] * k;
-	}
-}
-
-/**
  * a = b / k
  */
 static void vector_div_scalar(double * a, const double * b, double k, int n)

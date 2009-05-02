@@ -343,6 +343,18 @@ void vector_mult(double * r, const double * a, const double *b, int n)
 }
 
 /**
+ * a = b * k
+ */
+void vector_mult_scalar(double * a, const double * b, double k, int n)
+{
+	int i;
+//#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		a[i] = b[i] * k;
+	}
+}
+
+/**
  * r = a - b
  */
 void vector_diff(double * r, const double * a, const double * b, int n)

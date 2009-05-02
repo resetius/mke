@@ -145,7 +145,7 @@ void test_laplace(Mesh & mesh)
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
 
-#include <omp.h>
+//#include <omp.h>
 
 int main(int argc, char *argv[])
 {
@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	int nprocs = 1;
-	omp_set_num_threads(nprocs);
+	//int nprocs = 1;
+	//omp_set_num_threads(nprocs);
 
 	mesh.info();
 	test_invert(mesh);
