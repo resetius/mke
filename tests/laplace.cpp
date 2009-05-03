@@ -62,6 +62,14 @@ laplace_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b;
 
+	// TODO: по-моему из 
+	// integrate(phi_i * phi_j, trk, m.ps) и
+	// laplace(phi_i, phi_j, trk, m)
+	// можно сделать два вектора длиной outer.size()
+	// и "умножать" их на F[point] и bnd
+	// тогда можно будет легко интегрировать 
+	// в правую часть краевые условия
+
 	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 
 	if (m.ps_flags[point_j] == 1) {         // на границе
@@ -101,6 +109,8 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	d.F   = F;
 	d.bnd = bnd;
 
+	//mke_u2p(&x[0], F, m_);
+	//idt_.mult_vector(&b[0], &x[0]);
 	generate_right_part(&b[0], m_, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
 
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());

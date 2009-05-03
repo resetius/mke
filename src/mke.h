@@ -235,6 +235,14 @@ typedef double (* integrate_cb_t)
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
 
 /**
+ * генерирует вектор для интеграции краевых условий в правую часть
+ * b размера outer.size()
+ * в cb передается phi_j где j точка границы
+ * phi_i, где i внутренняя точка
+ */
+void generate_boundary_vector(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
+
+/**
  * Решает систему
  */
 void mke_solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);

@@ -309,6 +309,42 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 #endif
 }
 
+/**
+ * генерирует вектор для интеграции краевых условий в правую часть
+ * b размера outer.size()
+ * в cb передается phi_j где j точка границы
+ * phi_i, где i внутренняя точка
+ */
+void generate_boundary_vector(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
+{
+	int os = m.outer.size(); // размер границы
+	for (int j = 0; j < os; ++j) {
+		// по внешним точкам
+		int p2 = m.outer[j];
+		b[j] = 0.0;
+
+		for (uint tk = 0; tk < m.adj[p2].size(); ++tk) {
+			// по треугольникам в точке
+			int trk_j = m.adj[p2][tk];
+			const Triangle & trk    = m.tr[trk_j];
+			const vector < Polynom > & phik = trk.elem1();
+			const Polynom & phi_j           = trk.elem1(p2);
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+				int p    = m.tr[trk_j].p[i0];
+
+				if (m.ps_flags[p] == 1) {
+					;
+				} else {
+					// p - внутренняя точка
+					double a = right_part_cb(phik[i0], phi_j, trk, m, p, p2, user_data);
+					b[j]    += a;
+				}
+			}
+		}
+	}
+}
+
 void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
 {
 	int rs  = m.inner.size();     // размерность
