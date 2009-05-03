@@ -162,15 +162,33 @@ bad:
 void analize(FILE * fp)
 {
 	std::vector < Pointd >  points;  //!<координаты точек
-	std::vector < double >  f;  //!<номера узлов
+	std::vector < double >  f;       //!<номера узлов
+	std::vector < double >  m;
+	std::vector < double >  m2;
+	std::vector < double >  d;
 	std::vector < std::vector < int > > tri; 
+	int n = 0;
 
 	while (!feof(fp)) {
+		points.clear(); f.clear(); tri.clear();
 		try {
 			load_file(points, f, tri, fp);
 		} catch (exception & e) {
 			fprintf(stderr, "%s\n", e.what());
 			break;
+		}
+
+		if (m.empty()) {
+			m.resize(f.size());
+			m2.resize(f.size());
+		}
+
+		double k1 = (double)n / (double)(n + 1);
+		double k2 = 1.0 / (double)(n + 1);
+
+		for (int i = 0; i < (int)m.size(); ++i) {
+			m[i]  = k1 * m[i]  + k2 * f[i];
+			m2[i] = k1 * m2[i] + k2 * f[i] * f[i];
 		}
 	}
 }
