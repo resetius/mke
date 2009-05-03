@@ -89,7 +89,9 @@ void test_invert(Mesh & mesh)
 	mke_proj(&rans[0], mesh, ans);
 	mke_proj_bnd(&B[0], mesh, bnd);
 
+	Timer t;
 	Laplace l(mesh);
+	fprintf(stderr, "l -> %lf\n", t.elapsed());
 	l.solve(&Ans[0], &F[0], &B[0]);
 	{
 		FILE * f = fopen("lu_1_real.txt", "w");
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
 
 	mesh.info();
 	test_invert(mesh);
-	getchar();
+	//getchar();
 	//test_laplace(mesh);
 	return 0;
 }

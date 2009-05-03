@@ -92,6 +92,8 @@ struct Triangle {
 	int p[3];  /* point numbers */
 	int z;     /* zone number   */
 	std::vector < Polynom > phik;
+	double x[3];
+	double y[3];
 
 	Triangle(int p1_, int p2_, int p3_, int zone = 0)
 	{
@@ -101,35 +103,37 @@ struct Triangle {
 		z    = zone;
 	}
 
-	double x(int i, const std::vector < MeshPoint > & ps) const {
+	double X(int i, const std::vector < MeshPoint > & ps) const {
 		return ps[p[i]].x(z);
 	}
 
-	double y(int i, const std::vector < MeshPoint > & ps) const {
+	double Y(int i, const std::vector < MeshPoint > & ps) const {
 		return ps[p[i]].y(z);
 	}
 
 	void prepare(const std::vector < MeshPoint > & ps)
 	{
 		std::vector < Polynom > & r = phik;
-		if (r.empty()) {
-			r.reserve(3);
+		r.reserve(3);
 
-			// p0
-			r.push_back((P2X - x(1, ps)) * (y(2, ps) - y(1, ps)) 
-				- (P2Y - y(1, ps)) * (x(2, ps) - x(1, ps)));
-			// p1
-			r.push_back((P2X - x(0, ps)) * (y(2, ps) - y(0, ps)) 
-				- (P2Y - y(0, ps)) * (x(2, ps) - x(0, ps)));
-			// p2
-			r.push_back((P2X - x(0, ps)) * (y(1, ps) - y(0, ps)) 
-				- (P2Y - y(0, ps)) * (x(1, ps) - x(0, ps)));
+		// p0
+		r.push_back((P2X - X(1, ps)) * (Y(2, ps) - Y(1, ps)) 
+			- (P2Y - Y(1, ps)) * (X(2, ps) - X(1, ps)));
+		// p1
+		r.push_back((P2X - X(0, ps)) * (Y(2, ps) - Y(0, ps)) 
+			- (P2Y - Y(0, ps)) * (X(2, ps) - X(0, ps)));
+		// p2
+		r.push_back((P2X - X(0, ps)) * (Y(1, ps) - Y(0, ps)) 
+			- (P2Y - Y(0, ps)) * (X(1, ps) - X(0, ps)));
 
-			for (uint i = 0; i < 3; ++i)
-			{
-				r[i] /= r[i].apply(x(i, ps), y(i, ps));
-			}
+		for (uint i = 0; i < 3; ++i)
+		{
+			r[i] /= r[i].apply(X(i, ps), Y(i, ps));
 		}
+
+		x[0] = X(0, ps); y[0] = Y(0, ps);
+		x[1] = X(1, ps); y[1] = Y(1, ps);
+		x[2] = X(2, ps); y[2] = Y(2, ps);
 	}
 
 	const std::vector < Polynom > & elem1() const

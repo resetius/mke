@@ -197,8 +197,9 @@ struct TriangleX {
 	}
 };
 
-static double 
-integrate1(const Polynom & p, const TriangleX & tr, t_int trapezoid)
+template < typename T >
+double 
+integrate1(const Polynom & p, const T & tr, t_int trapezoid)
 {
 	double k1, b1, k2, b2, k3, b3, t;
 
@@ -208,8 +209,8 @@ integrate1(const Polynom & p, const TriangleX & tr, t_int trapezoid)
 
 	double int1 = 0.0, int2 = 0.0;
 
-	x1 = tr.p[0].x; x2 = tr.p[1].x; x3 = tr.p[2].x;
-	y1 = tr.p[0].y; y2 = tr.p[1].y; y3 = tr.p[2].y;
+	x1 = tr.x[0]; x2 = tr.x[1]; x3 = tr.x[2];
+	y1 = tr.y[0]; y2 = tr.y[1]; y3 = tr.y[2];
 
 	if (x1 <= x2 && x2 <= x3)
 	{
@@ -284,51 +285,9 @@ integrate1(const Polynom & p, const TriangleX & tr, t_int trapezoid)
 
 static double integrate_(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps, t_int trapezoid)
 {
-#if 0
-	double x1, x2, x3;
-	double y1, y2, y3;
-
-	double k;
-	Point p1, p2, p3, p4;
-
-	x1 = tr.x(0, ps); x2 = tr.x(1, ps); x3 = tr.x(2, ps);
-	y1 = tr.y(0, ps); y2 = tr.y(1, ps); y3 = tr.y(2, ps);
-
-	if (y1 <= y2 && y2 <= y3) {
-		p1 = ps[tr.p[1]]; p2 = ps[tr.p[0]];	p3 = ps[tr.p[2]];
-	} else if (y2 <= y1 && y1 <= y3) {
-		p1 = ps[tr.p[0]]; p2 = ps[tr.p[1]];	p3 = ps[tr.p[2]];
-	} else {
-		p1 = ps[tr.p[2]]; p2 = ps[tr.p[1]];	p3 = ps[tr.p[0]];
-	}
-
-	p4.y = p1.y;
-	k = fabs(p2.y - p4.y) / (p3.y - p4.y);
-	p4.x = (p2.x - k * p3.x) / (1.0 - k);
-
-	if (p2.x < p3.x) {
-		if (p2.x <= p4.x && p4.x <= p3.x) {
-			;
-		} else {
-			p4.x = -p4.x;
-		}
-		assert(p2.x <= p4.x && p4.x <= p3.x);
-	} else {
-		if (p3.x <= p4.x && p4.x <= p2.x) {
-			;
-		} else {
-			p4.x = -p4.x;
-		}
-		assert(p3.x <= p4.x && p4.x <= p2.x);
-	}
-
-	TriangleX t1(p1, p3, p4), t2(p1, p2, p4);
-
-	return integrate1(p, t1) + integrate1(p, t2);
-#endif
-	int zone = tr.z;
-	TriangleX t1(ps[tr.p[0]].p[zone], ps[tr.p[1]].p[zone], ps[tr.p[2]].p[zone]);
-	return integrate1(p, t1, trapezoid);
+	//int zone = tr.z;
+	//TriangleX t1(ps[tr.p[0]].p[zone], ps[tr.p[1]].p[zone], ps[tr.p[2]].p[zone]);
+	return integrate1(p, tr, trapezoid);
 }
 
 double integrate(const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
