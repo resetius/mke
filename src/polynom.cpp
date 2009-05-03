@@ -59,10 +59,18 @@ Polynom_apply_2(const Polynom * p, const double * x)
 	int i, j;
 	double r = 0.0;
 	int deg = p->deg_;
+	double * xi = (double*)alloca(deg);
+	double * yj = (double*)alloca(deg);
+
+	for (i = 0; i <= deg; i++) {
+		xi[i] = ipow(x[0], i);
+		yj[i] = ipow(x[1], i);
+	}
+
 	for (i = 0; i <= deg; i++) {
 		for (j = 0; j <= deg; j++) {
 			double k = p->koef_[i * (deg + 1) + j];
-			r += k * ipow(x[0], i) * ipow(x[1], j);
+			r += k * xi[i] * yj[j];
 		}
 	}
 	return r;
