@@ -112,7 +112,7 @@ void test_sphere_area()
 	fprintf(stderr, "test_sphere_area\n");
 
 	double pp[] = { 1.0 };
-	Polynom p(0, 2, pp, 1); // f(x, y) = 1
+	Polynom p(0, 0, pp, 1); // f(x, y) = 1
 
 	double S1, S2, S3, S4;
 

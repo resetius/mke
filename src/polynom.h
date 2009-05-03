@@ -33,36 +33,40 @@
 
 typedef unsigned int uint;
 
+/* Полином от (x, y) */
 struct Polynom {
-	int deg_;                     /* !<degree    */
-	int n_;                       /* !<dimension */
-
-	int size_;                    /* !<число коэф-тов */
-	std::vector < double > koef_; /* !<масив коэф-тов */
+	short x_deg_;                   /* !<degree    */
+	short y_deg_;                   /* !<degree    */
+	std::vector < double > koef_;   /* !<масив коэф-тов */
 
 /**
  * создает новый полином
- * @param deg - степень
- * @param n - размерность (число независимых переменных, например полином от x, полином от x,y, полином от x,y,z)
+ * @param x_deg - степень по x
+ * @param y_deg - степень по y
  * @return полином
  */
-	Polynom(int deg, int n)
-		: deg_(deg), n_(n), size_((deg + 1) * (deg + 1)), koef_(size_)
+	Polynom(short x_deg, short y_deg)
+		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
 	{
 	}
 
-	Polynom(int deg, int n, double * koef, int l)
-		: deg_(deg), n_(n), size_((deg + 1) * (deg + 1)), koef_(size_)
+	Polynom(short x_deg, short y_deg, double * koef, int l)
+		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
 	{
-		memcpy(&koef_[0], koef, l * sizeof(double));
+		memcpy(&koef_[0], koef, std::min(l, (int)koef_.size()) * sizeof(double));
 	}
 
 	~Polynom() {}
 
 	void print() const;
 
-	double apply(const double * x) const;
 	double apply(double x, double y) const;
+
+	double k(int i, int j) const
+	{
+		if (i > x_deg_ || j > y_deg_) return 0;
+		return koef_[i * (y_deg_ + 1) + j];
+	}
 
 	void operator /= (double k) {
 		uint sz   = (uint)koef_.size();

@@ -18,6 +18,12 @@ void test_primitives_operatins()
 	fprintf(stderr, "primitives operations:\n");
 	Polynom p1 = (P2X - 1) * (2 - 5) - (P2Y - 11) * (-9 - 5);
 	Polynom p2 = (P2X - 2) * (2 - 10) - (P2Y - (-11)) * (10 + 5);
+	fprintf(stderr, "((x - 1) * (2 - 5):\n");
+	((P2X - 1) * (2 - 5)).print();
+	fprintf(stderr, "(y - 11) * (-9 - 5)):\n");
+	((P2Y - 11) * (-9 - 5)).print();
+	fprintf(stderr, "((x - 1) * (2 - 5) - (y - 11) * (-9 - 5)):\n");
+	p1.print();
 	p1 /= 15.0;
 	fprintf(stderr, "((x - 1) * (2 - 5) - (y - 11) * (-9 - 5)) / 15.0:\n");
 	p1.print();
@@ -25,6 +31,8 @@ void test_primitives_operatins()
 	p2.print();
 	fprintf(stderr, "p1 * p2:\n");
 	(p1 * p2).print();
+	fprintf(stderr, "diff(p1, x):\n");
+	diff(p1, 0).print();
 	fprintf(stderr, "done\n");
 }
 
