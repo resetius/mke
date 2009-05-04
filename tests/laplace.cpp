@@ -102,7 +102,7 @@ laplace_bnd2_cb( const Polynom & phi_i,
 		int point_j,
 		void * )
 {
-	return laplace(phi_i, phi_j, trk, m);
+	return -laplace(phi_i, phi_j, trk, m);
 }
 
 static double 
@@ -143,7 +143,7 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	vector_sum(&b[0], &b[0], &x[0], x.size());
 	vector < double > tmp(m_.outer.size());
 	mke_proj_bnd(&tmp[0], F, m_);
-	bnd2_.mult_vector(&x[0], &tmp[0]);
+	bnd1_.mult_vector(&x[0], &tmp[0]);
 	vector_sum(&b[0], &b[0], &x[0], x.size());
 #endif	
 
