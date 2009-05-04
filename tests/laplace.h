@@ -111,7 +111,11 @@ public:
 class Laplace {
 	Matrix idt_;
 	Matrix laplace_;
+	std::vector < double > bnd1_;
+	std::vector < double > bnd2_;
 	const Mesh & m_;
+
+	void init_boundary_vectors();
 
 public:
 	Laplace(const Mesh & m);
