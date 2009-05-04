@@ -129,10 +129,11 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 
 	Timer full;
 
-//	laplace_right_part_cb_data d;
-//	d.F   = F;
-//	d.bnd = bnd;
+	laplace_right_part_cb_data d;
+	d.F   = F;
+	d.bnd = bnd;
 
+#if 0
 	mke_u2p(&x[0], F, m_);
 	idt_.mult_vector(&b[0], &x[0]);
 
@@ -152,8 +153,8 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 			}
 		}
 	}
-
-	//generate_right_part(&b[0], m_, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
+#endif
+	generate_right_part(&b[0], m_, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
 
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);

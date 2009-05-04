@@ -37,11 +37,16 @@
 using namespace std;
 
 /**
+ * phi    = x - latitude
+ * lambda = y - longitude
+ */
+
+/**
  * laplace = laplace1 + laplace2
  */
 
 /**
- * laplace1 = (1 / cos Theta d / d Theta phi_i, cos Theta d / Theta phi_j)
+ * laplace1 = (1 / cos phi d / d phi phi_i, cos phi d / phi phi_j)
  */
 static double laplace1(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps)
@@ -50,7 +55,7 @@ static double laplace1(const Polynom & phi_i, const Polynom & phi_j,
 }
 
 /**
- * laplace2 = (1 / cos Theta d / d phi phi_i, 1 / cos Theta d / d phi phi_j)
+ * laplace2 = (1 / cos phi d / d lambda phi_i, 1 / cos phi d / d lambda phi_j)
  */
 static double laplace2(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps)
