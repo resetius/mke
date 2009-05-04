@@ -107,7 +107,7 @@ laplace_bnd1_cb( const Polynom & phi_i,
 		int point_j,
 		void * d)
 {
-	return integrate(phi_i * phi_j, trk, m.ps);
+	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
 
 static double
