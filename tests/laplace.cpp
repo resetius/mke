@@ -147,7 +147,6 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	vector_sum(&b[0], &b[0], &x[0], x.size());
 #endif	
 
-	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }

@@ -39,6 +39,8 @@
 class SphereLaplace {
 	Matrix idt_;
 	Matrix laplace_;
+	Matrix bnd1_;
+	Matrix bnd2_;
 	const Mesh & m_;
 
 public:

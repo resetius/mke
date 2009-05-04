@@ -98,6 +98,30 @@ slaplace_right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
+static double
+laplace_bnd1_cb( const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point_i,
+		int point_j,
+		void * d)
+{
+	return integrate(phi_i * phi_j, trk, m.ps);
+}
+
+static double
+laplace_bnd2_cb( const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point_i,
+		int point_j,
+		void * )
+{
+	return -laplace(phi_i, phi_j, trk, m.ps);
+}
+
 static double 
 slaplace_integrate_cb( const Polynom & phi_i,
                        const Polynom & phi_j, 
@@ -123,16 +147,24 @@ void SphereLaplace::solve(double * Ans,
 	vector < double > x(rs);      // ответ
 
 	Timer full;
-
+#if 0
 	slaplace_right_part_cb_data d;
 	d.F   = F;
 	d.bnd = bnd;
-
 	generate_right_part(&b[0], m_, (right_part_cb_t)(slaplace_right_part_cb), (void*)&d);
-
-#ifdef _DEBUG
-	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
 #endif
+
+#if 1
+	mke_u2p(&x[0], F, m_);
+	idt_.mult_vector(&b[0], &x[0]);
+	bnd2_.mult_vector(&x[0], bnd);
+	vector_sum(&b[0], &b[0], &x[0], x.size());
+	vector < double > tmp(m_.outer.size());
+	mke_proj_bnd(&tmp[0], F, m_);
+	bnd1_.mult_vector(&x[0], &tmp[0]);
+	vector_sum(&b[0], &b[0], &x[0], x.size());
+#endif
+
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);
 #ifdef _DEBUG
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
@@ -171,10 +203,12 @@ static double lp_rp(const Polynom & phi_i,
 
 SphereLaplace::SphereLaplace(const Mesh & m): m_(m), 
 	idt_((int)m.inner.size()),
-	laplace_((int)m.inner.size())
+	laplace_((int)m.inner.size()), bnd1_(m.inner.size()), bnd2_(m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, slaplace_integrate_cb, 0);
+	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, 0);
+	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, 0);
 }
 
 void SphereLaplace::calc2(double * Ans, const double * F)
