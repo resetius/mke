@@ -122,7 +122,7 @@ double rp (double x, double y, double t, double mu, double sigma)
 	// return 0.0;
 
 	// lapl from -3.5 * sigma * ipow (sin (x), 3);
-	return -sigma*(2.*ipow(cos(x),2)-1.)*sin(x);
+	return sigma*(2.*ipow(cos(x),2)-1.)*sin(x);
 }
 
 double zero_coriolis (double phi, double lambda)
@@ -190,24 +190,26 @@ void test_barvortex (const Mesh & m)
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
-	double tau = 0.01;
+	double tau = 0.05;
 	double t = 0;
-	double T = 2.0 * 30.0 * 2.0 * M_PI;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
-	//BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
 	vector < double > Ans(sz);
 
-	mke_proj (&u[0], m, an1, 0);
-	//mke_proj (&u[0], m, u0);
+	//mke_proj (&u[0], m, an1, 0);
+	mke_proj (&u[0], m, u0);
 
 	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
 
@@ -216,10 +218,11 @@ void test_barvortex (const Mesh & m)
 	while (t < T)
 	{
 #if 1
+		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
 		if (i % 1 == 0) {
-			fprintf (stderr, " === NORM = %le, STEP %lf of %lf\n",
-			         mke_norm (&u[0], m, sphere_scalar_cb), t, T );
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+			         mke_norm (&u[0], m, sphere_scalar_cb), t, T, tm.elapsed());
 			// 3d print
 			print_function (stdout, &u[0], m, x, y, z);
 			// flat print
@@ -229,7 +232,7 @@ void test_barvortex (const Mesh & m)
 
 		i += 1;
 		t += tau;
-#if 1
+#if 0
 		{
 			mke_proj(&Ans[0], m, an1, t);
 			fprintf(stderr, "time %lf/ norm %le\n", t, 

@@ -285,7 +285,7 @@ void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x,
 {
 	int j;
 
-//#pragma omp parallel for
+#pragma omp parallel for
 	for (j = 0; j < n; ++j) {
 		double *p = &A->Ax[A->Ap[j]];
 		int i0;
@@ -327,7 +327,7 @@ void vector_sum1(double * r, const double * a, const double *b, double k1, doubl
 void vector_sum(double * r, const double * a, const double *b, int n)
 {
 	int i;
-//#pragma omp parallel for
+#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] + b[i];
 	}
