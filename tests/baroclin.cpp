@@ -122,7 +122,7 @@ Baroclin::right_part_cb( const Polynom & phi_i,
 /**
  * (u1, u2) -> (u11, u21)
  * d L(u1)/dt + J(u1, L(u1) + l + h ?) + J(u2, L(u2)) + sigma/2 L(u1 - u2) - mu LL(u1) = 0
- * d L(u2)/dt + J(u1, L(u2)) + J(u2, L(u1) + l + h?) + sigma/2 L(u1 - u2) - mu LL(u2) -
+ * d L(u2)/dt + J(u1, L(u2)) + J(u2, L(u1) + l + h?) + sigma/2 L(u1 + u2) - mu LL(u2) -
  *   - alpha^2 (d u2/dt + J(u1, u2) - mu1 L(u2) + sigma1 u2 + f(phi, lambda))= 0
  * L = Laplace
  */

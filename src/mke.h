@@ -235,12 +235,12 @@ typedef double (* integrate_cb_t)
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
 
 /**
- * генерирует вектор для интеграции краевых условий в правую часть
- * b размера outer.size()
+ * генерирует матрицу для интеграции краевых условий в правую часть
+ * inner.size() x outer.size()
  * в cb передается phi_j где j точка границы
  * phi_i, где i внутренняя точка
  */
-void generate_boundary_vector(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
+void generate_boundary_matrix(Matrix & A, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
 
 /**
  * Решает систему
@@ -300,6 +300,9 @@ void mke_proj(double * F, const Mesh & mesh, f_xy_t f);
 
 /* проектирование непрерывной функции f(x,y) на границу сетки */
 void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f);
+
+/* проектирование функции F1 на границу сетки */
+void mke_proj_bnd(double * F, const double * F1, const Mesh & m);
 
 /* проектирование непрерывной функции f(x,y,t) на сетку */
 void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t);

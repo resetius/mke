@@ -65,7 +65,7 @@ laplace_right_part_cb( const Polynom & phi_i,
 	// TODO: по-моему из 
 	// integrate(phi_i * phi_j, trk, m.ps) и
 	// laplace(phi_i, phi_j, trk, m)
-	// можно сделать два вектора длиной outer.size()
+	// можно сделать две матрицы размера inner.size() x outer.size()
 	// и "умножать" их на F[point] и bnd
 	// тогда можно будет легко интегрировать 
 	// в правую часть краевые условия
@@ -129,42 +129,27 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 
 	Timer full;
 
+#if 0
 	laplace_right_part_cb_data d;
 	d.F   = F;
 	d.bnd = bnd;
+	generate_right_part(&b[0], m_, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
+#endif
 
-#if 0
+#if 1
 	mke_u2p(&x[0], F, m_);
 	idt_.mult_vector(&b[0], &x[0]);
-
-	for (int i = 0; i < (int) m_.outer.size(); ++i) {
-		int outer = m_.outer[i];
-
-		for (uint tk = 0; tk < m_.adj[outer].size(); ++tk) {
-			int trk_j = m_.adj[outer][tk];
-			for (uint i0 = 0; i0 < 3; ++i0) {
-				int p    = m_.tr[trk_j].p[i0];
-
-				if (m_.ps_flags[p] != 1) {
-					int j = m_.p2io[p];
-					b[j] += bnd[i]   * bnd2_[i];
-					b[j] += F[outer] * bnd1_[i];
-				}
-			}
-		}
-	}
-#endif
-	generate_right_part(&b[0], m_, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
+	bnd2_.mult_vector(&x[0], bnd);
+	vector_sum(&b[0], &b[0], &x[0], x.size());
+	vector < double > tmp(m_.outer.size());
+	mke_proj_bnd(&tmp[0], F, m_);
+	bnd2_.mult_vector(&x[0], &tmp[0]);
+	vector_sum(&b[0], &b[0], &x[0], x.size());
+#endif	
 
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed());
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
-}
-
-void Laplace::init_boundary_vectors()
-{
-	generate_boundary_vector(&bnd1_[0], m_, laplace_bnd1_cb, 0);
-	generate_boundary_vector(&bnd2_[0], m_, laplace_bnd2_cb, 0);
 }
 
 static double f(double u, double x, double y, double t, double mu, double sigma)
@@ -270,11 +255,12 @@ static double lp_rp(const Polynom & phi_i,
 
 Laplace::Laplace(const Mesh & m): m_(m), 
 	idt_(m.inner.size()),
-	laplace_(m.inner.size()), bnd1_(m.outer.size()), bnd2_(m.outer.size())
+	laplace_(m.inner.size()), bnd1_(m.inner.size()), bnd2_(m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
-	init_boundary_vectors();
+	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, 0);
+	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, 0);
 }
 
 void Laplace::calc2(double * Ans, const double * F)

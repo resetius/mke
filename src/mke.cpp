@@ -310,18 +310,17 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 }
 
 /**
- * генерирует вектор для интеграции краевых условий в правую часть
- * b размера outer.size()
+ * генерирует матрицу для интеграции краевых условий в правую часть
+ * inner.size() x outer.size()
  * в cb передается phi_j где j точка границы
  * phi_i, где i внутренняя точка
  */
-void generate_boundary_vector(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
+void generate_boundary_matrix(Matrix & A, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
 	int os = m.outer.size(); // размер границы
 	for (int j = 0; j < os; ++j) {
 		// по внешним точкам
 		int p2 = m.outer[j];
-		b[j] = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p2].size(); ++tk) {
 			// по треугольникам в точке
@@ -337,8 +336,9 @@ void generate_boundary_vector(double * b, const Mesh & m, right_part_cb_t right_
 					;
 				} else {
 					// p - внутренняя точка
+					int i = m.p2io[p];
 					double a = right_part_cb(phik[i0], phi_j, trk, m, p, p2, user_data);
-					b[j]    += a;
+					A.add(i, j, a);
 				}
 			}
 		}
@@ -479,6 +479,14 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0].p[0];
 		F[i] = f(p.x, p.y);
+	}
+}
+
+void mke_proj_bnd(double * F, const double * F1, const Mesh & m)
+{
+	for (size_t i = 0; i < m.outer.size(); ++i) {
+		int p0 = m.outer[i];
+		F[i] = F1[p0];
 	}
 }
 
