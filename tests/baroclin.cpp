@@ -66,10 +66,10 @@ static double coriolis(double phi, double lambda)
 	return l + h;
 }
 
-Baroclin::Baroclin(const Mesh & m, double tau, 
-					 double sigma, double mu)
-					 : m_(m), l_(m), j_(m), A_(m.inner.size()),
-					 tau_(tau), sigma_(sigma), mu_(mu)
+Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
+         double tau, double sigma, double mu, double sigma1, double mu1, double alpha)
+	: m_(m), l_(m), j_(m), A_(m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
+	sigma1_(sigma1), mu1_(mu1), alpha_(alpha), rp_(rp), coriolis_(coriolis)
 {
 	lh_.resize(m_.ps.size());
 	mke_proj(&lh_[0], m_, coriolis);
@@ -121,7 +121,9 @@ Baroclin::right_part_cb( const Polynom & phi_i,
 
 /**
  * (u1, u2) -> (u11, u21)
- * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
+ * d L(u1)/dt + J(u1, L(u1) + l + h ?) + J(u2, L(u2)) + sigma/2 L(u1 - u2) - mu LL(u1) = 0
+ * d L(u2)/dt + J(u1, L(u2)) + J(u2, L(u1) + l + h?) + sigma/2 L(u1 - u2) - mu LL(u2) -
+ *   - alpha^2 (d u2/dt + J(u1, u2) - mu1 L(u2) + sigma1 u2 + f(phi, lambda))= 0
  * L = Laplace
  */
 void Baroclin::calc(double * u11,  double * u21, 

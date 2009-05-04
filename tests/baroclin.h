@@ -35,6 +35,12 @@
 #include "jacobian.h"
 
 class Baroclin {
+public:
+	typedef double (*rp_t ) (double phi, double lambda, double t,
+	                double mu, double sigma);
+        typedef double (*coriolis_t) (double phi, double lambda);
+
+private:
 	const Mesh & m_;
 	SphereLaplace l_;
 	Jacobian j_;
@@ -45,6 +51,11 @@ class Baroclin {
 	double tau_;
 	double sigma_;
 	double mu_;
+	double sigma1_;
+	double mu1_;
+	double alpha_;
+	rp_t rp_;
+	coriolis_t coriolis_;
 
 	static double integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
@@ -63,7 +74,8 @@ class Baroclin {
                       right_part_cb_data * d);
 
 public:
-	Baroclin(const Mesh & m, double tau, double sigma, double mu);
+	Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis, 
+			double tau, double sigma, double mu, double sigma1, double mu1, double alpha);
 
 	/**
 	 * u1  -- ответ
@@ -79,3 +91,4 @@ public:
 };
 
 #endif /* BARVORTEX_H */
+

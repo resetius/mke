@@ -35,86 +35,116 @@
 
 using namespace std;
 
-void usage(const char * name)
+void usage (const char * name)
 {
-	fprintf(stderr, "usage: %s [mesh.txt|-]\n", name);
-	exit(1);
+	fprintf (stderr, "usage: %s [mesh.txt|-]\n", name);
+	exit (1);
 }
 
-double f1(double x, double y)
+double f1 (double x, double y)
 {
-	return sin(x) * sin(y);
+	return sin (x) * sin (y);
 }
 
-double f2(double x, double y)
+double f2 (double x, double y)
 {
-	return cos(x) * cos(y);
+	return cos (x) * cos (y);
 }
 
-static double x(double u, double v)
+static double x (double u, double v)
 {
-	return cos(u) * cos(v);
+	return cos (u) * cos (v);
 }
 
-static double y(double u, double v)
+static double y (double u, double v)
 {
-	return cos(u) * sin(v);
+	return cos (u) * sin (v);
 }
 
-static double z(double u, double v)
+static double z (double u, double v)
 {
-	return sin(u);
+	return sin (u);
 }
 
-void test_boclinic(const Mesh & m)
+double rp (double x, double y, double t, double mu, double sigma)
+{
+	return -sigma* (2.*ipow (cos (x), 2) - 1.) *sin (x);
+}
+
+double zero_coriolis (double phi, double lambda)
+{
+	return 0.0;
+}
+
+double coriolis (double phi, double lambda)
+{
+	double omg = 0.0000727000000000;
+	double l = omg * 2.0 * sin (phi);
+	double h = cos (2.0 * lambda) * ipow (sin (2.0 * phi), 2);
+	return l + h;
+}
+
+void test_boclinic (const Mesh & m)
 {
 	int sz = m.ps.size();
 	int os = m.outer.size();
 
 	double tau = 0.001;
 	int steps = 100000;
-	Baroclin bc(m, tau, 1.6e-2, 8e-5);
+	double sigma  = 1.6e-2;
+	double mu     = 8e-2;
+	double sigma1 = sigma;
+	double mu1    = mu;
+	double alpha  = 1.0;
 
-	vector < double > u1(sz);
-	vector < double > u2(sz);
-	vector < double > bnd(std::max(os, 1));
+	Baroclin bc (m, rp, coriolis, tau, sigma, mu, sigma1, mu1, alpha);
 
-	mke_proj(&u1[0], m, f1);
-	mke_proj(&u2[0], m, f2);
+	vector < double > u1 (sz);
+	vector < double > u2 (sz);
+	vector < double > bnd (std::max (os, 1) );
 
-	setbuf(stdout, 0);
-	for (int i = 0; i < steps; ++i) {
-		bc.calc(&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], (double)i * tau);
+	mke_proj (&u1[0], m, f1);
+	mke_proj (&u2[0], m, f2);
 
-		fprintf(stderr, " === NORM1 = %le\n",
-			mke_norm(&u1[0], m, sphere_scalar_cb));
-		fprintf(stderr, " === NORM2 = %le\n",
-			mke_norm(&u2[0], m, sphere_scalar_cb));
+	setbuf (stdout, 0);
+	for (int i = 0; i < steps; ++i)
+	{
+		bc.calc (&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], (double) i * tau);
 
-		print_function(stdout, &u1[0], m, x, y, z);
-		print_function(stdout, &u2[0], m, x, y, z);
+		fprintf (stderr, " === NORM1 = %le\n",
+		         mke_norm (&u1[0], m, sphere_scalar_cb) );
+		fprintf (stderr, " === NORM2 = %le\n",
+		         mke_norm (&u2[0], m, sphere_scalar_cb) );
+
+		print_function (stdout, &u1[0], m, x, y, z);
+		print_function (stdout, &u2[0], m, x, y, z);
 	}
 }
 
-int main(int argc, char *argv[])
+int main (int argc, char *argv[])
 {
 	Mesh mesh;
 
-	if (argc > 1) {
-		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
-		if (!f) {
-			usage(argv[0]);
+	if (argc > 1)
+	{
+		FILE * f = (strcmp (argv[1], "-") == 0) ? stdin : fopen (argv[1], "rb");
+		if (!f)
+		{
+			usage (argv[0]);
 		}
-		if (!mesh.load(f)) {
-			usage(argv[0]);
+		if (!mesh.load (f) )
+		{
+			usage (argv[0]);
 		}
-		fclose(f);
-	} else {
-		usage(argv[0]);
+		fclose (f);
+	}
+	else
+	{
+		usage (argv[0]);
 	}
 	set_fpe_except();
 
-	test_boclinic(mesh);
+	test_boclinic (mesh);
 	return 0;
 }
 
