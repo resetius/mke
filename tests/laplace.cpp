@@ -233,13 +233,13 @@ static double lp_rp(const Polynom & phi_i,
 	const double * F = d->F;
 	double b = 0.0;
 	
-	b = F[point_i] * laplace(phi_i, phi_j, trk, m);
+	b = F[point_j] * laplace(phi_i, phi_j, trk, m);
 
 	//return F[point_j] * laplace(phi_i, phi_j, trk, m);
-#if 1
+#if 0
 	if (m.ps_flags[point_j] == 1)
 	{
-		b -= - F[point_i] * id_cb(phi_i, phi_j, trk, m, point_i, point_j, 0);
+		b = F[point_j] * id_cb(phi_i, phi_j, trk, m, point_i, point_j, 0);
 	}
 
 	//if (m.ps_flags[point_j] == 1 && d->bnd)
@@ -254,23 +254,30 @@ static double lp_rp(const Polynom & phi_i,
 
 Laplace::Laplace(const Mesh & m): m_(m), 
 	idt_(m.inner.size()),
-	laplace_(m.inner.size()), bnd1_(m.inner.size()), bnd2_(m.inner.size())
+	laplace_(m.inner.size()), bnd1_(m.inner.size()), bnd2_(m.inner.size()), 
+	bnd3_(m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
 	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, 0);
 	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, 0);
+	generate_boundary_matrix(bnd3_, m_, laplace_integrate_cb, 0);
 }
 
 void Laplace::calc2(double * Ans, const double * F)
 {
-	vector < double > rp(m_.inner.size());
+	int rs = m_.inner.size();
+	int os = m_.outer.size();
+	vector < double > in(rs);
+	vector < double > out(rs);
+	vector < double > tmp(os);
 
-	laplace_right_part_cb_data d;
-	d.F = F;
-	d.bnd = 0;
-	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
-	idt_.solve(Ans, &rp[0]);
+	mke_u2p(&in[0], F, m_);
+	mke_proj_bnd(&tmp[0], F, m_);
+	laplace_.mult_vector(&out[0], &in[0]);
+	bnd3_.mult_vector(&in[0], &tmp[0]);
+	vector_sum(&out[0], &out[0], &in[0], in.size());
+	idt_.solve(Ans, &out[0]);
 }
 
 /**
@@ -282,7 +289,7 @@ void Laplace::calc2(double * Ans, const double * F)
  */
 void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 {
-#if 1
+#if 0
 	vector < double > p1(m_.inner.size());
 
 	//calc2(&p1[0], F);
@@ -297,13 +304,9 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 
 	mke_p2u(Ans, &p1[0], bnd, m_);
 #endif
-#if 0
-	vector < double > in(m_.inner.size());
+#if 1
 	vector < double > out(m_.inner.size());
-
-	mke_u2p(&in[0], F, m_);
-	laplace_.mult_vector(&out[0], &in[0]);
-	idt_.solve(&out[0], &out[0]);
+	calc2(&out[0], F);
 	mke_p2u(Ans, &out[0], bnd, m_);
 #endif
 }

@@ -113,8 +113,9 @@ public:
 class Laplace {
 	Matrix idt_;
 	Matrix laplace_;
-	Matrix bnd1_;
-	Matrix bnd2_;
+	Matrix bnd1_; // L^-1
+	Matrix bnd2_; // L^-1
+	Matrix bnd3_; // L
 	const Mesh & m_;
 
 	void init_boundary_vectors();

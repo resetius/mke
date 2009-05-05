@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	mesh.info();
 	test_invert(mesh);
 	//getchar();
-	//test_laplace(mesh);
+	test_laplace(mesh);
 	return 0;
 }
 
