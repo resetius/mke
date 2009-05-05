@@ -269,8 +269,8 @@ int main (int argc, char *argv[])
 
 	mesh.info();
 
-	//test_jacobian(mesh);
-	test_barvortex (mesh);
+	test_jacobian(mesh);
+	//test_barvortex (mesh);
 	return 0;
 }
 

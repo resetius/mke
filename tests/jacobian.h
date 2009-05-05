@@ -6,6 +6,15 @@
 class Jacobian {
 	const Mesh & m_;
 	Matrix idt_;
+	Matrix diff1_;
+	Matrix diff2_;
+	Matrix diff1_cos_;
+	Matrix diff2_cos_;
+
+	Matrix diff1_rp_;
+	Matrix diff2_rp_;
+	Matrix diff1_cos_rp_;
+	Matrix diff2_cos_rp_;
 
 public:
 	Jacobian(const Mesh & m);
