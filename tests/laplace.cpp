@@ -253,12 +253,15 @@ static double lp_rp(const Polynom & phi_i,
 }
 
 Laplace::Laplace(const Mesh & m): m_(m), 
-	idt_(m.inner.size()),
-	laplace_(m.inner.size()), bnd1_(m.inner.size()), bnd2_(m.inner.size()), 
+	idt_(m.inner.size()), fidt_(m.ps.size()),
+	laplace_(m.inner.size()), flaplace_(m.ps.size()),
+	bnd1_(m.inner.size()), bnd2_(m.inner.size()), 
 	bnd3_(m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
+	generate_full_matrix(fidt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
+	generate_full_matrix(flaplace_, m, laplace_integrate_cb, 0);
 	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, 0);
 	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, 0);
 	generate_boundary_matrix(bnd3_, m_, laplace_integrate_cb, 0);
@@ -268,16 +271,21 @@ void Laplace::calc2(double * Ans, const double * F)
 {
 	int rs = m_.inner.size();
 	int os = m_.outer.size();
-	vector < double > in(rs);
-	vector < double > out(rs);
-	vector < double > tmp(os);
-
+	int sz = m_.ps.size();
+	vector < double > in(sz);
+	vector < double > out(sz);
+//	vector < double > tmp(os);
+#if 0
 	mke_u2p(&in[0], F, m_);
 	mke_proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
 	bnd3_.mult_vector(&in[0], &tmp[0]);
 	vector_sum(&out[0], &out[0], &in[0], in.size());
 	idt_.solve(Ans, &out[0]);
+#endif
+	flaplace_.mult_vector(&in[0], F);
+	fidt_.solve(&out[0], &in[0]);
+	mke_u2p(Ans, &out[0], m_);
 }
 
 /**

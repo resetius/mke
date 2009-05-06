@@ -112,8 +112,10 @@ public:
  * Лаплас на плоской сетке
  */
 class Laplace {
-	Matrix idt_;
-	Matrix laplace_;
+	Matrix idt_;      // inner
+	Matrix fidt_;     // full
+	Matrix laplace_;  // inner
+	Matrix flaplace_; // full
 	Matrix bnd1_; // L^-1
 	Matrix bnd2_; // L^-1
 	Matrix bnd3_; // L
