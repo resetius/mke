@@ -280,7 +280,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_c
 	int sz  = m.ps.size();
 
 	Timer t;
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (int p = 0; p < sz; ++p) {
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольника в точке

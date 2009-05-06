@@ -272,10 +272,11 @@ void Laplace::calc2(double * Ans, const double * F)
 	int rs = m_.inner.size();
 	int os = m_.outer.size();
 	int sz = m_.ps.size();
-	vector < double > in(sz);
-	vector < double > out(sz);
-//	vector < double > tmp(os);
-#if 0
+
+#if 1
+	vector < double > in(rs);
+	vector < double > out(rs);
+	vector < double > tmp(os);
 	mke_u2p(&in[0], F, m_);
 	mke_proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
@@ -283,9 +284,16 @@ void Laplace::calc2(double * Ans, const double * F)
 	vector_sum(&out[0], &out[0], &in[0], in.size());
 	idt_.solve(Ans, &out[0]);
 #endif
-	flaplace_.mult_vector(&in[0], F);
+
+#if 0
+	vector < double > in(sz);
+	vector < double > out(sz);
+	vector < double > tmp(sz);
+
+	flaplace_.mult_vector(&in[0], &F[0]);
 	fidt_.solve(&out[0], &in[0]);
-	mke_u2p(Ans, &out[0], m_);
+	mke_u2p(Ans, &in[0], m_);
+#endif
 }
 
 /**
