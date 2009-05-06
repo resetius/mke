@@ -275,6 +275,36 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 #endif
 }
 
+void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
+{
+	int sz  = m.ps.size();
+
+	Timer t;
+#pragma omp parallel for
+	for (int p = 0; p < sz; ++p) {
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+			// по треугольника в точке
+			int trk_i = m.adj[p][tk];
+			const Triangle & trk    = m.tr[trk_i];
+			const vector < Polynom > & phik = trk.elem1();
+			const Polynom & phi_i           = trk.elem1(p);
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+				int p2   = m.tr[trk_i].p[i0];
+				int j    = m.p2io[p2]; // номер внутренней точки
+				                       // номер столбца
+				double a = integrate_cb(phi_i, phik[i0], trk, m, p, p2, user_data);
+				A.add(p, p2, a);
+			}
+		}
+	}
+#ifdef _DEBUG
+	fprintf(stderr, "generate_full_matrix: %lf \n", t.elapsed()); 
+#endif
+}
+
+
+
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
 	int rs  = m.inner.size();     // размерность

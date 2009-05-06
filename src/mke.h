@@ -234,6 +234,8 @@ typedef double (* integrate_cb_t)
  */
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
 
+void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
+
 /**
  * генерирует матрицу для интеграции краевых условий в правую часть
  * inner.size() x outer.size()
