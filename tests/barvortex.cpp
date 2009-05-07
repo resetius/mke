@@ -64,7 +64,7 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
 		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
-		 bnd_(m.outer.size()),
+		 bnd_(m.inner.size()),
 		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp), coriolis_(coriolis)
 {
 	int sz = (int)m_.ps.size();
