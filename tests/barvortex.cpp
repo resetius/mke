@@ -115,66 +115,10 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
-#if 0
-void BarVortex::calc(double * Ans, const double * x0, 
-					 const double * bnd, double t)
-{
-
-	int rs  = (int)m_.inner.size();
-	int sz  = (int)m_.ps.size();
-	vector < double > u(rs);
-	vector < double > p(sz);
-	vector < double > delta_u(rs);
-	vector < double > rp(rs);
-
-	vector < double > X0(sz);
-
-	SphereLaplace & laplace_ = l_;
-
-	// генерируем правую часть
-	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
-
-	laplace_.calc1(&X0[0], x0, bnd);
-
-	mke_u2p(&u[0], &X0[0], m_);
-	laplace_.calc2(&delta_u[0], &X0[0]);
-
-	// u/dt + mu \Delta u / 2
-	vector_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, mu_ * 0.5, rs);
-
-	// u/dt + mu \Delta u / 2 - \sigma u / 2
-	vector_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
-
-	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
-#pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
-		int point = m_.inner[i];
-		double x  = m_.ps[point].x();
-		double y  = m_.ps[point].y();
-
-		u[i] = delta_u[i] + rp_(x, y, t, mu_, sigma_);
-	}
-
-	// правую часть на границе не знаем !!!
-	mke_p2u(&p[0], &u[0], 0 /*bnd*/, m_);
-	right_part_cb_data data2;
-	data2.F   = &p[0];
-	data2.bnd = bnd;
-	data2.d   = this;
-	generate_right_part(&rp[0], m_, 
-		(right_part_cb_t)right_part_cb, (void*)&data2);
-
-	vector < double > omg(sz);
-	mke_solve(&omg[0], bnd, &rp[0], A_, m_);
-	laplace_.solve(Ans, &omg[0], bnd);
-}
-#endif
-
 /**
  * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
  * L = Laplace
  */
-#if 1
 void BarVortex::calc(double * psi, const double * x0, 
 					 const double * bnd, double t)
 {
@@ -235,20 +179,22 @@ void BarVortex::calc(double * psi, const double * x0,
 			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
 		}
 
+#if 0
 		//right_part_cb_data data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
-		//data2.F   = &omega[0];
-		//data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
-		//data2.d   = this;
+		data2.F   = &omega[0];
+		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
+		data2.d   = this;
 
-		//generate_right_part(&rp[0], m_, 
-		//	(right_part_cb_t)right_part_cb, (void*)&data2);
+		generate_right_part(&rp[0], m_, 
+			(right_part_cb_t)right_part_cb, (void*)&data2);
+#endif
 
 		l_.idt_.mult_vector(&rp[0], &omega[0]);
 		if (bnd) {
-			vector < double > tmp(rs);
-			bnd_.mult_vector(&tmp[0], bnd);
-			vector_sum(&rp[0], &rp[0], &tmp[0], tmp.size());
+			// we use jac only as a storage !
+			bnd_.mult_vector(&jac[0], bnd);
+			vector_sum(&rp[0], &rp[0], &jac[0], rp.size());
 		}
 
 		//TODO: тут граничное условие на омега!
@@ -265,7 +211,6 @@ void BarVortex::calc(double * psi, const double * x0,
 		}
 	}
 }
-#endif
 
 /**
  * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
