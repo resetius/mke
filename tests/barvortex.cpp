@@ -234,23 +234,25 @@ void BarVortex::calc(double * psi, const double * x0,
 
 			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
 		}
-
-		//right_part_cb_data data2;
+#if 0
+		right_part_cb_data data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
-		//data2.F   = &omega[0];
-		//data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
-		//data2.d   = this;
+		data2.F   = &omega[0];
+		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
+		data2.d   = this;
 
-		//generate_right_part(&rp[0], m_, 
-		//	(right_part_cb_t)right_part_cb, (void*)&data2);
+		generate_right_part(&rp[0], m_, 
+			(right_part_cb_t)right_part_cb, (void*)&data2);
+#endif
 
+#if 1
 		l_.idt_.mult_vector(&rp[0], &omega[0]);
 		if (bnd) {
 			vector < double > tmp(rs);
 			bnd_.mult_vector(&tmp[0], bnd);
 			vector_sum(&rp[0], &rp[0], &tmp[0], tmp.size());
 		}
-
+#endif
 		//TODO: тут граничное условие на омега!
 		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
 		//TODO: а тут граничное условие на пси!
