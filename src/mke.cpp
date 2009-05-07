@@ -236,7 +236,7 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 			m.tr[i].p[1] + 1, 
 			m.tr[i].p[2] + 1);
 	}
-	fprintf(to, "# end %lu\n");
+	fprintf(to, "# end \n");
 }
 
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
@@ -514,6 +514,7 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
 
 void mke_proj_bnd(double * F, const double * F1, const Mesh & m)
 {
+#pragma omp parallel for
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
 		F[i] = F1[p0];
