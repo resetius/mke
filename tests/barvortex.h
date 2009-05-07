@@ -45,6 +45,7 @@ private:
 	SphereLaplace l_;
 	Jacobian j_;
 	Matrix A_;
+	Matrix bnd_;
 
 	std::vector < double > lh_; // l + h
 	std::vector < double > f_;  // f right part

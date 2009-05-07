@@ -64,6 +64,7 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
 		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
+		 bnd_(m.outer.size()),
 		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp), coriolis_(coriolis)
 {
 	int sz = (int)m_.ps.size();
@@ -73,6 +74,7 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
+	generate_boundary_matrix(bnd_, m_, (integrate_cb_t)integrate_cb, this);
 
 	//f_.resize(sz);
 	//for (int i = 0; i < sz; ++i) {
@@ -81,7 +83,6 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 
 	//	f_[i] = rp_(x, y, mu_, sigma_);
 	//}
-	//l_.calc1(&f_[0], &f_[0], 0); // < !!!!
 }
 
 struct BarVortex::right_part_cb_data
@@ -234,14 +235,21 @@ void BarVortex::calc(double * psi, const double * x0,
 			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
 		}
 
-		right_part_cb_data data2;
+		//right_part_cb_data data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
-		data2.F   = &omega[0];
-		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
-		data2.d   = this;
+		//data2.F   = &omega[0];
+		//data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
+		//data2.d   = this;
 
-		generate_right_part(&rp[0], m_, 
-			(right_part_cb_t)right_part_cb, (void*)&data2);
+		//generate_right_part(&rp[0], m_, 
+		//	(right_part_cb_t)right_part_cb, (void*)&data2);
+
+		l_.idt_.mult_vector(&rp[0], &omega[0]);
+		if (bnd) {
+			vector < double > tmp(rs);
+			bnd_.mult_vector(&tmp[0], bnd);
+			vector_sum(&rp[0], &rp[0], &tmp[0], tmp.size());
+		}
 
 		//TODO: тут граничное условие на омега!
 		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
@@ -440,3 +448,4 @@ void BarVortex::LT_step(double * Ans, const double * F, const double * z)
 {
 	calc_LT(Ans, F, z, 0, 0);
 }
+

@@ -37,6 +37,7 @@
  * Сферический Лаплас
  */
 class SphereLaplace {
+public:
 	Matrix idt_;
 	Matrix laplace_;
 	Matrix bnd1_; // L^-1
