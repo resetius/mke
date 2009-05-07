@@ -1,8 +1,4 @@
-<<<<<<< local
 /*$Id$*/
-=======
-/*$Id$*/
->>>>>>> other
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -189,34 +185,17 @@ void BarVortex::calc(double * psi, const double * x0,
 		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
 		data2.d   = this;
 
-<<<<<<< local
-		generate_right_part(&rp[0], m_, 
-			(right_part_cb_t)right_part_cb, (void*)&data2);
-#endif
-=======
-#if 0
-		//right_part_cb_data data2;
-		//генератор правой части учитывает то, что функция задана внутри!!!
-		data2.F   = &omega[0];
-		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
-		data2.d   = this;
->>>>>>> other
-
-<<<<<<< local
-#if 1
-=======
 		generate_right_part(&rp[0], m_, 
 			(right_part_cb_t)right_part_cb, (void*)&data2);
 #endif
 
->>>>>>> other
 		l_.idt_.mult_vector(&rp[0], &omega[0]);
 		if (bnd) {
 			// we use jac only as a storage !
 			bnd_.mult_vector(&jac[0], bnd);
 			vector_sum(&rp[0], &rp[0], &jac[0], rp.size());
 		}
-#endif
+
 		//TODO: тут граничное условие на омега!
 		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
 		//TODO: а тут граничное условие на пси!
