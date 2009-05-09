@@ -286,17 +286,15 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 			double x  = m_.ps[point].x();
 			double y  = m_.ps[point].y();
 
-			omega[i] = lomega[i] - jac1[i] - jac1[i];
+			omega[i] = lomega[i] - jac1[i] - jac2[i];
 		}
 
-		right_part_cb_data data2;
-		//генератор правой части учитывает то, что функция задана внутри!!!
-		data2.F   = &omega[0];
-		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
-		data2.d   = this;
-
-		generate_right_part(&rp[0], m_, 
-			(right_part_cb_t)right_part_cb, (void*)&data2);
+		l_.idt_.mult_vector(&rp[0], &omega[0]);
+		if (bnd) {
+			// we use jac1 only as a storage !
+			bnd_.mult_vector(&jac1[0], bnd);
+			vector_sum(&rp[0], &rp[0], &jac1[0], rp.size());
+		}
 
 		//TODO: тут граничное условие на омега!
 		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
