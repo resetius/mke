@@ -60,22 +60,17 @@ laplace_right_part_cb( const Polynom & phi_i,
                        laplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	double b;
+	double b = 0.0;
 
-	// TODO: по-моему из 
-	// integrate(phi_i * phi_j, trk, m.ps) и
-	// laplace(phi_i, phi_j, trk, m)
-	// можно сделать две матрицы размера inner.size() x outer.size()
-	// и "умножать" их на F[point] и bnd
-	// тогда можно будет легко интегрировать 
-	// в правую часть краевые условия
-
-	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+	//b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 
 	if (m.ps_flags[point_j] == 1) {         // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += - bnd[j0] * laplace(phi_i, phi_j, trk, m);
+	}
+	else {
+		b += F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 	}
 
 	return b;
@@ -141,9 +136,9 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	idt_.mult_vector(&b[0], &x[0]);
 	bnd2_.mult_vector(&x[0], bnd);
 	vector_sum(&b[0], &b[0], &x[0], x.size());
-	vector < double > tmp(m_.outer.size());
-	mke_proj_bnd(&tmp[0], F, m_);
-	bnd1_.mult_vector(&x[0], &tmp[0]);
+//	vector < double > tmp(m_.outer.size());
+//	mke_proj_bnd(&tmp[0], F, m_);
+//	bnd1_.mult_vector(&x[0], &tmp[0]);
 	vector_sum(&b[0], &b[0], &x[0], x.size());
 #endif	
 
@@ -200,15 +195,18 @@ Chafe::chafe_right_part_cb( const Polynom & phi_i,
                       chafe_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	double b;
+	double b = 0.0;
 
-	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
+//	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += - bnd[j0] * Chafe::chafe_integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, d->d);
+	} 
+	else {
+		b += F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -232,7 +230,7 @@ static double lp_rp(const Polynom & phi_i,
 {
 	const double * F = d->F;
 	double b = 0.0;
-	
+
 	b = F[point_j] * laplace(phi_i, phi_j, trk, m);
 
 	//return F[point_j] * laplace(phi_i, phi_j, trk, m);
@@ -253,15 +251,15 @@ static double lp_rp(const Polynom & phi_i,
 }
 
 Laplace::Laplace(const Mesh & m): m_(m), 
-	idt_(m.inner.size()), fidt_(m.ps.size()),
-	laplace_(m.inner.size()), flaplace_(m.ps.size()),
+	idt_(m.inner.size()), laplace_(m.inner.size()),
+//	fidt_(m.ps.size()), flaplace_(m.ps.size()),
 	bnd1_(m.inner.size()), bnd2_(m.inner.size()), 
 	bnd3_(m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
-	generate_full_matrix(fidt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
-	generate_full_matrix(flaplace_, m, laplace_integrate_cb, 0);
+//	generate_full_matrix(fidt_, m, id_cb, 0);
+//	generate_full_matrix(flaplace_, m, laplace_integrate_cb, 0);
 	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, 0);
 	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, 0);
 	generate_boundary_matrix(bnd3_, m_, laplace_integrate_cb, 0);
@@ -273,7 +271,7 @@ void Laplace::calc2(double * Ans, const double * F)
 	int os = m_.outer.size();
 	int sz = m_.ps.size();
 
-#if 0
+#if 1
 	vector < double > in(rs);
 	vector < double > out(rs);
 	vector < double > tmp(os);
@@ -285,15 +283,15 @@ void Laplace::calc2(double * Ans, const double * F)
 	idt_.solve(Ans, &out[0]);
 #endif
 
-#if 1
+#if 0
 	vector < double > in(sz);
 	vector < double > out(sz);
 	vector < double > tmp(sz);
 
-	flaplace_.mult_vector(&in[0], &F[0]);
-	//laplace_right_part_cb_data data;
-	//data.F = &F[0];
-	//generate_full_right_part(&in[0], m_, (right_part_cb_t)lp_rp, &data);
+	//flaplace_.mult_vector(&in[0], &F[0]);
+	laplace_right_part_cb_data data;
+	data.F = &F[0];
+	generate_full_right_part(&in[0], m_, (right_part_cb_t)lp_rp, &data);
 	fidt_.solve(&out[0], &in[0]);
 	mke_u2p(Ans, &out[0], m_);
 #endif

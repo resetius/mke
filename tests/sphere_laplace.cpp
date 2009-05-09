@@ -159,10 +159,10 @@ void SphereLaplace::solve(double * Ans,
 	idt_.mult_vector(&b[0], &x[0]);
 	bnd2_.mult_vector(&x[0], bnd);
 	vector_sum(&b[0], &b[0], &x[0], x.size());
-	vector < double > tmp(m_.outer.size()); // not necessary !
-	mke_proj_bnd(&tmp[0], F, m_);           // not necessary !
-	bnd1_.mult_vector(&x[0], &tmp[0]);      // not necessary !
-	vector_sum(&b[0], &b[0], &x[0], x.size()); // not necessary !
+//	vector < double > tmp(m_.outer.size()); // not necessary !
+//	mke_proj_bnd(&tmp[0], F, m_);           // not necessary !
+//	bnd1_.mult_vector(&x[0], &tmp[0]);      // not necessary !
+//	vector_sum(&b[0], &b[0], &x[0], x.size()); // not necessary !
 #endif
 
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);
@@ -192,7 +192,7 @@ static double lp_rp(const Polynom & phi_i,
 {
 	const double * F = d->F;
 	double b = F[point_j] * laplace(phi_j, phi_i, trk, m.ps);;
-#if 1
+#if 0
 	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 

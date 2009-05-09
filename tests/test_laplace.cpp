@@ -132,10 +132,16 @@ void test_laplace(Mesh & mesh)
 	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 	{
 		FILE * f = fopen("lu_real.txt", "w");
-		print_function (f, &LU[0], mesh);
+		print_inner_function (f, &LU[0], mesh);
 		fclose(f);
 		f = fopen("lu_calc.txt", "w");
-		print_function (f, &LU1[0], mesh);
+		print_inner_function (f, &LU1[0], mesh);
+		fclose(f);
+
+		f = fopen("lu_diff.txt", "w");
+		vector < double > tmp(LU.size());
+		vector_diff(&tmp[0], &LU[0], &LU1[0], LU.size());
+		print_inner_function (f, &tmp[0], mesh);
 		fclose(f);
 	}
 

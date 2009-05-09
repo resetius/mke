@@ -199,6 +199,56 @@ void Mesh::info()
 	fprintf(stderr, "triangles: %lu\n", tr.size());
 }
 
+void print_inner_function(FILE * to, double * ans, const Mesh & m, 
+					x_t x, x_t y, x_t z)
+{
+	fprintf(to, "# points %lu\n", m.inner.size());
+	for (uint i = 0; i < m.inner.size(); ++i) {
+		int p = m.inner[i];
+		double u = m.ps[p].x();
+		double v = m.ps[p].y();
+		double f = ans[p];
+
+		if (x) {
+			fprintf(to, "%.16lf ", x(u, v));
+		} else {
+			fprintf(to, "%.16lf ", u);
+		}
+
+		if (y) {
+			fprintf(to, "%.16lf ", y(u, v));
+		} else {
+			fprintf(to, "%.16lf ", v);
+		}
+
+		if (z) {
+			fprintf(to, "%.16lf ", z(u, v));
+		} else {
+			fprintf(to, "%.16lf ", 0.0);
+		}
+
+		fprintf(to, "%.16lf %.16lf %.16lf \n", f, u, v);
+	}
+
+	fprintf(to, "# triangles %lu\n", m.tr.size());
+	for (uint i = 0; i < m.tr.size(); ++i) {
+		int p1 = m.tr[i].p[0];
+		int p2 = m.tr[i].p[1];
+		int p3 = m.tr[i].p[2];
+
+		if (m.ps_flags[p1] == 0
+			&& m.ps_flags[p2] == 0
+			&& m.ps_flags[p3] == 0) 
+		{
+			fprintf(to, "%d %d %d\n", 
+				m.p2io[p1] + 1, 
+				m.p2io[p2] + 1, 
+				m.p2io[p3] + 1);
+		}
+	}
+	fprintf(to, "# end \n");
+}
+
 void print_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x, x_t y, x_t z)
 {
