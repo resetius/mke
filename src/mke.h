@@ -211,6 +211,7 @@ typedef double (* right_part_cb_t)
  */
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
 
+void generate_full_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
 
 /**
  * Callback. Вызывается для всех функций phi_i, phi_j, определенных

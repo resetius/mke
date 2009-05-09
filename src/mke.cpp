@@ -291,8 +291,6 @@ void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_c
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
-				int j    = m.p2io[p2]; // номер внутренней точки
-				                       // номер столбца
 				double a = integrate_cb(phi_i, phik[i0], trk, m, p, p2, user_data);
 				A.add(p, p2, a);
 			}
@@ -308,7 +306,6 @@ void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_c
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
 	int rs  = m.inner.size();     // размерность
-	vector < Polynom > phik;
 
 	Timer t;
 #pragma omp parallel for
@@ -331,6 +328,38 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 				int p2   = m.tr[trk_i].p[i0];
 				double a = right_part_cb(phi_i, phik[i0], trk, m, p, p2, user_data);
 				b[i]    += a;
+			}
+		}
+	}
+#ifdef _DEBUG
+	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
+#endif
+}
+
+void generate_full_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
+{
+	int sz  = m.ps.size();     // размерность
+	vector < Polynom > phik;
+
+	Timer t;
+#pragma omp parallel for
+	for (int p = 0; p < sz; ++p)
+	{
+		b[p]  = 0.0;
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+			// по треугольника в точке
+			int trk_i = m.adj[p][tk];
+			const Triangle & trk    = m.tr[trk_i];
+			const vector < Polynom > & phik = trk.elem1();
+			const Polynom & phi_i           = trk.elem1(p);
+			
+			// если граница не мен€етс€ по времени, то надо делать отдельный callback
+			// дл€ вычислени€ посто€нной поправки к правой части?
+			
+			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+				int p2   = m.tr[trk_i].p[i0];
+				double a = right_part_cb(phi_i, phik[i0], trk, m, p, p2, user_data);
+				b[p]    += a;
 			}
 		}
 	}
@@ -515,7 +544,7 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
 void mke_proj_bnd(double * F, const double * F1, const Mesh & m)
 {
 #pragma omp parallel for
-	for (size_t i = 0; i < m.outer.size(); ++i) {
+	for (int i = 0; i < (int)m.outer.size(); ++i) {
 		int p0 = m.outer[i];
 		F[i] = F1[p0];
 	}

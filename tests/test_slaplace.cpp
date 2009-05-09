@@ -133,7 +133,9 @@ void test_invert(const Mesh & mesh)
 	mke_proj(&rans[0], mesh, ans);
 	mke_proj_bnd(&B[0], mesh, bnd);
 
+	Timer t;
 	SphereLaplace l(mesh);
+	fprintf(stderr, "l->%lf\n", t.elapsed());
 	l.solve(&Ans[0], &F[0], &B[0]);
 
 	fprintf(stderr, "err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
