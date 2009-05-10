@@ -33,7 +33,8 @@
 
 #include "gmres.h"
 
-void vector_diff(double * r, const double * a, const double * b, int n);
+void mke_vector_diff(double * r, const double * a, const double * b, int n);
+void vector_mult_scalar(double * a, const double * b, double k, int n);
 double get_full_time();
 
 static double norm2(const double * v, int n)
@@ -110,7 +111,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 	/* x0 = x */
 	/* r0 = b - Ax0 */
 	Ax(ax, A, x, n);
-	vector_diff(r, b, ax, n);
+	mke_vector_diff(r, b, ax, n);
 
 	gamma_0 = norm2(r, n);
 

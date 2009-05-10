@@ -166,7 +166,7 @@ void BarVortex::calc(double * psi, const double * x0,
 	for (int it = 0; it < 20; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], THETA, 1.0 - THETA, sz);
-		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
+		mke_vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
 		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], THETA, 1.0 - THETA, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
@@ -195,7 +195,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		if (bnd) {
 			// we use jac only as a storage !
 			bnd_.mult_vector(&jac[0], bnd);
-			vector_sum(&rp[0], &rp[0], &jac[0], rp.size());
+			mke_vector_sum(&rp[0], &rp[0], &jac[0], rp.size());
 		}
 
 		//TODO: тут граничное условие на омега!
@@ -270,7 +270,7 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 		// 0.5(w+w) <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
 		//L(z)+l+h
-		vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
+		mke_vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
 		//0.5(u+u)
 		vector_sum1(&prev_psi[0], &X_0[0], &psi[0], 0.5, 0.5, sz);
 
@@ -293,7 +293,7 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 		if (bnd) {
 			// we use jac1 only as a storage !
 			bnd_.mult_vector(&jac1[0], bnd);
-			vector_sum(&rp[0], &rp[0], &jac1[0], rp.size());
+			mke_vector_sum(&rp[0], &rp[0], &jac1[0], rp.size());
 		}
 
 		//TODO: тут граничное условие на омега!
@@ -357,14 +357,14 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		l_.calc1(&p_lapl[0], &p_lapl[0], bnd);
 		j_.calc1(h1, v1, &lz[0], bnd);
 
-		vector_sum(h1, h1, &p_lapl[0], sz);
-		vector_sum(h1, h1, &tmp[0], sz);
+		mke_vector_sum(h1, h1, &p_lapl[0], sz);
+		mke_vector_sum(h1, h1, &tmp[0], sz);
 	}
 
 	memset(v1, 0, sz * sizeof(double));
-	vector_sum(v1, v1, &pt1[0], sz);
-	vector_sum(v1, v1, &pt2[0], sz);
-	vector_sum(v1, v1, &pt3[0], sz);
+	mke_vector_sum(v1, v1, &pt1[0], sz);
+	mke_vector_sum(v1, v1, &pt2[0], sz);
+	mke_vector_sum(v1, v1, &pt3[0], sz);
 }
 
 void BarVortex::S_step(double * Ans, const double * F)

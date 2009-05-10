@@ -174,7 +174,7 @@ void Baroclin::calc(double * u11,  double * u21,
 	for (int it = 0; it < 5; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
-		vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
+		mke_vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
 		vector_sum1(&prev_psi[0], &X_0[0], &u11[0], 0.5, 0.5, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);

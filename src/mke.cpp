@@ -568,7 +568,7 @@ double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t 
 {
 	int sz  = m.ps.size(); // размерность
 	vector < double > diff(sz);
-	vector_diff(&diff[0], u, v, sz);
+	mke_vector_diff(&diff[0], u, v, sz);
 	return mke_norm(&diff[0], m, cb, user_data);
 }
 

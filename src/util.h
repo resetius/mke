@@ -148,7 +148,7 @@ void vector_mult_scalar(double * a, const double * b, double k, int n);
 /**
  * r = a + b
  */
-void vector_sum(double * r, const double * a, const double *b, int n);
+void mke_vector_sum(double * r, const double * a, const double *b, int n);
 
 /**
  * поэлементное умножение
@@ -156,7 +156,7 @@ void vector_sum(double * r, const double * a, const double *b, int n);
  */
 void vector_mult(double * r, const double * a, const double * b, int n);
 
-void vector_diff(double * r, const double * a, const double * b, int n);
+void mke_vector_diff(double * r, const double * a, const double * b, int n);
 
 double get_full_time();
 

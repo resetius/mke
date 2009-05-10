@@ -158,7 +158,7 @@ void SphereLaplace::solve(double * Ans,
 	mke_u2p(&x[0], F, m_);
 	idt_.mult_vector(&b[0], &x[0]);
 	bnd2_.mult_vector(&x[0], bnd);
-	vector_sum(&b[0], &b[0], &x[0], x.size());
+	mke_vector_sum(&b[0], &b[0], &x[0], x.size());
 //	vector < double > tmp(m_.outer.size()); // not necessary !
 //	mke_proj_bnd(&tmp[0], F, m_);           // not necessary !
 //	bnd1_.mult_vector(&x[0], &tmp[0]);      // not necessary !
@@ -234,7 +234,7 @@ void SphereLaplace::calc2(double * Ans, const double * F)
 	mke_proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
 	bnd3_.mult_vector(&in[0], &tmp[0]);
-	vector_sum(&out[0], &out[0], &in[0], in.size());
+	mke_vector_sum(&out[0], &out[0], &in[0], in.size());
 	idt_.solve(Ans, &out[0]);
 }
 

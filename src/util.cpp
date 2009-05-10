@@ -324,7 +324,7 @@ void vector_sum1(double * r, const double * a, const double *b, double k1, doubl
 	}
 }
 
-void vector_sum(double * r, const double * a, const double *b, int n)
+void mke_vector_sum(double * r, const double * a, const double *b, int n)
 {
 	int i;
 #pragma omp parallel for
@@ -357,7 +357,7 @@ void vector_mult_scalar(double * a, const double * b, double k, int n)
 /**
  * r = a - b
  */
-void vector_diff(double * r, const double * a, const double * b, int n)
+void mke_vector_diff(double * r, const double * a, const double * b, int n)
 {
 	int i;
 //#pragma omp parallel for
