@@ -47,8 +47,8 @@ double Polynom::apply(double x, double y) const
 {
 	short i, j;
 	double r = 0.0;
-	double * xi = (double*)alloca(x_deg_);
-	double * yj = (double*)alloca(y_deg_);
+	double * xi = (double*)alloca((x_deg_ + 1) * sizeof(double));
+	double * yj = (double*)alloca((y_deg_ + 1) * sizeof(double));
 
 	for (i = 0; i <= x_deg_; i++) {
 		xi[i] = ipow(x, i);

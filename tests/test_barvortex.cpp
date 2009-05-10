@@ -111,8 +111,13 @@ static double z (double u, double v)
 
 double u0 (double x, double y)
 {
+	//return 0.0;
+	return sin (x) * sin (y);
+}
+
+double z0 (double x, double y)
+{
 	return 0.0;
-	//return sin (x) * sin (y);
 }
 
 double rp (double x, double y, double t, double mu, double sigma)
@@ -184,6 +189,47 @@ double rp2(double x, double y, double t, double mu, double sigma)
 #include <windows.h>
 #undef max
 #endif
+
+void test_barvortex_L (const Mesh & m)
+{
+	int sz = m.ps.size();
+	int os = m.outer.size();
+
+	double tau = 0.05;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double mu    = 8e-5;   //8e-5;
+	double sigma = 1.6e-2; //1.6e-2;
+
+	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+
+	vector < double > u (sz);
+	vector < double > z (sz);
+	vector < double > bnd (std::max (os, 1));
+	vector < double > Ans(sz);
+	vector < double > Ans1(sz);
+
+	//mke_proj (&u[0], m, an1, 0);
+	mke_proj (&u[0], m, u0);
+
+	mke_proj (&z[0], m, z0);
+
+	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
+
+	setbuf (stdout, 0);
+
+	bv.L_step(&Ans[0], &u[0], &z[0]);
+	bv.L_1_step(&Ans1[0], &Ans[0], &z[0]);
+
+	fprintf (stderr, " ||L(L^1)|| = %le \n",
+		mke_dist (&u[0], &Ans1[0], m, sphere_scalar_cb));
+}
 
 void test_barvortex (const Mesh & m)
 {
@@ -270,7 +316,8 @@ int main (int argc, char *argv[])
 	mesh.info();
 
 	//test_jacobian(mesh);
-	test_barvortex (mesh);
+	test_barvortex_L(mesh);
+	//test_barvortex (mesh);
 	return 0;
 }
 
