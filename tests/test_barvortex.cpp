@@ -43,12 +43,12 @@ void usage (const char * name)
 
 double f1 (double x, double y)
 {
-	return sin (x) * sin (y);
+	return sin (x) * sin (y) * cos(x);
 }
 
 double f2 (double x, double y)
 {
-	return cos (x) * cos (y);
+	return cos (x) * cos (y) * sin(x);
 }
 
 double an (double x, double y)
@@ -117,7 +117,7 @@ double u0 (double x, double y)
 
 double z0 (double x, double y)
 {
-	return 0.0;
+	return sin(x) * cos(x) / 25.0;
 }
 
 double rp (double x, double y, double t, double mu, double sigma)
@@ -231,6 +231,52 @@ void test_barvortex_L (const Mesh & m)
 		mke_dist (&u[0], &Ans1[0], m, sphere_scalar_cb));
 }
 
+void test_barvortex_LT (const Mesh & m)
+{
+	int sz = m.ps.size();
+	int os = m.outer.size();
+
+	double tau = 0.05;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double mu    = 8e-5;   //8e-5;
+	double sigma = 1.6e-2; //1.6e-2;
+
+	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+
+	vector < double > u (sz);
+	vector < double > v (sz);
+	vector < double > lu(sz);
+	vector < double > ltv(sz);
+
+	vector < double > z (sz);
+	vector < double > bnd (std::max (os, 1));
+
+	mke_proj (&u[0], m, f1);
+	mke_proj (&v[0], m, f2);
+
+	mke_proj (&z[0], m, z0);
+
+	setbuf (stdout, 0);
+
+	bv.L_step (&lu[0], &u[0], &z[0]);
+	bv.LT_step(&ltv[0], &v[0], &z[0]);
+
+	double nr1 = mke_scalar(&lu[0],  &v[0], m, sphere_scalar_cb);
+	double nr2 = mke_scalar(&ltv[0], &u[0], m, sphere_scalar_cb);
+
+	fprintf (stderr, "(Lu, v)  = %le \n", nr1);
+	fprintf (stderr, "(u, LTv) = %le \n", nr2);
+
+	fprintf (stderr, " |(Lu, v) - (u, Lv)| = %le \n", fabs(nr1 - nr2));
+}
+
 void test_barvortex (const Mesh & m)
 {
 	int sz = m.ps.size();
@@ -316,7 +362,8 @@ int main (int argc, char *argv[])
 	mesh.info();
 
 	//test_jacobian(mesh);
-	test_barvortex_L(mesh);
+	//test_barvortex_L(mesh);
+	test_barvortex_LT(mesh);
 	//test_barvortex (mesh);
 	return 0;
 }
