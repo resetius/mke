@@ -54,6 +54,7 @@ public:
 	double tau_;
 	double sigma_;
 	double mu_;
+	double theta_; // параметр схемы от 0 до 1
 
 private:
 	rp_t rp_;

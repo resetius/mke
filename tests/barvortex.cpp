@@ -35,8 +35,8 @@
 
 using namespace std;
 
-//#define THETA 0.5
-#define THETA 1.0
+//#define SCHEME_THETA 0.5
+#define SCHEME_THETA 1.0
 
 double 
 BarVortex::integrate_cb( const Polynom & phi_i,
@@ -53,10 +53,10 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 	double pt1, pt2;
 
 	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
-	pt1 *= 1.0 / tau + sigma * THETA;
+	pt1 *= 1.0 / tau + sigma * d->theta_;
 
 	pt2  =  laplace(phi_j, phi_i, trk, m.ps);
-	pt2 *= - THETA * mu;
+	pt2 *= - d->theta_ * mu;
 
 	return pt1 + pt2;
 }
@@ -65,7 +65,8 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 		double sigma, double mu)
 		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
 		 bnd_(m.inner.size()),
-		 tau_(tau), sigma_(sigma), mu_(mu), rp_(rp), coriolis_(coriolis)
+		 tau_(tau), sigma_(sigma), mu_(mu), theta_(SCHEME_THETA),
+		 rp_(rp), coriolis_(coriolis)
 {
 	int sz = (int)m_.ps.size();
 	lh_.resize(sz);
@@ -155,19 +156,23 @@ void BarVortex::calc(double * psi, const double * x0,
 	mke_u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
-	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * (1.0 - THETA), rs);
+	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
+		mu_ * (1.0 - theta_), rs);
 
 	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * (1.0 - THETA), rs);
+	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, 
+		-sigma_ * (1.0 - theta_), rs);
 
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
 
 	for (int it = 0; it < 20; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
-		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], THETA, 1.0 - THETA, sz);
+		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], theta_, 
+			1.0 - theta_, sz);
 		mke_vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
-		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], THETA, 1.0 - THETA, sz);
+		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], theta_, 
+			1.0 - theta_, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
 		// w/dt + mu \Delta w / 2 - \sigma w/2 -
@@ -257,22 +262,26 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 	mke_u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
-	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * (1.0 - THETA), rs);
+	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
+		mu_ * (1.0 - theta_), rs);
 
 	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * (1.0 - THETA), rs);
+	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, 
+		-sigma_ * (1.0 - theta_), rs);
 
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
 
-	for (int it = 0; it < 10; ++it) {
+	for (int it = 0; it < 1; ++it) {
 		// J(0.5(u+u), L(z)+l+h) + J(z, 0.5(w+w))
 		// 0.5(w+w) <- для вычисления Якобиана это надо знать и на границе!
-		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], THETA, 1.0 - THETA, sz);
+		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 
+			theta_, 1.0 - theta_, sz);
 		//L(z)+l+h
 		mke_vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
 		//0.5(u+u)
-		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], THETA, 1.0 - THETA, sz);
+		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], 
+			theta_, 1.0 - theta_, sz);
 
 		// J(0.5(u+u), L(z)+l+h)
 		j_.calc2(&jac1[0], &prev_psi[0], &lz1[0]);
@@ -339,12 +348,14 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 	}
 
 	l_.calc1(&pt1[0], v1, bnd);
-	vector_mult_scalar(&pt1[0], &pt1[0], 1.0 / tau_ - 0.5 * sigma_, sz);
+	vector_mult_scalar(&pt1[0], &pt1[0], 
+		1.0 / tau_ - (1.0 - theta_) * sigma_, sz);
 
 	l_.calc1(&pt2[0], v1, bnd);
 	l_.calc1(&pt2[0], &pt2[0], bnd);
 
-	vector_mult_scalar(&pt2[0], &pt2[0], 0.5 * mu_, sz);
+	vector_mult_scalar(&pt2[0], &pt2[0], 
+		(1.0 - theta_) * mu_, sz);
 
 	{
 		// JT
@@ -392,4 +403,3 @@ void BarVortex::LT_step(double * Ans, const double * F, const double * z)
 {
 	calc_LT(Ans, F, z, 0, 0);
 }
-

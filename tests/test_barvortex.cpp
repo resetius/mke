@@ -48,7 +48,7 @@ double f1 (double x, double y)
 
 double f2 (double x, double y)
 {
-	return cos (x) * cos (y) * sin(x);
+	return 1000.0 * cos (x) * cos (y) * sin(x);
 }
 
 double an (double x, double y)
