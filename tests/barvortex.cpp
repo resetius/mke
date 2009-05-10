@@ -257,10 +257,10 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 	mke_u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
-	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
+	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * (1.0 - THETA), rs);
 
 	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
+	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * (1.0 - THETA), rs);
 
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
@@ -268,11 +268,11 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 	for (int it = 0; it < 10; ++it) {
 		// J(0.5(u+u), L(z)+l+h) + J(z, 0.5(w+w))
 		// 0.5(w+w) <- для вычисления Якобиана это надо знать и на границе!
-		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
+		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], THETA, 1.0 - THETA, sz);
 		//L(z)+l+h
 		mke_vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
 		//0.5(u+u)
-		vector_sum1(&prev_psi[0], &X_0[0], &psi[0], 0.5, 0.5, sz);
+		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], THETA, 1.0 - THETA, sz);
 
 		// J(0.5(u+u), L(z)+l+h)
 		j_.calc2(&jac1[0], &prev_psi[0], &lz1[0]);
