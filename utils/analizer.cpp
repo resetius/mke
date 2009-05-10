@@ -136,7 +136,7 @@ void load_file(std::vector < Pointd > & points,  //!<координаты точек
 			goto bad;
 		}
 
-		if (tri.size() <= zone) {
+		if ((int)tri.size() <= zone) {
 			tri.resize(zone + 1);
 		}
 

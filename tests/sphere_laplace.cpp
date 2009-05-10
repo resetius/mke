@@ -159,7 +159,7 @@ void SphereLaplace::solve(double * Ans,
 	idt_.mult_vector(&b[0], &x[0]);
 	if (bnd) {
 		bnd2_.mult_vector(&x[0], bnd);
-		vector_sum(&b[0], &b[0], &x[0], x.size());
+		mke_vector_sum(&b[0], &b[0], &x[0], x.size());
 	}
 //	vector < double > tmp(m_.outer.size()); // not necessary !
 //	mke_proj_bnd(&tmp[0], F, m_);           // not necessary !
