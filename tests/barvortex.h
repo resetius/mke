@@ -50,9 +50,12 @@ private:
 	std::vector < double > lh_; // l + h
 	std::vector < double > f_;  // f right part
 
+public:
 	double tau_;
 	double sigma_;
 	double mu_;
+
+private:
 	rp_t rp_;
 	coriolis_t coriolis_;
 
