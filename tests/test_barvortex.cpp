@@ -29,6 +29,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "barvortex.h"
 #include "util.h"
@@ -99,6 +100,13 @@ void test_jacobian (const Mesh & m)
 	//vector_print(&ans1[0], ans1.size());
 }
 
+void rand_init(double * h, int n)
+{
+	for (int i = 0; i < n; ++i) {
+		h[i] = (double)rand() / (double)RAND_MAX;
+	}
+}
+
 void test_jacobian_T (const Mesh & m)
 {
 	int sz = m.ps.size();
@@ -110,12 +118,17 @@ void test_jacobian_T (const Mesh & m)
 	vector < double > u (sz);
 	vector < double > w (sz);
 	vector < double > v (sz);
+	vector < double > tmp(rs);
 	vector < double > ans1 (sz);
 	vector < double > ans2 (sz);
 
-	mke_proj (&u[0], m, f1);
-	mke_proj (&w[0], m, f2);
-	mke_proj (&v[0], m, f3);
+	srand(time(0));
+	//mke_proj (&u[0], m, f1);
+	//mke_proj (&w[0], m, f2);
+	//mke_proj (&v[0], m, f3);
+	rand_init(&u[0], u.size()); mke_u2p(&tmp[0], &u[0], m); mke_p2u(&u[0], &tmp[0], 0, m); 
+	rand_init(&v[0], v.size()); mke_u2p(&tmp[0], &v[0], m); mke_p2u(&v[0], &tmp[0], 0, m); 
+	rand_init(&w[0], w.size()); mke_u2p(&tmp[0], &w[0], m); mke_p2u(&w[0], &tmp[0], 0, m); 
 
 	j.calc1 (&ans1[0], &v[0], &w[0], 0);
 	j.calc1t(&ans2[0], &u[0], &w[0], 0);
@@ -123,10 +136,21 @@ void test_jacobian_T (const Mesh & m)
 	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb);
 	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb);
 
-	fprintf (stderr, "(Au, v)  = %le \n", nr1);
-	fprintf (stderr, "(u, ATv) = %le \n", nr2);
+	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
+	fprintf (stderr, "(v, LTu) = %le \n", nr2);
 
-	fprintf (stderr, " |(Au, v) - (u, ATv)| = %le \n", fabs(nr1 - nr2));
+	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
+
+	j.calc1 (&ans1[0], &w[0], &v[0], 0);
+	j.calc1t(&ans2[0], &w[0], &u[0], 0);
+
+	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb);
+	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb);
+
+	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
+	fprintf (stderr, "(v, LTu) = %le \n", nr2);
+
+	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
 static double x (double u, double v)
@@ -285,10 +309,10 @@ void test_barvortex_LT (const Mesh & m)
 	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
 	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
 
-	vector < double > u (sz);
-	vector < double > v (sz);
-	vector < double > lu(sz);
-	vector < double > ltv(sz);
+	vector < double > u  (sz);
+	vector < double > v  (sz);
+	vector < double > lv (sz);
+	vector < double > ltu(sz);
 
 	vector < double > z (sz);
 	vector < double > bnd (std::max (os, 1));
@@ -300,16 +324,16 @@ void test_barvortex_LT (const Mesh & m)
 
 	setbuf (stdout, 0);
 
-	bv.L_step (&lu[0], &u[0], &z[0]);
-	bv.LT_step(&ltv[0], &v[0], &z[0]);
+	bv.L_step (&lv[0],  &v[0], &z[0]);
+	bv.LT_step(&ltu[0], &u[0], &z[0]);
 
-	double nr1 = mke_scalar(&lu[0],  &v[0], m, sphere_scalar_cb);
-	double nr2 = mke_scalar(&ltv[0], &u[0], m, sphere_scalar_cb);
+	double nr1 = mke_scalar(&lv[0],  &u[0], m, sphere_scalar_cb);
+	double nr2 = mke_scalar(&ltu[0], &v[0], m, sphere_scalar_cb);
 
-	fprintf (stderr, "(Lu, v)  = %le \n", nr1);
-	fprintf (stderr, "(u, LTv) = %le \n", nr2);
+	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
+	fprintf (stderr, "(v, LTu) = %le \n", nr2);
 
-	fprintf (stderr, " |(Lu, v) - (u, LTv)| = %le \n", fabs(nr1 - nr2));
+	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
 void test_barvortex (const Mesh & m)

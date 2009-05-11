@@ -222,7 +222,7 @@ void BarVortex::calc(double * psi, const double * x0,
  * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
  * L = Laplace
  */
-
+#if 0
 void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 					 const double * bnd, double t)
 {
@@ -318,6 +318,62 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 			}
 		}
 	}
+}
+#endif
+
+void BarVortex::calc_L(double * u1, const double * u, const double * z,
+					   const double * bnd, double t)
+{
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
+
+	vector < double > z_lapl(sz);
+
+	vector < double > pt1(sz); //лаплас, умноженный на коэф
+	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3(sz); //якобиан, умноженный на коэф
+
+	l_.calc1(&z_lapl[0], z, bnd);
+	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+
+	{
+		vector < double > jac1(sz);
+		vector < double > jac2(sz);
+		vector < double > jac3(sz);
+
+		j_.calc1(&jac1[0], u, &lh_[0], bnd);
+		j_.calc1(&jac2[0], z, &pt1[0], bnd);
+		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
+
+		mke_vector_sum(&pt3[0], &pt3[0], &jac1[0], sz);
+		mke_vector_sum(&pt3[0], &pt3[0], &jac2[0], sz);
+		mke_vector_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+	}
+
+	vector_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
+
+	l_.calc1(&pt2[0], &pt1[0], bnd);
+	vector_mult_scalar(&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
+
+	vector_mult_scalar(&pt1[0], &pt1[0], 
+		1.0 / tau_ - (1. - theta_) * sigma_, sz);
+
+	mke_vector_sum(u1, u1, &pt1[0], sz);
+	mke_vector_sum(u1, u1, &pt2[0], sz);
+	mke_vector_sum(u1, u1, &pt3[0], sz);
+
+	{
+		vector < double > tmp(rs);
+		vector < double > rp(rs);
+		mke_u2p(&tmp[0], u1, m_);
+		l_.idt_.mult_vector(&rp[0], &tmp[0]);
+		if (bnd) {
+			bnd_.mult_vector(&tmp[0], bnd);
+			mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+		}
+		mke_solve(&u1[0], bnd, &rp[0], A_, m_);
+	}
+	l_.calc1(u1, u1, bnd);
 }
 
 void BarVortex::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
