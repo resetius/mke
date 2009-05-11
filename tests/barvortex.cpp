@@ -425,6 +425,7 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 
 		mke_vector_sum(h1, h1, &p_lapl[0], sz);
 		mke_vector_sum(h1, h1, &tmp[0], sz);
+		vector_mult_scalar(&h1[0], &h1[0], -1.0, sz);
 	}
 
 	memset(v1, 0, sz * sizeof(double));
