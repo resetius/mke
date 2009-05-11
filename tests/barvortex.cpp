@@ -288,7 +288,7 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 		// J(z, 0.5(w+w))
 		j_.calc2(&jac2[0], &z[0], &omega_lh[0]);
 		// w/dt + mu \Delta w / 2 - \sigma w/2 -
-		// - J(0.5(u+u), L(z)+l+h) + J(z, 0.5(w+w))
+		// - J(0.5(u+u), L(z)+l+h) - J(z, 0.5(w+w))
 #pragma omp parallel for
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
@@ -338,12 +338,11 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		vector < double > tmp(rs);
 		vector < double > rp(rs);
 		mke_u2p(&tmp[0], v1, m_);
-		right_part_cb_data data2;
-		data2.F   = &tmp[0];
-		data2.bnd = bnd;
-		data2.d   = this;
-		generate_right_part(&rp[0], m_, 
-			(right_part_cb_t)right_part_cb, (void*)&data2);
+		l_.idt_.mult_vector(&rp[0], &tmp[0]);
+		if (bnd) {
+			bnd_.mult_vector(&tmp[0], bnd);
+			mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+		}
 		mke_solve(&v1[0], bnd, &rp[0], A_, m_);
 	}
 
@@ -363,10 +362,10 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		vector < double > p_lapl(sz);
 		vector < double > tmp(sz);
 
-		j_.calc1(&tmp[0], v1, &lh_[0], bnd);
-		j_.calc1(&p_lapl[0], z, v1, bnd);
+		j_.calc1t(&tmp[0], v1, &lh_[0], bnd);
+		j_.calc1t(&p_lapl[0], z, v1, bnd);
 		l_.calc1(&p_lapl[0], &p_lapl[0], bnd);
-		j_.calc1(h1, v1, &lz[0], bnd);
+		j_.calc1t(h1, v1, &lz[0], bnd);
 
 		mke_vector_sum(h1, h1, &p_lapl[0], sz);
 		mke_vector_sum(h1, h1, &tmp[0], sz);

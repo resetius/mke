@@ -26,10 +26,20 @@ public:
 	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
+	 * сопряженный к J(u, v) (=-J(u, v))
+	 */
+	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
+
+	/**
 	 * Находит J(u, v) во внутренних точках. 
 	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
 	 */
 	void calc2(double * Ans, const double * u, const double * v);
+
+	/**
+	 * сопряженный к J(u, v) (=-J(u, v))
+	 */
+	void calc2t(double * Ans, const double * u, const double * v);
 };
 
 #endif /* JACOBIAN_H */

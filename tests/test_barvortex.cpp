@@ -51,6 +51,11 @@ double f2 (double x, double y)
 	return 1000.0 * cos (x) * cos (y) * sin(x);
 }
 
+double f3 (double x, double y)
+{
+	return -(-sin (x) *cos (y) *sin (x) *cos (y) + cos (x) *sin (y) *cos (x) *sin (y) ) / cos (x);
+}
+
 double an (double x, double y)
 {
 	return (-sin (x) *cos (y) *sin (x) *cos (y) + cos (x) *sin (y) *cos (x) *sin (y) ) / cos (x);
@@ -92,6 +97,36 @@ void test_jacobian (const Mesh & m)
 
 	//vector_print(&rans1[0], rans1.size());
 	//vector_print(&ans1[0], ans1.size());
+}
+
+void test_jacobian_T (const Mesh & m)
+{
+	int sz = m.ps.size();
+	int rs = m.inner.size();
+	int os = m.outer.size();
+	double nr1, nr2;
+
+	Jacobian j (m);
+	vector < double > u (sz);
+	vector < double > w (sz);
+	vector < double > v (sz);
+	vector < double > ans1 (sz);
+	vector < double > ans2 (sz);
+
+	mke_proj (&u[0], m, f1);
+	mke_proj (&w[0], m, f2);
+	mke_proj (&v[0], m, f3);
+
+	j.calc1 (&ans1[0], &v[0], &w[0], 0);
+	j.calc1t(&ans2[0], &u[0], &w[0], 0);
+
+	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb);
+	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb);
+
+	fprintf (stderr, "(Au, v)  = %le \n", nr1);
+	fprintf (stderr, "(u, ATv) = %le \n", nr2);
+
+	fprintf (stderr, " |(Au, v) - (u, ATv)| = %le \n", fabs(nr1 - nr2));
 }
 
 static double x (double u, double v)
@@ -274,7 +309,7 @@ void test_barvortex_LT (const Mesh & m)
 	fprintf (stderr, "(Lu, v)  = %le \n", nr1);
 	fprintf (stderr, "(u, LTv) = %le \n", nr2);
 
-	fprintf (stderr, " |(Lu, v) - (u, Lv)| = %le \n", fabs(nr1 - nr2));
+	fprintf (stderr, " |(Lu, v) - (u, LTv)| = %le \n", fabs(nr1 - nr2));
 }
 
 void test_barvortex (const Mesh & m)
@@ -362,8 +397,9 @@ int main (int argc, char *argv[])
 	mesh.info();
 
 	//test_jacobian(mesh);
+	test_jacobian_T(mesh);
 	//test_barvortex_L(mesh);
-	test_barvortex_LT(mesh);
+	//test_barvortex_LT(mesh);
 	//test_barvortex (mesh);
 	return 0;
 }

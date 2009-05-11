@@ -143,6 +143,12 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 #endif
 }
 
+void Jacobian::calc2t(double * Ans, const double * u, const double * v)
+{
+	calc2(Ans, u, v);
+	vector_mult_scalar(Ans, Ans, -1.0, m_.inner.size());
+}
+
 /**
  * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
  */
@@ -177,3 +183,8 @@ void Jacobian::calc1(double * Ans, const double * u, const double * v, const dou
 	mke_p2u(Ans, &p1[0], bnd, m_);
 }
 
+void Jacobian::calc1t(double * Ans, const double * u, const double * v, const double * bnd)
+{
+	calc1(Ans, u, v, bnd);
+	vector_mult_scalar(Ans, Ans, -1.0, m_.ps.size());
+}
