@@ -373,7 +373,7 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 		}
 		mke_solve(&u1[0], bnd, &rp[0], A_, m_);
 	}
-	l_.calc1(u1, u1, bnd);
+	l_.solve(u1, u1, bnd);
 }
 
 void BarVortex::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
@@ -444,7 +444,9 @@ void BarVortex::S_step(double * Ans, const double * F)
  */
 void BarVortex::L_step(double * Ans, const double * F, const double * z)
 {
-	calc_L(Ans, F, z, 0, 0);
+	vector < double > tmp(m_.ps.size());
+	calc_L(&tmp[0], F, z, 0, 0);
+	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
 
 void BarVortex::L_1_step(double * Ans, const double * F, const double * z)
@@ -456,5 +458,7 @@ void BarVortex::L_1_step(double * Ans, const double * F, const double * z)
 
 void BarVortex::LT_step(double * Ans, const double * F, const double * z)
 {
-	calc_LT(Ans, F, z, 0, 0);
+	vector < double > tmp(m_.ps.size());
+	calc_LT(&tmp[0], F, z, 0, 0);
+	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
