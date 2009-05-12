@@ -577,13 +577,51 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
 	}
 
-	vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
+	l_.calc1(&pt2[0], &pt1[0], bnd);
+	vec_mult_scalar(&pt2[0], &pt2[0], -mu_, sz);
+
+	vec_mult_scalar(&pt1[0], &pt1[0], sigma_, sz);
+
+	memset(u1, 0, sz * sizeof(double));
+	vec_sum(u1, u1, &pt1[0], sz);
+//	vec_sum(u1, u1, &pt2[0], sz);
+//	vec_sum(u1, u1, &pt3[0], sz);
+}
+
+void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
+{
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
+
+	vector < double > z_lapl(sz);
+
+	vector < double > pt1(sz); //лаплас, умноженный на коэф
+	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3(sz); //якобиан, умноженный на коэф
+
+	l_.calc1(&z_lapl[0], z, bnd);
+	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+
+	{
+		vector < double > jac1(sz);
+		vector < double > jac2(sz);
+		vector < double > jac3(sz);
+
+		j_.calc1t(&jac1[0], u, &lh_[0], bnd);
+		j_.calc1t(&jac2[0], z, &pt1[0], bnd);
+		j_.calc1t(&jac3[0], u, &z_lapl[0], bnd);
+
+		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+	}
 
 	l_.calc1(&pt2[0], &pt1[0], bnd);
-	vec_mult_scalar(&pt2[0], &pt2[0], mu_, sz);
+	vec_mult_scalar(&pt2[0], &pt2[0], -mu_, sz);
 
-	vec_mult_scalar(&pt1[0], &pt1[0], - sigma_, sz);
+	vec_mult_scalar(&pt1[0], &pt1[0], sigma_, sz);
 
+	memset(u1, 0, sz * sizeof(double));
 	vec_sum(u1, u1, &pt1[0], sz);
 	vec_sum(u1, u1, &pt2[0], sz);
 	vec_sum(u1, u1, &pt3[0], sz);

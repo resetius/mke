@@ -510,6 +510,20 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 	}
 }
 
+void mke_set_bnd(double *u, const double * bnd, const Mesh & m)
+{
+	int sz  = m.ps.size();
+	for (int i = 0; i < sz; ++i) {
+		if (m.ps_flags[i] == 1) {
+			if (bnd) {
+				u[i] = bnd[m.p2io[i]];
+			} else {
+				u[i] = 0;
+			}
+		}
+	}
+}
+
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * )
 {
 	return integrate(phi_i * phi_j, trk, m.ps);

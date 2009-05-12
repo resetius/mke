@@ -310,6 +310,8 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f);
 /* проектирование функции F1 на границу сетки */
 void mke_proj_bnd(double * F, const double * F1, const Mesh & m);
 
+void mke_set_bnd(double * F, const double * bnd, const Mesh & m);
+
 /* проектирование непрерывной функции f(x,y,t) на сетку */
 void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 

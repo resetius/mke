@@ -85,6 +85,7 @@ public:
 
 	/* J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) */
 	void L_spectr(double * u1, const double * u, const double * z, const double * bnd);
+	void LT_spectr(double * u1, const double * u, const double * z, const double * bnd);
 
 	void S_step(double * Ans, const double * F);
 	void L_step(double * Ans, const double * F, const double * z);
