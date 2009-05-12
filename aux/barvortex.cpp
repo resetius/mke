@@ -580,27 +580,13 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 	vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
 
 	l_.calc1(&pt2[0], &pt1[0], bnd);
-	vec_mult_scalar(&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
+	vec_mult_scalar(&pt2[0], &pt2[0], mu_, sz);
 
-	vec_mult_scalar(&pt1[0], &pt1[0], 
-		1.0 / tau_ - (1. - theta_) * sigma_, sz);
+	vec_mult_scalar(&pt1[0], &pt1[0], - sigma_, sz);
 
 	vec_sum(u1, u1, &pt1[0], sz);
 	vec_sum(u1, u1, &pt2[0], sz);
 	vec_sum(u1, u1, &pt3[0], sz);
-
-	{
-		vector < double > tmp(rs);
-		vector < double > rp(rs);
-		mke_u2p(&tmp[0], u1, m_);
-		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd) {
-			bnd_.mult_vector(&tmp[0], bnd);
-			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
-		}
-		mke_solve(&u1[0], bnd, &rp[0], A_, m_);
-	}
-	l_.solve(u1, u1, bnd);
 }
 
 /**
