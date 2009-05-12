@@ -35,8 +35,8 @@
 
 using namespace std;
 
-//#define SCHEME_THETA 0.5
-#define SCHEME_THETA 1.0
+#define SCHEME_THETA 0.5
+//#define SCHEME_THETA 1.0
 
 static double 
 integrate_cb( const Polynom & phi_i,
@@ -584,8 +584,8 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 
 	memset(u1, 0, sz * sizeof(double));
 	vec_sum(u1, u1, &pt1[0], sz);
-//	vec_sum(u1, u1, &pt2[0], sz);
-//	vec_sum(u1, u1, &pt3[0], sz);
+	vec_sum(u1, u1, &pt2[0], sz);
+	vec_sum(u1, u1, &pt3[0], sz);
 }
 
 void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
