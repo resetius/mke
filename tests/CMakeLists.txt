@@ -1,7 +1,7 @@
 project(mke CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
-include_directories(../src ../aux)
+include_directories(../src ../auxiliary)
 link_directories(../lib)
 
 add_executable(test_laplace test_laplace.cpp)

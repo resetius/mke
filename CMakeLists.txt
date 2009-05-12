@@ -41,7 +41,7 @@ endif (CYGWIN)
 add_definitions(-DSPARSE)
 
 add_subdirectory(src)
-add_subdirectory(aux)
+add_subdirectory(auxiliary)
 add_subdirectory(utils)
 add_subdirectory(tests)
 
