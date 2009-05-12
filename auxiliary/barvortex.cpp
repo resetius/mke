@@ -35,8 +35,8 @@
 
 using namespace std;
 
-#define SCHEME_THETA 0.5
-//#define SCHEME_THETA 1.0
+//#define SCHEME_THETA 0.5
+#define SCHEME_THETA 1.0
 
 static double 
 integrate_cb( const Polynom & phi_i,
