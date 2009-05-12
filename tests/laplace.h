@@ -70,9 +70,15 @@ public:
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
+//@{ calculate right part or matrix elements
 /* for sphere */
-double laplace(const Polynom & phi_i, const Polynom & phi_j, 
+double slaplace(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps);
+
+/* for plane */
+double laplace(const Polynom & phi_i, const Polynom & phi_j,
+		const Triangle & trk, const Mesh::points_t & ps);
+//@}
 
 class SphereChafe {
 private:

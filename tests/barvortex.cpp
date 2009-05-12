@@ -55,7 +55,7 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * d->theta_;
 
-	pt2  =  laplace(phi_j, phi_i, trk, m.ps);
+	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
 	pt2 *= - d->theta_ * mu;
 
 	return pt1 + pt2;
