@@ -173,7 +173,7 @@ right_part_backward_cb( const Polynom & phi_i,
 }
 
 /**
- * d L(phi)/dt + J(phi, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = f(phi, la)
+ * d L(phi)/dt + J(psi, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
  * L = Laplace
  */
 void BarVortex::calc(double * psi, const double * x0, 
@@ -628,7 +628,7 @@ void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const
 }
 
 /**
- * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
+ * d L(psi)/dt + J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = 0
  * L = Laplace
  */
 void BarVortex::L_step(double * Ans, const double * F, const double * z)

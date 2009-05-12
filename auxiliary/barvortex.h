@@ -75,7 +75,7 @@ public:
 
 
 	/**
-	 * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
+	 * d L(psi)/dt + J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = 0
 	 * L = Laplace
 	 */
 	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
@@ -83,7 +83,7 @@ public:
 
 	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
-	/* J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) */
+	/* J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) */
 	void L_spectr(double * u1, const double * u, const double * z, const double * bnd);
 	void LT_spectr(double * u1, const double * u, const double * z, const double * bnd);
 
