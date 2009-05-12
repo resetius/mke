@@ -156,11 +156,11 @@ void BarVortex::calc(double * psi, const double * x0,
 	mke_u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
-	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
+	vec_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
 		mu_ * (1.0 - theta_), rs);
 
 	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, 
+	vec_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, 
 		-sigma_ * (1.0 - theta_), rs);
 
 	// в lomega содержится правая часть, которая не меняется при итерациях!
@@ -168,10 +168,10 @@ void BarVortex::calc(double * psi, const double * x0,
 
 	for (int it = 0; it < 20; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
-		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], theta_, 
+		vec_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], theta_, 
 			1.0 - theta_, sz);
-		mke_vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
-		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], theta_, 
+		vec_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
+		vec_sum1(&prev_psi[0], &psi[0], &X_0[0], theta_, 
 			1.0 - theta_, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
@@ -200,7 +200,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		if (bnd) {
 			// we use jac only as a storage !
 			bnd_.mult_vector(&jac[0], bnd);
-			mke_vector_sum(&rp[0], &rp[0], &jac[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &jac[0], rp.size());
 		}
 
 		//TODO: тут граничное условие на омега!
@@ -345,22 +345,22 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 		j_.calc1(&jac2[0], z, &pt1[0], bnd);
 		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
 
-		mke_vector_sum(&pt3[0], &pt3[0], &jac1[0], sz);
-		mke_vector_sum(&pt3[0], &pt3[0], &jac2[0], sz);
-		mke_vector_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
 	}
 
-	vector_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
+	vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
 
 	l_.calc1(&pt2[0], &pt1[0], bnd);
-	vector_mult_scalar(&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
+	vec_mult_scalar(&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
 
-	vector_mult_scalar(&pt1[0], &pt1[0], 
+	vec_mult_scalar(&pt1[0], &pt1[0], 
 		1.0 / tau_ - (1. - theta_) * sigma_, sz);
 
-	mke_vector_sum(u1, u1, &pt1[0], sz);
-	mke_vector_sum(u1, u1, &pt2[0], sz);
-	mke_vector_sum(u1, u1, &pt3[0], sz);
+	vec_sum(u1, u1, &pt1[0], sz);
+	vec_sum(u1, u1, &pt2[0], sz);
+	vec_sum(u1, u1, &pt3[0], sz);
 
 	{
 		vector < double > tmp(rs);
@@ -369,7 +369,7 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp[0], bnd);
-			mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
 		}
 		mke_solve(&u1[0], bnd, &rp[0], A_, m_);
 	}
@@ -397,19 +397,19 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp[0], bnd);
-			mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
 		}
 		mke_solve(&v1[0], bnd, &rp[0], A_, m_);
 	}
 
 	l_.calc1(&pt1[0], v1, bnd);
-	vector_mult_scalar(&pt1[0], &pt1[0], 
+	vec_mult_scalar(&pt1[0], &pt1[0], 
 		1.0 / tau_ - (1.0 - theta_) * sigma_, sz);
 
 	l_.calc1(&pt2[0], v1, bnd);
 	l_.calc1(&pt2[0], &pt2[0], bnd);
 
-	vector_mult_scalar(&pt2[0], &pt2[0], 
+	vec_mult_scalar(&pt2[0], &pt2[0], 
 		(1.0 - theta_) * mu_, sz);
 
 	{
@@ -423,15 +423,15 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		l_.calc1(&p_lapl[0], &p_lapl[0], bnd);
 		j_.calc1t(h1, v1, &lz[0], bnd);
 
-		mke_vector_sum(h1, h1, &p_lapl[0], sz);
-		mke_vector_sum(h1, h1, &tmp[0], sz);
-		vector_mult_scalar(&h1[0], &h1[0], -1.0, sz);
+		vec_sum(h1, h1, &p_lapl[0], sz);
+		vec_sum(h1, h1, &tmp[0], sz);
+		vec_mult_scalar(&h1[0], &h1[0], -1.0, sz);
 	}
 
 	memset(v1, 0, sz * sizeof(double));
-	mke_vector_sum(v1, v1, &pt1[0], sz);
-	mke_vector_sum(v1, v1, &pt2[0], sz);
-	mke_vector_sum(v1, v1, &pt3[0], sz);
+	vec_sum(v1, v1, &pt1[0], sz);
+	vec_sum(v1, v1, &pt2[0], sz);
+	vec_sum(v1, v1, &pt3[0], sz);
 }
 
 void BarVortex::S_step(double * Ans, const double * F)
@@ -463,3 +463,4 @@ void BarVortex::LT_step(double * Ans, const double * F, const double * z)
 	calc_LT(&tmp[0], F, z, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
+

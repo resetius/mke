@@ -116,37 +116,37 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
 	diff2_cos_.mult_vector(&tmp[0], &u_in[0]);
 	diff2_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+	vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
 	idt_.solve(&pt1[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
 	diff1_.mult_vector(&tmp[0], &v_in[0]);
 	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+	vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
 	idt_.solve(&tmp[0], &rp[0]);
-	vector_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
 	diff1_cos_.mult_vector(&tmp[0], &u_in[0]);
 	diff1_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+	vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
 	idt_.solve(&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
 	diff2_.mult_vector(&tmp[0], &v_in[0]);
 	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	mke_vector_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+	vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
 	idt_.solve(&tmp[0], &rp[0]);
-	vector_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
 
-	mke_vector_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
 #endif
 }
 
 void Jacobian::calc2t(double * Ans, const double * u, const double * v)
 {
 	calc2(Ans, u, v);
-	vector_mult_scalar(Ans, Ans, -1.0, m_.inner.size());
+	vec_mult_scalar(Ans, Ans, -1.0, m_.inner.size());
 }
 
 /**
@@ -186,5 +186,6 @@ void Jacobian::calc1(double * Ans, const double * u, const double * v, const dou
 void Jacobian::calc1t(double * Ans, const double * u, const double * v, const double * bnd)
 {
 	calc1(Ans, u, v, bnd);
-	vector_mult_scalar(Ans, Ans, -1.0, m_.ps.size());
+	vec_mult_scalar(Ans, Ans, -1.0, m_.ps.size());
 }
+

@@ -106,10 +106,10 @@ double trapezoid_integral_1_cos(int k, int n,
 	double k2, double b2,
 	double x1, double x3);
 
-void matrix_print(const double * A, int n);
-void vector_print(const double * A, int n);
+void mat_print(const double * A, int n);
+void vec_print(const double * A, int n);
 
-void matrix_mult_vector(double * r, const double * A, const double * x, int n);
+void mat_mult_vector(double * r, const double * A, const double * x, int n);
 
 struct Sparse {
 	int * Ap;
@@ -138,25 +138,25 @@ void sparse_print(const struct Sparse * A, int n, FILE * f);
 /**
  * r = k1 * a + k2 * b
  */
-void vector_sum1(double * r, const double * a, const double *b, double k1, double k2, int n);
+void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n);
 
 /**
  * a = b * k
  */
-void vector_mult_scalar(double * a, const double * b, double k, int n);
+void vec_mult_scalar(double * a, const double * b, double k, int n);
 
 /**
  * r = a + b
  */
-void mke_vector_sum(double * r, const double * a, const double *b, int n);
+void vec_sum(double * r, const double * a, const double *b, int n);
 
 /**
  * поэлементное умножение
  * r = a * b
  */
-void vector_mult(double * r, const double * a, const double * b, int n);
+void vec_mult(double * r, const double * a, const double * b, int n);
 
-void mke_vector_diff(double * r, const double * a, const double * b, int n);
+void vec_diff(double * r, const double * a, const double * b, int n);
 
 double get_full_time();
 

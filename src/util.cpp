@@ -252,7 +252,7 @@ double trapezoid_integral_1_cos(int k, int n,
 	return gauss_kronrod15(x1, x3, (fx_t)f_1_cos, &data);
 }
 
-void matrix_print(const double * A, int n)
+void mat_print(const double * A, int n)
 {
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < n; ++j) {
@@ -262,7 +262,7 @@ void matrix_print(const double * A, int n)
 	}
 }
 
-void vector_print(const double * A, int n)
+void vec_print(const double * A, int n)
 {
 	for (int i = 0; i < n; ++i) {
 		printf("%9.2le ", A[i]);
@@ -270,7 +270,7 @@ void vector_print(const double * A, int n)
 	printf("\n");
 }
 
-void matrix_mult_vector(double * r, const double * A, const double * x, int n)
+void mat_mult_vector(double * r, const double * A, const double * x, int n)
 {
 	int i, j;
 	for (i = 0; i < n; ++i) {
@@ -315,7 +315,7 @@ void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x,
 /**
  * r = k1 * a + k2 * b
  */
-void vector_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
+void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
 {
 	int i;
 #pragma omp parallel for
@@ -324,7 +324,7 @@ void vector_sum1(double * r, const double * a, const double *b, double k1, doubl
 	}
 }
 
-void mke_vector_sum(double * r, const double * a, const double *b, int n)
+void vec_sum(double * r, const double * a, const double *b, int n)
 {
 	int i;
 #pragma omp parallel for
@@ -333,7 +333,7 @@ void mke_vector_sum(double * r, const double * a, const double *b, int n)
 	}
 }
 
-void vector_mult(double * r, const double * a, const double *b, int n)
+void vec_mult(double * r, const double * a, const double *b, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -345,7 +345,7 @@ void vector_mult(double * r, const double * a, const double *b, int n)
 /**
  * a = b * k
  */
-void vector_mult_scalar(double * a, const double * b, double k, int n)
+void vec_mult_scalar(double * a, const double * b, double k, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -357,7 +357,7 @@ void vector_mult_scalar(double * a, const double * b, double k, int n)
 /**
  * r = a - b
  */
-void mke_vector_diff(double * r, const double * a, const double * b, int n)
+void vec_diff(double * r, const double * a, const double * b, int n)
 {
 	int i;
 //#pragma omp parallel for

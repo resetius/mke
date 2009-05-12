@@ -33,8 +33,8 @@
 
 #include "gmres.h"
 
-void mke_vector_diff(double * r, const double * a, const double * b, int n);
-void vector_mult_scalar(double * a, const double * b, double k, int n);
+void vec_diff(double * r, const double * a, const double * b, int n);
+void vec_mult_scalar(double * a, const double * b, double k, int n);
 double get_full_time();
 
 static double norm2(const double * v, int n)
@@ -62,7 +62,7 @@ static double scalar2(const double * a, const double * b, int n)
 /**
  * a = b / k
  */
-static void vector_div_scalar(double * a, const double * b, double k, int n)
+static void vec_div_scalar(double * a, const double * b, double k, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -74,7 +74,7 @@ static void vector_div_scalar(double * a, const double * b, double k, int n)
 /**
  * r = a + k2 * b
  */
-static void vector_sum2(double * r, const double * a, const double *b, double k2, int n)
+static void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -111,7 +111,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 	/* x0 = x */
 	/* r0 = b - Ax0 */
 	Ax(ax, A, x, n);
-	mke_vector_diff(r, b, ax, n);
+	vec_diff(r, b, ax, n);
 
 	gamma_0 = norm2(r, n);
 
@@ -122,7 +122,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 
 	h = calloc(hz * hz, sizeof(double));
 	q = malloc(hz * n * sizeof(double));
-	vector_mult_scalar(q, r, 1.0 / gamma_0, n);
+	vec_mult_scalar(q, r, 1.0 / gamma_0, n);
 	gamma = malloc(hz * sizeof(double));
 
 	s = malloc(hz * sizeof(double));
@@ -139,7 +139,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 		for (i = 0; i <= j; ++i) {
 			h[i * hz + j] = scalar2(&q[i * n], ax, n); //-> j x j
 			//ax = ax - h[i * hz + j] * q[i * n];
-			vector_sum2(ax, ax, &q[i * n], -h[i * hz + j], n);
+			vec_sum2(ax, ax, &q[i * n], -h[i * hz + j], n);
 		}
 		
 		// h -> (j + 1) x j
@@ -153,7 +153,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 			for (i = 0; i <= j; ++i) {
 				double hr = scalar2(&q[i * n], ax, n);
 				h[i * hz + j] += hr;
-				vector_sum2(ax, ax, &q[i * n], -hr, n);
+				vec_sum2(ax, ax, &q[i * n], -hr, n);
 			}
 			h[(j + 1) * hz + j] = norm2(ax, n);
 		}
@@ -176,7 +176,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 		gamma[j]     = c[j + 1] * gamma[j];
 
 		if (gamma[j + 1]  > eps) {
-			vector_mult_scalar(&q[(j + 1) * n], ax, 1.0 / h[(j + 1) * hz + j], n);
+			vec_mult_scalar(&q[(j + 1) * n], ax, 1.0 / h[(j + 1) * hz + j], n);
 		} else {
 			goto done;
 		}
@@ -198,7 +198,7 @@ done:
 		}
 
 		for (i = 0; i <= j; ++i) {
-			vector_sum2(x, x, &q[i * n], y[i], n);
+			vec_sum2(x, x, &q[i * n], y[i], n);
 		}
 		free(y);
 	}

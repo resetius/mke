@@ -163,19 +163,19 @@ void Baroclin::calc(double * u11,  double * u21,
 	mke_u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
-	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
+	vec_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
 
 	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
+	vec_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
 
 	// в lomega содержится правая часть, которая не меняется при итерациях!
 	// правая часть только на границе !
 
 	for (int it = 0; it < 5; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
-		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
-		mke_vector_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
-		vector_sum1(&prev_psi[0], &X_0[0], &u11[0], 0.5, 0.5, sz);
+		vec_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
+		vec_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
+		vec_sum1(&prev_psi[0], &X_0[0], &u11[0], 0.5, 0.5, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
 		// w/dt + mu \Delta w / 2 - \sigma w/2 -
