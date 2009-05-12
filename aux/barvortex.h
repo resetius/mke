@@ -47,6 +47,9 @@ private:
 	Matrix A_;
 	Matrix bnd_;
 
+	Matrix Ab_;   // for backward
+	Matrix bndb_; // for backward
+
 	std::vector < double > lh_; // l + h
 	std::vector < double > f_;  // f right part
 
@@ -59,22 +62,6 @@ public:
 private:
 	rp_t rp_;
 	coriolis_t coriolis_;
-
-	static double integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-                     BarVortex * d);
-
-	struct right_part_cb_data;
-	static double 
-	right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-                      right_part_cb_data * d);
 
 public:
 	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
@@ -92,6 +79,7 @@ public:
 	 * L = Laplace
 	 */
 	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
+	void calc_L_1(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
 	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
 

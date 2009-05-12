@@ -38,8 +38,8 @@ using namespace std;
 //#define SCHEME_THETA 0.5
 #define SCHEME_THETA 1.0
 
-double 
-BarVortex::integrate_cb( const Polynom & phi_i,
+static double 
+integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
@@ -61,10 +61,36 @@ BarVortex::integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
+static double 
+integrate_backward_cb( const Polynom & phi_i,
+                     const Polynom & phi_j, 
+                     const Triangle & trk,
+                     const Mesh & m,
+                     int point_i, int point_j,
+                     BarVortex * d)
+{
+	double tau   = d->tau_;
+	double mu    = d->mu_;
+	double sigma = d->sigma_;
+
+	double pt1, pt2;
+
+	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
+	pt1 *= 1.0 / tau - sigma * (1.0 - d->theta_);
+
+	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
+	pt2 *= (1.0 - d->theta_) * mu;
+
+	return pt1 + pt2;
+}
+
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
-		 : m_(m), l_(m), j_(m), A_(m.inner.size()),
+		 : m_(m), l_(m), j_(m), 
+		 A_(m.inner.size()),
 		 bnd_(m.inner.size()),
+		 Ab_(m.inner.size()),
+		 bndb_(m.inner.size()),
 		 tau_(tau), sigma_(sigma), mu_(mu), theta_(SCHEME_THETA),
 		 rp_(rp), coriolis_(coriolis)
 {
@@ -77,6 +103,9 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
 	generate_boundary_matrix(bnd_, m_, (integrate_cb_t)integrate_cb, this);
 
+	generate_matrix(Ab_, m_, (integrate_cb_t)integrate_backward_cb, this);
+	generate_boundary_matrix(bndb_, m_, (integrate_cb_t)integrate_backward_cb, this);
+
 	//f_.resize(sz);
 	//for (int i = 0; i < sz; ++i) {
 	//	double x = m_.ps[i].x();
@@ -86,7 +115,7 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 	//}
 }
 
-struct BarVortex::right_part_cb_data
+struct right_part_cb_data
 {
 	const double * F;
 	const double * bnd;
@@ -94,7 +123,7 @@ struct BarVortex::right_part_cb_data
 };
 
 double 
-BarVortex::right_part_cb( const Polynom & phi_i,
+right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
@@ -109,7 +138,32 @@ BarVortex::right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b += -bnd[j0] * BarVortex::integrate_cb(phi_i, phi_j, 
+		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
+			trk, m, point_i, point_j, d->d);		
+	} else {
+		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+	}
+
+	return b;
+}
+
+double 
+right_part_backward_cb( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      const Triangle & trk,
+                      const Mesh & m,
+                      int point_i, int point_j,
+                      right_part_cb_data * d)
+{
+	const double * F = d->F;
+	double b = 0.0;
+
+	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
+		int j0       = m.p2io[point_j]; //номер внешней точки
+		const double * bnd = d->bnd;
+		b += -bnd[j0] * integrate_backward_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, d->d);		
 	} else {
 		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
@@ -376,6 +430,61 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 	l_.solve(u1, u1, bnd);
 }
 
+void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
+					   const double * bnd, double t)
+{
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
+
+	vector < double > z_lapl(sz);
+
+	vector < double > pt1(sz); //лаплас, умноженный на коэф
+	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3(sz); //якобиан, умноженный на коэф
+
+	l_.calc1(&z_lapl[0], z, bnd);
+	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+
+	{
+		vector < double > jac1(sz);
+		vector < double > jac2(sz);
+		vector < double > jac3(sz);
+
+		j_.calc1(&jac1[0], u, &lh_[0], bnd);
+		j_.calc1(&jac2[0], z, &pt1[0], bnd);
+		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
+
+		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
+		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+	}
+
+	//vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
+
+	l_.calc1(&pt2[0], &pt1[0], bnd);
+	vec_mult_scalar(&pt2[0], &pt2[0], - theta_ * mu_, sz);
+
+	vec_mult_scalar(&pt1[0], &pt1[0], 
+		1.0 / tau_ + theta_ * sigma_, sz);
+
+	vec_sum(u1, u1, &pt1[0], sz);
+	vec_sum(u1, u1, &pt2[0], sz);
+	vec_sum(u1, u1, &pt3[0], sz);
+
+	{
+		vector < double > tmp(rs);
+		vector < double > rp(rs);
+		mke_u2p(&tmp[0], u1, m_);
+		l_.idt_.mult_vector(&rp[0], &tmp[0]);
+		if (bnd) {
+			bndb_.mult_vector(&tmp[0], bnd);
+			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+		}
+		mke_solve(&u1[0], bnd, &rp[0], Ab_, m_);
+	}
+	l_.solve(u1, u1, bnd);
+}
+
 void BarVortex::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
@@ -452,9 +561,9 @@ void BarVortex::L_step(double * Ans, const double * F, const double * z)
 
 void BarVortex::L_1_step(double * Ans, const double * F, const double * z)
 {
-	tau_ = -tau_;
-	L_step(Ans, F, z);
-	tau_ = -tau_;
+	vector < double > tmp(m_.ps.size());
+	calc_L_1(&tmp[0], F, z, 0, 0);
+	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
 
 void BarVortex::LT_step(double * Ans, const double * F, const double * z)
