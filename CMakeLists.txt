@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6.3)
 project(mke CXX C)
 
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 include(FindOpenMP)
 
 if(COMMAND cmake_policy)
@@ -40,6 +42,7 @@ add_definitions(-DGMRES) # comment it if you want umfpack
 endif (CYGWIN)
 add_definitions(-DSPARSE)
 
+add_subdirectory(contrib)
 add_subdirectory(src)
 add_subdirectory(auxiliary)
 add_subdirectory(utils)
