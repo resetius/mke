@@ -2,10 +2,10 @@ project(umfpack)
 
 set(UMFPACK_SOURCE_FOUND 1)
 
-if (NOT EXISTS "./UMFPACK")
-	set(UMFPACK_SOURCE_FOUND 0)
-	message("./UMFPACK not found")
-endif (NOT EXISTS "./UMFPACK")
+#if (NOT EXISTS "./UMFPACK")
+#	set(UMFPACK_SOURCE_FOUND 0)
+#	message("./UMFPACK not found")
+#endif (NOT EXISTS "./UMFPACK")
 
 #if (NOT EXISTS "./AMD")
 #	set(UMFPACK_SOURCE_FOUND 0)
@@ -116,5 +116,5 @@ set (SRC
 	./UMFPACK/Source/umfpack_transpose.c 
 	./UMFPACK/Source/umfpack_triplet_to_col.c)
 
-add_library(umfpack SHARED ${SRC})
+add_library(umfpack ${SRC})
 endif (UMFPACK_SOURCE_FOUND)

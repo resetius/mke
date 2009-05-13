@@ -33,7 +33,6 @@ endif (NOT WIN32)
 
 if (MSVC)
 	add_definitions(/D_CRT_SECURE_NO_WARNINGS)
-	add_definitions(-DGMRES)
 endif (MSVC)
 
 add_definitions(${OpenMP_C_FLAGS})
@@ -43,6 +42,15 @@ endif (CYGWIN)
 add_definitions(-DSPARSE)
 
 add_subdirectory(contrib)
+
+if (MSVC)
+#add_definitions(-DGMRES)
+include_directories(./contrib/umfpack/UMFPACK/Include)
+include_directories(./contrib/umfpack/AMD/Include)
+include_directories(./contrib/umfpack/UFconfig)
+set(UMFPACK umfpack)
+endif (MSVC)
+
 add_subdirectory(src)
 add_subdirectory(auxiliary)
 add_subdirectory(utils)
