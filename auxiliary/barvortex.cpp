@@ -412,6 +412,7 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 	vec_mult_scalar(&pt1[0], &pt1[0], 
 		1.0 / tau_ - (1. - theta_) * sigma_, sz);
 
+	memset(u1, 0, sz * sizeof(double));
 	vec_sum(u1, u1, &pt1[0], sz);
 	vec_sum(u1, u1, &pt2[0], sz);
 	vec_sum(u1, u1, &pt3[0], sz);
@@ -561,6 +562,7 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 	vector < double > pt3(sz); //якобиан, умноженный на коэф
 
 	l_.calc1(&z_lapl[0], z, bnd);
+	memcpy(&pt1[0], u, pt1.size() * sizeof(double));
 	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
 
 	{
@@ -582,10 +584,13 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 
 	vec_mult_scalar(&pt1[0], &pt1[0], sigma_, sz);
 
-	memset(u1, 0, sz * sizeof(double));
-	vec_sum(u1, u1, &pt1[0], sz);
-	vec_sum(u1, u1, &pt2[0], sz);
-	vec_sum(u1, u1, &pt3[0], sz);
+	{
+		vector < double > tmp(sz);
+		vec_sum(&tmp[0], &tmp[0], &pt1[0], sz);
+		vec_sum(&tmp[0], &tmp[0], &pt2[0], sz);
+		vec_sum(&tmp[0], &tmp[0], &pt3[0], sz);
+		l_.solve(u1, &tmp[0], bnd);
+	}
 }
 
 void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
@@ -621,10 +626,13 @@ void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const
 
 	vec_mult_scalar(&pt1[0], &pt1[0], sigma_, sz);
 
-	memset(u1, 0, sz * sizeof(double));
-	vec_sum(u1, u1, &pt1[0], sz);
-	vec_sum(u1, u1, &pt2[0], sz);
-	vec_sum(u1, u1, &pt3[0], sz);
+	{
+		vector < double > tmp(sz);
+		vec_sum(&tmp[0], &tmp[0], &pt1[0], sz);
+		vec_sum(&tmp[0], &tmp[0], &pt2[0], sz);
+		vec_sum(&tmp[0], &tmp[0], &pt3[0], sz);
+		l_.solve(u1, &tmp[0], bnd);
+	}
 }
 
 /**
