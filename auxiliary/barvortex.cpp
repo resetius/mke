@@ -375,6 +375,20 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 }
 #endif
 
+double l_rp(double x, double y, double t, double sigma, double mu)
+{
+	return -9*cos(y+t)*
+		ipow(cos(x),3)*sin(x)+15*x*cos(y+t)*
+		ipow(cos(x),2)-20*x*cos(y+t)*
+		ipow(cos(x),4)-9*sigma*sin(y+t)*
+		ipow(cos(x),3)*sin(x)+15*sigma*sin(y+t)*
+		ipow(cos(x),2)*x-20*sigma*sin(y+t)*
+		ipow(cos(x),4)*x-360*mu*sin(y+t)*sin(x)*
+		ipow(cos(x),3)+390*mu*sin(y+t)*x*
+		ipow(cos(x),2)-400*mu*sin(y+t)*x*
+		ipow(cos(x),4)+147*mu*sin(y+t)*sin(x)*cos(x)-45*mu*sin(y+t)*x;
+}
+
 void BarVortex::calc_L(double * u1, const double * u, const double * z,
 					   const double * bnd, double t)
 {
@@ -416,6 +430,14 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 	vec_sum(u1, u1, &pt1[0], sz);
 	vec_sum(u1, u1, &pt2[0], sz);
 	vec_sum(u1, u1, &pt3[0], sz);
+
+	//@{test
+	for (int i = 0; i < sz; ++i) {
+		double x  = m_.ps[i].x();
+		double y  = m_.ps[i].y();
+		u1[i] += l_rp(x, y, t, sigma_, mu_);
+	}
+	//@}test
 
 	{
 		vector < double > tmp(rs);
