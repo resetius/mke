@@ -432,11 +432,13 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 	vec_sum(u1, u1, &pt3[0], sz);
 
 	//@{test
+	/*
 	for (int i = 0; i < sz; ++i) {
 		double x  = m_.ps[i].x();
 		double y  = m_.ps[i].y();
 		u1[i] += l_rp(x, y, t, sigma_, mu_);
 	}
+	*/
 	//@}test
 
 	{
