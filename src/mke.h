@@ -186,6 +186,9 @@ typedef double (* x_t)(double u, double v);
 void print_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
+void print_function(const char * fname, double * ans, const Mesh & m, 
+					x_t x = 0, x_t y = 0, x_t z = 0);
+
 void print_inner_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
 

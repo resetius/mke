@@ -289,6 +289,14 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 	fprintf(to, "# end \n");
 }
 
+void print_function(const char * fname, double * ans, const Mesh & m, 
+					x_t x, x_t y, x_t z)
+{
+	FILE * f = fopen(fname, "wb");
+	print_function(f, ans, m, x, y, z);
+	fclose(f);
+}
+
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
 {
 	int rs  = m.inner.size();     // размерность

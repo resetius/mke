@@ -134,12 +134,15 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 #if 1
 	mke_u2p(&x[0], F, m_);
 	idt_.mult_vector(&b[0], &x[0]);
-	bnd2_.mult_vector(&x[0], bnd);
-	vec_sum(&b[0], &b[0], &x[0], x.size());
+	if (bnd) {
+		bnd2_.mult_vector(&x[0], bnd);
+		vec_sum(&b[0], &b[0], &x[0], x.size());
+	}
+
 //	vector < double > tmp(m_.outer.size());
 //	mke_proj_bnd(&tmp[0], F, m_);
 //	bnd1_.mult_vector(&x[0], &tmp[0]);
-	vec_sum(&b[0], &b[0], &x[0], x.size());
+//	vec_sum(&b[0], &b[0], &x[0], x.size());
 #endif	
 
 	mke_solve(Ans, bnd, &b[0], laplace_, m_);
