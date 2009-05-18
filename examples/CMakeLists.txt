@@ -1,0 +1,28 @@
+project(mke CXX C)
+
+set(EXECUTABLE_OUTPUT_PATH "../bin")
+include_directories(../src ../auxiliary)
+link_directories(../lib)
+
+add_executable(test_laplace test_laplace.cpp)
+add_executable(test_slaplace test_slaplace.cpp)
+add_executable(test_schafe test_schafe.cpp)
+add_executable(test_barvortex test_barvortex.cpp)
+add_executable(test_baroclin test_baroclin.cpp)
+add_executable(test_chafe test_chafe.cpp)
+
+target_link_libraries(test_laplace mke mke_aux ${UMFPACK})
+target_link_libraries(test_slaplace mke mke_aux ${UMFPACK})
+target_link_libraries(test_schafe mke mke_aux ${UMFPACK})
+target_link_libraries(test_barvortex mke mke_aux ${UMFPACK})
+target_link_libraries(test_baroclin mke mke_aux ${UMFPACK})
+target_link_libraries(test_chafe mke mke_aux ${UMFPACK})
+
+if (OPENMP_FOUND)
+set_target_properties(test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_slaplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_schafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_barvortex PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_baroclin PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+endif (OPENMP_FOUND)

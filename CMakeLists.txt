@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.6.3)
 project(mke CXX C)
+enable_testing()
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -42,6 +43,7 @@ endif (CYGWIN)
 add_definitions(-DSPARSE)
 
 add_subdirectory(contrib)
+message("${UMFPACK_SOURCE_FOUND}")
 
 if (MSVC)
 #add_definitions(-DGMRES)
@@ -55,5 +57,6 @@ add_subdirectory(src)
 add_subdirectory(auxiliary)
 add_subdirectory(utils)
 add_subdirectory(tests)
+add_subdirectory(examples)
 
 

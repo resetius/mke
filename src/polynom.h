@@ -29,6 +29,7 @@
  */
 
 #include <vector>
+#include <string>
 #include <string.h>
 
 typedef unsigned int uint;
@@ -58,7 +59,7 @@ struct Polynom {
 
 	~Polynom() {}
 
-	void print() const;
+	std::string print() const;
 
 	double apply(double x, double y) const;
 

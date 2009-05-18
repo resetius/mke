@@ -75,32 +75,42 @@ double p2y [] = {0.0, 1.0};
 const Polynom P2X(1, 0, p2x, 2); //p(x, y) = x
 const Polynom P2Y(0, 1, p2y, 2); //p(x, y) = y
 
-void Polynom::print() const
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
+std::string Polynom::print() const
 {
 	short i, j;
+	std::string ans;
+#define BUF_SIZ 32768
+	char buf[BUF_SIZ];
 	for (i = 0; i <= x_deg_; i++) { // x
 		for (j = 0; j <= y_deg_; j++) { // y
 			if (fabs(koef_[off(i, j)]) > 1e-8) {
 				if (i && j) {
-					fprintf(stderr, "%+.1lf x^%d y^%d ", 
+					snprintf(buf, BUF_SIZ, "%+.1lf x^%d y^%d ", 
 						koef_[off(i, j)], 
 						i, j);
 				} else if (i) {
-					fprintf(stderr, "%+.1lf x^%d ",
+					snprintf(buf, BUF_SIZ, "%+.1lf x^%d ",
 							koef_[off(i, j)],
 							i);
 				} else if (j) {
-					fprintf(stderr, "%+.1lf y^%d ",
+					snprintf(buf, BUF_SIZ, "%+.1lf y^%d ",
 							koef_[off(i, j)],
 							j);
 				} else {
-					fprintf(stderr, "%+.1lf ",
+					snprintf(buf, BUF_SIZ, "%+.1lf ",
 							koef_[off(i, j)]);
 				}
+				ans += buf;
 			}
 		}
 	}
-	fprintf(stderr, "\n");
+	fprintf(stderr, "%s\n", ans.c_str());
+	return ans;
+#undef BUF_SIZ
 }
 
 Polynom diff(const Polynom & p, int d)
