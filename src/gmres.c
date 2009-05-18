@@ -35,29 +35,10 @@
 
 void vec_diff(double * r, const double * a, const double * b, int n);
 void vec_mult_scalar(double * a, const double * b, double k, int n);
+double vec_norm2(const double *v, int n);
+double vec_scalar2(const double * a, const double * b, int n);
+
 double get_full_time();
-
-static double norm2(const double * v, int n)
-{
-	double s = 0.0;
-	int i;
-//#pragma omp parallel for reduction(+:s)
-	for (i = 0; i < n; ++i) {
-		s = s + v[i] * v[i];
-	}
-	return sqrt(s);
-}
-
-static double scalar2(const double * a, const double * b, int n)
-{
-	double s = 0.0;
-	int i;
-//#pragma omp parallel for reduction(+:s)
-	for (i = 0; i < n; ++i) {
-		s = s + a[i] * b[i];
-	}
-	return s;
-}
 
 /**
  * a = b / k
@@ -113,7 +94,7 @@ algorithm6_9(double * x, const void * A, const double * b,
 	Ax(ax, A, x, n);
 	vec_diff(r, b, ax, n);
 
-	gamma_0 = norm2(r, n);
+	gamma_0 = vec_norm2(r, n);
 
 	if (gamma_0 <= eps) {
 		ret = gamma_0;
@@ -134,16 +115,16 @@ algorithm6_9(double * x, const void * A, const double * b,
 		double nr1, nr2;
 
 		Ax(ax, A, &q[j * n], n);
-		nr1 = norm2(ax, n);
+		nr1 = vec_norm2(ax, n);
 
 		for (i = 0; i <= j; ++i) {
-			h[i * hz + j] = scalar2(&q[i * n], ax, n); //-> j x j
+			h[i * hz + j] = vec_scalar2(&q[i * n], ax, n); //-> j x j
 			//ax = ax - h[i * hz + j] * q[i * n];
 			vec_sum2(ax, ax, &q[i * n], -h[i * hz + j], n);
 		}
 		
 		// h -> (j + 1) x j
-		h[(j + 1) * hz + j] = norm2(ax, n);
+		h[(j + 1) * hz + j] = vec_norm2(ax, n);
 
 		// loss of orthogonality detected
 		// C. T. Kelley: Iterative Methods for Linear and Nonlinear Equations, SIAM, ISBN 0-89871-352-8
@@ -151,11 +132,11 @@ algorithm6_9(double * x, const void * A, const double * b,
 		if (fabs(nr2  - nr1) < eps) {
 			/*fprintf(stderr, "reortho!\n");*/
 			for (i = 0; i <= j; ++i) {
-				double hr = scalar2(&q[i * n], ax, n);
+				double hr = vec_scalar2(&q[i * n], ax, n);
 				h[i * hz + j] += hr;
 				vec_sum2(ax, ax, &q[i * n], -hr, n);
 			}
-			h[(j + 1) * hz + j] = norm2(ax, n);
+			h[(j + 1) * hz + j] = vec_norm2(ax, n);
 		}
 
 		// rotate
@@ -216,7 +197,7 @@ void gmres(double * x, const void * A, const double * b,
 			 Ax_t Ax, int n, int k_dim, int max_it)
 {
 	double tol = 1e-10;
-	double bn  = norm2(b, n);
+	double bn  = vec_norm2(b, n);
 	int i;
 
 	/* x0 = b */
@@ -232,7 +213,7 @@ void gmres(double * x, const void * A, const double * b,
 		double t1 = get_full_time();
 		double e  = algorithm6_9(x, A, b, Ax, tol * bn, n, k_dim);
 		double t2 = get_full_time();
-		//double xn = norm2(x, n);
+		//double xn = vec_norm2(x, n);
 		e /= bn;
 		fprintf(stderr, "  gmres: iters = %d, eps = %le, t = %lf\n", i, e, 
 			(t2 - t1) / 100.0);
@@ -241,4 +222,5 @@ void gmres(double * x, const void * A, const double * b,
 		}
 	}
 }
+
 

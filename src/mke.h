@@ -189,8 +189,14 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 void print_function(const char * fname, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
+/**
+ * prints function without a boundary
+ */
 void print_inner_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
+
+void print_inner_function(const char * to, double * ans, const Mesh & m,
+		x_t x = 0, x_t y = 0, x_t z = 0);
 
 class Matrix;
 
@@ -296,6 +302,12 @@ void convolution(double * ans, const double * u, const double * v, const Mesh & 
 /* сеточное скал€рное произведение двух функций */
 double mke_scalar(const double * u, const double * v, 
 				  const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
+
+void generate_scalar_matrix(Matrix & mat, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
+double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & mat);
+double mke_fast_norm(const double * u, const Mesh & m, Matrix & mat);
+double mke_fast_dist(const double * u, const double * v, const Mesh & m, Matrix & mat);
+
 /* сеточна€ норма */
 double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 /* сеточное рассто€ние */

@@ -150,6 +150,9 @@ void vec_mult_scalar(double * a, const double * b, double k, int n);
  */
 void vec_sum(double * r, const double * a, const double *b, int n);
 
+double vec_norm2(const double *v, int n);
+double vec_scalar2(const double * a, const double * b, int n);
+
 /**
  * поэлементное умножение
  * r = a * b

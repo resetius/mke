@@ -366,6 +366,28 @@ void vec_diff(double * r, const double * a, const double * b, int n)
 	}
 }
 
+double vec_norm2(const double * v, int n)
+{
+        double s = 0.0;
+        int i;
+//#pragma omp parallel for reduction(+:s)
+        for (i = 0; i < n; ++i) {
+                s = s + v[i] * v[i];
+        }
+        return sqrt(s);
+}
+
+double vec_scalar2(const double * a, const double * b, int n)
+{
+        double s = 0.0;
+        int i;
+//#pragma omp parallel for reduction(+:s)
+        for (i = 0; i < n; ++i) {
+                s = s + a[i] * b[i];
+        }
+        return s;
+}
+
 void sparse_print(const struct Sparse * A, int n, FILE * f)
 {
 	int i, i0, j, k, i_old;

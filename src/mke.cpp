@@ -249,6 +249,16 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 	fprintf(to, "# end \n");
 }
 
+void print_inner_function(const char * to, double * ans, const Mesh & m, 
+					x_t x, x_t y, x_t z)
+{
+	FILE * f = fopen(to, "wb");
+	if (f) {
+		print_inner_function(f, ans, m, x, y, z);
+		fclose(f);
+	}
+}
+
 void print_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x, x_t y, x_t z)
 {
@@ -293,8 +303,10 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 					x_t x, x_t y, x_t z)
 {
 	FILE * f = fopen(fname, "wb");
-	print_function(f, ans, m, x, y, z);
-	fclose(f);
+	if (f) {
+		print_function(f, ans, m, x, y, z);
+		fclose(f);
+	}
 }
 
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
@@ -579,6 +591,32 @@ double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_
 		s = s + nr[i];
 	}
 	return s;
+}
+
+void generate_scalar_matrix(Matrix & mat, const Mesh & m, scalar_cb_t cb, void * user_data)
+{
+	generate_full_matrix(mat, m, cb, user_data);
+}
+
+double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & A)
+{
+	int sz = m.ps.size();
+	vector < double > tmp(sz);
+	A.mult_vector(&tmp[0], v);
+	return vec_scalar2(u, &tmp[0], sz);
+}
+
+double mke_fast_norm(const double * u, const Mesh & m, Matrix & A)
+{
+	return sqrt(mke_fast_scalar(u, u, m, A));
+}
+
+double mke_fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
+{
+	int sz  = m.ps.size(); // размерность
+	vector < double > diff(sz);
+	vec_diff(&diff[0], u, v, sz);
+	return mke_fast_norm(&diff[0], m, A);
 }
 
 double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb, void * user_data)
