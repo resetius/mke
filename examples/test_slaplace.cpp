@@ -138,7 +138,7 @@ void test_invert(const Mesh & mesh)
 	fprintf(stderr, "l->%lf\n", t.elapsed());
 	l.solve(&Ans[0], &F[0], &B[0]);
 
-	fprintf(stderr, "err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
+	fprintf(stdout, "L1: invert  err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
 
 	{
 		FILE * f = fopen("invert_answer.txt", "wb");
@@ -179,7 +179,7 @@ void test_laplace(const Mesh & mesh)
 	SphereLaplace l(mesh);
 	l.calc1(&LU1[0], &U[0], &B1[0]);
 
-	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
+	fprintf(stdout, "L2: laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 	{
 		FILE * f = fopen("slu_real.txt", "w");
 		print_function(f, &LU[0], mesh, x, y, z);
@@ -191,7 +191,7 @@ void test_laplace(const Mesh & mesh)
 
 	l.solve(&LU[0], &LU1[0], &B2[0]);
 
-	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
+	fprintf(stdout, "L3: laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
 
 int main(int argc, char *argv[])

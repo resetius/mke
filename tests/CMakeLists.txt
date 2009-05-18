@@ -34,4 +34,9 @@ add_test(test_polynom ${EXECUTABLE_OUTPUT_PATH}/test_polynom)
 add_test(test_quadrature ${EXECUTABLE_OUTPUT_PATH}/test_quadrature)
 add_test(test_integrate ${EXECUTABLE_OUTPUT_PATH}/test_integrate)
 add_test(test_laplace ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH})
+add_test(test_slaplace_full ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} full)
+add_test(test_slaplace_half ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} half)
+add_test(test_slaplace_test ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} test)
+add_test(test_slaplace_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} test2)
+
 
