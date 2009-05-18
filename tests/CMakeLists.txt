@@ -24,8 +24,14 @@ set_target_properties(test_quadrature PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_funcgen PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
 
+if (WIN32)
+set (LUA ${EXECUTABLE_OUTPUT_PATH}/lua)
+else (WIN32)
+set (LUA lua)
+endif (WIN32)
+
 add_test(test_polynom ${EXECUTABLE_OUTPUT_PATH}/test_polynom)
 add_test(test_quadrature ${EXECUTABLE_OUTPUT_PATH}/test_quadrature)
 add_test(test_integrate ${EXECUTABLE_OUTPUT_PATH}/test_integrate)
-add_test(test_laplace lua ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH})
+add_test(test_laplace ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH})
 
