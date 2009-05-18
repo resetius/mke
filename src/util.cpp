@@ -456,7 +456,7 @@ void set_fpe_except()
 void set_fpe_except()
 {
 	//http://www.website.masmforum.com/tutorials/fptute/fpuchap1.htm
-	unsigned m;
+	unsigned m = 0;
 	asm ("fstcw %0" : : "m" (*&m));
 	asm ("fwait");
 	m ^= 0x1f; //turn on all exceptions!

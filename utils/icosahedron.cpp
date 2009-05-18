@@ -494,7 +494,7 @@ void print_mesh(const vector < Triangle > & mesh,
 	for (vector < Triangle >::const_iterator it = mesh.begin(); 
 		it != mesh.end(); ++it)
 	{
-		fprintf(stdout, "%lu %lu %lu ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
+		fprintf(stdout, "%d %d %d ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
 		if (1) {
 			double x1, y1, z1, x2, y2, z2, x3, y3, z3;
 			double u1, v1, u2, v2, u3, v3;
@@ -579,7 +579,7 @@ void print_mesh(const vector < Triangle > & mesh,
 	} else if (!boundary.empty()) {
 		fprintf(stdout, "# boundary %lu \n", boundary.size());
 		for (size_t i = 0; i < boundary.size(); ++i) {
-			fprintf(stdout, "%lu \n", boundary[i] + 1);
+			fprintf(stdout, "%d \n", boundary[i] + 1);
 		}
 	}
 }

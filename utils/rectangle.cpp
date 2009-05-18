@@ -181,7 +181,7 @@ void print_mesh(double x, double y, double w, double h, const vector < Triangle 
 	for (vector < Triangle >::const_iterator it = mesh.begin(); 
 		it != mesh.end(); ++it)
 	{
-		fprintf(stdout, "%lu %lu %lu\n", it->v1 + 1, it->v2 + 1, it->v3 + 1);
+		fprintf(stdout, "%d %d %d\n", it->v1 + 1, it->v2 + 1, it->v3 + 1);
 	}
 	fprintf(stdout, "# boundary\n");
 
