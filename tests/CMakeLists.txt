@@ -27,4 +27,5 @@ endif (OPENMP_FOUND)
 add_test(test_polynom ${EXECUTABLE_OUTPUT_PATH}/test_polynom)
 add_test(test_quadrature ${EXECUTABLE_OUTPUT_PATH}/test_quadrature)
 add_test(test_integrate ${EXECUTABLE_OUTPUT_PATH}/test_integrate)
+add_test(test_laplace lua ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH})
 
