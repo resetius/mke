@@ -102,7 +102,7 @@ void test_invert(Mesh & mesh)
 		fclose(f);
 	}
 
-	fprintf(stderr, "invert  err=%.2le\n", 
+	fprintf(stderr, "L1: invert  err=%.2le\n", 
 		mke_dist(&Ans[0], &rans[0], mesh));
 }
 
@@ -129,7 +129,7 @@ void test_laplace(Mesh & mesh)
 	l.calc1(&LU1[0], &U[0], &B1[0]);
 	//l.calc1(&LU1[0], &U[0], &B2[0]);
 
-	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
+	fprintf(stderr, "L2: laplace err=%.2le\n", mke_dist(&LU[0], &LU1[0], mesh));
 	{
 		FILE * f = fopen("lu_real.txt", "w");
 		print_inner_function (f, &LU[0], mesh);
@@ -150,7 +150,7 @@ void test_laplace(Mesh & mesh)
 //	vector_print(&U[0], U.size());
 //	vector_print(&LU[0], LU.size());
 	
-	fprintf(stderr, "laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
+	fprintf(stderr, "L3: laplace err=%.2le\n", mke_dist(&U[0], &LU[0], mesh));
 }
 
 //#include <omp.h>
