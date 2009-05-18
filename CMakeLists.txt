@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.6.3)
 project(mke CXX C)
+
+include(CTest)
 enable_testing()
+IF(BUILD_TESTING)
+   SET(BUILDNAME "${BUILDNAME}" CACHE STRING "MKE")
+   MARK_AS_ADVANCED(BUILDNAME)
+ENDIF(BUILD_TESTING)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 

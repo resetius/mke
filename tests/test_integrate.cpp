@@ -217,8 +217,8 @@ void test_sphere_area()
 
 int main()
 {
-	//test_simple();
-	//test_simple2();
+	test_simple();
+	test_simple2();
 	//test_elem();
 	//test_simple3();
 	test_sphere_area();
