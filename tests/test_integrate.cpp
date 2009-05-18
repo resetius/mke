@@ -21,16 +21,19 @@ void check(double a, double b)
 #if 1
 void test_simple()
 {
+	double a;
 	fprintf(stderr, "test_simple\n");
 	MeshPoint p1(0, 0), p2(1, 0), p3(1, 1);
 	Mesh::points_t ps;
 	ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-	Triangle t1(0, 1, 2);
+	Triangle t1(0, 1, 2); t1.prepare(ps);
 	Polynom p = (P2X - 1) * (P2Y - 2);
 	fprintf(stderr, "triangle : [0, 0]-[1, 0]-[1, 1]\n");
 	fprintf(stderr, "(x - 1) (y - 2) = "); p.print();
 	//-> 0.291(6)
-	fprintf(stderr, "integral (x - 1) (y - 2) = %.16lf\n", integrate(p, t1, ps));
+	a = integrate(p, t1, ps);
+	fprintf(stderr, "integral (x - 1) (y - 2) = %.16lf\n", a);
+	check(a, 0.2916666666666666);
 
 	fprintf(stderr, "done\n");
 }
@@ -50,7 +53,7 @@ void test_simple3()
 	MeshPoint p1(0, 0), p2(1, 0), p3(1, 1);
 	Mesh::points_t ps;
 	ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-	Triangle t1(0, 1, 2);
+	Triangle t1(0, 1, 2); t1.prepare(ps);
 
 	Polynom p = (P2X - 1) * (P2Y - 2);
 
@@ -133,41 +136,45 @@ void test_sphere_area()
 		MeshPoint p1(0, 0), p2(0, M_PI / 8.0), p3(M_PI / 8.0, 0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S1 = integrate_cos(p, t1, ps);
 
 		fprintf(stderr, "S1 = %.16lf\n", S1);
+		check(S1, 0.0761204674887130);
 	}
 
 	{
 		MeshPoint p1(0, M_PI / 8.0), p2(0, M_PI / 4.0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S3 = integrate_cos(p, t1, ps);
 
 		fprintf(stderr, "S3 = %.16lf\n", S3);
+		check(S3, 0.0761204674887130);
 	}
 
 	{
 		MeshPoint p1(0, M_PI / 8.0), p2(M_PI / 8, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S4 = integrate_cos(p, t1, ps);
 
 		fprintf(stderr, "S4 = %.16lf\n", S4);
+		check(S4, 0.0741589649823731);
 	}
 
 	{
 		MeshPoint p1(M_PI / 8.0, 0), p2(M_PI / 4, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S2 = integrate_cos(p, t1, ps);
 		//S2 = 0.460075592;
 
 		fprintf(stderr, "S2 = %.16lf\n", S2);
+		check(S2, 0.0664933188536525);
 	}
 
 	fprintf(stderr, "S1 + S2 + S3 + S4 = %.16lf\n", S1 + S2 + S3 + S4);
@@ -182,41 +189,45 @@ void test_sphere_area()
 		MeshPoint p1(0, 0), p2(M_PI / 8.0, 0), p3(0, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S1 = integrate_cos(p, t1, ps);
 
 		fprintf(stderr, "S1 = %.16lf\n", S1);
+		check(S1, 0.0761204674887130);
 	}
 
 	{
 		MeshPoint p1(M_PI / 8.0, 0), p2(M_PI / 4.0, 0), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S3 = integrate_cos(p, t1, ps);
 
 		fprintf(stderr, "S3 = %.16lf\n", S3);
+		check(S3, 0.0664933188536525);
 	}
 
 	{
 		MeshPoint p1(M_PI / 8.0, 0), p2(0, M_PI / 8), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S4 = integrate_cos(p, t1, ps);
 
 		fprintf(stderr, "S4 = %.16lf\n", S4);
+		check(S4, 0.0741589649823731);
 	}
 
 	{
 		MeshPoint p1(0, M_PI / 8.0), p2(0, M_PI / 4), p3(M_PI / 8, M_PI / 8.0);
 		Mesh::points_t ps;
 		ps.push_back(p1); ps.push_back(p2); ps.push_back(p3);
-		Triangle t1(0, 1, 2);
+		Triangle t1(0, 1, 2); t1.prepare(ps);
 		S2 = integrate_cos(p, t1, ps);
 		//S2 = 0.460075592;
 
 		fprintf(stderr, "S2 = %.16lf\n", S2);
+		check(S1, 0.0761204674887130);
 	}
 
 	fprintf(stderr, "done\n");
