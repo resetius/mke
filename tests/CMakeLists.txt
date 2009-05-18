@@ -25,4 +25,5 @@ set_target_properties(test_funcgen PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
 
 add_test(test_polynom ${EXECUTABLE_OUTPUT_PATH}/test_polynom)
+add_test(test_quadrature ${EXECUTABLE_OUTPUT_PATH}/test_quadrature)
 
