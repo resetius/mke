@@ -52,11 +52,33 @@ add_subdirectory(contrib)
 message("${UMFPACK_SOURCE_FOUND}")
 
 if (MSVC)
-#add_definitions(-DGMRES)
+
+set(UMFPACK_SOURCE_FOUND 1)
+
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UMFPACK")
+	set(UMFPACK_SOURCE_FOUND 0)
+	message("${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UMFPACK not found")
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UMFPACK")
+
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack//AMD")
+	set(UMFPACK_SOURCE_FOUND 0)
+	message("${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack//AMD not found")
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack//AMD")
+
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack//UFconfig")
+	set(UMFPACK_SOURCE_FOUND 0)
+	message("${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack//UFconfig not found")
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack//UFconfig")
+
+if (UMFPACK_SOURCE_FOUND)
 include_directories(./contrib/umfpack/UMFPACK/Include)
 include_directories(./contrib/umfpack/AMD/Include)
 include_directories(./contrib/umfpack/UFconfig)
 set(UMFPACK umfpack)
+else (UMFPACK_SOURCE_FOUND)
+add_definitions(-DGMRES)
+endif (UMFPACK_SOURCE_FOUND)
+
 endif (MSVC)
 
 add_subdirectory(src)
