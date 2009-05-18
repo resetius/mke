@@ -10,6 +10,14 @@
 
 using namespace std;
 
+void check(double a, double b)
+{
+	if (fabs(a - b) > 1e-14) {
+		fprintf(stderr, "%.16lf != %.16lf\n", a, b);
+		exit(-1);
+	}
+}
+
 #if 1
 void test_simple()
 {
@@ -31,7 +39,8 @@ void test_simple2()
 {
 	fprintf(stderr, "int 0.5->1 int x->1 dx dy\n");
 	double a = trapezoid_integral(0, 0, 1, 0, 0, 1, 0.5, 1);
-	fprintf(stderr, "%.16lf\n", a);
+	fprintf(stderr, "int 0.5->1 int x->1 dx dy = %.16lf\n", a);
+	check(a, 0.125);
 }
 
 void test_simple3()
