@@ -117,7 +117,7 @@ bool Mesh::load(FILE * f)
 		}
 
 		Triangle t(n1, n2, n3, z);
-		tid = tr.size();
+		tid = (int)tr.size();
 		tr.push_back (t);
 		if ((int)adj.size() <= n1) adj.resize(n1 + 1);
 		if ((int)adj.size() <= n2) adj.resize(n2 + 1);
@@ -163,10 +163,10 @@ make_inner:
 
 	for (uint i = 0; i < ps.size(); ++i) {
 		if (ps_flags[i] == 0) {
-			p2io[i] = inner.size();
+			p2io[i] = (int)inner.size();
 			inner.push_back(i);
 		} else if (ps_flags[i] == 1) {
-			p2io[i] = outer.size();
+			p2io[i] = (int)outer.size();
 			outer.push_back(i);
 		}
 	}
@@ -311,7 +311,7 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 
 void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
 {
-	int rs  = m.inner.size();     // размерность
+	int rs  = (int)m.inner.size();     // размерность
 
 	Timer t;
 #pragma omp parallel for
@@ -347,7 +347,7 @@ void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, vo
 
 void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data)
 {
-	int sz  = m.ps.size();
+	int sz  = (int)m.ps.size();
 
 	Timer t;
 //#pragma omp parallel for
@@ -375,7 +375,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_c
 
 void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
-	int rs  = m.inner.size();     // размерность
+	int rs  = (int)m.inner.size();     // размерность
 
 	Timer t;
 #pragma omp parallel for
@@ -408,7 +408,7 @@ void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_
 
 void generate_full_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
-	int sz  = m.ps.size();     // размерность
+	int sz  = (int)m.ps.size();     // размерность
 	vector < Polynom > phik;
 
 	Timer t;
@@ -446,7 +446,7 @@ void generate_full_right_part(double * b, const Mesh & m, right_part_cb_t right_
  */
 void generate_boundary_matrix(Matrix & A, const Mesh & m, right_part_cb_t right_part_cb, void * user_data)
 {
-	int os = m.outer.size(); // размер границы
+	int os = (int)m.outer.size(); // размер границы
 	for (int j = 0; j < os; ++j) {
 		// по внешним точкам
 		int p2 = m.outer[j];
@@ -476,7 +476,7 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m, right_part_cb_t right_
 
 void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
 {
-	int rs  = m.inner.size();     // размерность
+	int rs  = (int)m.inner.size();     // размерность
 	vector < double > x(rs);      // ответ
 
 	mke_solve2(&x[0], b, A, m);
@@ -485,8 +485,8 @@ void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const M
 
 void mke_solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 {
-	int sz  = m.ps.size();
-	int rs  = m.inner.size();     // размерность
+	int sz  = (int)m.ps.size();
+	int rs  = (int)m.inner.size();     // размерность
 	vector < double > x(rs);      // ответ
 
 #ifdef _DEBUG
@@ -502,7 +502,7 @@ void mke_solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 /* добавляем краевые условия */
 void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 {
-	int sz  = m.ps.size();
+	int sz  = (int)m.ps.size();
 
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
@@ -532,7 +532,7 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 
 void mke_set_bnd(double *u, const double * bnd, const Mesh & m)
 {
-	int sz  = m.ps.size();
+	int sz  = (int)m.ps.size();
 	for (int i = 0; i < sz; ++i) {
 		if (m.ps_flags[i] == 1) {
 			if (bnd) {
@@ -556,7 +556,7 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tria
 
 void convolution(double * ans, const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
-	int sz  = m.ps.size(); // размерность
+	int sz  = (int)m.ps.size(); // размерность
 
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
@@ -582,7 +582,7 @@ void convolution(double * ans, const double * u, const double * v, const Mesh & 
 
 double mke_scalar(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
-	int sz  = m.ps.size();
+	int sz  = (int)m.ps.size();
 	double s = 0.0;
 	vector < double > nr(sz);
 	convolution(&nr[0], u, v, m, cb, user_data);
@@ -600,7 +600,7 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m, scalar_cb_t cb, void *
 
 double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
-	int sz = m.ps.size();
+	int sz = (int)m.ps.size();
 	vector < double > tmp(sz);
 	A.mult_vector(&tmp[0], v);
 	return vec_scalar2(u, &tmp[0], sz);
@@ -613,7 +613,7 @@ double mke_fast_norm(const double * u, const Mesh & m, Matrix & A)
 
 double mke_fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
-	int sz  = m.ps.size(); // размерность
+	int sz  = (int)m.ps.size(); // размерность
 	vector < double > diff(sz);
 	vec_diff(&diff[0], u, v, sz);
 	return mke_fast_norm(&diff[0], m, A);
@@ -626,7 +626,7 @@ double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb, void * user_da
 
 double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data)
 {
-	int sz  = m.ps.size(); // размерность
+	int sz  = (int)m.ps.size(); // размерность
 	vector < double > diff(sz);
 	vec_diff(&diff[0], u, v, sz);
 	return mke_norm(&diff[0], m, cb, user_data);

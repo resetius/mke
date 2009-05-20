@@ -80,8 +80,8 @@ slaplace_right_part_cb( const Polynom & phi_i,
                         const Polynom & phi_j,
                         const Triangle & trk,
                         const Mesh & m,
-			int point_i,
-			int point_j,
+	                    int point_i,
+	                    int point_j,
                         slaplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
@@ -159,7 +159,7 @@ void SphereLaplace::solve(double * Ans,
 	idt_.mult_vector(&b[0], &x[0]);
 	if (bnd) {
 		bnd2_.mult_vector(&x[0], bnd);
-		vec_sum(&b[0], &b[0], &x[0], x.size());
+		vec_sum(&b[0], &b[0], &x[0], (int)x.size());
 	}
 //	vector < double > tmp(m_.outer.size()); // not necessary !
 //	mke_proj_bnd(&tmp[0], F, m_);           // not necessary !
@@ -206,8 +206,8 @@ static double lp_rp(const Polynom & phi_i,
 
 SphereLaplace::SphereLaplace(const Mesh & m): m_(m), 
 	idt_((int)m.inner.size()),
-	laplace_((int)m.inner.size()), bnd1_(m.inner.size()), bnd2_(m.inner.size()),
-	bnd3_(m.inner.size())
+	laplace_((int)m.inner.size()), bnd1_((int)m.inner.size()), bnd2_((int)m.inner.size()),
+	bnd3_((int)m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, slaplace_integrate_cb, 0);
@@ -227,8 +227,8 @@ void SphereLaplace::calc2(double * Ans, const double * F)
 	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
 	idt_.solve(Ans, &rp[0]);
 #endif
-	int rs = m_.inner.size();
-        int os = m_.outer.size();
+	int rs = (int)m_.inner.size();
+	int os = (int)m_.outer.size();
 	vector < double > in(rs);
 	vector < double > out(rs);
 	vector < double > tmp(os);
@@ -236,7 +236,7 @@ void SphereLaplace::calc2(double * Ans, const double * F)
 	mke_proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
 	bnd3_.mult_vector(&in[0], &tmp[0]);
-	vec_sum(&out[0], &out[0], &in[0], in.size());
+	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
 	idt_.solve(Ans, &out[0]);
 }
 

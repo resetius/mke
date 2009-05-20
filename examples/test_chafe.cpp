@@ -86,9 +86,9 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	int sz = mesh.ps.size();
-	int os = mesh.outer.size();
-	int rs = mesh.outer.size();
+	int sz = (int)mesh.ps.size();
+	int os = (int)mesh.outer.size();
+	int rs = (int)mesh.outer.size();
 
 	vector < double > U(sz);
 	vector < double > B(os);

@@ -110,7 +110,7 @@ void divide(vector < Triangle > & mesh, vector < Point > & points)
 {
 	vector < Triangle > new_mesh;
 	vector < Point    > new_points;
-	int old_size = points.size();
+	int old_size = (int)points.size();
 	vector < map < int, int > > already(old_size);
 
 	new_points.insert(new_points.end(), points.begin(), points.end());
@@ -126,7 +126,7 @@ void divide(vector < Triangle > & mesh, vector < Point > & points)
 		if (already[it->v1].find(it->v2) != already[it->v1].end()) {
 			p1 = already[it->v1][it->v2];
 		} else {
-			p1 = new_points.size();
+			p1 = (int)new_points.size();
 			Point v1 = a + b; v1 /= 2.0;
 			new_points.push_back(v1);
 
@@ -136,7 +136,7 @@ void divide(vector < Triangle > & mesh, vector < Point > & points)
 		if (already[it->v1].find(it->v3) != already[it->v1].end()) {
 			p2 = already[it->v1][it->v3];
 		} else {
-			p2 = new_points.size();
+			p2 = (int)new_points.size();
 			Point v2 = a + c; v2 /= 2.0;
 			new_points.push_back(v2);
 
@@ -146,7 +146,7 @@ void divide(vector < Triangle > & mesh, vector < Point > & points)
 		if (already[it->v2].find(it->v3) != already[it->v2].end()) {
 			p3 = already[it->v2][it->v3];
 		} else {
-			p3 = new_points.size();
+			p3 = (int)new_points.size();
 			Point v3 = b + c; v3 /= 2.0;
 			new_points.push_back(v3);
 

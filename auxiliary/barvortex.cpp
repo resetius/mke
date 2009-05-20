@@ -87,10 +87,10 @@ integrate_backward_cb( const Polynom & phi_i,
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
 		 : m_(m), l_(m), j_(m), 
-		 A_(m.inner.size()),
-		 bnd_(m.inner.size()),
-		 Ab_(m.inner.size()),
-		 bndb_(m.inner.size()),
+		 A_((int)m.inner.size()),
+		 bnd_((int)m.inner.size()),
+		 Ab_((int)m.inner.size()),
+		 bndb_((int)m.inner.size()),
 		 tau_(tau), sigma_(sigma), mu_(mu), theta_(SCHEME_THETA),
 		 rp_(rp), coriolis_(coriolis)
 {
@@ -254,7 +254,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		if (bnd) {
 			// we use jac only as a storage !
 			bnd_.mult_vector(&jac[0], bnd);
-			vec_sum(&rp[0], &rp[0], &jac[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &jac[0], (int)rp.size());
 		}
 
 		//TODO: тут граничное условие на омега!
@@ -448,7 +448,7 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp[0], bnd);
-			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
 		mke_solve(&u1[0], bnd, &rp[0], A_, m_);
 	}
@@ -503,7 +503,7 @@ void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bndb_.mult_vector(&tmp[0], bnd);
-			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
 		mke_solve(&u1[0], bnd, &rp[0], Ab_, m_);
 	}
@@ -531,7 +531,7 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp[0], bnd);
-			vec_sum(&rp[0], &rp[0], &tmp[0], rp.size());
+			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
 		mke_solve(&v1[0], bnd, &rp[0], A_, m_);
 	}

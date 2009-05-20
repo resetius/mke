@@ -76,9 +76,9 @@ double nr2(double * a, double * b, int n)
 
 void test_invert(Mesh & mesh)
 {
-	int sz = mesh.ps.size();
-	int rs = mesh.inner.size();
-	int os = mesh.outer.size();
+	int sz = (int)mesh.ps.size();
+	int rs = (int)mesh.inner.size();
+	int os = (int)mesh.outer.size();
 
 	vector < double > F(sz);
 	vector < double > B(os);
@@ -108,9 +108,9 @@ void test_invert(Mesh & mesh)
 
 void test_laplace(Mesh & mesh)
 {
-	int sz = mesh.ps.size();
-	int rs = mesh.inner.size();
-	int os = mesh.outer.size();
+	int sz = (int)mesh.ps.size();
+	int rs = (int)mesh.inner.size();
+	int os = (int)mesh.outer.size();
 
 	vector < double > U(sz);
 	vector < double > LU(sz);
@@ -140,7 +140,7 @@ void test_laplace(Mesh & mesh)
 
 		f = fopen("lu_diff.txt", "w");
 		vector < double > tmp(LU.size());
-		vec_diff(&tmp[0], &LU[0], &LU1[0], LU.size());
+		vec_diff(&tmp[0], &LU[0], &LU1[0], (int)LU.size());
 		print_inner_function (f, &tmp[0], mesh);
 		fclose(f);
 	}

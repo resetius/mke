@@ -69,9 +69,9 @@ double an (double x, double y)
 
 void test_jacobian (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int rs = m.inner.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int rs = (int)m.inner.size();
+	int os = (int)m.outer.size();
 
 	Jacobian j (m);
 	vector < double > F1 (sz);
@@ -109,9 +109,9 @@ void rand_init(double * h, int n)
 
 void test_jacobian_T (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int rs = m.inner.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int rs = (int)m.inner.size();
+	int os = (int)m.outer.size();
 	double nr1, nr2;
 
 	Jacobian j (m);
@@ -122,13 +122,13 @@ void test_jacobian_T (const Mesh & m)
 	vector < double > ans1 (sz);
 	vector < double > ans2 (sz);
 
-	srand(time(0));
+	srand((unsigned int)time(0));
 	//mke_proj (&u[0], m, f1);
 	//mke_proj (&w[0], m, f2);
 	//mke_proj (&v[0], m, f3);
-	rand_init(&u[0], u.size()); mke_u2p(&tmp[0], &u[0], m); mke_p2u(&u[0], &tmp[0], 0, m); 
-	rand_init(&v[0], v.size()); mke_u2p(&tmp[0], &v[0], m); mke_p2u(&v[0], &tmp[0], 0, m); 
-	rand_init(&w[0], w.size()); mke_u2p(&tmp[0], &w[0], m); mke_p2u(&w[0], &tmp[0], 0, m); 
+	rand_init(&u[0], (int)u.size()); mke_u2p(&tmp[0], &u[0], m); mke_p2u(&u[0], &tmp[0], 0, m); 
+	rand_init(&v[0], (int)v.size()); mke_u2p(&tmp[0], &v[0], m); mke_p2u(&v[0], &tmp[0], 0, m); 
+	rand_init(&w[0], (int)w.size()); mke_u2p(&tmp[0], &w[0], m); mke_p2u(&w[0], &tmp[0], 0, m); 
 
 	j.calc1 (&ans1[0], &v[0], &w[0], 0);
 	j.calc1t(&ans2[0], &u[0], &w[0], 0);
@@ -251,8 +251,8 @@ double rp2(double x, double y, double t, double mu, double sigma)
 
 void test_barvortex_L (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
 
 	double tau = 0.05;
 	double t = 0;
@@ -292,8 +292,8 @@ void test_barvortex_L (const Mesh & m)
 
 void test_barvortex_LT (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
 
 	double tau = 0.05;
 	double t = 0;
@@ -338,8 +338,8 @@ void test_barvortex_LT (const Mesh & m)
 
 void test_barvortex (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
 
 	double tau = 0.05;
 	double t = 0;

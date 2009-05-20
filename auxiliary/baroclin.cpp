@@ -68,7 +68,7 @@ static double coriolis(double phi, double lambda)
 
 Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
          double tau, double sigma, double mu, double sigma1, double mu1, double alpha)
-	: m_(m), l_(m), j_(m), A_(m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
+	: m_(m), l_(m), j_(m), A_((int)m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
 	sigma1_(sigma1), mu1_(mu1), alpha_(alpha), rp_(rp), coriolis_(coriolis)
 {
 	lh_.resize(m_.ps.size());

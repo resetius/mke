@@ -86,8 +86,8 @@ double coriolis (double phi, double lambda)
 
 void test_boclinic (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
 
 	double tau = 0.001;
 	int steps = 100000;

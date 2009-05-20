@@ -120,9 +120,9 @@ static double z(double u, double v)
 
 void test_invert(const Mesh & mesh)
 {
-	int sz = mesh.ps.size();
-	int rs = mesh.inner.size();
-	int os = mesh.outer.size();
+	int sz = (int)mesh.ps.size();
+	int rs = (int)mesh.inner.size();
+	int os = (int)mesh.outer.size();
 
 	vector < double > F(sz);
 	vector < double > B(std::max(os, 1));
@@ -159,9 +159,9 @@ void test_invert(const Mesh & mesh)
 
 void test_laplace(const Mesh & mesh)
 {
-	int sz = mesh.ps.size();
-	int rs = mesh.inner.size();
-	int os = mesh.outer.size();
+	int sz = (int)mesh.ps.size();
+	int rs = (int)mesh.inner.size();
+	int os = (int)mesh.outer.size();
 
 	vector < double > U(sz);
 	vector < double > LU(sz);

@@ -115,9 +115,9 @@ laplace_integrate_cb( const Polynom & phi_i,
 void Laplace::solve(double * Ans, const double * F, const double * bnd)
 {
 	//пока используем первый порядок
-	int sz  = m_.ps.size();
-	int ntr = m_.tr.size();
-	int rs  = m_.inner.size();     //размерность
+	int sz  = (int)m_.ps.size();
+	int ntr = (int)m_.tr.size();
+	int rs  = (int)m_.inner.size();     //размерность
 
 	vector < double > b(rs);      // правая часть
 	vector < double > x(rs);      // ответ
@@ -136,7 +136,7 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	idt_.mult_vector(&b[0], &x[0]);
 	if (bnd) {
 		bnd2_.mult_vector(&x[0], bnd);
-		vec_sum(&b[0], &b[0], &x[0], x.size());
+		vec_sum(&b[0], &b[0], &x[0], (int)x.size());
 	}
 
 //	vector < double > tmp(m_.outer.size());
@@ -254,10 +254,10 @@ static double lp_rp(const Polynom & phi_i,
 }
 
 Laplace::Laplace(const Mesh & m): m_(m), 
-	idt_(m.inner.size()), laplace_(m.inner.size()),
+	idt_((int)m.inner.size()), laplace_((int)m.inner.size()),
 //	fidt_(m.ps.size()), flaplace_(m.ps.size()),
-	bnd1_(m.inner.size()), bnd2_(m.inner.size()), 
-	bnd3_(m.inner.size())
+	bnd1_((int)m.inner.size()), bnd2_((int)m.inner.size()), 
+	bnd3_((int)m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, 0);
 	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
@@ -270,9 +270,9 @@ Laplace::Laplace(const Mesh & m): m_(m),
 
 void Laplace::calc2(double * Ans, const double * F)
 {
-	int rs = m_.inner.size();
-	int os = m_.outer.size();
-	int sz = m_.ps.size();
+	int rs = (int)m_.inner.size();
+	int os = (int)m_.outer.size();
+	int sz = (int)m_.ps.size();
 
 #if 1
 	vector < double > in(rs);
@@ -282,7 +282,7 @@ void Laplace::calc2(double * Ans, const double * F)
 	mke_proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
 	bnd3_.mult_vector(&in[0], &tmp[0]);
-	vec_sum(&out[0], &out[0], &in[0], in.size());
+	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
 	idt_.solve(Ans, &out[0]);
 #endif
 
@@ -332,7 +332,7 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 }
 
 Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
-	: m_(m), laplace_(m), A_(m.inner.size()), 
+	: m_(m), laplace_(m), A_((int)m.inner.size()), 
 	tau_(tau), mu_(mu), sigma_(sigma)
 {
 	/* Матрица левой части */
@@ -346,8 +346,8 @@ Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
 void Chafe::solve(double * Ans, const double * X0,
 						const double * bnd, double t)
 {
-	int rs  = m_.inner.size();
-	int sz  = m_.ps.size();
+	int rs  = (int)m_.inner.size();
+	int sz  = (int)m_.ps.size();
 	vector < double > u(rs);
 	vector < double > p(sz);
 	vector < double > delta_u(rs);
