@@ -4,14 +4,38 @@ if (UMFPACK_SOURCE_FOUND)
 	include_directories(./contrib/umfpack/UFconfig)
 	set(UMFPACK umfpack)
 else (UMFPACK_SOURCE_FOUND)
+	# UMFPACK_LIBRARY_PATH, system libs
 	if (ICC_FOUND)
 		include_directories(/usr/include/suitesparse/)
 		set(UMFPACK umfpack amd blas ${FLIB})
+		find_library(UMFPACK_LIB HINTS UMFPACK_LIBRARY_PATH)
+		find_library(AMD HINTS UMFPACK_LIBRARY_PATH)
+		find_library(BLAS UMFPACK_LIBRARY_PATH)
+
+		if (UMFPACK_LIB-NOTFOUND OR AMD-NOTFOUND OR BLAS-NOTFOUND)
+			set(UMFPACK "")
+		endif (UMFPACK_LIB-NOTFOUND OR AMD-NOTFOUND OR BLAS-NOTFOUND)
 	else (ICC_FOUND)
 		include_directories(/usr/include/suitesparse/)
 		set(UMFPACK umfpack amd)
+		find_library(UMFPACK_LIB HINTS UMFPACK_LIBRARY_PATH)
+		find_library(AMD HINTS UMFPACK_LIBRARY_PATH)
+
+		if (UMFPACK_LIB-NOTFOUND OR AMD-NOTFOUND)
+			set(UMFPACK "")
+		endif (UMFPACK_LIB-NOTFOUND OR AMD-NOTFOUND)
 	endif (ICC_FOUND)
 endif (UMFPACK_SOURCE_FOUND)
 
 message(STATUS "UMFPACK library: ${UMFPACK}")
+
+if (NOT UMFPACK)
+	message(STATUS "UMFPACK not found, using GMRES")
+	add_definitions(-DGMRES)
+endif (NOT UMFPACK)
+
+if (FORCE_GMRES)
+	message(STATUS "using GMRES")
+	add_definitions(-DGMRES)
+endif (FORCE_GMRES)
 
