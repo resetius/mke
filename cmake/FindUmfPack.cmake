@@ -1,0 +1,17 @@
+if (UMFPACK_SOURCE_FOUND)
+	include_directories(./contrib/umfpack/UMFPACK/Include)
+	include_directories(./contrib/umfpack/AMD/Include)
+	include_directories(./contrib/umfpack/UFconfig)
+	set(UMFPACK umfpack)
+else (UMFPACK_SOURCE_FOUND)
+	if (ICC_FOUND)
+		include_directories(/usr/include/suitesparse/)
+		set(UMFPACK umfpack amd blas ${FLIB})
+	else (ICC_FOUND)
+		include_directories(/usr/include/suitesparse/)
+		set(UMFPACK umfpack amd)
+	endif (ICC_FOUND)
+endif (UMFPACK_SOURCE_FOUND)
+
+message(STATUS "UMFPACK library: ${UMFPACK}")
+

@@ -1,27 +1,10 @@
 project(umfpack)
 
-set(UMFPACK_SOURCE_FOUND 1)
-
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/UMFPACK")
-	set(UMFPACK_SOURCE_FOUND 0)
-	message("${CMAKE_CURRENT_SOURCE_DIR}/UMFPACK not found")
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/UMFPACK")
-
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/AMD")
-	set(UMFPACK_SOURCE_FOUND 0)
-	message("${CMAKE_CURRENT_SOURCE_DIR}/AMD not found")
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/AMD")
-
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/UFconfig")
-	set(UMFPACK_SOURCE_FOUND 0)
-	message("${CMAKE_CURRENT_SOURCE_DIR}/UFconfig not found")
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/UFconfig")
-
 if (UMFPACK_SOURCE_FOUND)
-add_definitions(-DDINT -DNBLAS)
-include_directories(./AMD/Source ./AMD/Include 
-	./UMFPACK/Source ./UMFPACK/Include UFConfig)
-set (SRC
+	add_definitions(-DDINT -DNBLAS)
+	include_directories(./AMD/Source ./AMD/Include 
+		./UMFPACK/Source ./UMFPACK/Include UFConfig)
+	set (SRC
 	./UMFPACK/Source/umf_multicompile.c 
 	./UMFPACK/Source/umfpack_global.c 
 	./UMFPACK/Source/umf_ltsolve.c 
