@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.6.3)
 project(mke CXX C)
 
+if (NOT INCLUDE_NOTHING)
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
 include(Common)
 include(CTest)
 include(Testing)
@@ -12,6 +12,7 @@ include(FindFortran)
 include(FindSelfUmfPack)
 include(FindUmfPack)
 include(CommonDefinitions)
+endif (NOT INCLUDE_NOTHING)
 
 add_subdirectory(contrib)
 add_subdirectory(src)
