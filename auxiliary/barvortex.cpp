@@ -44,6 +44,7 @@ integrate_cb( const Polynom & phi_i,
                      const Triangle & trk,
                      const Mesh & m,
                      int point_i, int point_j,
+					 int i, int j,
                      BarVortex * d)
 {
 	double tau   = d->tau_;
@@ -67,6 +68,7 @@ integrate_backward_cb( const Polynom & phi_i,
                      const Triangle & trk,
                      const Mesh & m,
                      int point_i, int point_j,
+					 int i, int j,
                      BarVortex * d)
 {
 	double tau   = d->tau_;
@@ -128,6 +130,7 @@ right_part_cb( const Polynom & phi_i,
                       const Triangle & trk,
                       const Mesh & m,
                       int point_i, int point_j,
+					  int i, int j,
                       right_part_cb_data * d)
 {
 	const double * F = d->F;
@@ -139,7 +142,7 @@ right_part_cb( const Polynom & phi_i,
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, d->d);		
+			trk, m, point_i, point_j, i, j, d->d);
 	} else {
 		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
@@ -153,6 +156,7 @@ right_part_backward_cb( const Polynom & phi_i,
                       const Triangle & trk,
                       const Mesh & m,
                       int point_i, int point_j,
+					  int i, int j,
                       right_part_cb_data * d)
 {
 	const double * F = d->F;
@@ -164,7 +168,7 @@ right_part_backward_cb( const Polynom & phi_i,
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * integrate_backward_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, d->d);		
+			trk, m, point_i, point_j, i, j, d->d);
 	} else {
 		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}

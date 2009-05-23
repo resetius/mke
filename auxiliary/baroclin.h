@@ -48,30 +48,17 @@ private:
 
 	std::vector < double > lh_; // l + h
 
+public:
 	double tau_;
 	double sigma_;
 	double mu_;
 	double sigma1_;
 	double mu1_;
 	double alpha_;
+
+private:
 	rp_t rp_;
 	coriolis_t coriolis_;
-
-	static double integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-                     Baroclin * d);
-
-	struct right_part_cb_data;
-	static double 
-	right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-                      right_part_cb_data * d);
 
 public:
 	Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis, 

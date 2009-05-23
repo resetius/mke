@@ -24,6 +24,8 @@ static double id_cb(const Polynom & phi_i,
 		const Mesh & m,
 		int point_i,
 		int point_j,
+		int i,
+		int j,
 		void *)
 {
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
@@ -33,8 +35,8 @@ static double diff_1_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int i,
-		int j,
+		int i, int j,
+		int, int,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 0) * phi_i;
@@ -47,8 +49,8 @@ static double diff_1_cos_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int i,
-		int j,
+		int i, int j,
+		int, int,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 0) * phi_i;
@@ -61,8 +63,8 @@ static double diff_2_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int i,
-		int j,
+		int i, int j,
+		int, int,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 1) * phi_i;
@@ -75,8 +77,8 @@ static double diff_2_cos_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
-		int i,
-		int j,
+		int i, int j,
+		int, int,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 1) * phi_i;

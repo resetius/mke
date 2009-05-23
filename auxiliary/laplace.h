@@ -85,27 +85,11 @@ private:
 	const Mesh & m_;
 	SphereLaplace laplace_; /* Лапласиан */
 	Matrix  A_;             /* Матрица левой части */
+
+public:
 	double tau_;
 	double mu_;
 	double sigma_;
-
-	static double 
-	schafe_integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-                     SphereChafe * d);
-
-	struct schafe_right_part_cb_data;
-
-	static double 
-	schafe_right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-                      schafe_right_part_cb_data * d);
 
 public:
 	SphereChafe(const Mesh & m, double tau, double sigma, double mu);
@@ -162,25 +146,11 @@ private:
 	const Mesh & m_;
 	Laplace laplace_; /* Лапласиан */
 	Matrix A_;        /* Матрица левой части */
+
+public:
 	double tau_;
 	double mu_;
 	double sigma_;
-
-	static double chafe_integrate_cb(const Polynom & phi_i, 
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m, int point_i, int point_j,
-		const Chafe * d);
-
-	struct chafe_right_part_cb_data;
-
-	static double 
-	chafe_right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-                      chafe_right_part_cb_data * d);
 
 public:
 	Chafe(const Mesh & m, double tau, double sigma, double mu);

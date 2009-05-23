@@ -36,11 +36,12 @@
 using namespace std;
 
 double 
-Baroclin::integrate_cb( const Polynom & phi_i,
+integrate_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
                      int point_i, int point_j,
+					 int i, int j,
                      Baroclin * d)
 {
 	double tau   = d->tau_;
@@ -89,7 +90,7 @@ static double f(double x, double y, double t,
 	return 0.0;
 }
 
-struct Baroclin::right_part_cb_data
+struct right_part_cb_data
 {
 	const double * F;
 	const double * bnd;
@@ -97,11 +98,12 @@ struct Baroclin::right_part_cb_data
 };
 
 double 
-Baroclin::right_part_cb( const Polynom & phi_i,
+right_part_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
                       const Triangle & trk,
                       const Mesh & m,
                       int point_i, int point_j,
+					  int i, int j,
                       right_part_cb_data * d)
 {
 	const double * F = d->F;
@@ -112,8 +114,8 @@ Baroclin::right_part_cb( const Polynom & phi_i,
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b += -bnd[j0] * Baroclin::integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, d->d);		
+		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
+			trk, m, point_i, point_j, i, j, d->d);
 	}
 
 	return b;

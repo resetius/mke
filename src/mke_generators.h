@@ -13,8 +13,10 @@
 	const Polynom & phi_j, 
 	const Triangle & tr,   номер треугольника 
 	const Mesh & mesh,     сетка 
-	int point_i,           номер точки 
-	int point_j,
+	int point_i,           глобальный номер точки 
+	int point_j,           глобальный номер точки 
+	int i,                 номер строки матрицы
+	int j,                 номер столбца матрицы
 	void * user_data       сюда могу входить любые данные
 
  */
@@ -50,7 +52,7 @@ void generate_matrix(Matrix & A, const Mesh & m,
 				} else {
 					mat_add(A, i, j, 
 						integrate_cb(phi_i, phik[i0], trk, 
-							m, p, p2, user_data));
+							m, p, p2, i, j, user_data));
 				}
 			}
 		}
@@ -81,7 +83,8 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
 				mat_add(A, p, p2, 
-					integrate_cb(phi_i, phik[i0], trk, m, p, p2, user_data));
+					integrate_cb(phi_i, phik[i0], trk, m, 
+						p, p2, p, p2, user_data));
 			}
 		}
 	}
@@ -119,7 +122,7 @@ void generate_right_part(double * b, const Mesh & m,
 				int p2   = m.tr[trk_i].p[i0];
 				vec_add(b, i, 
 					right_part_cb(phi_i, phik[i0], 
-						trk, m, p, p2, user_data));
+						trk, m, p, p2, i, m.p2io[p2], user_data));
 			}
 		}
 	}
@@ -155,7 +158,7 @@ void generate_full_right_part(double * b, const Mesh & m,
 				int p2   = m.tr[trk_i].p[i0];
 				vec_add(b, p, 
 					right_part_cb(phi_i, phik[i0], 
-						trk, m, p, p2, user_data));
+						trk, m, p, p2, p, p2, user_data));
 			}
 		}
 	}
@@ -198,7 +201,7 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
 					int i = m.p2io[p];
 					mat_add(A, i, j, 
 						right_part_cb(phik[i0], phi_j, 
-							trk, m, p, p2, user_data));
+							trk, m, p, p2, i, j, user_data));
 				}
 			}
 		}
@@ -228,7 +231,8 @@ void convolution(double * ans, const double * u, const double * v,
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j  = trk.p[i0];
-				ans[i] += u[i] * v[j] * cb(phi_i, phik[i0], trk, m, i, j, user_data);
+				ans[i] += u[i] * v[j] * 
+					cb(phi_i, phik[i0], trk, m, i, j, user_data);
 			}
 		}
 	}
