@@ -75,7 +75,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const vector < Polynom > & phik = trk.elem1();
+			const std::vector < Polynom > & phik = trk.elem1();
 			const Polynom & phi_i           = trk.elem1(p);
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
@@ -109,7 +109,7 @@ void generate_right_part(double * b, const Mesh & m,
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const vector < Polynom > & phik = trk.elem1();
+			const std::vector < Polynom > & phik = trk.elem1();
 			const Polynom & phi_i           = trk.elem1(p);
 			
 			// если граница не меняется по времени, то надо делать отдельный callback
@@ -223,7 +223,7 @@ void convolution(double * ans, const double * u, const double * v,
 			// по треугольникам в точке
 			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const vector < Polynom > & phik = trk.elem1();
+			const std::vector < Polynom > & phik = trk.elem1();
 			const Polynom & phi_i           = trk.elem1(p);
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {

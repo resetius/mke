@@ -9,9 +9,9 @@ namespace MKE_Private_
 	template < typename Container >
 	void mat_add(Matrix & A, int i, int j, const Container & c)
 	{
-		typename c::const_iterator b = c.begin();
-		typename c::const_iterator e = c.end();
-		typename c::const_iterator it;
+		typename Container::const_iterator b = c.begin();
+		typename Container::const_iterator e = c.end();
+		typename Container::const_iterator it;
 
 		for (it = b; it != e; ++it)
 		{
@@ -25,15 +25,16 @@ namespace MKE_Private_
 	}
 
 	template < typename Container >
-	void vec_add(double * b, int i, const Container & c)
+	void vec_add(double * b1, int i, const Container & c)
 	{
-		typename c::const_iterator b = c.begin();
-		typename c::const_iterator e = c.end();
-		typename c::const_iterator it;
+		typename Container::const_iterator b = c.begin();
+		typename Container::const_iterator e = c.end();
+		typename Container::const_iterator it;
 
 		for (it = b; it != e; ++it)
 		{
-			b[it->i] += it->a;
+			b1[it->i] += it->a;
 		}
 	}
 };
+
