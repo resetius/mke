@@ -100,11 +100,11 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
-	generate_boundary_matrix(bnd_, m_, (integrate_cb_t)integrate_cb, this);
+	generate_matrix(A_, m_, integrate_cb, this);
+	generate_boundary_matrix(bnd_, m_, integrate_cb, this);
 
-	generate_matrix(Ab_, m_, (integrate_cb_t)integrate_backward_cb, this);
-	generate_boundary_matrix(bndb_, m_, (integrate_cb_t)integrate_backward_cb, this);
+	generate_matrix(Ab_, m_, integrate_backward_cb, this);
+	generate_boundary_matrix(bndb_, m_, integrate_backward_cb, this);
 
 	//f_.resize(sz);
 	//for (int i = 0; i < sz; ++i) {
@@ -263,7 +263,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		memcpy(&prev_psi[0], psi, sz * sizeof(double));
 		l_.solve(psi, &omega_1[0], bnd);
 		{
-			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
+			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb, (void*)0);
 			//fprintf(stdout, "%le\n", nr);
 			if (nr < 1e-8) {
 				break;

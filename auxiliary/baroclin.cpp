@@ -76,7 +76,7 @@ Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, (integrate_cb_t)integrate_cb, this);
+	generate_matrix(A_, m_, integrate_cb, this);
 }
 
 static double f(double x, double y, double t, 
@@ -196,7 +196,7 @@ void Baroclin::calc(double * u11,  double * u21,
 		data2.d   = this;
 
 		generate_right_part(&rp[0], m_, 
-			(right_part_cb_t)right_part_cb, (void*)&data2);
+			right_part_cb, &data2);
 
 		//TODO: тут граничное условие на омега!
 		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
@@ -204,7 +204,7 @@ void Baroclin::calc(double * u11,  double * u21,
 		memcpy(&prev_psi[0], u11, sz * sizeof(double));
 		l_.solve(u11, &omega_1[0], bnd);
 		{
-			double nr = mke_dist(&prev_psi[0], &u11[0], m_, sphere_scalar_cb);
+			double nr = mke_dist(&prev_psi[0], &u11[0], m_, sphere_scalar_cb, (void*)0);
 			//fprintf(stdout, "%le\n", nr);
 			if (nr < 1e-8) {
 				break;

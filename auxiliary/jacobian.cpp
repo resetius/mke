@@ -163,17 +163,17 @@ Jacobian::Jacobian(const Mesh & m): m_(m),
 	diff1_cos_rp_((int)m.inner.size()),
 	diff2_cos_rp_((int)m.inner.size())
 {
-	generate_matrix(idt_, m, id_cb, 0);
+	generate_matrix(idt_, m, id_cb, (void*)0);
 
-	generate_matrix(diff1_, m_, (right_part_cb_t)diff_1_rp, 0);
-	generate_matrix(diff2_, m_, (right_part_cb_t)diff_2_rp, 0);
-	generate_matrix(diff1_cos_, m_, (right_part_cb_t)diff_1_cos_rp, 0);
-	generate_matrix(diff2_cos_, m_, (right_part_cb_t)diff_2_cos_rp, 0);
+	generate_matrix(diff1_, m_, diff_1_rp, (double*)0);
+	generate_matrix(diff2_, m_, diff_2_rp, (double*)0);
+	generate_matrix(diff1_cos_, m_, diff_1_cos_rp, (double*)0);
+	generate_matrix(diff2_cos_, m_, diff_2_cos_rp, (double*)0);
 
-	generate_boundary_matrix(diff1_rp_, m_, (right_part_cb_t)diff_1_rp, 0);
-	generate_boundary_matrix(diff2_rp_, m_, (right_part_cb_t)diff_2_rp, 0);
-	generate_boundary_matrix(diff1_cos_rp_, m_, (right_part_cb_t)diff_1_cos_rp, 0);
-	generate_boundary_matrix(diff2_cos_rp_, m_, (right_part_cb_t)diff_2_cos_rp, 0);
+	generate_boundary_matrix(diff1_rp_, m_, diff_1_rp, (double*)0);
+	generate_boundary_matrix(diff2_rp_, m_, diff_2_rp, (double*)0);
+	generate_boundary_matrix(diff1_cos_rp_, m_, diff_1_cos_rp, (double*)0);
+	generate_boundary_matrix(diff2_cos_rp_, m_, diff_2_cos_rp, (double*)0);
 }
 
 void Jacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)

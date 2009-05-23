@@ -88,7 +88,7 @@ void test_jacobian (const Mesh & m)
 	j.calc1 (&ans1[0], &F1[0], &F2[0], &bnd[0]);
 
 	fprintf (stderr, "jacobian  err=%.2le\n",
-	         mke_dist (&ans1[0], &rans1[0], m, sphere_scalar_cb) );
+	         mke_dist (&ans1[0], &rans1[0], m, sphere_scalar_cb, (void*)0) );
 
 	//vector < double > p1(m.inner.size());
 	//mke_u2p(&p1[0], &rans1[0], m);
@@ -133,8 +133,8 @@ void test_jacobian_T (const Mesh & m)
 	j.calc1 (&ans1[0], &v[0], &w[0], 0);
 	j.calc1t(&ans2[0], &u[0], &w[0], 0);
 
-	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb);
-	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb);
+	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb, (void*)0);
+	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb, (void*)0);
 
 	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
 	fprintf (stderr, "(v, LTu) = %le \n", nr2);
@@ -144,8 +144,8 @@ void test_jacobian_T (const Mesh & m)
 	j.calc1 (&ans1[0], &w[0], &v[0], 0);
 	j.calc1t(&ans2[0], &w[0], &u[0], 0);
 
-	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb);
-	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb);
+	nr1 = mke_scalar(&ans1[0], &u[0], m, sphere_scalar_cb, (void*)0);
+	nr2 = mke_scalar(&ans2[0], &v[0], m, sphere_scalar_cb, (void*)0);
 
 	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
 	fprintf (stderr, "(v, LTu) = %le \n", nr2);
@@ -287,7 +287,7 @@ void test_barvortex_L (const Mesh & m)
 	bv.L_1_step(&Ans1[0], &Ans[0], &z[0]);
 
 	fprintf (stderr, " ||L(L^1)|| = %le \n",
-		mke_dist (&u[0], &Ans1[0], m, sphere_scalar_cb));
+		mke_dist (&u[0], &Ans1[0], m, sphere_scalar_cb, (void*)0));
 }
 
 void test_barvortex_LT (const Mesh & m)
@@ -327,8 +327,8 @@ void test_barvortex_LT (const Mesh & m)
 	bv.L_step (&lv[0],  &v[0], &z[0]);
 	bv.LT_step(&ltu[0], &u[0], &z[0]);
 
-	double nr1 = mke_scalar(&lv[0],  &u[0], m, sphere_scalar_cb);
-	double nr2 = mke_scalar(&ltu[0], &v[0], m, sphere_scalar_cb);
+	double nr1 = mke_scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
+	double nr2 = mke_scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
 
 	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
 	fprintf (stderr, "(v, LTu) = %le \n", nr2);
@@ -373,7 +373,7 @@ void test_barvortex (const Mesh & m)
 		bv.calc (&u[0], &u[0], &bnd[0], t);
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
-			         mke_norm (&u[0], m, sphere_scalar_cb), t, T, tm.elapsed());
+			         mke_norm (&u[0], m, sphere_scalar_cb, (void*)0), t, T, tm.elapsed());
 			// 3d print
 			print_function (stdout, &u[0], m, x, y, z);
 			// flat print
@@ -392,6 +392,68 @@ void test_barvortex (const Mesh & m)
 		}
 //		Sleep(500);
 #endif
+	}
+}
+
+void test_barvortex_L2 (const Mesh & m)
+{
+	int sz = m.ps.size();
+	int os = m.outer.size();
+
+	double tau = 0.05;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double mu    = 8e-5;   //8e-5;
+	double sigma = 1.6e-2; //1.6e-2;
+
+	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
+	//BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+
+	vector < double > u (sz);
+	vector < double > u1(sz);
+	vector < double > z(sz);
+	vector < double > bnd (std::max (os, 1));
+	vector < double > Ans(sz);
+
+	mke_proj (&u[0], m, an1, 0);
+	//mke_proj (&u[0], m, u0);
+
+	//if (!bnd.empty()) mke_proj_bnd(&bnd[0], m, f1);
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+		Timer tm;
+		bv.calc_L (&u1[0], &u[0], &z[0], &bnd[0], t);
+#if 0
+		if (i % 1 == 0) {
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+			         mke_norm (&u[0], m, sphere_scalar_cb), t, T, tm.elapsed());
+			// 3d print
+			print_function (stdout, &u[0], m, x, y, z);
+			// flat print
+			// print_function (stdout, &u[0], m, 0, 0, 0);
+		}
+#endif
+
+		i += 1;
+		t += tau;
+#if 1
+		{
+			mke_proj(&Ans[0], m, an1, t);
+			fprintf(stderr, "time %lf/ norm %le\n", t, 
+				mke_dist(&u1[0], &Ans[0], m, sphere_scalar_cb, (void*)0));
+//			print_function (stdout, &Ans[0], m, x, y, z);
+		}
+//		Sleep(500);
+#endif
+		u1.swap(u);
 	}
 }
 
@@ -422,9 +484,9 @@ int main (int argc, char *argv[])
 
 	//test_jacobian(mesh);
 	//test_jacobian_T(mesh);
-	test_barvortex_L(mesh);
+	//test_barvortex_L(mesh);
+	test_barvortex_L2(mesh);
 	//test_barvortex_LT(mesh);
 	//test_barvortex (mesh);
 	return 0;
 }
-

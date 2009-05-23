@@ -259,13 +259,13 @@ Laplace::Laplace(const Mesh & m): m_(m),
 	bnd1_((int)m.inner.size()), bnd2_((int)m.inner.size()), 
 	bnd3_((int)m.inner.size())
 {
-	generate_matrix(idt_, m, id_cb, 0);
-	generate_matrix(laplace_, m, laplace_integrate_cb, 0);
-//	generate_full_matrix(fidt_, m, id_cb, 0);
-//	generate_full_matrix(flaplace_, m, laplace_integrate_cb, 0);
-	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, 0);
-	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, 0);
-	generate_boundary_matrix(bnd3_, m_, laplace_integrate_cb, 0);
+	generate_matrix(idt_, m, id_cb, (void*)0);
+	generate_matrix(laplace_, m, laplace_integrate_cb, (void*)0);
+//	generate_full_matrix(fidt_, m, id_cb, (void*)0);
+//	generate_full_matrix(flaplace_, m, laplace_integrate_cb, (void*)0);
+	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, (void*)0);
+	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, (void*)0);
+	generate_boundary_matrix(bnd3_, m_, laplace_integrate_cb, (void*)0);
 }
 
 void Laplace::calc2(double * Ans, const double * F)
@@ -337,7 +337,7 @@ Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, (integrate_cb_t)chafe_integrate_cb, this);
+	generate_matrix(A_, m_, chafe_integrate_cb, this);
 }
 
 /**
@@ -383,7 +383,7 @@ void Chafe::solve(double * Ans, const double * X0,
 	data2.bnd = bnd;
 	data2.d   = this;
 	generate_right_part(&rp[0], m_, 
-		(right_part_cb_t)chafe_right_part_cb, (void*)&data2);
+		chafe_right_part_cb, &data2);
 
 	mke_solve(Ans, bnd, &rp[0], A_, m_);
 }

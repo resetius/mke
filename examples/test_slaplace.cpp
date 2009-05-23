@@ -138,7 +138,7 @@ void test_invert(const Mesh & mesh)
 	fprintf(stderr, "l->%lf\n", t.elapsed());
 	l.solve(&Ans[0], &F[0], &B[0]);
 
-	fprintf(stdout, "L1: invert  err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb));
+	fprintf(stdout, "L1: invert  err=%.2le\n", mke_dist(&Ans[0], &rans[0], mesh, sphere_scalar_cb, (void*)0));
 
 	{
 		FILE * f = fopen("invert_answer.txt", "wb");

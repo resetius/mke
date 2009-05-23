@@ -201,63 +201,6 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
 class Matrix;
 
 /**
- * Callback. Вызывается для всех функций phi_i, phi_j, определенных
- * в точке point на треугольнике tr
- */
-typedef double (* right_part_cb_t)
-(
-	const Polynom  & phi_i, 
-	const Polynom  & phi_j, 
-	const Triangle & tr,  /* треугольник */
-	const Mesh & mesh,    /* сетка       */
-	int point_i,          /* номер узла  */
-	int point_j,
-	void * user_data /* сюда могу входить любые данные, 
-	                    например значение F на пред шаге*/
-);
-
-/**
- * Создает матрицу системы.
- * Вызывает right_part_cb_t для всех функций phi_i, phi_j, определенных
- * в общей точке point на треугольнике tr
- */
-void generate_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
-
-void generate_full_right_part(double * b, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
-
-/**
- * Callback. Вызывается для всех функций phi_i, phi_j, определенных
- * в точке point на треугольнике tr
- */
-typedef double (* integrate_cb_t)
-(
-	const Polynom & phi_i, 
-	const Polynom & phi_j, 
-	const Triangle & tr, /* номер треугольника */
-	const Mesh & mesh,   /* сетка */
-	int point_i,         /* номер точки */
-	int point_j,
-	void * user_data     /* сюда могу входить любые данные */
-);
-
-/**
- * Создает матрицу системы.
- * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
- * в общей точке point на треугольнике tr
- */
-void generate_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
-
-void generate_full_matrix(Matrix & A, const Mesh & m, integrate_cb_t integrate_cb, void * user_data);
-
-/**
- * генерирует матрицу для интеграции краевых условий в правую часть
- * inner.size() x outer.size()
- * в cb передается phi_j где j точка границы
- * phi_i, где i внутренняя точка
- */
-void generate_boundary_matrix(Matrix & A, const Mesh & m, right_part_cb_t right_part_cb, void * user_data);
-
-/**
  * Решает систему
  */
 void mke_solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
@@ -274,44 +217,16 @@ void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 /* убираем краевые условия */
 void mke_u2p(double * u, const double * p, const Mesh & m);
 
-/** 
- * в следующих функциях вызывается 
- * scalar_cb_t
- * для вычисления скалярного произведения двух базисных функций 
- * на треугольнике
- */
-typedef double (* scalar_cb_t)
-(
-	const Polynom & phi_i, 
-	const Polynom & phi_j, 
-	const Triangle & tr, /* номер треугольника */
-	const Mesh & mesh,   /* сетка */
-	int point_i,
-	int point_j,
-	void * user_data     /* сюда могу входить любые данные */
-);
-
 /* тут вычисляется интеграл от произведения функций по треугольнику */
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * );
 
 /* тут вычисляется интеграл от произведения функций по треугольнику на сфере */
 double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * user_data);
 
-void convolution(double * ans, const double * u, const double * v, const Mesh & m, scalar_cb_t cb, void * user_data);
 
-/* сеточное скалярное произведение двух функций */
-double mke_scalar(const double * u, const double * v, 
-				  const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
-
-void generate_scalar_matrix(Matrix & mat, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & mat);
 double mke_fast_norm(const double * u, const Mesh & m, Matrix & mat);
 double mke_fast_dist(const double * u, const double * v, const Mesh & m, Matrix & mat);
-
-/* сеточная норма */
-double mke_norm(const double * u, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
-/* сеточное расстояние */
-double mke_dist(const double * u, const double * v, const Mesh & m, scalar_cb_t cb = generic_scalar_cb, void * user_data = 0);
 
 typedef double (* f_xy_t)(double x, double y);
 typedef double (* f_xyt_t)(double x, double y, double t);
@@ -333,5 +248,6 @@ void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 /* проектирование непрерывной функции f(x,y,t) на границу сетки */
 void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
-#endif /* MKE_H */
+#include "mke_generators.h"
 
+#endif /* MKE_H */

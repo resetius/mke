@@ -112,9 +112,9 @@ void test_boclinic (const Mesh & m)
 		bc.calc (&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], (double) i * tau);
 
 		fprintf (stderr, " === NORM1 = %le\n",
-		         mke_norm (&u1[0], m, sphere_scalar_cb) );
+		         mke_norm (&u1[0], m, sphere_scalar_cb, (void*)0));
 		fprintf (stderr, " === NORM2 = %le\n",
-		         mke_norm (&u2[0], m, sphere_scalar_cb) );
+		         mke_norm (&u2[0], m, sphere_scalar_cb, (void*)0));
 
 		print_function (stdout, &u1[0], m, x, y, z);
 		print_function (stdout, &u2[0], m, x, y, z);

@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 		{
 			mke_proj(&Ans[0], mesh, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
-				mke_dist(&U[0], &Ans[0], mesh, sphere_scalar_cb));
+				mke_dist(&U[0], &Ans[0], mesh, sphere_scalar_cb, (void*)0));
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
