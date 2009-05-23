@@ -11,6 +11,8 @@ add_library(mke
 	gmres.c 
 	quadrature.c
 	mke.h
+	mke_generators.h
+	mke_private.h
 	gmres.h
 	polynom.h
 	solver.h
