@@ -46,28 +46,26 @@ void usage(const char * name)
 	exit(1);
 }
 
-double f(double x, double y)
-{
-	//return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y);
-	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
-}
-
-double g(double x, double y)
-{
-	//return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y);
-	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
-}
-
 double u(double x, double y)
 {
-	//return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
-	return x * (x - 1) * y * (y - 1);// + 1.0;
+	return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
 }
 
 double v(double x, double y)
 {
-	//return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
 	return x * (x - 1) * y * (y - 1);// + 1.0;
+}
+
+double f(double x, double y)
+{
+	return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y) 
+		+ v(x, y);
+}
+
+double g(double x, double y)
+{
+	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x
+		+ u(x, y);
 }
 
 static elements_t
@@ -195,8 +193,8 @@ void test_invert(Mesh & m)
 	mke_p2u(&U[0], &Ans[0],  &BU[0], m);
 	mke_p2u(&V[0], &Ans[rs], &BV[0], m);
 
-	fprintf(stderr, "nev: U = %le\n", mke_dist(&U[0], &RU[0], m));
-	fprintf(stderr, "nev: V = %le\n", mke_dist(&V[0], &RV[0], m));
+	fprintf(stderr, "answer nev: U = %le\n", mke_dist(&U[0], &RU[0], m));
+	fprintf(stderr, "answer nev: V = %le\n", mke_dist(&V[0], &RV[0], m));
 }
 
 int main(int argc, char *argv[])
