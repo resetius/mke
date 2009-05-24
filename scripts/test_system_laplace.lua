@@ -14,7 +14,7 @@ function read_errors(f)
 	print (f)
 	for line in f:lines() do
 		e1 = extract(e1, line, "answer nev: U = ([0-9]*\.[0-9]*[eE]?[-+][0-9]*)")
-		e2 = extract(e2, line, "answer nev: V = ([0-9]*\.[0-9]*[eE]?[-+][0-9]*)", "%1")
+		e2 = extract(e2, line, "answer nev: V = ([0-9]*\.[0-9]*[eE]?[-+][0-9]*)")
 	end
 
 	print ("e1", e1)
@@ -46,7 +46,6 @@ function run_test()
 	local k2 = e22 / e23
 	print ("e12 / e13 =", k1)
 	print ("e22 / e23 =", k2)
-	print ("e
 	if (k1 < 3.5 or k2 < 3.5) then
 		print ("e12 / e13 < 3.5 or e22 / e23 < 3.5")
 		os.exit(-1)

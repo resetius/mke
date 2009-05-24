@@ -193,8 +193,8 @@ void test_invert(Mesh & m)
 	mke_p2u(&U[0], &Ans[0],  &BU[0], m);
 	mke_p2u(&V[0], &Ans[rs], &BV[0], m);
 
-	fprintf(stderr, "answer nev: U = %le\n", mke_dist(&U[0], &RU[0], m));
-	fprintf(stderr, "answer nev: V = %le\n", mke_dist(&V[0], &RV[0], m));
+	fprintf(stdout, "answer nev: U = %le\n", mke_dist(&U[0], &RU[0], m));
+	fprintf(stdout, "answer nev: V = %le\n", mke_dist(&V[0], &RV[0], m));
 }
 
 int main(int argc, char *argv[])
