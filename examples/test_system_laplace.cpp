@@ -192,8 +192,8 @@ void test_invert(Mesh & m)
 	generate_right_part(&RP[0], m, laplace_right_part_cb, &data);
 
 	A.solve(&Ans[0], &RP[0]);
-	mke_p2u(&Ans[0],  &U[0], &BU[0], m);
-	mke_p2u(&Ans[rs], &V[0], &BV[0], m);
+	mke_p2u(&U[0], &Ans[0],  &BU[0], m);
+	mke_p2u(&V[0], &Ans[rs], &BV[0], m);
 
 	fprintf(stderr, "nev: U = %le\n", mke_dist(&U[0], &RU[0], m));
 	fprintf(stderr, "nev: V = %le\n", mke_dist(&V[0], &RV[0], m));
