@@ -48,12 +48,12 @@ void usage(const char * name)
 
 double u(double x, double y)
 {
-	return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
+	return sin(M_PI * x) * sin(M_PI * y) + 1.0;
 }
 
 double v(double x, double y)
 {
-	return x * (x - 1) * y * (y - 1);// + 1.0;
+	return x * (x - 1) * y * (y - 1) + 1.0;
 }
 
 double f(double x, double y)
