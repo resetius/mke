@@ -232,7 +232,7 @@ void convolution(double * ans, const double * u, const double * v,
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int j  = trk.p[i0];
 				ans[i] += u[i] * v[j] * 
-					cb(phi_i, phik[i0], trk, m, i, j, user_data);
+					cb(phi_i, phik[i0], trk, m, i, j, i, j, user_data);
 			}
 		}
 	}

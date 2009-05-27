@@ -218,10 +218,10 @@ void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 void mke_u2p(double * u, const double * p, const Mesh & m);
 
 /* тут вычисляется интеграл от произведения функций по треугольнику */
-double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * );
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * );
 
 /* тут вычисляется интеграл от произведения функций по треугольнику на сфере */
-double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, void * user_data);
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * user_data);
 
 
 double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & mat);
