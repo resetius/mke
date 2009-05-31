@@ -1,16 +1,18 @@
 set(UMFPACK_SOURCE_FOUND 1)
-
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UMFPACK")
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/UMFPACK")
         set(UMFPACK_SOURCE_FOUND 0)
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UMFPACK")
+	message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/UMFPACK not found")
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/UMFPACK")
 
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/AMD")
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/AMD")
         set(UMFPACK_SOURCE_FOUND 0)
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/AMD")
+	message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/AMD not found")
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/AMD")
 
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UFconfig")
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/UFconfig")
         set(UMFPACK_SOURCE_FOUND 0)
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/contrib/umfpack/UFconfig")
+	message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/UFConfig not found")
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${MKE_SUBDIR}/contrib/umfpack/UFconfig")
 
 if (UMFPACK_SOURCE_FOUND)
 	message(STATUS "UMFPACK sources found, using it!")
