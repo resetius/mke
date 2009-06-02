@@ -8,7 +8,19 @@ using namespace std;
 
 void CMD_Parser::help()
 {
-	fprintf(stderr, "help message\n");
+	fprintf(stderr, "%s \n"
+			"\t-h|-help|--help -- help message\n"
+			"\t-info -- file info\n"
+			"\t-info -att name -- attribute 'name' info\n"
+			"\t-info -var name -- variable 'name' info\n"
+			"\t-file name -- sets netcdf file name\n"
+			"\t-dump -file fname -var name \n"
+			"\t      -- dumps variable 'name' to file 'fname'\n"
+			"\t-dump -file fname -var name -dim dn1 from total ..\n"
+			"\t      -- dumps variable 'name' to file 'fname' \n"
+			"\t      -- and sets dimentions boundaries\n",
+			argv_[0]
+			);
 }
 
 void CMD_Parser::check_file()
