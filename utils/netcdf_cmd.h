@@ -8,10 +8,11 @@
 
 struct Slice {
 	NcDim * dim;
+	int dim_num;
 	int from;
-	int to;
+	int total;
 
-	Slice(NcFile * f, const char * d, int f1, int t1) : from(f1), to(t1) 
+	Slice(NcFile * f, const char * d, int f1, int t1) : dim(0), dim_num(0), from(f1), total(t1) 
 	{
 		dim = f->get_dim(d);
 		if (!dim) {
@@ -22,8 +23,8 @@ struct Slice {
 		if (from == -1) from = 0;
 		if (from >= size) from = size - 1;
 
-		if (to == -1) to = size;
-		if (to > size) to = size;
+		if (total == -1) total = size;
+		if (total > size) total = size;
 	}
 };
 

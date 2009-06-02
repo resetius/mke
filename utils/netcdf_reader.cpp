@@ -171,9 +171,29 @@ void CMD_Parser::info_att(NcAtt * att)
 
 void CMD_Parser::dump(const char * to, const char * what)
 {
+	check_file();
+
+	NcVar * var = f_->get_var(what);
+	long from[]  = {0, 0, 0, 0, 0};
+	long total[] = {0, 0, 0, 0, 0}; // set to max!!!
+
+	if (!var) {
+		fprintf(stderr, "variable not found!\n");
+		exit(-1);
+	}
+
 	for (slices_t::iterator it = slices_.begin(); it != slices_.end(); ++it)
 	{
+		if (it->dim_num > 5) {
+			fprintf(stderr, "wrong dim number!\n");
+		}
+		from[it->dim_num]  = it->from;
+		total[it->dim_num] = it->total;
 	}
+
+	var->set_cur(from);
+	// var->get(vals, total);
+	// save
 }
 
 void CMD_Parser::add_slice(const char * dim)
