@@ -10,13 +10,14 @@ struct CMD_Parser {
 	char ** argv_;
 	NcFile * f_;
 
-	CMD_Parser (int argc, char * argv[]): f_(0), cur_(0), argc_(argc), argv_(argv) {}
+	CMD_Parser (int argc, char * argv[]): f_(0), cur_(1), argc_(argc), argv_(argv) {}
 	~CMD_Parser() { delete f_; }
 
 	void parse();
 	void open(const char * name);
 	int next();
 
+	void help();
 	void info();
 
 	void info_dim(int number) {}

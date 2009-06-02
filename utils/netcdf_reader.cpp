@@ -1,6 +1,11 @@
 #include "netcdf_cmd.h"
 #include "netcdf_cmd.hpp"
 
+void CMD_Parser::help()
+{
+	fprintf(stderr, "help message\n");
+}
+
 void CMD_Parser::info()
 {
 	if (!f_)
@@ -44,7 +49,7 @@ void CMD_Parser::open (const char * file)
 		f_ = 0;
 	}
 	f_ = new NcFile (file);
-	if (f_->is_valid() )
+	if (!f_->is_valid())
 	{
 		fprintf (stderr, "bad file %s\n", file);
 		exit (-1);
@@ -53,8 +58,10 @@ void CMD_Parser::open (const char * file)
 
 int CMD_Parser::next()
 {
-	if (cur_ == argc_) return 0;
 	int ans = 0;
+	if (cur_ == argc_) {
+		return ans;
+	}
 
 	yylval.str = argv_[cur_];
 
@@ -72,15 +79,20 @@ int CMD_Parser::next()
 	}
 	else
 	{
-		int i = atoi (argv_[cur_]);
-		if (i != 0)
-		{
-			yylval.num = i;
-			ans = NUMBER;
+		char * s = argv_[cur_];
+		int flag = 1;
+		while (*s) {
+			if (!(('0' <= *s) && (*s <= '9'))) {
+				flag = 0;
+				break;
+			}
+			s++;
 		}
-		else if (!strcmp (argv_[cur_], "0") )
+
+
+		if (flag)
 		{
-			yylval.num = 0;
+			yylval.num = atoi(argv_[cur_]);
 			ans = NUMBER;
 		}
 		else
@@ -94,7 +106,7 @@ int CMD_Parser::next()
 
 void CMD_Parser::parse()
 {
-	while (yyparse (this) );
+	yyparse (this);
 }
 
 int main (int argc, char * argv[])
