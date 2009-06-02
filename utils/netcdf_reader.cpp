@@ -170,6 +170,15 @@ void CMD_Parser::info_att(NcAtt * att)
 	fprintf(stdout, "\t%s\n", str.str().c_str());
 }
 
+template < typename T >
+void get_and_write(int count, const long * counts, FILE * f, NcVar * var)
+{
+	T * d = new T[count];
+	var->get(d, counts);
+	fwrite(d, sizeof(T), count, f);
+	delete [] d;
+}
+
 void CMD_Parser::dump(const char * to, const char * what)
 {
 	check_file();
@@ -183,30 +192,67 @@ void CMD_Parser::dump(const char * to, const char * what)
 		exit(-1);
 	}
 
-	for (slices_t::iterator it = slices_.begin(); it != slices_.end(); ++it)
-	{
-		if (it->dim_num > 5) {
-			fprintf(stderr, "wrong dim number!\n");
+	fprintf(stderr, "dump %s to %s\n", what, to);
+
+	int dims  = var->num_dims();
+	int elems = 1;
+	for (int i = 0; i < dims & i < 5; ++i) {
+		NcDim * dim = var->get_dim(i);
+		if (dim) {
+			Slice fake(f_, dim->name(), -1, -1);
+			slices_t::iterator it = slices_.find(fake);
+			if (it != slices_.end()) {
+				from[i]  = it->from;
+				total[i] = it->total;
+			} else {
+				total[i] = dim->size();
+			}
+
+			elems *= total[i];
 		}
-		from[it->dim_num]  = it->from;
-		total[it->dim_num] = it->total;
 	}
 
 	var->set_cur(from);
-	// var->get(vals, total);
-	// save
+	
+	FILE * f = fopen(to, "wb");
+	NcType type = var->type();
+	switch (type) {
+	case ncByte:
+		get_and_write < ncbyte > (elems, total, f, var);
+		break;
+	case ncChar:
+		get_and_write < char > (elems, total, f, var);
+		break;
+	case ncShort:
+		get_and_write < short > (elems, total, f, var);
+		break;
+	case ncLong:
+		get_and_write < long > (elems, total, f, var);
+		break;
+	case ncFloat:
+		get_and_write < float > (elems, total, f, var);
+		break;
+	case ncDouble:
+		get_and_write < double > (elems, total, f, var);
+		break;
+	default:
+		fprintf(stderr, "unknown type!\n");
+		exit(-1);
+		break;
+	}
+	fclose(f);
 }
 
 void CMD_Parser::add_slice(const char * dim)
 {
 	check_file();
-	slices_.push_back(Slice(f_, dim, -1, -1));
+	slices_.insert(Slice(f_, dim, -1, -1));
 }
 
 void CMD_Parser::add_slice(const char * dim, double from, double to)
 {
 	check_file();
-	slices_.push_back(Slice(f_, dim, from, to));
+	slices_.insert(Slice(f_, dim, from, to));
 }
 
 void CMD_Parser::reset_slice()

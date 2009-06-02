@@ -1,18 +1,21 @@
 #ifndef NETCDF_CMD_H
 #define NETCDF_CMD_H
 
-#include <vector>
+#include <set>
 #include <string>
 #include <string.h>
 #include <netcdf.hh>
 
 struct Slice {
 	NcDim * dim;
+	std::string dim_name;
 	int dim_num;
 	int from;
 	int total;
 
-	Slice(NcFile * f, const char * d, int f1, int t1) : dim(0), dim_num(0), from(f1), total(t1) 
+	Slice(NcFile * f, const char * d, int f1, int t1) : dim(0),
+       		dim_name(d), 
+		dim_num(0), from(f1), total(t1) 
 	{
 		dim = f->get_dim(d);
 		if (!dim) {
@@ -28,12 +31,17 @@ struct Slice {
 	}
 };
 
+inline bool operator < (const Slice & s1, const Slice & s2) 
+{
+	return s1.dim_name < s2.dim_name;
+}
+
 struct CMD_Parser {
 	int cur_;
 	int argc_;
 	char ** argv_;
 	NcFile * f_;
-	typedef std::vector < Slice > slices_t;
+	typedef std::set < Slice > slices_t;
 	slices_t slices_;
 
 	CMD_Parser (int argc, char * argv[]): f_(0), cur_(1), argc_(argc), argv_(argv) {}
