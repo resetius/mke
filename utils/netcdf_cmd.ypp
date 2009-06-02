@@ -13,6 +13,7 @@ extern int yylex(CMD_Parser * ptr);
 %token INFO
 %token <num> NUMBER
 %token <str> STR
+%token FLE
 %token DIM
 %token VAR
 %token ATT
@@ -20,13 +21,17 @@ extern int yylex(CMD_Parser * ptr);
 
 grp: hlp
 	| info
+	| file
 	| grp grp
 	;
 
 hlp: HELP
 	;
 
-info: INFO
+file: FLE STR { ptr->open($2); }
+	;
+
+info: INFO  { ptr->info(); }
 	| INFO DIM NUMBER { ptr->info_dim($3); }
 	| INFO DIM STR    { ptr->info_dim($3); }
 	| INFO VAR NUMBER { ptr->info_var($3); }
