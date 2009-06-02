@@ -209,6 +209,9 @@ void CMD_Parser::dump(const char * to, const char * what)
 			}
 
 			elems *= total[i];
+
+			fprintf(stderr, "%s from %d count %d\n", 
+					dim->name(), from[i], total[i]);
 		}
 	}
 
