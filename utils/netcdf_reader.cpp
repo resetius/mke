@@ -46,7 +46,10 @@ void CMD_Parser::info()
 	for (int i = 0; i < atts; ++i)
 	{
 		NcAtt * att = f_->get_att (i);
-		if (att) fprintf (stdout, "%d:\t%s\n", i, att->name() );
+		if (att) {
+			fprintf (stdout, "%d:\t%s\n", i, att->name() );
+			info_att(att);
+		}
 	}
 }
 
@@ -131,7 +134,6 @@ void CMD_Parser::info_var(NcVar * var)
 			info_att(att);
 		}
 	}
-
 }
 
 void CMD_Parser::info_att(int num)
