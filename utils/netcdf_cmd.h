@@ -20,14 +20,14 @@ struct CMD_Parser {
 	void help();
 	void info();
 
-	void info_dim(int number) {}
-	void info_dim(const char * name) {}
-
 	void info_var(int number) {}
 	void info_var(const char * name) {}
 
-	void info_att(int number) {}
-	void info_att(const char * name) {}
+	void info_att(int number);
+	void info_att(const char * name);
+	void info_att(NcAtt *);
+
+	void check_file();
 };
 
 int yyparse(CMD_Parser * );

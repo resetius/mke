@@ -32,8 +32,6 @@ file: FLE STR { ptr->open($2); }
 	;
 
 info: INFO  { ptr->info(); }
-	| INFO DIM NUMBER { ptr->info_dim($3); }
-	| INFO DIM STR    { ptr->info_dim($3); }
 	| INFO VAR NUMBER { ptr->info_var($3); }
 	| INFO VAR STR    { ptr->info_var($3); }
 	| INFO ATT NUMBER { ptr->info_att($3); }
