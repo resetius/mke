@@ -171,18 +171,26 @@ void CMD_Parser::info_att(NcAtt * att)
 
 void CMD_Parser::dump(const char * to, const char * what)
 {
+	for (slices_t::iterator it = slices_.begin(); it != slices_.end(); ++it)
+	{
+	}
 }
 
 void CMD_Parser::add_slice(const char * dim)
 {
+	check_file();
+	slices_.push_back(Slice(f_, dim, -1, -1));
 }
 
 void CMD_Parser::add_slice(const char * dim, double from, double to)
 {
+	check_file();
+	slices_.push_back(Slice(f_, dim, from, to));
 }
 
 void CMD_Parser::reset_slice()
 {
+	slices_.clear();
 }
 
 int CMD_Parser::next()
