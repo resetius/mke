@@ -1,4 +1,5 @@
 #include <sstream>
+#include <stdlib.h>
 
 #include "netcdf_cmd.h"
 #include "netcdf_cmd.hpp"

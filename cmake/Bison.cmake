@@ -10,14 +10,14 @@ MACRO(ADD_BISON_FILES _sources )
       GET_FILENAME_COMPONENT(_in ${_current_FILE} ABSOLUTE)
       GET_FILENAME_COMPONENT(_basename ${_current_FILE} NAME_WE)
 
-      SET(_out ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.cpp)
+      SET(_out ${CMAKE_CURRENT_SOURCE_DIR}/${_basename})
 
       ADD_CUSTOM_COMMAND(
-         OUTPUT ${_out}
+         OUTPUT ${_out}.cpp ${_out}.hpp
          COMMAND ${BISON_EXECUTABLE}
          ARGS
 	 -d
-         -o${_out}
+         -o${_out}.cpp
          ${_in}
          DEPENDS ${_in}
       )
