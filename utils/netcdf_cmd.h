@@ -29,6 +29,11 @@ struct CMD_Parser {
 	void info_att(NcAtt *);
 
 	void check_file();
+
+	void dump(const char * to, const char * what);
+	void add_slice(const char * dim);
+	void add_slice(const char * dim, double from, double to);
+	void reset_slice();
 };
 
 int yyparse(CMD_Parser * );

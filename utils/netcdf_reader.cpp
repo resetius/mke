@@ -169,6 +169,22 @@ void CMD_Parser::info_att(NcAtt * att)
 	fprintf(stdout, "\t%s\n", str.str().c_str());
 }
 
+void CMD_Parser::dump(const char * to, const char * what)
+{
+}
+
+void CMD_Parser::add_slice(const char * dim)
+{
+}
+
+void CMD_Parser::add_slice(const char * dim, double from, double to)
+{
+}
+
+void CMD_Parser::reset_slice()
+{
+}
+
 int CMD_Parser::next()
 {
 	int ans = 0;
@@ -190,6 +206,11 @@ int CMD_Parser::next()
 	{
 		ans = FLE;
 	}
+	else if (!strcmp (argv_[cur_], "-dump") )
+	{
+		reset_slice();
+		ans = DUMP;
+	}
 	else if (!strcmp (argv_[cur_], "-var") )
 	{
 		ans = VAR;
@@ -207,7 +228,7 @@ int CMD_Parser::next()
 		char * s = argv_[cur_];
 		int flag = 1;
 		while (*s) {
-			if (!(('0' <= *s) && (*s <= '9'))) {
+			if (!(('0' <= *s) && (*s <= '9') || *s == '.')) {
 				flag = 0;
 				break;
 			}
@@ -217,8 +238,8 @@ int CMD_Parser::next()
 
 		if (flag)
 		{
-			yylval.num = atoi(argv_[cur_]);
-			ans = NUMBER;
+			yylval.num = atof(argv_[cur_]);
+			ans = NUM;
 		}
 		else
 		{

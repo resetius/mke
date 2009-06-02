@@ -4,14 +4,15 @@ extern int yyerror(CMD_Parser * ptr, const char *s);
 extern int yylex(CMD_Parser * ptr);
 %}
 %union {
-	int num;
+	double num;
 	char * str;
 }
 %parse-param { CMD_Parser * ptr }
 %lex-param { CMD_Parser * ptr }
 %token HELP
 %token INFO
-%token <num> NUMBER
+%token DUMP
+%token <num> NUM
 %token <str> STR
 %token FLE
 %token DIM
@@ -22,6 +23,7 @@ extern int yylex(CMD_Parser * ptr);
 grp: hlp
 	| info
 	| file
+	| dump
 	| grp grp
 	;
 
@@ -32,10 +34,18 @@ file: FLE STR { ptr->open($2); }
 	;
 
 info: INFO  { ptr->info(); }
-	| INFO VAR NUMBER { ptr->info_var($3); }
 	| INFO VAR STR    { ptr->info_var($3); }
-	| INFO ATT NUMBER { ptr->info_att($3); }
 	| INFO ATT STR    { ptr->info_att($3); }
+	;
+
+slice: DIM STR            { ptr->add_slice($2); }
+	| DIM STR NUM NUM { ptr->add_slice($2, $3, $4); }
+	| slice DIM STR   { ptr->add_slice($3); }
+	| slice DIM STR NUM NUM { ptr->add_slice($3, $4, $5); }
+	;
+
+dump: DUMP FLE STR VAR STR           { ptr->dump($3, $5); }
+	| DUMP FLE STR VAR STR slice { ptr->dump($3, $5); }
 	;
 %%
 
