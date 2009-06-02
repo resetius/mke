@@ -20,8 +20,9 @@ struct CMD_Parser {
 	void help();
 	void info();
 
-	void info_var(int number) {}
-	void info_var(const char * name) {}
+	void info_var(int number);
+	void info_var(const char * name);
+	void info_var(NcVar *);
 
 	void info_att(int number);
 	void info_att(const char * name);

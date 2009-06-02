@@ -92,6 +92,26 @@ void nctype_print(NcType type)
 	}
 }
 
+void CMD_Parser::info_var(int n)
+{
+	check_file();
+	info_var(f_->get_var(n));
+}
+
+void CMD_Parser::info_var(const char * n)
+{
+	check_file();
+	info_var(f_->get_var(n));
+}
+
+void CMD_Parser::info_var(NcVar * var)
+{
+	if (!var) {
+		fprintf(stderr, "variable not found!\n");
+		exit(-1);
+	}
+}
+
 void CMD_Parser::info_att(int num)
 {
 	check_file();
