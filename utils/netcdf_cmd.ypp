@@ -10,9 +10,21 @@ extern int yylex(CMD_Parser * ptr);
 %lex-param { CMD_Parser * ptr }
 %token HELP
 %token INFO
+%token NUMBER
+%token STR
 %%
 
+grp: hlp
+	| info
+	| grp grp
+	;
+
 hlp: HELP
+	;
+
+info: INFO
+	| INFO NUMBER
+	| INFO STR
 	;
 %%
 
