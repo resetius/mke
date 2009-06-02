@@ -129,8 +129,11 @@ void CMD_Parser::info_var(NcVar * var)
 
 	int dims = var->num_dims();
 	int atts = var->num_atts();
+	NcType type = var->type();
 
-	fprintf (stdout, "dims/atts: %d/%d/%d\n", dims, atts);
+	fprintf (stdout, "dims/atts: %d/%d\n", dims, atts);
+	fprintf (stdout, "NcType: ");
+	nctype_print(type);
 	fprintf (stdout, "dims:\n");
 	for (int i = 0; i < dims; ++i)
 	{
