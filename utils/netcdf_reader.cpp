@@ -16,25 +16,25 @@ void info_file(const char * path)
 	fprintf(stdout, "dims:\n");
 	for (int i = 0; i < dims; ++i) {
 		NcDim * dim = f.get_dim(i);
-		fprintf(stdout, "%s: %ld\n", dim->name(), dim->size());
+		fprintf(stdout, "%d:\t%s: %ld\n", i, dim->name(), dim->size());
 	}
 
 	fprintf(stdout, "vars:\n");
 	for (int i = 0; i < vars; ++i) {
 		NcVar * var = f.get_var(i);
-		fprintf(stdout, "%s\n", var->name());
+		fprintf(stdout, "%d:\t%s\n", i, var->name());
 	}
 
 	fprintf(stdout, "atts:\n");
 	for (int i = 0; i < vars; ++i) {
 		NcAtt * att = f.get_att(i);
-		fprintf(stdout, "%s\n", att->name());
+		fprintf(stdout, "%d:\t%s\n", i, att->name());
 	}
 }
 
 int main(int argc, char * argv[])
 {
-	info_file(argv[0]);
+	info_file(argv[1]);
 	return 0;
 }
 
