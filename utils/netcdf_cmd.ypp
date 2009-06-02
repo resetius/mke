@@ -4,14 +4,18 @@ extern int yyerror(CMD_Parser * ptr, const char *s);
 extern int yylex(CMD_Parser * ptr);
 %}
 %union {
+	int num;
 	char * str;
 }
 %parse-param { CMD_Parser * ptr }
 %lex-param { CMD_Parser * ptr }
 %token HELP
 %token INFO
-%token NUMBER
-%token STR
+%token <num> NUMBER
+%token <str> STR
+%token DIM
+%token VAR
+%token ATT
 %%
 
 grp: hlp
@@ -23,8 +27,12 @@ hlp: HELP
 	;
 
 info: INFO
-	| INFO NUMBER
-	| INFO STR
+	| INFO DIM NUMBER { ptr->info_dim($3); }
+	| INFO DIM STR    { ptr->info_dim($3); }
+	| INFO VAR NUMBER { ptr->info_var($3); }
+	| INFO VAR STR    { ptr->info_var($3); }
+	| INFO ATT NUMBER { ptr->info_att($3); }
+	| INFO ATT STR    { ptr->info_att($3); }
 	;
 %%
 
