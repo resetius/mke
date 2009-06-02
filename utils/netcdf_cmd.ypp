@@ -3,6 +3,9 @@
 extern int yyerror(CMD_Parser * ptr, const char *s);
 extern int yylex(CMD_Parser * ptr);
 %}
+%union {
+	char * str;
+}
 %parse-param { CMD_Parser * ptr }
 %lex-param { CMD_Parser * ptr }
 %token HELP
@@ -20,6 +23,6 @@ int yyerror(CMD_Parser * ptr, const char * s)
 
 int yylex(CMD_Parser * ptr)
 {
-	return 0;
+	return ptr->next();
 }
 
