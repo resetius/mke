@@ -1,0 +1,25 @@
+%{
+#include "netcdf_cmd.h"
+extern int yyerror(CMD_Parser * ptr, const char *s);
+extern int yylex(CMD_Parser * ptr);
+%}
+%parse-param { CMD_Parser * ptr }
+%lex-param { CMD_Parser * ptr }
+%token HELP
+%token INFO
+%%
+
+hlp: HELP
+	;
+%%
+
+int yyerror(CMD_Parser * ptr, const char * s)
+{
+	return 0;
+}
+
+int yylex(CMD_Parser * ptr)
+{
+	return 0;
+}
+
