@@ -43,7 +43,7 @@ void CMD_Parser::info()
 	}
 
 	fprintf (stdout, "atts:\n");
-	for (int i = 0; i < vars; ++i)
+	for (int i = 0; i < atts; ++i)
 	{
 		NcAtt * att = f_->get_att (i);
 		if (att) fprintf (stdout, "%d:\t%s\n", i, att->name() );
@@ -110,6 +110,28 @@ void CMD_Parser::info_var(NcVar * var)
 		fprintf(stderr, "variable not found!\n");
 		exit(-1);
 	}
+
+	int dims = var->num_dims();
+	int atts = var->num_atts();
+
+	fprintf (stdout, "dims/atts: %d/%d/%d\n", dims, atts);
+	fprintf (stdout, "dims:\n");
+	for (int i = 0; i < dims; ++i)
+	{
+		NcDim * dim = var->get_dim (i);
+		if (dim) fprintf (stdout, "%d:\t%s: %ld\n", i, dim->name(), dim->size() );
+	}
+
+	fprintf (stdout, "atts:\n");
+	for (int i = 0; i < atts; ++i)
+	{
+		NcAtt * att = var->get_att (i);
+		if (att) { 
+			fprintf (stdout, "%d:\t%s\n", i, att->name() );
+			info_att(att);
+		}
+	}
+
 }
 
 void CMD_Parser::info_att(int num)
@@ -134,15 +156,15 @@ void CMD_Parser::info_att(NcAtt * att)
 	NcType type = att->type();
 	int vals = att->num_vals();
 
-	fprintf(stdout, "NcType: ");
+	fprintf(stdout, "\tNcType: ");
 	nctype_print(type);
-	fprintf(stdout, "vals: %d\n", vals);
+	fprintf(stdout, "\tvals: %d\n", vals);
 
 	NcValues * val = att->values();
 
 	ostringstream str;
 	val->print(str);
-	fprintf(stdout, "%s\n", str.str().c_str());
+	fprintf(stdout, "\t%s\n", str.str().c_str());
 }
 
 int CMD_Parser::next()
