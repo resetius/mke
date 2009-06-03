@@ -35,29 +35,14 @@
 
 using namespace std;
 
-double 
+static elements_t
 integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-					 int i, int j,
-                     Baroclin * d)
-{
-	double tau   = d->tau_;
-	double mu    = d->mu_;
-	double sigma = d->sigma_;
-
-	double pt1, pt2;
-
-	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
-	pt1 *= 1.0 / tau + sigma * 0.5;
-
-	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
-	pt2 *= -0.5 * mu;
-
-	return pt1 + pt2;
-}
+              const Polynom & phi_j, 
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+              int i, int j,
+              Baroclin * d);
 
 static double coriolis(double phi, double lambda)
 {
@@ -69,7 +54,7 @@ static double coriolis(double phi, double lambda)
 
 Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
          double tau, double sigma, double mu, double sigma1, double mu1, double alpha)
-	: m_(m), l_(m), j_(m), A_((int)m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
+	: m_(m), l_(m), j_(m), A_(4 * (int)m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
 	sigma1_(sigma1), mu1_(mu1), alpha_(alpha), rp_(rp), coriolis_(coriolis)
 {
 	theta_ = 0.5;
@@ -103,32 +88,8 @@ struct right_part_cb_data
 	Baroclin  * d;
 };
 
-double 
-right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-					  int i, int j,
-                      right_part_cb_data * d)
-{
-	const double * F = d->F;
-	double b;
-
-	b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
-
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
-		const double * bnd = d->bnd;
-		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
-	}
-
-	return b;
-}
-
 elements_t
-integrate_cb2(const Polynom & phi_i,
+integrate_cb( const Polynom & phi_i,
               const Polynom & phi_j, 
               const Triangle & trk,
               const Mesh & m,
@@ -191,7 +152,7 @@ integrate_cb2(const Polynom & phi_i,
 }
 
 elements_t
-right_part_cb2(const Polynom & phi_i,
+right_part_cb( const Polynom & phi_i,
                const Polynom & phi_j,
                const Triangle & trk,
                const Mesh & m,
@@ -209,7 +170,7 @@ right_part_cb2(const Polynom & phi_i,
 
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0        = m.p2io[point_j]; //номер внешней точки
-		elements_t r1 = integrate_cb2(phi_i, phi_j, 
+		elements_t r1 = integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
 		for (elements_t::iterator it = r1.begin(); it != r1.end(); ++it)
 		{
@@ -259,6 +220,7 @@ void Baroclin::calc(double * u11,  double * u21,
 		const double * u1, const double * u2, 
 		const double * bnd, double t)
 {
+#if 0
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
 
@@ -340,5 +302,6 @@ void Baroclin::calc(double * u11,  double * u21,
 			}
 		}
 	}
+#endif
 }
 
