@@ -54,8 +54,11 @@ static double coriolis(double phi, double lambda)
 
 Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
          double tau, double sigma, double mu, double sigma1, double mu1, double alpha)
-	: m_(m), l_(m), j_(m), A_(4 * (int)m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
-	sigma1_(sigma1), mu1_(mu1), alpha_(alpha), rp_(rp), coriolis_(coriolis)
+	: SphereNorm(m), m_(m), l_(m), j_(m), 
+	A_(4 * (int)m.inner.size()), 
+	tau_(tau), sigma_(sigma), mu_(mu),
+	sigma1_(sigma1), mu1_(mu1), 
+	alpha_(alpha), rp_(rp), coriolis_(coriolis)
 {
 	theta_ = 0.5;
 	lh_.resize(m_.ps.size());
@@ -84,7 +87,6 @@ struct right_part_cb_data
 	const double * BW2;
 	const double * BU1;
 	const double * BU2;
-	const double * bnd; // TODO: <- delete
 	Baroclin  * d;
 };
 
@@ -105,8 +107,6 @@ integrate_cb( const Polynom & phi_i,
 	double sigma = d->sigma_;
 	double alpha = d->alpha_;
 	double theta = d->theta_;
-
-	double pt1, pt2;
 
 	/**
 	 * 4nx4n matrix:
@@ -239,88 +239,96 @@ void Baroclin::calc(double * u11,  double * u21,
 		const double * u1, const double * u2, 
 		const double * bnd, double t)
 {
-#if 0
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
 
-	vector < double > omega_0(sz); // omega_0 = L (X_0)
-	vector < double > omega_1(sz);
-	vector < double > lomega(rs);  // L(omega)
-	vector < double > rp(rs);
+	// правая часть 1:
+	// J(0.5(u1+u1), 0.5(w1+w1)+l+h) + J(0.5(u2+u2),w2+w2)+
+	// w1/tau + (1-theta)sigma/2(w1-w2)-mu(1-theta)(\Delta w1)
+	//
 
-	vector < double > omega(rs);    // = omega_1 без границы
-	vector < double > omega_lh(sz); // omega + l + h
-	vector < double > jac(rs);      // jacobian
+	vector < double > w1(sz);
+	vector < double > w2(sz);
+	vector < double > dw1(sz);
+	vector < double > dw2(sz);
+	vector < double > FC(sz);
 
-	vector < double > p1(sz);
-	vector < double > prev_psi(sz);
+	// next
+	vector < double > u1_n(sz);
+	vector < double > u2_n(sz);
+	vector < double > w1_n(sz);
+	vector < double > w2_n(sz);
 
-	vector < double > X_0(sz);
-	memcpy(&X_0[0], u1, sz * sizeof(double));
+	// tmp
+	vector < double > tmp1(sz);
+	vector < double > tmp2(sz);
 
-	// генерируем правую часть
-	// w/dt + mu \Delta w / 2 - \sigma w/2 -
-	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+	// jac inner!
+	vector < double > jac1(rs);
+	vector < double > jac2(rs);
 
-	// omega = L (u)
-	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
-	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
-	memcpy(&u11[0], &X_0[0], sizeof(double) * sz);
+	//
+	vector < double > F(rs);
+	vector < double > G(rs);
 
+	vector < double > rp(4*rs);
+	vector < double > ans(4*rs);
 
-	// L (omega)
-	l_.calc2(&lomega[0], &omega_1[0]);
-	mke_u2p(&omega[0], &omega_1[0], m_);
+	l_.calc1(&w1[0], &u1[0], bnd);
+	l_.calc1(&w2[0], &u2[0], bnd);
 
-	// w/dt + mu \Delta w / 2
-	vec_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, mu_ * 0.5, rs);
+	l_.calc1(&dw1[0], &w1[0], bnd);
+	l_.calc1(&dw2[0], &w2[0], bnd);
 
-	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vec_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, -sigma_ * 0.5, rs);
+	// w1/tau + (1-theta)sigma/2(w1-w2)-mu(1-theta)(\Delta w1)
+	vec_sum1(&FC[0], &w1[0], &w2[0], 
+		(1.0 - theta_) * sigma_, -(1.0 - theta_) * sigma_, sz);
+	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, -mu_ * (1.0 - theta_), sz);
+	vec_sum1(&FC[0], &FC[0], &w1[0], 1.0, 1.0 / tau_, sz);
 
-	// в lomega содержится правая часть, которая не меняется при итерациях!
-	// правая часть только на границе !
+	memcpy(&u1_n[0], &u1[0], sz * sizeof(double));
+	memcpy(&u2_n[0], &u2[0], sz * sizeof(double));
+	memcpy(&w1_n[0], &w1[0], sz * sizeof(double));
+	memcpy(&w2_n[0], &w2[0], sz * sizeof(double));
 
-	for (int it = 0; it < 5; ++it) {
-		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
-		vec_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 0.5, 0.5, sz);
-		vec_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
-		vec_sum1(&prev_psi[0], &X_0[0], &u11[0], 0.5, 0.5, sz);
-		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
-		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
-		// w/dt + mu \Delta w / 2 - \sigma w/2 -
-		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
-#pragma omp parallel for
-		for (int i = 0; i < rs; ++i) {
-			int point = m_.inner[i];
-			double x  = m_.ps[point].x();
-			double y  = m_.ps[point].y();
+	right_part_cb_data data2;
+	data2.F   = &F[0];
+	data2.G   = &G[0];
+	data2.BW1 = bnd;
+	data2.BW2 = bnd;
+	data2.BU1 = bnd;
+	data2.BU2 = bnd;
+	data2.d   = this;
 
-			omega[i] = lomega[i] - jac[i] + f(x, y, t, mu_, sigma_);
-		}
+	for (int it = 0; it < 20; ++it) {
+		// J(0.5(u1+u1), 0.5(w1+w1)+l+h) + J(0.5(u2+u2),w2+w2)
+		// J(0.5(u1+u1), 0.5(w1+w1)+l+h)
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp2[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum(&tmp2[0], &tmp2[0], &lh_[0], sz);
+		j_.calc2(&jac1[0], &tmp1[0], &tmp2[0]);
+		// J(0.5(u2+u2),w2+w2)
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp2[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac2[0], &tmp1[0], &tmp2[0]);
 
-		// значения правой части на границе не знаем !
-		right_part_cb_data data2;
-		data2.F   = &omega[0];
-		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
-		data2.d   = this;
+		vec_sum(&F[0], &jac1[0], &jac2[0], rs);
+		vec_sum(&F[0], &F[0], &FC[0], rs);
 
-		generate_right_part(&rp[0], m_, 
-			right_part_cb, &data2);
+		generate_right_part(&rp[0], m_, right_part_cb, &data2);
+		A_.solve(&ans[0], &rp[0]);
+		mke_p2u(&w1_n[0], &ans[0],    bnd, m_);
+		mke_p2u(&w2_n[0], &ans[rs],   bnd, m_);
+		mke_p2u(&u1_n[0], &ans[2*rs], bnd, m_);
+		mke_p2u(&u2_n[0], &ans[3*rs], bnd, m_);
 
-		//TODO: тут граничное условие на омега!
-		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
-		//TODO: а тут граничное условие на пси!
-		memcpy(&prev_psi[0], u11, sz * sizeof(double));
-		l_.solve(u11, &omega_1[0], bnd);
-		{
-			double nr = mke_dist(&prev_psi[0], &u11[0], m_, sphere_scalar_cb, (void*)0);
-			//fprintf(stdout, "%le\n", nr);
-			if (nr < 1e-8) {
-				break;
-			}
+		double nr1 = dist(&u1[0], &u1_n[0]);
+		double nr2 = dist(&u2[0], &u2_n[0]);
+		double nr  = std::max(nr1, nr2);
+
+		if (nr < 1e-8) {
+			break;
 		}
 	}
-#endif
 }
 

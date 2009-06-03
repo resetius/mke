@@ -88,7 +88,7 @@ integrate_backward_cb( const Polynom & phi_i,
 
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
-		 : m_(m), l_(m), j_(m), 
+		 : SphereNorm(m), m_(m), l_(m), j_(m), 
 		 A_((int)m.inner.size()),
 		 bnd_((int)m.inner.size()),
 		 Ab_((int)m.inner.size()),
@@ -107,14 +107,6 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 
 	generate_matrix(Ab_, m_, integrate_backward_cb, this);
 	generate_boundary_matrix(bndb_, m_, integrate_backward_cb, this);
-
-	//f_.resize(sz);
-	//for (int i = 0; i < sz; ++i) {
-	//	double x = m_.ps[i].x();
-	//	double y = m_.ps[i].y();
-
-	//	f_[i] = rp_(x, y, mu_, sigma_);
-	//}
 }
 
 struct right_part_cb_data
@@ -267,7 +259,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		memcpy(&prev_psi[0], psi, sz * sizeof(double));
 		l_.solve(psi, &omega_1[0], bnd);
 		{
-			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb, (void*)0);
+			double nr = dist(&prev_psi[0], &psi[0]);
 			//fprintf(stdout, "%le\n", nr);
 			if (nr < 1e-8) {
 				break;
@@ -369,7 +361,7 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 		memcpy(&prev_psi[0], psi, sz * sizeof(double));
 		l_.solve(psi, &omega_1[0], bnd);
 		{
-			double nr = mke_dist(&prev_psi[0], &psi[0], m_, sphere_scalar_cb);
+			double nr = dist(&prev_psi[0], &psi[0]);
 			//fprintf(stdout, "%le\n", nr);
 			if (nr < 1e-5) {
 				break;

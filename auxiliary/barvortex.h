@@ -34,7 +34,7 @@
 #include "solver.h"
 #include "jacobian.h"
 
-class BarVortex {
+class BarVortex: public SphereNorm {
 public:
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 		double mu, double sigma);

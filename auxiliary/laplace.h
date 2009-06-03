@@ -33,6 +33,32 @@
 #include "mke.h"
 #include "solver.h"
 
+class SphereNorm {
+public:
+	const Mesh & m_;
+	Matrix NORM_; // for fast norm calculation
+
+	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
+	{
+		generate_full_matrix(NORM_, m_, sphere_scalar_cb, (void*)0);
+	}
+
+	double dist(const double * u, const double * v)
+	{
+		return mke_fast_dist(u, v, m_, NORM_);
+	}
+
+	double norm(const double * u)
+	{
+		return mke_fast_norm(u, m_, NORM_);
+	}
+
+	double scalar(const double * u, const double * v)
+	{
+		return mke_fast_scalar(u, v, m_, NORM_);
+	}
+};
+
 /**
  * Сферический Лаплас
  */
