@@ -143,7 +143,7 @@ right_part_cb( const Polynom & phi_i,
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
-	} else {
+	} else if (m.ps_flags[point_j] == 0) {
 		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 
@@ -169,7 +169,7 @@ right_part_backward_cb( const Polynom & phi_i,
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * integrate_backward_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
-	} else {
+	} else if (m.ps_flags[point_j] == 0) {
 		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 	}
 
