@@ -164,7 +164,6 @@ right_part_cb( const Polynom & phi_i,
 	int rs = (int)m.inner.size();
 	const double * F = d->F;
 	const double * G = d->G;
-	double b;
 
 	assert(j == 0);
 
@@ -172,32 +171,52 @@ right_part_cb( const Polynom & phi_i,
 		int j0        = m.p2io[point_j]; //номер внешней точки
 		elements_t r1 = integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
+		double rp[] = {0, 0, 0, 0};
 		for (elements_t::iterator it = r1.begin(); it != r1.end(); ++it)
 		{
 			Element & e = *it;
 			// TODO: fixme!
+			double * b1 = 0;
+
+			// detect equation number
+			if (e.i < rs) {
+				b1 = &rp[0];
+			} else if (e.i < 2 * rs) {
+				b1 = &rp[1];
+			} else if (e.i < 3 * rs) {
+				b1 = &rp[2];
+			} else { // if (e.i < 4 * rs)
+				b1 = &rp[3];
+			}
+
+			double & b = *b1;
 			if (e.j < rs) {
 				// w1
 				if (d->BW1) {
-					r.push_back(Element(i, j, -d->BW1[j0] * e.a));
+					b += -d->BW1[j0] * e.a;
 				}
 			} else if (e.j < 2 * rs) {
 				// w2
 				if (d->BW2) {
-					r.push_back(Element(i + rs, j, -d->BW2[j0] * e.a));
+					b += -d->BW2[j0] * e.a;
 				}
 			} else if (e.j < 3 * rs) {
 				// u1
 				if (d->BU1) {
-					r.push_back(Element(i + 2 * rs, j, -d->BU1[j0] * e.a));
+					b += -d->BU1[j0] * e.a;
 				}
 			} else { //e.j < 4 * rs
 				// u2
 				if (d->BU2) {
-					r.push_back(Element(i + 3 * rs, j, -d->BU2[j0] * e.a));
+					b += -d->BU2[j0] * e.a;
 				}
 			}
 		}
+
+		r.push_back(Element(i,          j, rp[0]));
+		r.push_back(Element(i + rs,     j, rp[1]));
+		r.push_back(Element(i + 2 * rs, j, rp[2]));
+		r.push_back(Element(i + 3 * rs, j, rp[3]));
 	} else {
 		double a = integrate_cos(phi_i * phi_j, trk, m.ps);
 		// F
