@@ -55,6 +55,7 @@ public:
 	double sigma1_;
 	double mu1_;
 	double alpha_;
+	double theta_;
 
 private:
 	rp_t rp_;

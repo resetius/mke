@@ -72,6 +72,7 @@ Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
 	: m_(m), l_(m), j_(m), A_((int)m.inner.size()), tau_(tau), sigma_(sigma), mu_(mu),
 	sigma1_(sigma1), mu1_(mu1), alpha_(alpha), rp_(rp), coriolis_(coriolis)
 {
+	theta_ = 0.5;
 	lh_.resize(m_.ps.size());
 	mke_proj(&lh_[0], m_, coriolis);
 
@@ -119,6 +120,69 @@ right_part_cb( const Polynom & phi_i,
 	}
 
 	return b;
+}
+
+elements_t
+integrate_cb2(const Polynom & phi_i,
+              const Polynom & phi_j, 
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+              int i, int j,
+              Baroclin * d)
+{
+	elements_t r;
+	int rs = m.inner.size();
+	double tau   = d->tau_;
+	double mu    = d->mu_;
+	double mu1   = d->mu1_;
+	double sigma = d->sigma_;
+	double alpha = d->alpha_;
+	double theta = d->theta_;
+
+	double pt1, pt2;
+
+	/**
+	 * 4nx4n matrix:
+	 * w1 - [0,   n)
+	 * w2 - [n,  2n)
+	 * u1 - [2n, 3n)
+	 * u3 - [3n, 4n)
+	 *
+	 * 1: w1 / dt + 0.5 theta * sigma (w1 - w2) - theta mu L(w1) = F1
+	 * 2: w2 / dt - alpha^2 u2/dt + 0.5 theta * sigma (w1 + w2) - theta mu L(w2) - alpha^2 (- theta mu1 w2  + theta sigma u2) = F2
+	 * 3: w1 - L(u1) = 0
+	 * 4: w2 - L(u2) = 0
+	 */
+
+	double a = integrate_cos(phi_i * phi_j, trk, m.ps);
+	double b = slaplace(phi_j, phi_i, trk, m.ps);
+	r.reserve(8);
+	// 1:
+	// w1 / dt + 0.5 theta * sigma w1 - theta mu L(w1)
+	r.push_back(Element(i, j, a * (1.0 / tau + 0.5 * theta * sigma) - theta * mu * b));
+	// - 0.5 theta w2
+	r.push_back(Element(i, j + rs, -0.5 * a * theta));
+	// 2:
+	// 0.5 theta * sigma w1
+	r.push_back(Element(i + rs, j, 0.5 * theta * sigma * a));
+	// w2 / dt + 0.5 theta * sigma w2 - theta mu L(w2) + alpha^2 theta mu1 w2
+	r.push_back(Element(i + rs, j + rs, a * (1.0 / tau + 0.5 * theta * sigma + alpha * alpha * theta * mu1) 
+				- theta * mu * b));
+	// - alpha^2 u2/dt - alpha^2 theta sigma u2
+	r.push_back(Element(i + rs, j + 3*rs, a * (-alpha * alpha / tau - alpha * alpha * theta * sigma)));
+	// 3:
+	// w1
+	r.push_back(Element(i + 2*rs, j, a));
+	// -L(u1)
+	r.push_back(Element(i + 2*rs, j + 2*rs, -b));
+	// 4:
+	// w2
+	r.push_back(Element(i + 3*rs, j + rs, a));
+	// - L(u2)
+	r.push_back(Element(i + 3*rs, j + 3*rs, -b));
+
+	return r;
 }
 
 /**
