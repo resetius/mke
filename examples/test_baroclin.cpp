@@ -116,8 +116,8 @@ void test_boclinic (const Mesh & m)
 		fprintf (stderr, " === NORM2 = %le\n",
 		         mke_norm (&u2[0], m, sphere_scalar_cb, (void*)0));
 
-		print_function (stdout, &u1[0], m, x, y, z);
-		print_function (stdout, &u2[0], m, x, y, z);
+//		print_function (stdout, &u1[0], m, x, y, z);
+//		print_function (stdout, &u2[0], m, x, y, z);
 	}
 }
 

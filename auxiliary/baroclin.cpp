@@ -349,5 +349,8 @@ void Baroclin::calc(double * u11,  double * u21,
 			break;
 		}
 	}
+
+	memcpy(u11, &u1_n[0], sz * sizeof(double));
+	memcpy(u21, &u2_n[0], sz * sizeof(double));
 }
 
