@@ -243,15 +243,19 @@ void Baroclin::calc(double * u11,  double * u21,
 	int sz = (int)m_.ps.size();    // размерность полная
 
 	// правая часть 1:
-	// J(0.5(u1+u1), 0.5(w1+w1)+l+h) + J(0.5(u2+u2),w2+w2)+
-	// w1/tau + (1-theta)sigma/2(w1-w2)-mu(1-theta)(\Delta w1)
-	//
+	// -J(0.5(u1+u1), 0.5(w1+w1)+l+h) - J(0.5(u2+u2),w2+w2)+
+	// + w1/tau - 0.5 (1-theta)sigma (w1-w2)+mu(1-theta)(\Delta w1)
+	// правая часть 2:
+	// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2
+	// + w2/tau + alpha^2 u2/tau + alpha^2 J(0.5(u1+u1), 0.5(u2+u2)) - alpha^2 (1-theta) w2 +
+	// + alpha^2 sigma1 (1-theta) u2 + f(phi, lambda)
 
 	vector < double > w1(sz);
 	vector < double > w2(sz);
 	vector < double > dw1(sz);
 	vector < double > dw2(sz);
 	vector < double > FC(sz);
+	vector < double > GC(sz);
 
 	// next
 	vector < double > u1_n(sz);
@@ -266,6 +270,7 @@ void Baroclin::calc(double * u11,  double * u21,
 	// jac inner!
 	vector < double > jac1(rs);
 	vector < double > jac2(rs);
+	vector < double > jac3(rs);
 
 	//
 	vector < double > F(rs);
@@ -280,11 +285,21 @@ void Baroclin::calc(double * u11,  double * u21,
 	l_.calc1(&dw1[0], &w1[0], bnd);
 	l_.calc1(&dw2[0], &w2[0], bnd);
 
-	// w1/tau + (1-theta)sigma/2(w1-w2)-mu(1-theta)(\Delta w1)
+	// w1/tau - 0.5 (1-theta)sigma(w1-w2) + mu(1-theta)(\Delta w1)
 	vec_sum1(&FC[0], &w1[0], &w2[0], 
-		(1.0 - theta_) * sigma_, -(1.0 - theta_) * sigma_, sz);
-	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, -mu_ * (1.0 - theta_), sz);
+		-0.5 * (1.0 - theta_) * sigma_, 0.5 * (1.0 - theta_) * sigma_, sz);
+	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, mu_ * (1.0 - theta_), sz);
 	vec_sum1(&FC[0], &FC[0], &w1[0], 1.0, 1.0 / tau_, sz);
+
+	// w2/tau - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2 +
+	// alpha^2 u2/tau - alpha^2 (1-theta) w2 + alpha^2 sigma1 (1-theta) u2
+	vec_sum1(&GC[0], &w1[0], &w2[0],
+			-0.5 * (1.0 - theta_) * sigma_, -0.5 * (1.0 - theta_) * sigma_, sz);
+	vec_sum1(&GC[0], &GC[0], &dw2[0], 1.0, mu_ * (1.0 - theta_), sz);
+	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, 1.0 / tau_, sz);
+	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ / tau_, sz);
+	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, -alpha_ * alpha_ * (1-theta_), sz);
+	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ * sigma1_ * (1-theta_), sz);
 
 	memcpy(&u1_n[0], &u1[0], sz * sizeof(double));
 	memcpy(&u2_n[0], &u2[0], sz * sizeof(double));
@@ -301,7 +316,7 @@ void Baroclin::calc(double * u11,  double * u21,
 	data2.d   = this;
 
 	for (int it = 0; it < 20; ++it) {
-		// J(0.5(u1+u1), 0.5(w1+w1)+l+h) + J(0.5(u2+u2),w2+w2)
+		// - J(0.5(u1+u1), 0.5(w1+w1)+l+h) - J(0.5(u2+u2),w2+w2)
 		// J(0.5(u1+u1), 0.5(w1+w1)+l+h)
 		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
 		vec_sum1(&tmp2[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
@@ -312,8 +327,25 @@ void Baroclin::calc(double * u11,  double * u21,
 		vec_sum1(&tmp2[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
 		j_.calc2(&jac2[0], &tmp1[0], &tmp2[0]);
 
-		vec_sum(&F[0], &jac1[0], &jac2[0], rs);
+		vec_sum1(&F[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
 		vec_sum(&F[0], &F[0], &FC[0], rs);
+
+		// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) +
+		// + alpha^2 J(0.5(u1+u1), 0.5(u2+u2))
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp2[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &tmp1[0], &tmp2[0]);
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp2[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum(&tmp2[0], &tmp2[0], &lh_[0], sz);
+		j_.calc2(&jac2[0], &tmp1[0], &tmp2[0]);
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp2[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac3[0], &tmp1[0], &tmp2[0]);
+		vec_sum1(&G[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
+		vec_sum1(&G[0], &G[0], &jac3[0], 1.0, alpha_ * alpha_, rs);
+		vec_sum(&G[0], &G[0], &GC[0], rs);
+		// sum f() here !
 
 		generate_right_part(&rp[0], m_, right_part_cb, &data2);
 		A_.solve(&ans[0], &rp[0]);
