@@ -147,8 +147,6 @@ right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	assert(j == 0);
-
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0        = m.p2io[point_j]; //номер внешней точки
 		elements_t r1 = integrate_cb(phi_i, phi_j, 
