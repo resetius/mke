@@ -44,14 +44,6 @@ integrate_cb( const Polynom & phi_i,
               int i, int j,
               Baroclin * d);
 
-static double coriolis(double phi, double lambda)
-{
-	double omg = 0.0000727000000000;
-	double l = omg * 2.0 * sin(phi);
-	double h = cos(2.0 * lambda) * ipow(sin(2.0 * phi), 2);;
-	return l + h;
-}
-
 Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
          double tau, double sigma, double mu, double sigma1, double mu1, double alpha)
 	: SphereNorm(m), m_(m), l_(m), j_(m), 
@@ -67,16 +59,6 @@ Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, integrate_cb, this);
-}
-
-static double f(double x, double y, double t, 
-				double mu, double sigma)
-{
-//	double a = exp(t) * sin(y) * sin(2.0 * x);
-//	double b = -6.0 * exp(t) * sin(y) * sin(2.0 * x);
-
-//	return a - mu * b + sigma * a;
-	return 0.0;
 }
 
 struct right_part_cb_data
@@ -305,6 +287,13 @@ void Baroclin::calc(double * u11,  double * u21,
 	memcpy(&u2_n[0], &u2[0], sz * sizeof(double));
 	memcpy(&w1_n[0], &w1[0], sz * sizeof(double));
 	memcpy(&w2_n[0], &w2[0], sz * sizeof(double));
+
+	for (int i = 0; i <sz; ++i) {
+		int point = i;
+		double x  = m_.ps[point].x();
+		double y  = m_.ps[point].y();
+		GC[i] += rp_(x, y, t, mu_, sigma_);
+	}
 
 	right_part_cb_data data2;
 	data2.F   = &F[0];
