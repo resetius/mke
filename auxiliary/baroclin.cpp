@@ -332,7 +332,6 @@ void Baroclin::calc(double * u11,  double * u21,
 		vec_sum1(&G[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
 		vec_sum1(&G[0], &G[0], &jac3[0], 1.0, alpha_ * alpha_, rs);
 		vec_sum(&G[0], &G[0], &GC[0], rs);
-		// sum f() here !
 
 		generate_right_part(&rp[0], m_, right_part_cb, &data2);
 		A_.solve(&ans[0], &rp[0]);
