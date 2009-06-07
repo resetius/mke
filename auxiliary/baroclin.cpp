@@ -204,7 +204,7 @@ right_part_cb( const Polynom & phi_i,
 		// F
 		r.push_back(Element(i, j, F[m.p2io[point_j]] * a));
 		// G
-		r.push_back(Element(i + rs, j, F[m.p2io[point_j]] * a));
+		r.push_back(Element(i + rs, j, G[m.p2io[point_j]] * a));
 	}
 
 	return r;
@@ -324,7 +324,6 @@ void Baroclin::calc(double * u11,  double * u21,
 		j_.calc2(&jac2[0], &tmp1[0], &tmp2[0]);
 
 		vec_sum1(&F[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
-		vec_sum(&F[0], &F[0], &FC[0], rs);
 
 		// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) +
 		// + alpha^2 J(0.5(u1+u1), 0.5(u2+u2))
@@ -340,7 +339,12 @@ void Baroclin::calc(double * u11,  double * u21,
 		j_.calc2(&jac3[0], &tmp1[0], &tmp2[0]);
 		vec_sum1(&G[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
 		vec_sum1(&G[0], &G[0], &jac3[0], 1.0, alpha_ * alpha_, rs);
-		vec_sum(&G[0], &G[0], &GC[0], rs);
+
+		for (int i = 0; i < rs; ++i) {
+			int point = m_.inner[i];
+			F[i] += FC[point];
+			G[i] += GC[point];
+		}
 
 		generate_right_part(&rp[0], m_, right_part_cb, &data2);
 		A_.solve(&ans[0], &rp[0]);

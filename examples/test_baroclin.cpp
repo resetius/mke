@@ -183,7 +183,7 @@ void test_boclinic (const Mesh & m)
 //	Baroclin bc (m, rp_f, rp_g, coriolis, tau, 
 //		sigma, mu, sigma1, mu1, alpha);
 
-	Baroclin bc (m, rp_f1, rp_g1, coriolis, tau, 
+	Baroclin bc (m, rp_f1, rp_g1, zero_coriolis, tau, 
 		sigma, mu, sigma1, mu1, alpha);
 
 	vector < double > u1 (sz);
