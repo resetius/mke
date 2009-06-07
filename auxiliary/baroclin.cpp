@@ -100,7 +100,8 @@ integrate_cb( const Polynom & phi_i,
 	 * u3 - [3n, 4n)
 	 *
 	 * 1: w1 / dt + 0.5 theta * sigma (w1 - w2) - theta mu L(w1) = F1
-	 * 2: w2 / dt - alpha^2 u2/dt + 0.5 theta * sigma (w1 + w2) - theta mu L(w2) - alpha^2 (- theta mu1 w2  + theta sigma u2) = F2
+	 * 2: w2 / dt - alpha^2 u2/dt + 0.5 theta * sigma (w1 + w2) -
+	 * - theta mu L(w2) - alpha^2 (- theta mu1 w2  + theta sigma u2) = F2
 	 * 3: w1 - L(u1) = 0
 	 * 4: w2 - L(u2) = 0
 	 */
@@ -111,8 +112,8 @@ integrate_cb( const Polynom & phi_i,
 	// 1:
 	// w1 / dt + 0.5 theta * sigma w1 - theta mu L(w1)
 	r.push_back(Element(i, j, a * (1.0 / tau + 0.5 * theta * sigma) - theta * mu * b));
-	// - 0.5 theta w2
-	r.push_back(Element(i, j + rs, -0.5 * a * theta));
+	// - 0.5 theta sigma w2
+	r.push_back(Element(i, j + rs, -0.5 * a * sigma * theta));
 	// 2:
 	// 0.5 theta * sigma w1
 	r.push_back(Element(i + rs, j, 0.5 * theta * sigma * a));
@@ -228,9 +229,11 @@ void Baroclin::calc(double * u11,  double * u21,
 	// -J(0.5(u1+u1), 0.5(w1+w1)+l+h) - J(0.5(u2+u2),w2+w2)+
 	// + w1/tau - 0.5 (1-theta)sigma (w1-w2)+mu(1-theta)(\Delta w1)
 	// правая часть 2:
-	// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2
-	// + w2/tau + alpha^2 u2/tau + alpha^2 J(0.5(u1+u1), 0.5(u2+u2)) - alpha^2 (1-theta) w2 +
-	// + alpha^2 sigma1 (1-theta) u2 + f(phi, lambda)
+	// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) -
+	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2
+	// + w2/tau - alpha^2 u2/tau + alpha^2 J(0.5(u1+u1), 0.5(u2+u2)) --
+	// - alpha^2 (1-theta) w2 +
+	// + alpha^2 sigma1 (1-theta) u2 + alpha^2 f(phi, lambda)
 
 	vector < double > w1(sz);
 	vector < double > w2(sz);
@@ -273,13 +276,13 @@ void Baroclin::calc(double * u11,  double * u21,
 	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, mu_ * (1.0 - theta_), sz);
 	vec_sum1(&FC[0], &FC[0], &w1[0], 1.0, 1.0 / tau_, sz);
 
-	// w2/tau - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2 +
-	// alpha^2 u2/tau - alpha^2 (1-theta) w2 + alpha^2 sigma1 (1-theta) u2
+	// w2/tau - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2 -
+	// - alpha^2 u2/tau - alpha^2 (1-theta) w2 + alpha^2 sigma1 (1-theta) u2
 	vec_sum1(&GC[0], &w1[0], &w2[0],
 			-0.5 * (1.0 - theta_) * sigma_, -0.5 * (1.0 - theta_) * sigma_, sz);
 	vec_sum1(&GC[0], &GC[0], &dw2[0], 1.0, mu_ * (1.0 - theta_), sz);
 	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, 1.0 / tau_, sz);
-	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ / tau_, sz);
+	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, -alpha_ * alpha_ / tau_, sz);
 	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, -alpha_ * alpha_ * (1-theta_), sz);
 	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ * sigma1_ * (1-theta_), sz);
 
