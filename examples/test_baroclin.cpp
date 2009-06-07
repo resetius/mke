@@ -190,6 +190,9 @@ void test_boclinic (const Mesh & m)
 	vector < double > u2 (sz);
 	vector < double > bnd (std::max (os, 1) );
 
+	vector < double > u1r (sz);
+	vector < double > u2r (sz);
+
 //	mke_proj (&u1[0], m, f1);
 //	mke_proj (&u2[0], m, f2);
 
@@ -199,26 +202,26 @@ void test_boclinic (const Mesh & m)
 	setbuf (stdout, 0);
 	for (int i = 0; i < steps; ++i)
 	{
-		bc.calc (&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], (double) i * tau);
+		bc.calc (&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], t);
+
+		t += tau;
 
 		fprintf (stderr, " === NORM1 = %le\n", bc.norm(&u1[0]));
 		fprintf (stderr, " === NORM2 = %le\n", bc.norm(&u2[0]));
 
 		{
-			vector < double > u1r (sz);
-			vector < double > u2r (sz);
-
-			mke_proj (&u1[0], m, u1_t, t);
-			mke_proj (&u2[0], m, u2_t, t);
+			mke_proj (&u1r[0], m, u1_t, t);
+			mke_proj (&u2r[0], m, u2_t, t);
 
 			fprintf (stderr, " === DIST1 = %le\n", bc.dist(&u1[0],&u1r[0]));
 			fprintf (stderr, " === DIST2 = %le\n", bc.dist(&u2[0],&u2r[0]));
 		}
 
-//		print_function (stdout, &u1[0], m, x, y, z);
-//		print_function (stdout, &u2[0], m, x, y, z);
+//		print_function (stdout, &u1r[0], m, x, y, z);
+//		print_function (stdout, &u2r[0], m, x, y, z);
 
-		t += tau;
+//		print_function (stdout, &u1[0], m, x, y, z);
+		print_function (stdout, &u2[0], m, x, y, z);
 	}
 }
 
