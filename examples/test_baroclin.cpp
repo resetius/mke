@@ -97,24 +97,18 @@ double rp_f1(double x, double y, double t, double sigma,
 			 double mu, double sigma1,
 					double mu1, double alpha, double theta)
 {
-	return 15.*x*cos(y+t)*
-		ipow(cos(x),2)-20.*x*cos(y+t)*
-		ipow(cos(x),4)-
-		9.*cos(y+t)*
-		ipow(cos(x),3)
-		*sin(x)-45.*mu*sin(y+t)*x-(9./2.)*sigma*
-		ipow(cos(x),3)*sin(y+t)*
-		sin(x)-10.*sigma*
-		ipow(cos(x),4)*x*sin(y+t)+(9./2.)*sigma*
-		ipow(cos(x),3)*sin(x)*cos(y+t)-(15./2.)*sigma*
-		ipow(cos(x),2)*x*cos(y+t)-
-		360.*mu*sin(y+t)*sin(x)*
-		ipow(cos(x),3)+10.*sigma*
-		ipow(cos(x),4)*x*cos(y+t)+
-		(15./2.)*sigma*
-		ipow(cos(x),2)*x*sin(y+t)+147*mu*sin(y+t)*sin(x)*cos(x)-
-		400.*mu*sin(y+t)*x*
-		ipow(cos(x),4)+390.*mu*sin(y+t)*x*
+	return -45*mu*sin(y+t)*x-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(y+t)*sin(x)+(9./2.)*sigma*
+		ipow(cos(x),3)*sin(x)*cos(y+t)-10*sigma*
+		ipow(cos(x),4)*x*sin(y+t)+10*sigma*
+		ipow(cos(x),4)*x*cos(y+t)+(15./2.)*sigma*
+		ipow(cos(x),2)*x*sin(y+t)-(15./2.)*sigma*
+		ipow(cos(x),2)*x*cos(y+t)-360*mu*sin(y+t)*sin(x)*
+		ipow(cos(x),3)+147*mu*sin(y+t)*sin(x)*cos(x)-400*mu*sin(y+t)*x*
+		ipow(cos(x),4)+390*mu*sin(y+t)*x*
+		ipow(cos(x),2)-20*x*cos(y+t)*
+		ipow(cos(x),4)-9*cos(y+t)*
+		ipow(cos(x),3)*sin(x)+15*x*cos(y+t)*
 		ipow(cos(x),2);
 }
 
