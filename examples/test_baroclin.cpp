@@ -123,23 +123,23 @@ double rp_g1(double x, double y, double t, double sigma,
 					double mu1, double alpha, double theta)
 {
 	double alpha2 = alpha * alpha;
-	double r = -20*x*cos(y+t)*
-		ipow(cos(x),4)+390*mu*cos(y+t)*x*
+	double r = 20*x*sin(y+t)*
+		ipow(cos(x),4)+9*sin(y+t)*
+		ipow(cos(x),3)*sin(x)-15*x*sin(y+t)*
+		ipow(cos(x),2)+390*mu*cos(y+t)*x*
 		ipow(cos(x),2)-10*sigma*
-		ipow(cos(x),4)*x*cos(y+t)-(9./2.)*
-		sigma*ipow(cos(x),3)*sin(y+t)*sin(x)-alpha2*
+		ipow(cos(x),4)*x*cos(y+t)-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(y+t)*sin(x)-alpha2*
 		ipow(cos(x),7)*x-45*mu*cos(y+t)*x+18*
 		ipow(cos(x),6)*
 		ipow(cos(y+t),2)*sin(x)-9*
 		ipow(cos(x),6)*sin(x)+9*x*
-		ipow(cos(x),5)+15*x*cos(y+t)*
-		ipow(cos(x),2)-(9./2.)*sigma*
+		ipow(cos(x),5)-(9./2.)*sigma*
 		ipow(cos(x),3)*sin(x)*cos(y+t)-30*x*x*
 		ipow(cos(x),4)*sin(x)-18*x*
 		ipow(cos(x),5)*
 		ipow(cos(y+t),2)+alpha2*
-		ipow(cos(x),4)*x*sin(y+t)-9*cos(y+t)*
-		ipow(cos(x),3)*sin(x)+(15./2.)*sigma*
+		ipow(cos(x),4)*x*sin(y+t)+(15./2.)*sigma*
 		ipow(cos(x),2)*x*sin(y+t)+(15./2.)*sigma*
 		ipow(cos(x),2)*x*cos(y+t)-400*mu*cos(y+t)*x*
 		ipow(cos(x),4)+147*mu*cos(y+t)*sin(x)*cos(x)+60*x*x*
