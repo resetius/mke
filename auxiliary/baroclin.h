@@ -37,7 +37,8 @@
 class Baroclin: public SphereNorm {
 public:
 	typedef double (*rp_t ) (double phi, double lambda, double t,
-	                double mu, double sigma);
+	                double sigma, double mu, double sigma1,
+					double mu1, double alpha, double theta);
         typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
@@ -58,12 +59,15 @@ public:
 	double theta_;
 
 private:
-	rp_t rp_;
+	rp_t f_;
+	rp_t g_;
 	coriolis_t coriolis_;
 
 public:
-	Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis, 
-			double tau, double sigma, double mu, double sigma1, double mu1, double alpha);
+	Baroclin(const Mesh & m, rp_t f, rp_t g, 
+		coriolis_t coriolis, double tau, 
+		double sigma, double mu, 
+		double sigma1, double mu1, double alpha);
 
 	/**
 	 * u1  -- ответ

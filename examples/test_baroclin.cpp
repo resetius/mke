@@ -66,7 +66,16 @@ static double z (double u, double v)
 	return sin (u);
 }
 
-double rp (double x, double y, double t, double mu, double sigma)
+double rp_f (double x, double y, double t, double sigma, 
+			 double mu, double sigma1,
+			double mu1, double alpha, double theta)
+{
+	return -sigma* (2.*ipow (cos (x), 2) - 1.) *sin (x);
+}
+
+double rp_g (double x, double y, double t, double sigma, 
+			 double mu, double sigma1,
+					double mu1, double alpha, double theta)
 {
 	return -sigma* (2.*ipow (cos (x), 2) - 1.) *sin (x);
 }
@@ -84,12 +93,86 @@ double coriolis (double phi, double lambda)
 	return l + h;
 }
 
+double rp_f1(double x, double y, double t, double sigma, 
+			 double mu, double sigma1,
+					double mu1, double alpha, double theta)
+{
+	return 15.*x*cos(y+t)*
+		ipow(cos(x),2)-20.*x*cos(y+t)*
+		ipow(cos(x),4)-
+		9.*cos(y+t)*
+		ipow(cos(x),3)
+		*sin(x)-45.*mu*sin(y+t)*x-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(y+t)*
+		sin(x)-10.*sigma*
+		ipow(cos(x),4)*x*sin(y+t)+(9./2.)*sigma*
+		ipow(cos(x),3)*sin(x)*cos(y+t)-(15./2.)*sigma*
+		ipow(cos(x),2)*x*cos(y+t)-
+		360.*mu*sin(y+t)*sin(x)*
+		ipow(cos(x),3)+10.*sigma*
+		ipow(cos(x),4)*x*cos(y+t)+
+		(15./2.)*sigma*
+		ipow(cos(x),2)*x*sin(y+t)+147*mu*sin(y+t)*sin(x)*cos(x)-
+		400.*mu*sin(y+t)*x*
+		ipow(cos(x),4)+390.*mu*sin(y+t)*x*
+		ipow(cos(x),2);
+}
+
+double rp_g1(double x, double y, double t, double sigma, 
+			 double mu, double sigma1,
+					double mu1, double alpha, double theta)
+{
+	double alpha2 = alpha * alpha;
+	double r = -20*x*cos(y+t)*
+		ipow(cos(x),4)+390*mu*cos(y+t)*x*
+		ipow(cos(x),2)-10*sigma*
+		ipow(cos(x),4)*x*cos(y+t)-(9./2.)*
+		sigma*ipow(cos(x),3)*sin(y+t)*sin(x)-alpha2*
+		ipow(cos(x),7)*x-45*mu*cos(y+t)*x+18*
+		ipow(cos(x),6)*
+		ipow(cos(y+t),2)*sin(x)-9*
+		ipow(cos(x),6)*sin(x)+9*x*
+		ipow(cos(x),5)+15*x*cos(y+t)*
+		ipow(cos(x),2)-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(x)*cos(y+t)-30*x*x*
+		ipow(cos(x),4)*sin(x)-18*x*
+		ipow(cos(x),5)*
+		ipow(cos(y+t),2)+alpha2*
+		ipow(cos(x),4)*x*sin(y+t)-9*cos(y+t)*
+		ipow(cos(x),3)*sin(x)+(15./2.)*sigma*
+		ipow(cos(x),2)*x*sin(y+t)+(15./2.)*sigma*
+		ipow(cos(x),2)*x*cos(y+t)-400*mu*cos(y+t)*x*
+		ipow(cos(x),4)+147*mu*cos(y+t)*sin(x)*cos(x)+60*x*x*
+		ipow(cos(x),4)*
+		ipow(cos(y+t),2)*sin(x)-360*mu*cos(y+t)*sin(x)*
+		ipow(cos(x),3)-10*sigma*
+		ipow(cos(x),4)*x*sin(y+t)+4*alpha2*
+		ipow(cos(x),6)*x*x*sin(x)-9*alpha2*
+		ipow(cos(x),3)*mu1*cos(y+t)*sin(x)-20*alpha2*
+		ipow(cos(x),4)*mu1*cos(y+t)*x+15*alpha2*
+		ipow(cos(x),2)*mu1*cos(y+t)*x-alpha2*
+		ipow(cos(x),4)*sigma1*x*cos(y+t);
+	r /= alpha2;
+	return r;
+}
+
+double u1_t (double x, double y, double t)
+{
+	return x*sin(y+t)*ipow(cos(x),4);
+}
+
+double u2_t (double x, double y, double t)
+{
+	return x*cos(y+t)*ipow(cos(x),4);
+}
+
 void test_boclinic (const Mesh & m)
 {
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
 	double tau = 0.001;
+	double t = 0.0;
 	int steps = 100000;
 	double sigma  = 1.6e-2;
 	double mu     = 8e-2;
@@ -97,27 +180,45 @@ void test_boclinic (const Mesh & m)
 	double mu1    = mu;
 	double alpha  = 1.0;
 
-	Baroclin bc (m, rp, coriolis, tau, sigma, mu, sigma1, mu1, alpha);
+//	Baroclin bc (m, rp_f, rp_g, coriolis, tau, 
+//		sigma, mu, sigma1, mu1, alpha);
+
+	Baroclin bc (m, rp_f1, rp_g1, coriolis, tau, 
+		sigma, mu, sigma1, mu1, alpha);
 
 	vector < double > u1 (sz);
 	vector < double > u2 (sz);
 	vector < double > bnd (std::max (os, 1) );
 
-	mke_proj (&u1[0], m, f1);
-	mke_proj (&u2[0], m, f2);
+//	mke_proj (&u1[0], m, f1);
+//	mke_proj (&u2[0], m, f2);
+
+	mke_proj (&u1[0], m, u1_t, 0);
+	mke_proj (&u2[0], m, u2_t, 0);
 
 	setbuf (stdout, 0);
 	for (int i = 0; i < steps; ++i)
 	{
 		bc.calc (&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], (double) i * tau);
 
-		fprintf (stderr, " === NORM1 = %le\n",
-		         mke_norm (&u1[0], m, sphere_scalar_cb, (void*)0));
-		fprintf (stderr, " === NORM2 = %le\n",
-		         mke_norm (&u2[0], m, sphere_scalar_cb, (void*)0));
+		fprintf (stderr, " === NORM1 = %le\n", bc.norm(&u1[0]));
+		fprintf (stderr, " === NORM2 = %le\n", bc.norm(&u2[0]));
+
+		{
+			vector < double > u1r (sz);
+			vector < double > u2r (sz);
+
+			mke_proj (&u1[0], m, u1_t, t);
+			mke_proj (&u2[0], m, u2_t, t);
+
+			fprintf (stderr, " === DIST1 = %le\n", bc.dist(&u1[0],&u1r[0]));
+			fprintf (stderr, " === DIST2 = %le\n", bc.dist(&u2[0],&u2r[0]));
+		}
 
 //		print_function (stdout, &u1[0], m, x, y, z);
 //		print_function (stdout, &u2[0], m, x, y, z);
+
+		t += tau;
 	}
 }
 

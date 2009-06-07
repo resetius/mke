@@ -44,13 +44,15 @@ integrate_cb( const Polynom & phi_i,
               int i, int j,
               Baroclin * d);
 
-Baroclin::Baroclin(const Mesh & m, rp_t rp, coriolis_t coriolis,
-         double tau, double sigma, double mu, double sigma1, double mu1, double alpha)
+Baroclin::Baroclin(const Mesh & m, rp_t f, rp_t g,
+				   coriolis_t coriolis,
+         double tau, double sigma, double mu, 
+		 double sigma1, double mu1, double alpha)
 	: SphereNorm(m), m_(m), l_(m), j_(m), 
 	A_(4 * (int)m.inner.size()), 
 	tau_(tau), sigma_(sigma), mu_(mu),
 	sigma1_(sigma1), mu1_(mu1), 
-	alpha_(alpha), rp_(rp), coriolis_(coriolis)
+	alpha_(alpha), f_(f), g_(g), coriolis_(coriolis)
 {
 	theta_ = 0.5;
 	lh_.resize(m_.ps.size());
@@ -210,9 +212,9 @@ right_part_cb( const Polynom & phi_i,
 
 /**
  * (u1, u2) -> (u11, u21)
- * d L(u1)/dt + J(u1, L(u1) + l + h ?) + J(u2, L(u2)) + sigma/2 L(u1 - u2) - mu LL(u1) = 0
+ * d L(u1)/dt + J(u1, L(u1) + l + h ?) + J(u2, L(u2)) + sigma/2 L(u1 - u2) - mu LL(u1) = f(phi, lambda)
  * d L(u2)/dt + J(u1, L(u2)) + J(u2, L(u1) + l + h?) + sigma/2 L(u1 + u2) - mu LL(u2) -
- *   - alpha^2 (d u2/dt + J(u1, u2) - mu1 L(u2) + sigma1 u2 + f(phi, lambda))= 0
+ *   - alpha^2 (d u2/dt + J(u1, u2) - mu1 L(u2) + sigma1 u2 + g(phi, lambda))= 0
  * L = Laplace
  */
 void Baroclin::calc(double * u11,  double * u21, 
@@ -290,7 +292,14 @@ void Baroclin::calc(double * u11,  double * u21,
 		int point = i;
 		double x  = m_.ps[point].x();
 		double y  = m_.ps[point].y();
-		GC[i] += rp_(x, y, t, mu_, sigma_);
+		if (f_) {
+			FC[i] += f_(x, y, t, sigma_, mu_, sigma1_, 
+				mu1_, alpha_, theta_);
+		}
+		if (g_) {
+			GC[i] += alpha_ * alpha_ 
+				* g_(x, y, t, sigma_, mu_, sigma1_, mu1_, alpha_, theta_);
+		}
 	}
 
 	right_part_cb_data data2;
