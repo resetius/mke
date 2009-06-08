@@ -215,7 +215,7 @@ void test_boclinic (const Mesh & m)
 //		print_function (stdout, &u2r[0], m, x, y, z);
 
 //		print_function (stdout, &u1[0], m, x, y, z);
-		print_function (stdout, &u2[0], m, x, y, z);
+//		print_function (stdout, &u2[0], m, x, y, z);
 	}
 }
 

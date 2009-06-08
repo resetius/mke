@@ -85,12 +85,13 @@ integrate_cb( const Polynom & phi_i,
 {
 	elements_t r;
 	int rs = (int)m.inner.size();
-	double tau   = d->tau_;
-	double mu    = d->mu_;
-	double mu1   = d->mu1_;
-	double sigma = d->sigma_;
-	double alpha = d->alpha_;
-	double theta = d->theta_;
+	double tau    = d->tau_;
+	double mu     = d->mu_;
+	double mu1    = d->mu1_;
+	double sigma  = d->sigma_;
+	double sigma1 = d->sigma1_;
+	double alpha  = d->alpha_;
+	double theta  = d->theta_;
 
 	/**
 	 * 4nx4n matrix:
@@ -101,7 +102,7 @@ integrate_cb( const Polynom & phi_i,
 	 *
 	 * 1: w1 / dt + 0.5 theta * sigma (w1 - w2) - theta mu L(w1) = F1
 	 * 2: w2 / dt - alpha^2 u2/dt + 0.5 theta * sigma (w1 + w2) -
-	 * - theta mu L(w2) - alpha^2 (- theta mu1 w2  + theta sigma u2) = F2
+	 * - theta mu L(w2) - alpha^2 (- theta mu1 w2  + theta sigma1 u2) = F2
 	 * 3: w1 - L(u1) = 0
 	 * 4: w2 - L(u2) = 0
 	 */
@@ -120,8 +121,8 @@ integrate_cb( const Polynom & phi_i,
 	// w2 / dt + 0.5 theta * sigma w2 - theta mu L(w2) + alpha^2 theta mu1 w2
 	r.push_back(Element(i + rs, j + rs, a * (1.0 / tau + 0.5 * theta * sigma + alpha * alpha * theta * mu1) 
 				- theta * mu * b));
-	// - alpha^2 u2/dt - alpha^2 theta sigma u2
-	r.push_back(Element(i + rs, j + 3*rs, a * (-alpha * alpha / tau - alpha * alpha * theta * sigma)));
+	// - alpha^2 u2/dt - alpha^2 theta sigma1 u2
+	r.push_back(Element(i + rs, j + 3*rs, a * (-alpha * alpha / tau - alpha * alpha * theta * sigma1)));
 	// 3:
 	// w1
 	r.push_back(Element(i + 2*rs, j, a));
