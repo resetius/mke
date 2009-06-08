@@ -232,8 +232,8 @@ void Baroclin::calc(double * u11,  double * u21,
 	// правая часть 2:
 	// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) -
 	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2
-	// + w2/tau - alpha^2 u2/tau + alpha^2 J(0.5(u1+u1), 0.5(u2+u2)) --
-	// - alpha^2 (1-theta) w2 +
+	// + w2/tau - alpha^2 u2/tau + alpha^2 J(0.5(u1+u1), 0.5(u2+u2)) -
+	// - alpha^2 (1-theta) mu1 w2 +
 	// + alpha^2 sigma1 (1-theta) u2 + alpha^2 f(phi, lambda)
 
 	vector < double > w1(sz);
@@ -278,13 +278,13 @@ void Baroclin::calc(double * u11,  double * u21,
 	vec_sum1(&FC[0], &FC[0], &w1[0], 1.0, 1.0 / tau_, sz);
 
 	// w2/tau - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2 -
-	// - alpha^2 u2/tau - alpha^2 (1-theta) w2 + alpha^2 sigma1 (1-theta) u2
+	// - alpha^2 u2/tau - alpha^2 (1-theta) mu1 w2 + alpha^2 sigma1 (1-theta) u2
 	vec_sum1(&GC[0], &w1[0], &w2[0],
 			-0.5 * (1.0 - theta_) * sigma_, -0.5 * (1.0 - theta_) * sigma_, sz);
 	vec_sum1(&GC[0], &GC[0], &dw2[0], 1.0, mu_ * (1.0 - theta_), sz);
 	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, 1.0 / tau_, sz);
 	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, -alpha_ * alpha_ / tau_, sz);
-	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, -alpha_ * alpha_ * (1-theta_), sz);
+	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, -alpha_ * alpha_ * mu1_ * (1-theta_), sz);
 	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ * sigma1_ * (1-theta_), sz);
 
 	memcpy(&u1_n[0], &u1[0], sz * sizeof(double));
