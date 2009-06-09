@@ -69,14 +69,14 @@ static double z (double u, double v)
 
 double rp_f (double x, double y, double t, double sigma, 
 			 double mu, double sigma1,
-			double mu1, double alpha, double theta)
+			double mu1, double alpha)
 {
 	return -sigma* (2.*ipow (cos (x), 2) - 1.) *sin (x);
 }
 
 double rp_g (double x, double y, double t, double sigma, 
 			 double mu, double sigma1,
-					double mu1, double alpha, double theta)
+					double mu1, double alpha)
 {
 	return -sigma* (2.*ipow (cos (x), 2) - 1.) *sin (x);
 }
@@ -96,7 +96,7 @@ double coriolis (double phi, double lambda)
 
 double rp_f1(double x, double y, double t, double sigma, 
 			 double mu, double sigma1,
-					double mu1, double alpha, double theta)
+					double mu1, double alpha)
 {
 	return -45*mu*sin(y+t)*x-(9./2.)*sigma*
 		ipow(cos(x),3)*sin(y+t)*sin(x)+(9./2.)*sigma*
@@ -115,7 +115,7 @@ double rp_f1(double x, double y, double t, double sigma,
 
 double rp_g1(double x, double y, double t, double sigma, 
 			 double mu, double sigma1,
-					double mu1, double alpha, double theta)
+					double mu1, double alpha)
 {
 	double alpha2 = alpha * alpha;
 	double r = 20*x*sin(y+t)*

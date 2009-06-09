@@ -299,11 +299,11 @@ void Baroclin::calc(double * u11,  double * u21,
 		double y  = m_.ps[point].y();
 		if (f_) {
 			FC[i] += f_(x, y, t, sigma_, mu_, sigma1_, 
-				mu1_, alpha_, theta_);
+				mu1_, alpha_);
 		}
 		if (g_) {
 			GC[i] += alpha_ * alpha_ 
-				* g_(x, y, t, sigma_, mu_, sigma1_, mu1_, alpha_, theta_);
+				* g_(x, y, t, sigma_, mu_, sigma1_, mu1_, alpha_);
 		}
 	}
 

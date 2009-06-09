@@ -38,7 +38,7 @@ class Baroclin: public SphereNorm {
 public:
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 	                double sigma, double mu, double sigma1,
-					double mu1, double alpha, double theta);
+					double mu1, double alpha);
         typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
