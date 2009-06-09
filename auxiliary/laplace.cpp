@@ -35,6 +35,7 @@
 #include "laplace.h"
 
 using namespace std;
+using namespace MKE;
 
 struct laplace_right_part_cb_data
 {
@@ -136,7 +137,7 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 #endif
 
 #if 1
-	mke_u2p(&x[0], F, m_);
+	u2p(&x[0], F, m_);
 	idt_.mult_vector(&b[0], &x[0]);
 	if (bnd) {
 		bnd2_.mult_vector(&x[0], bnd);
@@ -144,12 +145,12 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	}
 
 //	vector < double > tmp(m_.outer.size());
-//	mke_proj_bnd(&tmp[0], F, m_);
+//	proj_bnd(&tmp[0], F, m_);
 //	bnd1_.mult_vector(&x[0], &tmp[0]);
 //	vec_sum(&b[0], &b[0], &x[0], x.size());
 #endif	
 
-	mke_solve(Ans, bnd, &b[0], laplace_, m_);
+	MKE::solve(Ans, bnd, &b[0], laplace_, m_);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
@@ -285,8 +286,8 @@ void Laplace::calc2(double * Ans, const double * F)
 	vector < double > in(rs);
 	vector < double > out(rs);
 	vector < double > tmp(os);
-	mke_u2p(&in[0], F, m_);
-	mke_proj_bnd(&tmp[0], F, m_);
+	u2p(&in[0], F, m_);
+	proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
 	bnd3_.mult_vector(&in[0], &tmp[0]);
 	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
@@ -303,7 +304,7 @@ void Laplace::calc2(double * Ans, const double * F)
 	data.F = &F[0];
 	generate_full_right_part(&in[0], m_, (right_part_cb_t)lp_rp, &data);
 	fidt_.solve(&out[0], &in[0]);
-	mke_u2p(Ans, &out[0], m_);
+	u2p(Ans, &out[0], m_);
 #endif
 }
 
@@ -329,12 +330,12 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
 	idt_.solve(&p1[0], &rp[0]);
 
-	mke_p2u(Ans, &p1[0], bnd, m_);
+	p2u(Ans, &p1[0], bnd, m_);
 #endif
 #if 1
 	vector < double > out(m_.inner.size());
 	calc2(&out[0], F);
-	mke_p2u(Ans, &out[0], bnd, m_);
+	p2u(Ans, &out[0], bnd, m_);
 #endif
 }
 
@@ -363,7 +364,7 @@ void Chafe::solve(double * Ans, const double * X0,
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
-	mke_u2p(&u[0], X0, m_);
+	u2p(&u[0], X0, m_);
 	laplace_.calc2(&delta_u[0], X0);
 
 	// u/dt + mu \Delta u / 2
@@ -384,7 +385,7 @@ void Chafe::solve(double * Ans, const double * X0,
 	}
 
 	// правую часть на границе не знаем !
-	mke_p2u(&p[0], &u[0], 0 /*bnd*/, m_);
+	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	chafe_right_part_cb_data data2;
 	data2.F   = &p[0];
 	data2.bnd = bnd;
@@ -392,6 +393,6 @@ void Chafe::solve(double * Ans, const double * X0,
 	generate_right_part(&rp[0], m_, 
 		chafe_right_part_cb, &data2);
 
-	mke_solve(Ans, bnd, &rp[0], A_, m_);
+	MKE::solve(Ans, bnd, &rp[0], A_, m_);
 }
 

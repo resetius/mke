@@ -39,6 +39,7 @@
 #include "laplace.h"
 
 using namespace std;
+using namespace MKE;
 
 void usage(const char * name)
 {
@@ -165,16 +166,16 @@ void test_invert(Mesh & m)
 	vector < double > BV(os);
 
 	// right part
-	mke_proj(&F[0], m, f);
-	mke_proj(&G[0], m, g);
+	proj(&F[0], m, f);
+	proj(&G[0], m, g);
 
 	// real answer
-	mke_proj(&RU[0], m, u);
-	mke_proj(&RV[0], m, v);
+	proj(&RU[0], m, u);
+	proj(&RV[0], m, v);
 
 	// boundary
-	mke_proj_bnd(&BU[0], m, u);
-	mke_proj_bnd(&BV[0], m, v);
+	proj_bnd(&BU[0], m, u);
+	proj_bnd(&BV[0], m, v);
 
 	Matrix A(2 * rs);
 	vector < double > RP(2 * rs);
@@ -190,11 +191,11 @@ void test_invert(Mesh & m)
 	generate_right_part(&RP[0], m, laplace_right_part_cb, &data);
 
 	A.solve(&Ans[0], &RP[0]);
-	mke_p2u(&U[0], &Ans[0],  &BU[0], m);
-	mke_p2u(&V[0], &Ans[rs], &BV[0], m);
+	p2u(&U[0], &Ans[0],  &BU[0], m);
+	p2u(&V[0], &Ans[rs], &BV[0], m);
 
-	fprintf(stdout, "answer nev: U = %le\n", mke_dist(&U[0], &RU[0], m));
-	fprintf(stdout, "answer nev: V = %le\n", mke_dist(&V[0], &RV[0], m));
+	fprintf(stdout, "answer nev: U = %le\n", dist(&U[0], &RU[0], m));
+	fprintf(stdout, "answer nev: V = %le\n", dist(&V[0], &RV[0], m));
 }
 
 int main(int argc, char *argv[])

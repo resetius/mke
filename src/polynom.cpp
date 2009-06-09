@@ -41,6 +41,9 @@
 
 using namespace std;
 
+namespace MKE
+{
+
 #define off(i, j) ((i) * (y_deg_ + 1) + j)
 
 double Polynom::apply(double x, double y) const
@@ -314,3 +317,5 @@ Polynom operator + (const Polynom &p1, const Polynom &p2)
 	}
 	return r;
 }
+}
+

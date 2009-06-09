@@ -34,6 +34,7 @@
 #include "gmres.h"
 
 typedef unsigned int uint;
+using namespace MKE;
 
 #ifdef SPARSE
 Matrix::Matrix(int n): n_(n), Ap_(n_ + 1), A_(n_)

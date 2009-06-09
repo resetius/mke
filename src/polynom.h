@@ -34,6 +34,8 @@
 
 typedef unsigned int uint;
 
+namespace MKE {
+
 /* Полином от (x, y) */
 struct Polynom {
 	short x_deg_;                   /* !<degree    */
@@ -119,5 +121,7 @@ inline Polynom operator * (const Polynom &p1, double x)
 	}
 	return r;
 }
+}
 
 #endif /* POLYNOM_H */
+

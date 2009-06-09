@@ -4,6 +4,7 @@
 #include "polynom.h"
 
 using namespace std;
+using namespace MKE;
 
 void check(const string & str1, const string & str2)
 {

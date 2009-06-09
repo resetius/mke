@@ -3,6 +3,9 @@
 
 #include "solver.h"
 
+using MKE::Matrix;
+using MKE::Mesh;
+
 class Jacobian {
 	const Mesh & m_;
 	Matrix idt_;

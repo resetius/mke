@@ -37,6 +37,8 @@
 #endif
 #endif
 
+namespace MKE {
+
 /**
  * Решатель Ax = b
  */
@@ -84,4 +86,7 @@ public:
 	void print();
 };
 
+}
+
 #endif /* SOLVER_H */
+

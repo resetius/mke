@@ -6,6 +6,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace MKE;
 
 static double 
 jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 
@@ -95,7 +96,7 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 #if 0
 	vector < double > rp(sz);
 	convolution(&rp[0], u, v, m_, (scalar_cb_t)jacobian, 0);
-	mke_u2p(Ans, &rp[0], m_);
+	u2p(Ans, &rp[0], m_);
 #endif
 
 #if 1
@@ -110,10 +111,10 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	vector < double > pt2(rs);
 	vector < double > tmp(rs);
 
-	mke_u2p(&v_in[0], v, m_);
-	mke_u2p(&u_in[0], u, m_);
-	mke_proj_bnd(&v_in_bnd[0], v, m_);
-	mke_proj_bnd(&u_in_bnd[0], u, m_);
+	u2p(&v_in[0], v, m_);
+	u2p(&u_in[0], u, m_);
+	proj_bnd(&v_in_bnd[0], v, m_);
+	proj_bnd(&u_in_bnd[0], u, m_);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
 	diff2_cos_.mult_vector(&tmp[0], &u_in[0]);
@@ -182,7 +183,7 @@ void Jacobian::calc1(double * Ans, const double * u, const double * v, const dou
 {
 	vector < double > p1(m_.inner.size());
 	calc2(&p1[0], u, v);
-	mke_p2u(Ans, &p1[0], bnd, m_);
+	p2u(Ans, &p1[0], bnd, m_);
 }
 
 void Jacobian::calc1t(double * Ans, const double * u, const double * v, const double * bnd)

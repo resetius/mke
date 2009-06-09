@@ -34,6 +34,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace MKE;
 
 //#define SCHEME_THETA 0.5
 #define SCHEME_THETA 1.0
@@ -98,7 +99,7 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 {
 	int sz = (int)m_.ps.size();
 	lh_.resize(sz);
-	mke_proj(&lh_[0], m_, coriolis);
+	proj(&lh_[0], m_, coriolis);
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
@@ -203,7 +204,7 @@ void BarVortex::calc(double * psi, const double * x0,
 
 	// L (omega)
 	l_.calc2(&lomega[0], &omega_1[0]);
-	mke_u2p(&omega[0], &omega_1[0], m_);
+	u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
 	vec_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
@@ -254,7 +255,7 @@ void BarVortex::calc(double * psi, const double * x0,
 		}
 
 		//TODO: тут граничное условие на омега!
-		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
+		solve(&omega_1[0], bnd, &rp[0], A_, m_);
 		//TODO: а тут граничное условие на пси!
 		memcpy(&prev_psi[0], psi, sz * sizeof(double));
 		l_.solve(psi, &omega_1[0], bnd);
@@ -309,7 +310,7 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 
 	// L (omega)
 	l_.calc2(&lomega[0], &omega_1[0]);
-	mke_u2p(&omega[0], &omega_1[0], m_);
+	u2p(&omega[0], &omega_1[0], m_);
 
 	// w/dt + mu \Delta w / 2
 	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
@@ -328,7 +329,7 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 
 			theta_, 1.0 - theta_, sz);
 		//L(z)+l+h
-		mke_vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
+		vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
 		//0.5(u+u)
 		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], 
 			theta_, 1.0 - theta_, sz);
@@ -352,11 +353,11 @@ void BarVortex::calc_L(double * psi, const double * x0, const double * z,
 		if (bnd) {
 			// we use jac1 only as a storage !
 			bnd_.mult_vector(&jac1[0], bnd);
-			mke_vector_sum(&rp[0], &rp[0], &jac1[0], rp.size());
+			vector_sum(&rp[0], &rp[0], &jac1[0], rp.size());
 		}
 
 		//TODO: тут граничное условие на омега!
-		mke_solve(&omega_1[0], bnd, &rp[0], A_, m_);
+		solve(&omega_1[0], bnd, &rp[0], A_, m_);
 		//TODO: а тут граничное условие на пси!
 		memcpy(&prev_psi[0], psi, sz * sizeof(double));
 		l_.solve(psi, &omega_1[0], bnd);
@@ -440,13 +441,13 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 	{
 		vector < double > tmp(rs);
 		vector < double > rp(rs);
-		mke_u2p(&tmp[0], u1, m_);
+		u2p(&tmp[0], u1, m_);
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp[0], bnd);
 			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
-		mke_solve(&u1[0], bnd, &rp[0], A_, m_);
+		solve(&u1[0], bnd, &rp[0], A_, m_);
 	}
 	l_.solve(u1, u1, bnd);
 }
@@ -495,13 +496,13 @@ void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
 	{
 		vector < double > tmp(rs);
 		vector < double > rp(rs);
-		mke_u2p(&tmp[0], u1, m_);
+		u2p(&tmp[0], u1, m_);
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bndb_.mult_vector(&tmp[0], bnd);
 			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
-		mke_solve(&u1[0], bnd, &rp[0], Ab_, m_);
+		solve(&u1[0], bnd, &rp[0], Ab_, m_);
 	}
 	l_.solve(u1, u1, bnd);
 }
@@ -523,13 +524,13 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 	{
 		vector < double > tmp(rs);
 		vector < double > rp(rs);
-		mke_u2p(&tmp[0], v1, m_);
+		u2p(&tmp[0], v1, m_);
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp[0], bnd);
 			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
-		mke_solve(&v1[0], bnd, &rp[0], A_, m_);
+		solve(&v1[0], bnd, &rp[0], A_, m_);
 	}
 
 	l_.calc1(&pt1[0], v1, bnd);

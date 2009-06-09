@@ -34,6 +34,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace MKE;
 
 void usage (const char * name)
 {
@@ -187,11 +188,11 @@ void test_boclinic (const Mesh & m)
 	vector < double > u1r (sz);
 	vector < double > u2r (sz);
 
-//	mke_proj (&u1[0], m, f1);
-//	mke_proj (&u2[0], m, f2);
+//	proj (&u1[0], m, f1);
+//	proj (&u2[0], m, f2);
 
-	mke_proj (&u1[0], m, u1_t, 0);
-	mke_proj (&u2[0], m, u2_t, 0);
+	proj (&u1[0], m, u1_t, 0);
+	proj (&u2[0], m, u2_t, 0);
 
 	setbuf (stdout, 0);
 	for (int i = 0; i < steps; ++i)
@@ -204,8 +205,8 @@ void test_boclinic (const Mesh & m)
 		fprintf (stderr, " === NORM2 = %le\n", bc.norm(&u2[0]));
 
 		{
-			mke_proj (&u1r[0], m, u1_t, t);
-			mke_proj (&u2r[0], m, u2_t, t);
+			proj (&u1r[0], m, u1_t, t);
+			proj (&u2r[0], m, u2_t, t);
 
 			fprintf (stderr, " === DIST1 = %le\n", bc.dist(&u1[0],&u1r[0]));
 			fprintf (stderr, " === DIST2 = %le\n", bc.dist(&u2[0],&u2r[0]));

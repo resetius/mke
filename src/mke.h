@@ -34,6 +34,8 @@
 
 typedef unsigned int uint;
 
+namespace MKE {
+
 struct Point {
 	double x;
 	double y;
@@ -203,19 +205,19 @@ class Matrix;
 /**
  * Решает систему
  */
-void mke_solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
+void solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
 
 /**
  * Решает систему.
  * answer - это только значения во внутренних точках!
  */
-void mke_solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
+void solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
 
 /* добавляем краевые условия */
-void mke_p2u(double * p, const double * u, const double * bnd, const Mesh & m);
+void p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 
 /* убираем краевые условия */
-void mke_u2p(double * u, const double * p, const Mesh & m);
+void u2p(double * u, const double * p, const Mesh & m);
 
 /* тут вычисляется интеграл от произведения функций по треугольнику */
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * );
@@ -224,29 +226,29 @@ double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tri
 double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * user_data);
 
 
-double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & mat);
-double mke_fast_norm(const double * u, const Mesh & m, Matrix & mat);
-double mke_fast_dist(const double * u, const double * v, const Mesh & m, Matrix & mat);
+double fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & mat);
+double fast_norm(const double * u, const Mesh & m, Matrix & mat);
+double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & mat);
 
 typedef double (* f_xy_t)(double x, double y);
 typedef double (* f_xyt_t)(double x, double y, double t);
 
 /* проектирование непрерывной функции f(x,y) на сетку */
-void mke_proj(double * F, const Mesh & mesh, f_xy_t f);
+void proj(double * F, const Mesh & mesh, f_xy_t f);
 
 /* проектирование непрерывной функции f(x,y) на границу сетки */
-void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f);
+void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 
 /* проектирование функции F1 на границу сетки */
-void mke_proj_bnd(double * F, const double * F1, const Mesh & m);
+void proj_bnd(double * F, const double * F1, const Mesh & m);
 
-void mke_set_bnd(double * F, const double * bnd, const Mesh & m);
+void set_bnd(double * F, const double * bnd, const Mesh & m);
 
 /* проектирование непрерывной функции f(x,y,t) на сетку */
-void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
+void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 
 /* проектирование непрерывной функции f(x,y,t) на границу сетки */
-void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
+void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
 struct Element {
 	int i;
@@ -257,7 +259,9 @@ struct Element {
 };
 
 typedef std::vector < Element > elements_t;
+}
 
 #include "mke_generators.h"
 
 #endif /* MKE_H */
+

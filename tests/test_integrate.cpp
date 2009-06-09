@@ -9,6 +9,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace MKE;
 
 void check(double a, double b)
 {

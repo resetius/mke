@@ -33,6 +33,11 @@
 #include "mke.h"
 #include "solver.h"
 
+using MKE::Matrix;
+using MKE::Mesh;
+using MKE::Triangle;
+using MKE::Polynom;
+
 class SphereNorm {
 public:
 	const Mesh & m_;
@@ -40,22 +45,22 @@ public:
 
 	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
 	{
-		generate_full_matrix(NORM_, m_, sphere_scalar_cb, (void*)0);
+		MKE::generate_full_matrix(NORM_, m_, MKE::sphere_scalar_cb, (void*)0);
 	}
 
 	double dist(const double * u, const double * v)
 	{
-		return mke_fast_dist(u, v, m_, NORM_);
+		return MKE::fast_dist(u, v, m_, NORM_);
 	}
 
 	double norm(const double * u)
 	{
-		return mke_fast_norm(u, m_, NORM_);
+		return MKE::fast_norm(u, m_, NORM_);
 	}
 
 	double scalar(const double * u, const double * v)
 	{
-		return mke_fast_scalar(u, v, m_, NORM_);
+		return MKE::fast_scalar(u, v, m_, NORM_);
 	}
 };
 

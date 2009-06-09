@@ -1,4 +1,7 @@
 
+namespace MKE
+{
+
 namespace MKE_Private_ 
 {
 	inline void mat_add(Matrix & A, int i, int j, double a)
@@ -37,4 +40,5 @@ namespace MKE_Private_
 		}
 	}
 };
+}
 

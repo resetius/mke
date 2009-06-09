@@ -9,6 +9,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace MKE;
 
 double ans(double x, double y, double t)
 {

@@ -36,6 +36,8 @@
 
 using namespace std;
 
+namespace MKE {
+
 bool Mesh::load(FILE * f)
 {
 	int size;
@@ -309,16 +311,16 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 	}
 }
 
-void mke_solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
+void solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
 {
 	int rs  = (int)m.inner.size();     // размерность
 	vector < double > x(rs);      // ответ
 
-	mke_solve2(&x[0], b, A, m);
-	mke_p2u(Ans, &x[0], bnd, m);
+	solve2(&x[0], b, A, m);
+	p2u(Ans, &x[0], bnd, m);
 }
 
-void mke_solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
+void solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
 	int rs  = (int)m.inner.size();     // размерность
@@ -330,12 +332,12 @@ void mke_solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 #endif
 	A.solve(Ans, &b[0]);
 #ifdef _DEBUG
-	fprintf(stderr, "mke_solve: %lf \n", t.elapsed());
+	fprintf(stderr, "solve: %lf \n", t.elapsed());
 #endif
 }
 
 /* добавляем краевые условия */
-void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
+void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
 
@@ -356,7 +358,7 @@ void mke_p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 }
 
 /* убираем краевые условия */
-void mke_u2p(double * p, const double * u, const Mesh & m)
+void u2p(double * p, const double * u, const Mesh & m)
 {
 	int j = 0;
 	int rs = (int)m.inner.size();
@@ -365,7 +367,7 @@ void mke_u2p(double * p, const double * u, const Mesh & m)
 	}
 }
 
-void mke_set_bnd(double *u, const double * bnd, const Mesh & m)
+void set_bnd(double *u, const double * bnd, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
 	for (int i = 0; i < sz; ++i) {
@@ -389,7 +391,7 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tria
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
 
-double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & A)
+double fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
 	int sz = (int)m.ps.size();
 	vector < double > tmp(sz);
@@ -397,20 +399,20 @@ double mke_fast_scalar(const double * u, const double * v, const Mesh & m, Matri
 	return vec_scalar2(u, &tmp[0], sz);
 }
 
-double mke_fast_norm(const double * u, const Mesh & m, Matrix & A)
+double fast_norm(const double * u, const Mesh & m, Matrix & A)
 {
-	return sqrt(mke_fast_scalar(u, u, m, A));
+	return sqrt(fast_scalar(u, u, m, A));
 }
 
-double mke_fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
+double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
 	int sz  = (int)m.ps.size(); // размерность
 	vector < double > diff(sz);
 	vec_diff(&diff[0], u, v, sz);
-	return mke_fast_norm(&diff[0], m, A);
+	return fast_norm(&diff[0], m, A);
 }
 
-void mke_proj(double * F, const Mesh & mesh, f_xy_t f)
+void proj(double * F, const Mesh & mesh, f_xy_t f)
 {
 	size_t sz = mesh.ps.size();
 	for (size_t i = 0; i < sz; ++i)
@@ -420,7 +422,7 @@ void mke_proj(double * F, const Mesh & mesh, f_xy_t f)
 	}
 }
 
-void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
+void proj_bnd(double * F, const Mesh & m, f_xy_t f)
 {
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
@@ -429,7 +431,7 @@ void mke_proj_bnd(double * F, const Mesh & m, f_xy_t f)
 	}
 }
 
-void mke_proj_bnd(double * F, const double * F1, const Mesh & m)
+void proj_bnd(double * F, const double * F1, const Mesh & m)
 {
 #pragma omp parallel for
 	for (int i = 0; i < (int)m.outer.size(); ++i) {
@@ -438,7 +440,7 @@ void mke_proj_bnd(double * F, const double * F1, const Mesh & m)
 	}
 }
 
-void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
+void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 {
 	for (size_t i = 0; i < mesh.ps.size(); ++i)
 	{
@@ -446,12 +448,14 @@ void mke_proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 	}
 }
 
-void mke_proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
+void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
 {
 	for (size_t i = 0; i < m.outer.size(); ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0].p[0];
 		F[i] = f(p.x, p.y, t);
 	}
+}
+
 }
 

@@ -35,6 +35,7 @@
 #include "laplace.h"
 
 using namespace std;
+using namespace MKE;
 
 /**
  * phi    = x - latitude
@@ -159,19 +160,19 @@ void SphereLaplace::solve(double * Ans,
 #endif
 
 #if 1
-	mke_u2p(&x[0], F, m_);
+	u2p(&x[0], F, m_);
 	idt_.mult_vector(&b[0], &x[0]);
 	if (bnd) {
 		bnd2_.mult_vector(&x[0], bnd);
 		vec_sum(&b[0], &b[0], &x[0], (int)x.size());
 	}
 //	vector < double > tmp(m_.outer.size()); // not necessary !
-//	mke_proj_bnd(&tmp[0], F, m_);           // not necessary !
+//	proj_bnd(&tmp[0], F, m_);           // not necessary !
 //	bnd1_.mult_vector(&x[0], &tmp[0]);      // not necessary !
 //	vector_sum(&b[0], &b[0], &x[0], x.size()); // not necessary !
 #endif
 
-	mke_solve(Ans, bnd, &b[0], laplace_, m_);
+	MKE::solve(Ans, bnd, &b[0], laplace_, m_);
 #ifdef _DEBUG
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 #endif
@@ -238,8 +239,8 @@ void SphereLaplace::calc2(double * Ans, const double * F)
 	vector < double > in(rs);
 	vector < double > out(rs);
 	vector < double > tmp(os);
-	mke_u2p(&in[0], F, m_);
-	mke_proj_bnd(&tmp[0], F, m_);
+	u2p(&in[0], F, m_);
+	proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
 	bnd3_.mult_vector(&in[0], &tmp[0]);
 	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
@@ -260,7 +261,7 @@ void SphereLaplace::calc1(double * Ans, const double * F, const double * bnd)
 	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
 	idt_.solve(&p1[0], &rp[0]);
 #endif
-	mke_p2u(Ans, &p1[0], bnd, m_);
+	p2u(Ans, &p1[0], bnd, m_);
 }
 
 
@@ -368,7 +369,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
-	mke_u2p(&u[0], X0, m_);
+	u2p(&u[0], X0, m_);
 	laplace_.calc2(&delta_u[0], X0);
 
 	// u/dt + mu \Delta u / 2
@@ -388,7 +389,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	}
 
 	// правую часть на границе не знаем !!!
-	mke_p2u(&p[0], &u[0], 0 /*bnd*/, m_);
+	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	schafe_right_part_cb_data data2;
 	data2.F   = &p[0];
 	data2.bnd = bnd;
@@ -399,6 +400,6 @@ void SphereChafe::solve(double * Ans, const double * X0,
 //	fprintf(stderr, "rp: \n");vector_print(&delta_u[0], rs);
 //	fprintf(stderr, "matrix:\n");A_.print();
 //	laplace_.print();
-	mke_solve(Ans, bnd, &rp[0], A_, m_);
+	MKE::solve(Ans, bnd, &rp[0], A_, m_);
 }
 

@@ -2,6 +2,8 @@
 #include "util.h"
 #include "mke_private.h"
 
+namespace MKE {
+
 /**
  * Создает матрицу системы.
  * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
@@ -240,7 +242,7 @@ void convolution(double * ans, const double * u, const double * v,
 
 /* сеточное скалярное произведение двух функций */
 template < typename Functor, typename Data >
-double mke_scalar(const double * u, const double * v, const Mesh & m, 
+double scalar(const double * u, const double * v, const Mesh & m, 
 				  Functor cb, Data user_data)
 {
 	int sz  = (int)m.ps.size();
@@ -263,30 +265,32 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m,
 
 /* сеточная норма */
 template < typename Functor, typename Data >
-double mke_norm(const double * u, const Mesh & m, 
+double norm(const double * u, const Mesh & m, 
 				Functor cb, Data user_data)
 {
-	return sqrt(mke_scalar(u, u, m, cb, user_data));
+	return sqrt(scalar(u, u, m, cb, user_data));
 }
 
-inline double mke_norm(const double * u, const Mesh & m)
+inline double norm(const double * u, const Mesh & m)
 {
-	return mke_norm(u, m, generic_scalar_cb, (void*)0);
+	return norm(u, m, generic_scalar_cb, (void*)0);
 }
 
 /* сеточное расстояние */
 template < typename Functor, typename Data>
-double mke_dist(const double * u, const double * v, const Mesh & m, 
+double dist(const double * u, const double * v, const Mesh & m, 
 				Functor cb, Data user_data)
 {
 	int sz  = (int)m.ps.size(); // размерность
 	std::vector < double > diff(sz);
 	vec_diff(&diff[0], u, v, sz);
-	return mke_norm(&diff[0], m, cb, user_data);
+	return norm(&diff[0], m, cb, user_data);
 }
 
-inline double mke_dist(const double * u, const double * v, const Mesh & m)
+inline double dist(const double * u, const double * v, const Mesh & m)
 {
-	return mke_dist(u, v, m, generic_scalar_cb, (void*)0);
+	return dist(u, v, m, generic_scalar_cb, (void*)0);
+}
+
 }
 

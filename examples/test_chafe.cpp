@@ -39,6 +39,7 @@
 #include "laplace.h"
 
 using namespace std;
+using namespace MKE;
 
 void usage(const char * name)
 {
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 	vector < double > Ans(sz);
 	vector < double > P(rs);
 
-	mke_proj(&U[0], mesh, ans, 0.0);
+	proj(&U[0], mesh, ans, 0.0);
 
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
@@ -103,20 +104,20 @@ int main(int argc, char *argv[])
 	Chafe chafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
-		mke_proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
+		proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
 		chafe.solve(&U[0], &U[0], &B[0],  tau * (i));
 
 		// check
 		{
-			mke_proj(&Ans[0], mesh, ans, tau * (i + 1));
+			proj(&Ans[0], mesh, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
-				mke_dist(&U[0], &Ans[0], mesh));
+				dist(&U[0], &Ans[0], mesh));
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
-			//mke_u2p(&P[0], &U[0], mesh);
+			//u2p(&P[0], &U[0], mesh);
 			//vector_print(&P[0], P.size());
-			//mke_u2p(&P[0], &Ans[0], mesh);
+			//u2p(&P[0], &Ans[0], mesh);
 			//vector_print(&P[0], P.size());
 		}
 

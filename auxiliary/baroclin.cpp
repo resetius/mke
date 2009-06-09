@@ -34,6 +34,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace MKE;
 
 static elements_t
 integrate_cb( const Polynom & phi_i,
@@ -56,7 +57,7 @@ Baroclin::Baroclin(const Mesh & m, rp_t f, rp_t g,
 {
 	theta_ = 0.5;
 	lh_.resize(m_.ps.size());
-	mke_proj(&lh_[0], m_, coriolis);
+	proj(&lh_[0], m_, coriolis);
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
@@ -352,10 +353,10 @@ void Baroclin::calc(double * u11,  double * u21,
 
 		generate_right_part(&rp[0], m_, right_part_cb, &data2);
 		A_.solve(&ans[0], &rp[0]);
-		mke_p2u(&w1_n[0], &ans[0],    bnd, m_);
-		mke_p2u(&w2_n[0], &ans[rs],   bnd, m_);
-		mke_p2u(&u1_n[0], &ans[2*rs], bnd, m_);
-		mke_p2u(&u2_n[0], &ans[3*rs], bnd, m_);
+		p2u(&w1_n[0], &ans[0],    bnd, m_);
+		p2u(&w2_n[0], &ans[rs],   bnd, m_);
+		p2u(&u1_n[0], &ans[2*rs], bnd, m_);
+		p2u(&u2_n[0], &ans[3*rs], bnd, m_);
 
 		double nr1 = dist(&u1[0], &u1_n[0]);
 		double nr2 = dist(&u2[0], &u2_n[0]);
