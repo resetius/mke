@@ -151,6 +151,49 @@ double rp_g1(double x, double y, double t, double sigma,
 	return r;
 }
 
+/**
+ * Операторы:
+ * proc (u1, u2) options operator, arrow; diff(L(u1), t)+(1/2)*sigma*L(u1-u2)-mu*L(L(u1)) end proc
+ * proc (u1, u2) options operator, arrow; diff(L(u2), t)+(1/2)*sigma*L(u1+u2)-mu*L(L(u2)) end proc
+ */
+double rp_f2(double x, double y, double t, double sigma, 
+			 double mu, double sigma1,
+					double mu1, double alpha)
+{
+	return -9*cos(y+t)*
+		ipow(cos(x),3)*sin(x)-20*x*cos(y+t)*
+		ipow(cos(x),4)+15*x*cos(y+t)*
+		ipow(cos(x),2)-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(y+t)*sin(x)+(9./2.)*sigma*
+		ipow(cos(x),3)*sin(x)*cos(y+t)-10*sigma*
+		ipow(cos(x),4)*x*sin(y+t)+10*sigma*
+		ipow(cos(x),4)*x*cos(y+t)+(15./2.)*sigma*
+		ipow(cos(x),2)*x*sin(y+t)-(15./2.)*sigma*
+		ipow(cos(x),2)*x*cos(y+t)-360*mu*sin(y+t)*sin(x)*
+		ipow(cos(x),3)+147*mu*sin(y+t)*sin(x)*cos(x)-400*mu*sin(y+t)*x*
+		ipow(cos(x),4)+390*mu*sin(y+t)*x*
+		ipow(cos(x),2)-45*mu*sin(y+t)*x;
+}
+
+double rp_g2(double x, double y, double t, double sigma, 
+			 double mu, double sigma1,
+					double mu1, double alpha)
+{
+	return -15*x*sin(y+t)*
+		ipow(cos(x),2)+20*x*sin(y+t)*
+		ipow(cos(x),4)+9*sin(y+t)*
+		ipow(cos(x),3)*sin(x)-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(x)*cos(y+t)-10*sigma*
+		ipow(cos(x),4)*x*sin(y+t)-10*sigma*
+		ipow(cos(x),4)*x*cos(y+t)-(9./2.)*sigma*
+		ipow(cos(x),3)*sin(y+t)*sin(x)+(15./2.)*sigma*
+		ipow(cos(x),2)*x*sin(y+t)+(15./2.)*sigma*
+		ipow(cos(x),2)*x*cos(y+t)-360*mu*cos(y+t)*sin(x)*
+		ipow(cos(x),3)+147*mu*cos(y+t)*sin(x)*cos(x)-400*mu*cos(y+t)*x*
+		ipow(cos(x),4)+390*mu*cos(y+t)*x*
+		ipow(cos(x),2)-45*mu*cos(y+t)*x;
+}
+
 double u1_t (double x, double y, double t)
 {
 	return x*sin(y+t)*ipow(cos(x),4);
@@ -174,12 +217,16 @@ void test_boclinic (const Mesh & m)
 	double sigma1 = sigma;
 	double mu1    = mu;
 	double alpha  = 1.0;
+	//double alpha  = 0.0;
 
 //	Baroclin bc (m, rp_f, rp_g, coriolis, tau, 
 //		sigma, mu, sigma1, mu1, alpha);
 
 	Baroclin bc (m, rp_f1, rp_g1, zero_coriolis, tau, 
 		sigma, mu, sigma1, mu1, alpha);
+
+//	Baroclin bc (m, rp_f2, rp_g2, zero_coriolis, tau, 
+//		sigma, mu, sigma1, mu1, alpha);
 
 	vector < double > u1 (sz);
 	vector < double > u2 (sz);

@@ -102,14 +102,19 @@ void generate_right_part(double * b, const Mesh & m,
 {
 	using namespace MKE_Private_;
 	int rs  = (int)m.inner.size();     // размерность
-
 	Timer t;
+
+	// WARNING: если генерируем правую часть для системы уравнений,
+	// то реальная размерность не известна, поэтому 
+	// memset(b, 0) надо вызывать руками до вызова generate_right_part !
+
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i)
 	{
 		// по внутренним точкам
 		int p = m.inner[i];
 		b[i]  = 0.0;
+
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
@@ -142,10 +147,16 @@ void generate_full_right_part(double * b, const Mesh & m,
 	int sz  = (int)m.ps.size();     // размерность
 
 	Timer t;
+
+	// WARNING: если генерируем правую часть для системы уравнений,
+	// то реальная размерность не известна, поэтому 
+	// memset(b, 0) надо вызывать руками до вызова generate_right_part !
+
 #pragma omp parallel for
 	for (int p = 0; p < sz; ++p)
 	{
 		b[p]  = 0.0;
+
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];

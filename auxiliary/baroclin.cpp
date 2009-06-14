@@ -250,6 +250,9 @@ void Baroclin::calc(double * u11,  double * u21,
 	vector < double > w1_n(sz);
 	vector < double > w2_n(sz);
 
+	vector < double > u1_n1(sz);
+	vector < double > u2_n1(sz);
+
 	// tmp
 	vector < double > tmp1(sz);
 	vector < double > tmp2(sz);
@@ -351,16 +354,19 @@ void Baroclin::calc(double * u11,  double * u21,
 			G[i] += GC[point];
 		}
 
+		memset(&rp[0], 0, 4 * rs * sizeof(double));
 		generate_right_part(&rp[0], m_, right_part_cb, &data2);
 		A_.solve(&ans[0], &rp[0]);
 		p2u(&w1_n[0], &ans[0],    bnd, m_);
 		p2u(&w2_n[0], &ans[rs],   bnd, m_);
-		p2u(&u1_n[0], &ans[2*rs], bnd, m_);
-		p2u(&u2_n[0], &ans[3*rs], bnd, m_);
+		p2u(&u1_n1[0], &ans[2*rs], bnd, m_);
+		p2u(&u2_n1[0], &ans[3*rs], bnd, m_);
 
-		double nr1 = dist(&u1[0], &u1_n[0]);
-		double nr2 = dist(&u2[0], &u2_n[0]);
+		double nr1 = dist(&u1_n1[0], &u1_n[0]);
+		double nr2 = dist(&u2_n1[0], &u2_n[0]);
 		double nr  = std::max(nr1, nr2);
+		u1_n1.swap(u1_n);
+		u2_n1.swap(u2_n);
 
 		if (nr < 1e-8) {
 			break;
