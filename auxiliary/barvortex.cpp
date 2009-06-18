@@ -36,8 +36,8 @@
 using namespace std;
 using namespace MKE;
 
-//#define SCHEME_THETA 0.5
-#define SCHEME_THETA 1.0
+#define SCHEME_THETA 0.5
+//#define SCHEME_THETA 1.0
 
 static double 
 integrate_cb( const Polynom & phi_i,
@@ -173,204 +173,113 @@ right_part_backward_cb( const Polynom & phi_i,
  * d L(phi)/dt + J(psi, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
  * L = Laplace
  */
-void BarVortex::calc(double * psi, const double * x0, 
+void BarVortex::calc(double * u1, const double * u, 
 					 const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
 
-	vector < double > omega_0(sz); // omega_0 = L (X_0)
-	vector < double > omega_1(sz);
-	vector < double > lomega(rs);  // L(omega)
+	vector < double > w(sz);       // w = L(u)
+	vector < double > dw(sz);      // dw = L(w) = LL(u)
+	vector < double > FC(sz);      // правая часть
+
+	// next
+	vector < double > u_n(sz);
+	vector < double > w_n(sz);
+	vector < double > u_n1(sz);
+
+	// tmp
+	vector < double > tmp1(sz);
+	vector < double > tmp2(sz);
+
+	// inner (!!!) jacobian
+	vector < double > jac(rs);
+
+	//
+	vector < double > F(rs);
 	vector < double > rp(rs);
 
-	vector < double > omega(rs);    // = omega_1 без границы
-	vector < double > omega_lh(sz); // omega + l + h
-	vector < double > jac(rs);      // jacobian
-
-	vector < double > prev_psi(sz);
-
-	vector < double > X_0(sz);
-	memcpy(&X_0[0], x0, sz * sizeof(double));
-
 	// генерируем правую часть
-	// w/dt + mu \Delta w / 2 - \sigma w/2 -
+	// w/dt + mu (1-theta) L w - \sigma(1-theta) w -
 	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 
-	// omega = L (u)
-	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
-	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
-	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
+	// w = L (u)
+	l_.calc1(&w[0], &u[0], bnd);
 
-	// L (omega)
-	l_.calc2(&lomega[0], &omega_1[0]);
-	u2p(&omega[0], &omega_1[0], m_);
+	// dw = L (w)
+	l_.calc1(&dw[0], &w[0], bnd);
 
-	// w/dt + mu \Delta w / 2
-	vec_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
-		mu_ * (1.0 - theta_), rs);
+	// w/dt + mu (1-theta) L w
+	vec_sum1(&FC[0], &w[0], &dw[0], 1.0 / tau_, 
+		mu_ * (1.0 - theta_), sz);
 
-	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vec_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, 
+	// w/dt + mu (1-theta) L w - \sigma (1-theta) w
+	vec_sum1(&FC[0], &FC[0], &w[0], 1.0, 
 		-sigma_ * (1.0 - theta_), rs);
 
-	// в lomega содержится правая часть, которая не меняется при итерациях!
-	// правая часть только на границе !
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i) {
+		int point = i;
+		double x  = m_.ps[point].x();
+		double y  = m_.ps[point].y();
+
+		if (rp_) {
+			FC[i] += rp_(x, y, t, mu_, sigma_);
+		}
+	}
+
+	memcpy(&u_n[0], &u[0], sz * sizeof(double));
+	memcpy(&w_n[0], &w[0], sz * sizeof(double));
+
+	// в FC содержится правая часть, которая не меняется при итерациях!
 
 	for (int it = 0; it < 20; ++it) {
 		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
-		vec_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], theta_, 
+		vec_sum1(&tmp1[0], &w_n[0], &w[0], theta_, 
 			1.0 - theta_, sz);
-		vec_sum(&omega_lh[0], &omega_lh[0], &lh_[0], sz);
-		vec_sum1(&prev_psi[0], &psi[0], &X_0[0], theta_, 
+		vec_sum(&tmp1[0], &tmp1[0], &lh_[0], sz);
+		// 0.5(u+u)
+		vec_sum1(&tmp2[0], &u_n[0], &u[0], theta_, 
 			1.0 - theta_, sz);
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
-		j_.calc2(&jac[0], &prev_psi[0], &omega_lh[0]);
-		// w/dt + mu \Delta w / 2 - \sigma w/2 -
+		j_.calc2(&jac[0], &tmp2[0], &tmp1[0]);
+		// w/dt + mu (1-theta) L w  - \sigma (1-theta) w -
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 #pragma omp parallel for
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
-			double x  = m_.ps[point].x();
-			double y  = m_.ps[point].y();
-
-			omega[i] = lomega[i] - jac[i] + rp_(x, y, t, mu_, sigma_);
+			F[i] = FC[point] - jac[i];
 		}
 #if 0
 		right_part_cb_data data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
-		data2.F   = &omega[0];
-		data2.bnd = bnd; //TODO: а чему у нас на краях равно omega?
+		data2.F   = &F[0];
+		data2.bnd = bnd; 
 		data2.d   = this;
 
 		generate_right_part(&rp[0], m_, 
 			(right_part_cb_t)right_part_cb, (void*)&data2);
 #endif
 
-		l_.idt_.mult_vector(&rp[0], &omega[0]);
+		l_.idt_.mult_vector(&rp[0], &F[0]);
 		if (bnd) {
-			// we use jac only as a storage !
-			bnd_.mult_vector(&jac[0], bnd);
-			vec_sum(&rp[0], &rp[0], &jac[0], (int)rp.size());
+			bnd_.mult_vector(&tmp1[0], bnd);
+			vec_sum(&rp[0], &rp[0], &tmp1[0], (int)rp.size());
 		}
 
-		//TODO: тут граничное условие на омега!
-		solve(&omega_1[0], bnd, &rp[0], A_, m_);
-		//TODO: а тут граничное условие на пси!
-		memcpy(&prev_psi[0], psi, sz * sizeof(double));
-		l_.solve(psi, &omega_1[0], bnd);
-		{
-			double nr = dist(&prev_psi[0], &psi[0]);
-			//fprintf(stdout, "%le\n", nr);
-			if (nr < 1e-8) {
-				break;
-			}
+		// тут граничное условие на омега!
+		solve(&w_n[0], bnd, &rp[0], A_, m_);
+		// а тут граничное условие на пси!
+		l_.solve(&u_n1[0], &w_n[0], bnd);
+
+		double nr = dist(&u_n1[0], &u_n[0]);
+		u_n1.swap(u_n);
+		if (nr < 1e-8) {
+			break;
 		}
 	}
+	memcpy(u1, &u_n[0], sz * sizeof(double));
 }
-
-/**
- * d L(phi)/dt + J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) = 0
- * L = Laplace
- */
-#if 0
-void BarVortex::calc_L(double * psi, const double * x0, const double * z,
-					 const double * bnd, double t)
-{
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
-
-	vector < double > lz(sz);
-	vector < double > lz1(sz);
-	vector < double > omega_0(sz); // omega_0 = L (X_0)
-	vector < double > omega_1(sz);
-	vector < double > lomega(rs);  // L(omega)
-	vector < double > rp(rs);
-
-	vector < double > omega(rs);    // = omega_1 без границы
-	vector < double > omega_lh(sz); // omega + l + h
-	vector < double > jac1(rs);     // jacobian
-	vector < double > jac2(rs);     // jacobian
-
-	vector < double > prev_psi(sz);
-
-	vector < double > X_0(sz);
-	memcpy(&X_0[0], x0, sz * sizeof(double));
-
-	// генерируем правую часть
-	// w/dt + mu \Delta w / 2 - \sigma w/2 -
-	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
-
-	// omega = L (u)
-	l_.calc1(&omega_0[0], &X_0[0], bnd);    //TODO: а чему у нас на краях равно omega?
-	l_.calc1(&lz[0], &z[0], bnd);
-
-	memcpy(&omega_1[0], &omega_0[0], sizeof(double) * sz);
-	memcpy(&psi[0], &X_0[0], sizeof(double) * sz);
-
-	// L (omega)
-	l_.calc2(&lomega[0], &omega_1[0]);
-	u2p(&omega[0], &omega_1[0], m_);
-
-	// w/dt + mu \Delta w / 2
-	vector_sum1(&lomega[0], &omega[0], &lomega[0], 1.0 / tau_, 
-		mu_ * (1.0 - theta_), rs);
-
-	// w/dt + mu \Delta w / 2 - \sigma w/2
-	vector_sum1(&lomega[0], &lomega[0], &omega[0], 1.0, 
-		-sigma_ * (1.0 - theta_), rs);
-
-	// в lomega содержится правая часть, которая не меняется при итерациях!
-	// правая часть только на границе !
-
-	for (int it = 0; it < 1; ++it) {
-		// J(0.5(u+u), L(z)+l+h) + J(z, 0.5(w+w))
-		// 0.5(w+w) <- для вычисления Якобиана это надо знать и на границе!
-		vector_sum1(&omega_lh[0], &omega_1[0], &omega_0[0], 
-			theta_, 1.0 - theta_, sz);
-		//L(z)+l+h
-		vector_sum(&lz1[0], &lz[0], &lh_[0], sz);
-		//0.5(u+u)
-		vector_sum1(&prev_psi[0], &psi[0], &X_0[0], 
-			theta_, 1.0 - theta_, sz);
-
-		// J(0.5(u+u), L(z)+l+h)
-		j_.calc2(&jac1[0], &prev_psi[0], &lz1[0]);
-		// J(z, 0.5(w+w))
-		j_.calc2(&jac2[0], &z[0], &omega_lh[0]);
-		// w/dt + mu \Delta w / 2 - \sigma w/2 -
-		// - J(0.5(u+u), L(z)+l+h) - J(z, 0.5(w+w))
-#pragma omp parallel for
-		for (int i = 0; i < rs; ++i) {
-			int point = m_.inner[i];
-			double x  = m_.ps[point].x();
-			double y  = m_.ps[point].y();
-
-			omega[i] = lomega[i] - jac1[i] - jac2[i];
-		}
-
-		l_.idt_.mult_vector(&rp[0], &omega[0]);
-		if (bnd) {
-			// we use jac1 only as a storage !
-			bnd_.mult_vector(&jac1[0], bnd);
-			vector_sum(&rp[0], &rp[0], &jac1[0], rp.size());
-		}
-
-		//TODO: тут граничное условие на омега!
-		solve(&omega_1[0], bnd, &rp[0], A_, m_);
-		//TODO: а тут граничное условие на пси!
-		memcpy(&prev_psi[0], psi, sz * sizeof(double));
-		l_.solve(psi, &omega_1[0], bnd);
-		{
-			double nr = dist(&prev_psi[0], &psi[0]);
-			//fprintf(stdout, "%le\n", nr);
-			if (nr < 1e-5) {
-				break;
-			}
-		}
-	}
-}
-#endif
 
 double l_rp(double x, double y, double t, double sigma, double mu)
 {

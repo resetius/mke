@@ -342,7 +342,7 @@ void test_barvortex (const Mesh & m)
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.05;
+	double tau = 0.001;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -353,15 +353,15 @@ void test_barvortex (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
-	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
+	//BarVortex bv (m, rp, coriolis, tau, sigma, mu);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
 	vector < double > Ans(sz);
 
-	//proj (&u[0], m, an1, 0);
-	proj (&u[0], m, u0);
+	proj (&u[0], m, an1, 0);
+	//proj (&u[0], m, u0);
 
 	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
 
@@ -374,9 +374,9 @@ void test_barvortex (const Mesh & m)
 		bv.calc (&u[0], &u[0], &bnd[0], t);
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
-			         norm (&u[0], m, sphere_scalar_cb, (void*)0), t, T, tm.elapsed());
+			         bv.norm (&u[0]), t, T, tm.elapsed());
 			// 3d print
-			print_function (stdout, &u[0], m, x, y, z);
+			//print_function (stdout, &u[0], m, x, y, z);
 			// flat print
 			// print_function (stdout, &u[0], m, 0, 0, 0);
 		}
@@ -384,11 +384,11 @@ void test_barvortex (const Mesh & m)
 
 		i += 1;
 		t += tau;
-#if 0
+#if 1
 		{
 			proj(&Ans[0], m, an1, t);
 			fprintf(stderr, "time %lf/ norm %le\n", t, 
-				dist(&u[0], &Ans[0], m, sphere_scalar_cb));
+				bv.dist(&u[0], &Ans[0]));
 //			print_function (stdout, &Ans[0], m, x, y, z);
 		}
 //		Sleep(500);
@@ -486,8 +486,8 @@ int main (int argc, char *argv[])
 	//test_jacobian(mesh);
 	//test_jacobian_T(mesh);
 	//test_barvortex_L(mesh);
-	test_barvortex_L2(mesh);
+	//test_barvortex_L2(mesh);
 	//test_barvortex_LT(mesh);
-	//test_barvortex (mesh);
+	test_barvortex (mesh);
 	return 0;
 }
