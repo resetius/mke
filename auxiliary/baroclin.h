@@ -80,6 +80,33 @@ public:
 	void calc(double * u11,  double * u21, 
 		const double * u1, const double * u2, 
 		const double * bnd, double t);
+
+	void calc_L(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z,
+		const double * bnd, double t);
+
+	void calc_L_1(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z,
+		const double * bnd, double t);
+
+	void calc_LT(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z,
+		const double * bnd, double t);
+
+	void L_step(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z);
+
+	void L_1_step(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z);
+
+	void LT_step(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z);
 };
 
 #endif /* BARVORTEX_H */

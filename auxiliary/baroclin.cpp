@@ -377,3 +377,44 @@ void Baroclin::calc(double * u11,  double * u21,
 	memcpy(u21, &u2_n[0], sz * sizeof(double));
 }
 
+void Baroclin::calc_L(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z,
+		const double * bnd, double t)
+{
+}
+
+void Baroclin::calc_L_1(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z,
+		const double * bnd, double t)
+{
+}
+
+void Baroclin::calc_LT(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z,
+		const double * bnd, double t)
+{
+}
+
+void Baroclin::L_step(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z)
+{
+	calc_L(u11, u21, u1, u2, z, 0, 0);
+}
+
+void Baroclin::L_1_step(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z)
+{
+	calc_L_1(u11, u21, u1, u2, z, 0, 0);
+}
+
+void Baroclin::LT_step(double * u11, double * u21, 
+		const double * u1, const double * u2,
+		const double * z)
+{
+	calc_LT(u11, u21, u1, u2, z, 0, 0);
+}

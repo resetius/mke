@@ -337,6 +337,43 @@ void test_barvortex_LT (const Mesh & m)
 	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
+void test_laplace_LT (const Mesh & m)
+{
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
+
+	int i = 0;
+
+
+	SphereLaplace l (m);
+
+	vector < double > u  (sz);
+	vector < double > v  (sz);
+	vector < double > lv (sz);
+	vector < double > ltu(sz);
+
+	vector < double > z (sz);
+	vector < double > bnd (std::max (os, 1));
+
+	proj (&u[0], m, f1);
+	proj (&v[0], m, f2);
+
+	proj (&z[0], m, z0);
+
+	setbuf (stdout, 0);
+
+	l.calc1 (&lv[0],  &v[0], &bnd[0]);
+	l.calc1 (&ltu[0], &u[0], &bnd[0]);
+
+	double nr1 = scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
+	double nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
+
+	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
+	fprintf (stderr, "(v, LTu) = %le \n", nr2);
+
+	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
+}
+
 void test_barvortex (const Mesh & m)
 {
 	int sz = (int)m.ps.size();
@@ -488,6 +525,7 @@ int main (int argc, char *argv[])
 	//test_barvortex_L(mesh);
 	//test_barvortex_L2(mesh);
 	//test_barvortex_LT(mesh);
-	test_barvortex (mesh);
+	//test_barvortex (mesh);
+	test_laplace_LT(mesh);
 	return 0;
 }
