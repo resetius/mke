@@ -6,7 +6,7 @@
 using MKE::Matrix;
 using MKE::Mesh;
 
-class Jacobian {
+class SphereJacobian {
 	const Mesh & m_;
 	Matrix idt_;
 	Matrix diff1_;
@@ -20,7 +20,7 @@ class Jacobian {
 	Matrix diff2_cos_rp_;
 
 public:
-	Jacobian(const Mesh & m);
+	SphereJacobian(const Mesh & m);
 
 	/**
 	 * Находит J(u, v) во внутренних точках. 

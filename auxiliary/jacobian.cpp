@@ -88,7 +88,7 @@ static double diff_2_cos_rp(const Polynom & phi_i,
 	return r;
 }
 
-void Jacobian::calc2(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
 {
 	int rs = (int)m_.inner.size();
 	int sz = (int)m_.ps.size();
@@ -146,7 +146,7 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 #endif
 }
 
-void Jacobian::calc2t(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2t(double * Ans, const double * u, const double * v)
 {
 	calc2(Ans, u, v);
 	vec_mult_scalar(Ans, Ans, -1.0, (int)m_.inner.size());
@@ -155,7 +155,7 @@ void Jacobian::calc2t(double * Ans, const double * u, const double * v)
 /**
  * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
  */
-Jacobian::Jacobian(const Mesh & m): m_(m), 
+SphereJacobian::SphereJacobian(const Mesh & m): m_(m), 
 	idt_((int)m.inner.size()),
 	diff1_((int)m.inner.size()),
 	diff2_((int)m.inner.size()),
@@ -179,16 +179,17 @@ Jacobian::Jacobian(const Mesh & m): m_(m),
 	generate_boundary_matrix(diff2_cos_rp_, m_, diff_2_cos_rp, (double*)0);
 }
 
-void Jacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)
+void SphereJacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)
 {
 	vector < double > p1(m_.inner.size());
 	calc2(&p1[0], u, v);
 	p2u(Ans, &p1[0], bnd, m_);
 }
 
-void Jacobian::calc1t(double * Ans, const double * u, const double * v, const double * bnd)
+void SphereJacobian::calc1t(double * Ans, const double * u, const double * v, const double * bnd)
 {
-	calc1(Ans, u, v, bnd);
-	vec_mult_scalar(Ans, Ans, -1.0, (int)m_.ps.size());
+	vector < double > p1(m_.inner.size());
+	calc2t(&p1[0], u, v);
+	p2u(Ans, &p1[0], bnd, m_);
 }
 

@@ -8,25 +8,28 @@ namespace MKE {
  * Создает матрицу системы.
  * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
  * в общей точке point на треугольнике tr
+ * если установлен флаг transpose, то генерит 
+ * транспонированную матрицу
  * 
  * параметры callback'а:
-
-    const Polynom & phi_i, 
-	const Polynom & phi_j, 
-	const Triangle & tr,   номер треугольника 
-	const Mesh & mesh,     сетка 
-	int point_i,           глобальный номер точки 
-	int point_j,           глобальный номер точки 
-	int i,                 номер строки матрицы
-	int j,                 номер столбца матрицы
-	void * user_data       сюда могу входить любые данные
-
+ *
+ *	const Polynom & phi_i, 
+ *	const Polynom & phi_j, 
+ *	const Triangle & tr,   номер треугольника 
+ *	const Mesh & mesh,     сетка 
+ *	int point_i,           глобальный номер точки 
+ *	int point_j,           глобальный номер точки 
+ *	int i,                 номер строки матрицы
+ *	int j,                 номер столбца матрицы
+ *	void * user_data       сюда могу входить любые данные
+ *
  */
 
 template < typename Functor, typename Data >
 void generate_matrix(Matrix & A, const Mesh & m, 
 					 Functor integrate_cb, 
-					 Data user_data)
+					 Data user_data, 
+					 bool transpose = false)
 {
 	using namespace MKE_Private_;
 	int rs  = (int)m.inner.size();     // размерность
@@ -54,7 +57,7 @@ void generate_matrix(Matrix & A, const Mesh & m,
 				} else {
 					mat_add(A, i, j, 
 						integrate_cb(phi_i, phik[i0], trk, 
-							m, p, p2, i, j, user_data));
+							m, p, p2, i, j, user_data), transpose);
 				}
 			}
 		}
@@ -67,7 +70,8 @@ void generate_matrix(Matrix & A, const Mesh & m,
 template < typename Functor, typename Data >
 void generate_full_matrix(Matrix & A, const Mesh & m, 
 						  Functor integrate_cb, 
-						  Data user_data)
+						  Data user_data,
+						  bool transpose = false)
 {
 	using namespace MKE_Private_;
 	int sz  = (int)m.ps.size();
@@ -86,7 +90,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 				int p2   = m.tr[trk_i].p[i0];
 				mat_add(A, p, p2, 
 					integrate_cb(phi_i, phik[i0], trk, m, 
-						p, p2, p, p2, user_data));
+						p, p2, p, p2, user_data), transpose);
 			}
 		}
 	}
@@ -189,7 +193,8 @@ void generate_full_right_part(double * b, const Mesh & m,
 template < typename Functor, typename Data >
 void generate_boundary_matrix(Matrix & A, const Mesh & m, 
 							  Functor right_part_cb, 
-							  Data user_data)
+							  Data user_data,
+							  bool transpose = false)
 {
 	using namespace MKE_Private_;
 	int os = (int)m.outer.size(); // размер границы
@@ -214,7 +219,7 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
 					int i = m.p2io[p];
 					mat_add(A, i, j, 
 						right_part_cb(phik[i0], phi_j, 
-							trk, m, p, p2, i, j, user_data));
+							trk, m, p, p2, i, j, user_data), transpose);
 				}
 			}
 		}

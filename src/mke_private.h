@@ -4,21 +4,32 @@ namespace MKE
 
 namespace MKE_Private_ 
 {
-	inline void mat_add(Matrix & A, int i, int j, double a)
+	inline void mat_add(Matrix & A, int i, int j, double a, bool transpose)
 	{
-		A.add(i, j, a);
+		if (transpose) {
+			A.add(j, i, a);
+		} else {
+			A.add(i, j, a);
+		}
 	}
 
 	template < typename Container >
-	void mat_add(Matrix & A, int i, int j, const Container & c)
+	void mat_add(Matrix & A, int i, int j, const Container & c, bool transpose)
 	{
 		typename Container::const_iterator b = c.begin();
 		typename Container::const_iterator e = c.end();
 		typename Container::const_iterator it;
 
-		for (it = b; it != e; ++it)
-		{
-			A.add(it->i, it->j, it->a);
+		if (transpose) {
+			for (it = b; it != e; ++it)
+			{
+				A.add(it->j, it->i, it->a);
+			}
+		} else {
+			for (it = b; it != e; ++it)
+			{
+				A.add(it->i, it->j, it->a);
+			}
 		}
 	}
 

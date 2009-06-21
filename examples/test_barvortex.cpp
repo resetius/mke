@@ -74,7 +74,7 @@ void test_jacobian (const Mesh & m)
 	int rs = (int)m.inner.size();
 	int os = (int)m.outer.size();
 
-	Jacobian j (m);
+	SphereJacobian j (m);
 	vector < double > F1 (sz);
 	vector < double > F2 (sz);
 	vector < double > ans1 (sz);
@@ -115,7 +115,7 @@ void test_jacobian_T (const Mesh & m)
 	int os = (int)m.outer.size();
 	double nr1, nr2;
 
-	Jacobian j (m);
+	SphereJacobian j (m);
 	vector < double > u (sz);
 	vector < double > w (sz);
 	vector < double > v (sz);
@@ -337,37 +337,61 @@ void test_barvortex_LT (const Mesh & m)
 	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
+double rnd1(double x, double y)
+{
+	if (fabs(x) < 1e-10) {
+		return 0;
+	} else {
+		return (double)rand() / (double)RAND_MAX;
+	}
+}
+
 void test_laplace_LT (const Mesh & m)
 {
+	double nr1, nr2;
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
 	int i = 0;
 
-
+	srand(time(0));
 	SphereLaplace l (m);
+	SphereJacobian j(m);
 
 	vector < double > u  (sz);
 	vector < double > v  (sz);
+	vector < double > w  (sz);
 	vector < double > lv (sz);
 	vector < double > ltu(sz);
 
 	vector < double > z (sz);
 	vector < double > bnd (std::max (os, 1));
 
-	proj (&u[0], m, f1);
-	proj (&v[0], m, f2);
-
-	proj (&z[0], m, z0);
+	proj (&u[0], m, rnd1);
+	proj (&v[0], m, rnd1);
+	proj (&w[0], m, rnd1);
 
 	setbuf (stdout, 0);
 
 	l.calc1 (&lv[0],  &v[0], &bnd[0]);
 	l.calc1 (&ltu[0], &u[0], &bnd[0]);
 
-	double nr1 = scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
-	double nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
+	nr1 = scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
+	nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
 
+	fprintf (stderr, "Laplace:\n");
+	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
+	fprintf (stderr, "(v, LTu) = %le \n", nr2);
+
+	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
+
+	j.calc1 (&lv[0],  &v[0], &w[0], &bnd[0]);
+	j.calc1t(&ltu[0], &u[0], &w[0], &bnd[0]);
+
+	nr1 = scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
+	nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
+
+	fprintf (stderr, "Jacobian:\n");
 	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
 	fprintf (stderr, "(v, LTu) = %le \n", nr2);
 

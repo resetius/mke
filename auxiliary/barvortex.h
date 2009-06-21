@@ -43,7 +43,7 @@ public:
 private:
 	const Mesh & m_;
 	SphereLaplace l_;
-	Jacobian j_;
+	SphereJacobian j_;
 	Matrix A_;
 	Matrix bnd_;
 
