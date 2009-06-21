@@ -339,7 +339,7 @@ void test_barvortex_LT (const Mesh & m)
 
 double rnd1(double x, double y)
 {
-	if (fabs(x) < 1e-10) {
+	if (fabs(x) < 1e-8) {
 		return 0;
 	} else {
 		return (double)rand() / (double)RAND_MAX;
@@ -354,13 +354,16 @@ void test_laplace_LT (const Mesh & m)
 
 	int i = 0;
 
-	srand(time(0));
+	//srand(time(0));
+	srand(0);
 	SphereLaplace l (m);
 	SphereJacobian j(m);
+	SphereNorm     s(m);
 
 	vector < double > u  (sz);
 	vector < double > v  (sz);
 	vector < double > w  (sz);
+	vector < double > w1 (sz);
 	vector < double > lv (sz);
 	vector < double > ltu(sz);
 
@@ -369,7 +372,7 @@ void test_laplace_LT (const Mesh & m)
 
 	proj (&u[0], m, rnd1);
 	proj (&v[0], m, rnd1);
-	proj (&w[0], m, rnd1);
+	proj (&w[0], m, f1);
 
 	setbuf (stdout, 0);
 
@@ -385,11 +388,20 @@ void test_laplace_LT (const Mesh & m)
 
 	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 
-	j.calc1 (&lv[0],  &v[0], &w[0], &bnd[0]);
-	j.calc1t(&ltu[0], &u[0], &w[0], &bnd[0]);
+//	lv = v;
+//	ltu = u;
+	vec_mult(&lv[0],  &v[0], &w[0], sz);
+	vec_mult(&ltu[0], &u[0], &w[0], sz);
 
-	nr1 = scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
-	nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
+//	j.calc1 (&lv[0],  &v[0], &w[0], &bnd[0]);
+//	j.calc1t(&ltu[0], &u[0], &w[0], &bnd[0]);
+//	nr1 = scalar(&u[0],  &lv[0], m, sphere_scalar_cb, (void*)0);	
+//	nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
+	nr1 = s.scalar(&u[0],  &lv[0]);
+	nr2 = s.scalar(&ltu[0], &v[0]);
+
+//	nr1 = scalar(&u[0],  &v[0], m, sphere_scalar_cb, (void*)0);
+//	nr2 = scalar(&v[0], &u[0], m, sphere_scalar_cb, (void*)0);
 
 	fprintf (stderr, "Jacobian:\n");
 	fprintf (stderr, "(Lv, u)  = %le \n", nr1);

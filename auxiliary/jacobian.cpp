@@ -164,7 +164,16 @@ SphereJacobian::SphereJacobian(const Mesh & m): m_(m),
 	diff1_rp_((int)m.inner.size()),
 	diff2_rp_((int)m.inner.size()),
 	diff1_cos_rp_((int)m.inner.size()),
-	diff2_cos_rp_((int)m.inner.size())
+	diff2_cos_rp_((int)m.inner.size()),
+
+	diff1_t_((int)m.inner.size()),
+	diff2_t_((int)m.inner.size()),
+	diff1_cos_t_((int)m.inner.size()),
+	diff2_cos_t_((int)m.inner.size()),
+	diff1_rp_t_((int)m.inner.size()),
+	diff2_rp_t_((int)m.inner.size()),
+	diff1_cos_rp_t_((int)m.inner.size()),
+	diff2_cos_rp_t_((int)m.inner.size())
 {
 	generate_matrix(idt_, m, id_cb, (void*)0);
 
@@ -177,6 +186,16 @@ SphereJacobian::SphereJacobian(const Mesh & m): m_(m),
 	generate_boundary_matrix(diff2_rp_, m_, diff_2_rp, (double*)0);
 	generate_boundary_matrix(diff1_cos_rp_, m_, diff_1_cos_rp, (double*)0);
 	generate_boundary_matrix(diff2_cos_rp_, m_, diff_2_cos_rp, (double*)0);
+
+	generate_matrix(diff1_t_, m_, diff_1_rp, (double*)0);
+	generate_matrix(diff2_t_, m_, diff_2_rp, (double*)0);
+	generate_matrix(diff1_cos_t_, m_, diff_1_cos_rp, (double*)0);
+	generate_matrix(diff2_cos_t_, m_, diff_2_cos_rp, (double*)0);
+
+	generate_boundary_matrix(diff1_rp_t_, m_, diff_1_rp, (double*)0);
+	generate_boundary_matrix(diff2_rp_t_, m_, diff_2_rp, (double*)0);
+	generate_boundary_matrix(diff1_cos_rp_t_, m_, diff_1_cos_rp, (double*)0);
+	generate_boundary_matrix(diff2_cos_rp_t_, m_, diff_2_cos_rp, (double*)0);
 }
 
 void SphereJacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)

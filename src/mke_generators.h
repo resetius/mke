@@ -231,9 +231,10 @@ void convolution(double * ans, const double * u, const double * v,
 				 const Mesh & m, Functor cb, Data user_data)
 {
 	using namespace MKE_Private_;
+
 	int sz  = (int)m.ps.size(); // размерность
 
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
 		// по всем точкам
@@ -251,6 +252,7 @@ void convolution(double * ans, const double * u, const double * v,
 				int j  = trk.p[i0];
 				ans[i] += u[i] * v[j] * 
 					cb(phi_i, phik[i0], trk, m, i, j, i, j, user_data);
+					//cb(phik[i0], phi_i, trk, m, i, j, i, j, user_data);
 			}
 		}
 	}
@@ -265,7 +267,7 @@ double scalar(const double * u, const double * v, const Mesh & m,
 	double s = 0.0;
 	std::vector < double > nr(sz);
 	convolution(&nr[0], u, v, m, cb, user_data);
-#pragma omp parallel for reduction(+:s)
+//#pragma omp parallel for reduction(+:s)
 	for (int i = 0; i < sz; ++i) {
 		s = s + nr[i];
 	}

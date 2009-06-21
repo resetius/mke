@@ -19,6 +19,16 @@ class SphereJacobian {
 	Matrix diff1_cos_rp_;
 	Matrix diff2_cos_rp_;
 
+	Matrix diff1_t_;
+	Matrix diff2_t_;
+	Matrix diff1_cos_t_;
+	Matrix diff2_cos_t_;
+
+	Matrix diff1_rp_t_;
+	Matrix diff2_rp_t_;
+	Matrix diff1_cos_rp_t_;
+	Matrix diff2_cos_rp_t_;
+
 public:
 	SphereJacobian(const Mesh & m);
 

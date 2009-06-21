@@ -377,44 +377,230 @@ void Baroclin::calc(double * u11,  double * u21,
 	memcpy(u21, &u2_n[0], sz * sizeof(double));
 }
 
+/**
+ * (u1, u2) -> (u11, u21)
+ * d L(u1)/dt + J(z1, L(u1)) + J(u1, L(z1) + l + h) +
+ *     + J(z2, L(u2)) + J(u2, L(z2))
+ *     + sigma/2 L(u1 - u2) - mu LL(u1) = f(phi, lambda)
+ * d L(u2)/dt + J(z1, L(u2)) + J(u1, L(z2)) +
+ *     + J(u2, L(z1) + l + h) + J(z2, L(u1)) +
+ *     + sigma/2 L(u1 + u2) - mu LL(u2) -
+ *     - alpha^2 (d u2/dt + J(z1, u2) + J(u1, z2) -
+ *               - mu1 L(u2) + sigma1 u2 + g(phi, lambda))= 0
+ * L = Laplace
+ */
 void Baroclin::calc_L(double * u11, double * u21, 
 		const double * u1, const double * u2,
-		const double * z,
+		const double * z1, const double * z2,
 		const double * bnd, double t)
 {
+	int rs = (int)m_.inner.size(); // размерность внутренней области
+	int sz = (int)m_.ps.size();    // размерность полная
+
+	// правая часть 1:
+	// - J(z1, 0.5(w1+w1)) - J(u1, L(z1)+l+h) -
+	// - J(z2, 0.5(w2+w2)) - J(0.5(u2+u2), L(z2)) +
+	// + w1/tau - 0.5 (1-theta)sigma (w1-w2)+mu(1-theta)(L w1)
+	// правая часть 2:
+	// - J(z1, 0.5(w2+w2)) - J(0.5(u1+u1), L(z2)) -
+	// - J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) -
+	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu L w2
+	// + w2/tau - alpha^2 u2/tau 
+	// + alpha^2 J(z1, 0.5(u2+u2)) + alpha^2 J(0.5(u1+u1), z2) -
+	// - alpha^2 (1-theta) mu1 w2 +
+	// + alpha^2 sigma1 (1-theta) u2 + alpha^2 f(phi, lambda)
+
+	vector < double > w1(sz);
+	vector < double > w2(sz);
+	vector < double > dw1(sz);
+	vector < double > dw2(sz);
+	vector < double > dz1(sz);
+	vector < double > dz2(sz);
+	vector < double > FC(sz);
+	vector < double > GC(sz);
+
+	// next
+	vector < double > u1_n(sz);
+	vector < double > u2_n(sz);
+	vector < double > w1_n(sz);
+	vector < double > w2_n(sz);
+
+	vector < double > u1_n1(sz);
+	vector < double > u2_n1(sz);
+
+	// tmp
+	vector < double > tmp1(sz);
+	vector < double > tmp2(sz);
+
+	// jac inner!
+	vector < double > jac1(rs);
+	vector < double > jac2(rs);
+	vector < double > jac3(rs);
+
+	//
+	vector < double > F(rs);
+	vector < double > G(rs);
+
+	vector < double > rp(4*rs);
+	vector < double > ans(4*rs);
+
+	l_.calc1(&w1[0], &u1[0], bnd);
+	l_.calc1(&w2[0], &u2[0], bnd);
+
+	l_.calc1(&dw1[0], &w1[0], bnd);
+	l_.calc1(&dw2[0], &w2[0], bnd);
+
+	l_.calc1(&dz1[0], &z1[0], bnd);
+	l_.calc1(&dz2[0], &z2[0], bnd);
+
+	// w1/tau - 0.5 (1-theta)sigma(w1-w2) + mu(1-theta)(L w1)
+	vec_sum1(&FC[0], &w1[0], &w2[0], 
+		-0.5 * (1.0 - theta_) * sigma_, 0.5 * (1.0 - theta_) * sigma_, sz);
+	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, mu_ * (1.0 - theta_), sz);
+	vec_sum1(&FC[0], &FC[0], &w1[0], 1.0, 1.0 / tau_, sz);
+
+	// w2/tau - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu L w2 -
+	// - alpha^2 u2/tau - alpha^2 (1-theta) mu1 w2 + alpha^2 sigma1 (1-theta) u2
+	vec_sum1(&GC[0], &w1[0], &w2[0],
+			-0.5 * (1.0 - theta_) * sigma_, -0.5 * (1.0 - theta_) * sigma_, sz);
+	vec_sum1(&GC[0], &GC[0], &dw2[0], 1.0, mu_ * (1.0 - theta_), sz);
+	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, 1.0 / tau_, sz);
+	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, -alpha_ * alpha_ / tau_, sz);
+	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, -alpha_ * alpha_ * mu1_ * (1-theta_), sz);
+	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ * sigma1_ * (1-theta_), sz);
+
+	memcpy(&u1_n[0], &u1[0], sz * sizeof(double));
+	memcpy(&u2_n[0], &u2[0], sz * sizeof(double));
+	memcpy(&w1_n[0], &w1[0], sz * sizeof(double));
+	memcpy(&w2_n[0], &w2[0], sz * sizeof(double));
+
+	right_part_cb_data data2;
+	data2.F   = &F[0];
+	data2.G   = &G[0];
+	data2.BW1 = bnd;
+	data2.BW2 = bnd;
+	data2.BU1 = bnd;
+	data2.BU2 = bnd;
+	data2.d   = this;
+
+	for (int it = 0; it < 1; ++it) {
+		// - J(0.5(u1+u1), L(z1)+l+h) - J(z1, 0.5(w1+w1)) -
+		// - J(z2,0.5(w2+w2)) - J(0.5(u2+u2),L(z2))
+
+		// J(0.5(u1+u1), L(z1)+l+h)
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum(&tmp2[0], &dz1[0], &lh_[0], sz);
+		j_.calc2(&jac1[0], &tmp1[0], &tmp2[0]);
+
+		// J(z1, 0.5(w1+w1))
+		vec_sum1(&tmp1[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac2[0], &z1[0], &tmp1[0]);
+		vec_sum1(&F[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
+
+		// J(z2,0.5(w2+w2))
+		vec_sum1(&tmp1[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &z2[0], &tmp1[0]);
+		vec_sum1(&F[0], &F[0], &jac1[0], 1.0, -1.0, rs);
+
+		// J(0.5(u2+u2),L(z2))
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &tmp1[0], &dz2[0]);
+		vec_sum1(&F[0], &F[0], &jac1[0], 1.0, -1.0, rs);
+	
+		// - J(z1, 0.5(w2+w2)) - J(0.5(u1+u1), L(z2)) -
+		// - J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) +
+		// + alpha^2 J(z1, 0.5(u2+u2)) + alpha^2 J(0.5(u1+u1), z2))
+
+		// J(z1, 0.5(w2+w2))
+		vec_sum1(&tmp1[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &dz1[0], &tmp1[0]);
+
+		// J(0.5(u1+u1), L(z2))
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac2[0], &dz2[0], &tmp1[0]);
+		vec_sum1(&G[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
+
+		// J(0.5(u2+u2), L(z1)+l+h)
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum(&tmp2[0], &dz1[0], &lh_[0], sz);
+		j_.calc2(&jac1[0], &tmp1[0], &tmp2[0]);
+		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, -1.0, rs);
+
+		// J(z2, 0.5(w1+w1))
+		vec_sum1(&tmp1[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &z2[0], &tmp1[0]);
+		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, -1.0, rs);
+
+		// alpha^2 J(z1, 0.5(u2+u2))
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &z1[0], &tmp1[0]);
+		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, alpha_ * alpha_, rs);
+
+		// alpha^2 J(0.5(u1+u1), z2))
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		j_.calc2(&jac1[0], &tmp1[0], &z2[0]);
+		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, alpha_ * alpha_, rs);
+
+		for (int i = 0; i < rs; ++i) {
+			int point = m_.inner[i];
+			F[i] += FC[point];
+			G[i] += GC[point];
+		}
+
+		memset(&rp[0], 0, 4 * rs * sizeof(double));
+		generate_right_part(&rp[0], m_, right_part_cb, &data2);
+		A_.solve(&ans[0], &rp[0]);
+		p2u(&w1_n[0], &ans[0],    bnd, m_);
+		p2u(&w2_n[0], &ans[rs],   bnd, m_);
+		p2u(&u1_n1[0], &ans[2*rs], bnd, m_);
+		p2u(&u2_n1[0], &ans[3*rs], bnd, m_);
+
+		double nr1 = dist(&u1_n1[0], &u1_n[0]);
+		double nr2 = dist(&u2_n1[0], &u2_n[0]);
+		double nr  = std::max(nr1, nr2);
+		u1_n1.swap(u1_n);
+		u2_n1.swap(u2_n);
+
+		if (nr < 1e-8) {
+			break;
+		}
+	}
+
+	memcpy(u11, &u1_n[0], sz * sizeof(double));
+	memcpy(u21, &u2_n[0], sz * sizeof(double));
 }
 
 void Baroclin::calc_L_1(double * u11, double * u21, 
 		const double * u1, const double * u2,
-		const double * z,
+		const double * z1, const double * z2,
 		const double * bnd, double t)
 {
 }
 
 void Baroclin::calc_LT(double * u11, double * u21, 
 		const double * u1, const double * u2,
-		const double * z,
+		const double * z1, const double * z2,
 		const double * bnd, double t)
 {
 }
 
 void Baroclin::L_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
-		const double * z)
+		const double * z1, const double * z2)
 {
-	calc_L(u11, u21, u1, u2, z, 0, 0);
+	calc_L(u11, u21, u1, u2, z1, z2, 0, 0);
 }
 
 void Baroclin::L_1_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
-		const double * z)
+		const double * z1, const double * z2)
 {
-	calc_L_1(u11, u21, u1, u2, z, 0, 0);
+	calc_L_1(u11, u21, u1, u2, z1, z2, 0, 0);
 }
 
 void Baroclin::LT_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
-		const double * z)
+		const double * z1, const double * z2)
 {
-	calc_LT(u11, u21, u1, u2, z, 0, 0);
+	calc_LT(u11, u21, u1, u2, z1, z2, 0, 0);
 }
