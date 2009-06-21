@@ -46,6 +46,7 @@ private:
 	SphereLaplace l_;
 	SphereJacobian j_;
 	Matrix A_;
+	Matrix Ab_;   // for backward
 
 	std::vector < double > lh_; // l + h
 
