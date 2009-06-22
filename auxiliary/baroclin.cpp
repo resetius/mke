@@ -149,7 +149,6 @@ integrate_cb( const Polynom & phi_i,
 	return r;
 }
 
-// TODO: inmplement
 elements_t
 integrate_backward_cb( const Polynom & phi_i,
               const Polynom & phi_j, 
@@ -176,9 +175,9 @@ integrate_backward_cb( const Polynom & phi_i,
 	 * u1 - [2n, 3n)
 	 * u3 - [3n, 4n)
 	 *
-	 * 1: w1 / dt + 0.5 theta * sigma (w1 - w2) - theta mu L(w1) = F1
-	 * 2: w2 / dt - alpha^2 u2/dt + 0.5 theta * sigma (w1 + w2) -
-	 * - theta mu L(w2) - alpha^2 (- theta mu1 w2  + theta sigma1 u2) = F2
+	 * 1: w1 / dt - 0.5 (1.0 - theta) * sigma (w1 - w2) + (1 - theta) mu L(w1) = F1
+	 * 2: w2 / dt - alpha^2 u2/dt - 0.5 (1.0 - theta) * sigma (w1 + w2) -
+	 * + (1.0-theta) mu L(w2) - alpha^2 ((1.0-theta) mu1 w2 - (1.0-theta) sigma1 u2) = F2
 	 * 3: w1 - L(u1) = 0
 	 * 4: w2 - L(u2) = 0
 	 */
@@ -187,18 +186,18 @@ integrate_backward_cb( const Polynom & phi_i,
 	double b = slaplace(phi_j, phi_i, trk, m.ps);
 	r.reserve(8);
 	// 1:
-	// w1 / dt + 0.5 theta * sigma w1 - theta mu L(w1)
-	r.push_back(Element(i, j, a * (1.0 / tau + 0.5 * theta * sigma) - theta * mu * b));
-	// - 0.5 theta sigma w2
-	r.push_back(Element(i, j + rs, -0.5 * a * sigma * theta));
+	// w1 / dt - 0.5 (1.0-theta) * sigma w1 + (1.0-theta) mu L(w1)
+	r.push_back(Element(i, j, a * (1.0 / tau - 0.5 * (1.0-theta) * sigma) + (1.0-theta) * mu * b));
+	//  0.5 (1.0-theta) sigma w2
+	r.push_back(Element(i, j + rs, 0.5 * a * sigma * (1.0-theta)));
 	// 2:
-	// 0.5 theta * sigma w1
-	r.push_back(Element(i + rs, j, 0.5 * theta * sigma * a));
-	// w2 / dt + 0.5 theta * sigma w2 - theta mu L(w2) + alpha^2 theta mu1 w2
-	r.push_back(Element(i + rs, j + rs, a * (1.0 / tau + 0.5 * theta * sigma + alpha * alpha * theta * mu1) 
-				- theta * mu * b));
-	// - alpha^2 u2/dt - alpha^2 theta sigma1 u2
-	r.push_back(Element(i + rs, j + 3*rs, a * (-alpha * alpha / tau - alpha * alpha * theta * sigma1)));
+	// -0.5 (1.0-theta) * sigma w1
+	r.push_back(Element(i + rs, j, -0.5 * (1.0-theta) * sigma * a));
+	// w2 / dt - 0.5 (1.0-theta) * sigma w2 + (1.0-theta) mu L(w2) - alpha^2 (1.0-theta) mu1 w2
+	r.push_back(Element(i + rs, j + rs, a * (1.0 / tau - 0.5 * (1.0-theta) * sigma - alpha * alpha * (1.0-theta) * mu1) 
+				+ (1.0-theta) * mu * b));
+	// - alpha^2 u2/dt + alpha^2 (1.0-theta) sigma1 u2
+	r.push_back(Element(i + rs, j + 3*rs, a * (-alpha * alpha / tau + alpha * alpha * (1.0-theta) * sigma1)));
 	// 3:
 	// w1
 	r.push_back(Element(i + 2*rs, j, a));
@@ -288,7 +287,7 @@ right_part_cb( const Polynom & phi_i,
 	return r;
 }
 
-// TODO: implement
+
 static elements_t
 right_part_backward_cb( const Polynom & phi_i,
                const Polynom & phi_j,
@@ -305,7 +304,7 @@ right_part_backward_cb( const Polynom & phi_i,
 
 	if (m.ps_flags[point_j] == 1) { // на границе
 		int j0        = m.p2io[point_j]; //номер внешней точки
-		elements_t r1 = integrate_cb(phi_i, phi_j, 
+		elements_t r1 = integrate_backward_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
 		double rp[] = {0, 0, 0, 0};
 		for (elements_t::iterator it = r1.begin(); it != r1.end(); ++it)
@@ -556,10 +555,10 @@ void Baroclin::calc_L(double * u11, double * u21,
 	// - J(z1, 0.5(w2+w2)) - J(0.5(u1+u1), L(z2)) -
 	// - J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) -
 	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu L w2
-	// + w2/tau - alpha^2 u2/tau 
+	// + w2/tau - alpha^2 u2/tau +
 	// + alpha^2 J(z1, 0.5(u2+u2)) + alpha^2 J(0.5(u1+u1), z2) -
 	// - alpha^2 (1-theta) mu1 w2 +
-	// + alpha^2 sigma1 (1-theta) u2 + alpha^2 f(phi, lambda)
+	// + alpha^2 sigma1 (1-theta) u2 
 
 	vector < double > w1(sz);
 	vector < double > w2(sz);
@@ -730,17 +729,17 @@ void Baroclin::calc_L_1(double * u11, double * u21,
 	int sz = (int)m_.ps.size();    // размерность полная
 
 	// правая часть 1:
-	// - J(z1, 0.5(w1+w1)) - J(u1, L(z1)+l+h) -
-	// - J(z2, 0.5(w2+w2)) - J(0.5(u2+u2), L(z2)) +
-	// + w1/tau - 0.5 (1-theta)sigma (w1-w2)+mu(1-theta)(L w1)
+	//  J(z1, 0.5(w1+w1)) + J(u1, L(z1)+l+h) +
+	// + J(z2, 0.5(w2+w2)) + J(0.5(u2+u2), L(z2)) +
+	// + w1/tau + 0.5 theta sigma (w1-w2) - mu theta (L w1)
 	// правая часть 2:
-	// - J(z1, 0.5(w2+w2)) - J(0.5(u1+u1), L(z2)) -
-	// - J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) -
-	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu L w2
+	//  J(z1, 0.5(w2+w2)) + J(0.5(u1+u1), L(z2)) +
+	// + J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) +
+	// + 0.5 theta sigma (w1 + w2) - theta mu L w2 +
 	// + w2/tau - alpha^2 u2/tau 
-	// + alpha^2 J(z1, 0.5(u2+u2)) + alpha^2 J(0.5(u1+u1), z2) -
-	// - alpha^2 (1-theta) mu1 w2 +
-	// + alpha^2 sigma1 (1-theta) u2 + alpha^2 f(phi, lambda)
+	// - alpha^2 J(z1, 0.5(u2+u2)) - alpha^2 J(0.5(u1+u1), z2) +
+	// + alpha^2 theta mu1 w2 -
+	// - alpha^2 sigma1 theta u2 
 
 	vector < double > w1(sz);
 	vector < double > w2(sz);
@@ -785,21 +784,21 @@ void Baroclin::calc_L_1(double * u11, double * u21,
 	l_.calc1(&dz1[0], &z1[0], bnd);
 	l_.calc1(&dz2[0], &z2[0], bnd);
 
-	// w1/tau - 0.5 (1-theta)sigma(w1-w2) + mu(1-theta)(L w1)
+	// w1/tau + 0.5 theta sigma(w1-w2) - mu theta(L w1)
 	vec_sum1(&FC[0], &w1[0], &w2[0], 
-		-0.5 * (1.0 - theta_) * sigma_, 0.5 * (1.0 - theta_) * sigma_, sz);
-	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, mu_ * (1.0 - theta_), sz);
+		0.5 * theta_ * sigma_, -0.5 * theta_ * sigma_, sz);
+	vec_sum1(&FC[0], &FC[0], &dw1[0], 1.0, -mu_ * theta_, sz);
 	vec_sum1(&FC[0], &FC[0], &w1[0], 1.0, 1.0 / tau_, sz);
 
-	// w2/tau - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu L w2 -
-	// - alpha^2 u2/tau - alpha^2 (1-theta) mu1 w2 + alpha^2 sigma1 (1-theta) u2
+	// w2/tau + 0.5 theta sigma (w1 + w2) - theta mu L w2 -
+	// - alpha^2 u2/tau + alpha^2 theta mu1 w2 - alpha^2 sigma1 theta u2
 	vec_sum1(&GC[0], &w1[0], &w2[0],
-			-0.5 * (1.0 - theta_) * sigma_, -0.5 * (1.0 - theta_) * sigma_, sz);
-	vec_sum1(&GC[0], &GC[0], &dw2[0], 1.0, mu_ * (1.0 - theta_), sz);
+			0.5 * theta_ * sigma_, 0.5 * theta_ * sigma_, sz);
+	vec_sum1(&GC[0], &GC[0], &dw2[0], 1.0, -mu_ * theta_, sz);
 	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, 1.0 / tau_, sz);
 	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, -alpha_ * alpha_ / tau_, sz);
-	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, -alpha_ * alpha_ * mu1_ * (1-theta_), sz);
-	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, alpha_ * alpha_ * sigma1_ * (1-theta_), sz);
+	vec_sum1(&GC[0], &GC[0], &w2[0], 1.0, alpha_ * alpha_ * mu1_ * theta_, sz);
+	vec_sum1(&GC[0], &GC[0], &u2[0], 1.0, -alpha_ * alpha_ * sigma1_ * theta_, sz);
 
 	memcpy(&u1_n[0], &u1[0], sz * sizeof(double));
 	memcpy(&u2_n[0], &u2[0], sz * sizeof(double));
@@ -816,62 +815,62 @@ void Baroclin::calc_L_1(double * u11, double * u21,
 	data2.d   = this;
 
 	for (int it = 0; it < 1; ++it) {
-		// - J(0.5(u1+u1), L(z1)+l+h) - J(z1, 0.5(w1+w1)) -
-		// - J(z2,0.5(w2+w2)) - J(0.5(u2+u2),L(z2))
+		//  J(0.5(u1+u1), L(z1)+l+h) + J(z1, 0.5(w1+w1)) +
+		// + J(z2,0.5(w2+w2)) + J(0.5(u2+u2),L(z2))
 
 		// J(0.5(u1+u1), L(z1)+l+h)
-		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], theta_, 1.0 - theta_, sz);
 		vec_sum(&tmp2[0], &dz1[0], &lh_[0], sz);
 		j_.calc2(&jac1[0], &tmp1[0], &tmp2[0]);
 
 		// J(z1, 0.5(w1+w1))
-		vec_sum1(&tmp1[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &w1[0], &w1_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac2[0], &z1[0], &tmp1[0]);
-		vec_sum1(&F[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
+		vec_sum(&F[0], &jac1[0], &jac2[0], rs);
 
 		// J(z2,0.5(w2+w2))
-		vec_sum1(&tmp1[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &w2[0], &w2_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac1[0], &z2[0], &tmp1[0]);
-		vec_sum1(&F[0], &F[0], &jac1[0], 1.0, -1.0, rs);
+		vec_sum(&F[0], &F[0], &jac1[0], rs);
 
 		// J(0.5(u2+u2),L(z2))
-		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac1[0], &tmp1[0], &dz2[0]);
-		vec_sum1(&F[0], &F[0], &jac1[0], 1.0, -1.0, rs);
+		vec_sum(&F[0], &F[0], &jac1[0], rs);
 	
-		// - J(z1, 0.5(w2+w2)) - J(0.5(u1+u1), L(z2)) -
-		// - J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) +
-		// + alpha^2 J(z1, 0.5(u2+u2)) + alpha^2 J(0.5(u1+u1), z2))
+		//  J(z1, 0.5(w2+w2)) + J(0.5(u1+u1), L(z2)) +
+		// + J(0.5(u2+u2), L(z1)+l+h) + J(z2, 0.5(w1+w1)) -
+		// - alpha^2 J(z1, 0.5(u2+u2)) - alpha^2 J(0.5(u1+u1), z2))
 
 		// J(z1, 0.5(w2+w2))
-		vec_sum1(&tmp1[0], &w2[0], &w2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &w2[0], &w2_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac1[0], &dz1[0], &tmp1[0]);
 
 		// J(0.5(u1+u1), L(z2))
-		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac2[0], &dz2[0], &tmp1[0]);
-		vec_sum1(&G[0], &jac1[0], &jac2[0], -1.0, -1.0, rs);
+		vec_sum(&G[0], &jac1[0], &jac2[0], rs);
 
 		// J(0.5(u2+u2), L(z1)+l+h)
-		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], theta_, 1.0 - theta_, sz);
 		vec_sum(&tmp2[0], &dz1[0], &lh_[0], sz);
 		j_.calc2(&jac1[0], &tmp1[0], &tmp2[0]);
-		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, -1.0, rs);
+		vec_sum(&G[0], &G[0], &jac1[0], rs);
 
 		// J(z2, 0.5(w1+w1))
-		vec_sum1(&tmp1[0], &w1[0], &w1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &w1[0], &w1_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac1[0], &z2[0], &tmp1[0]);
-		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, -1.0, rs);
+		vec_sum(&G[0], &G[0], &jac1[0], rs);
 
 		// alpha^2 J(z1, 0.5(u2+u2))
-		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &u2[0], &u2_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac1[0], &z1[0], &tmp1[0]);
-		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, alpha_ * alpha_, rs);
+		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, -alpha_ * alpha_, rs);
 
 		// alpha^2 J(0.5(u1+u1), z2))
-		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], 1.0 - theta_, theta_, sz);
+		vec_sum1(&tmp1[0], &u1[0], &u1_n[0], theta_, 1.0 - theta_, sz);
 		j_.calc2(&jac1[0], &tmp1[0], &z2[0]);
-		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, alpha_ * alpha_, rs);
+		vec_sum1(&G[0], &G[0], &jac1[0], 1.0, -alpha_ * alpha_, rs);
 
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
