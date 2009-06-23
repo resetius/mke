@@ -32,6 +32,9 @@
 #include "solver.h"
 #include "util.h"
 #include "gmres.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 typedef unsigned int uint;
 using namespace MKE;

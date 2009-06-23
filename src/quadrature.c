@@ -29,6 +29,10 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "ver.h"
+
+VERSION("$Id$");
+
 typedef double (*fx_t)(double x, void * data);
 
 /* w_i */

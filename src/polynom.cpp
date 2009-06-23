@@ -35,6 +35,9 @@
 #include "polynom.h"
 #include "mke.h"
 #include "util.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 #undef max
 #undef min

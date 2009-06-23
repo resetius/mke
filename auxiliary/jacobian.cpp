@@ -4,6 +4,9 @@
 #include "mke.h"
 #include "jacobian.h"
 #include "util.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 using namespace std;
 using namespace MKE;

@@ -38,6 +38,9 @@
 #endif
 
 #include "util.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 extern "C" {
 

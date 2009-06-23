@@ -32,6 +32,9 @@
 #include <math.h>
 
 #include "gmres.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 void vec_diff(double * r, const double * a, const double * b, int n);
 void vec_mult_scalar(double * a, const double * b, double k, int n);

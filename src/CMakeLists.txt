@@ -8,6 +8,7 @@ add_library(mke
 	util.cpp 
 	polynom.cpp 
 	solver.cpp 
+	ver.cpp
 	gmres.c 
 	quadrature.c
 	mke.h

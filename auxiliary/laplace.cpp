@@ -33,6 +33,9 @@
 #include "util.h"
 #include "solver.h"
 #include "laplace.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 using namespace std;
 using namespace MKE;
