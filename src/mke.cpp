@@ -31,8 +31,11 @@
 #include <stdlib.h>
 
 #include "mke.h"
+#include "ver.h"
 #include "util.h"
 #include "solver.h"
+
+VERSION("$Id$");
 
 using namespace std;
 
