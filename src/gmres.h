@@ -3,7 +3,14 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky
+/**
+ * @file gmres.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ *
+ * Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +42,11 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ *
+ * Generalized minimal residual method (GMRES)
+ * http://en.wikipedia.org/wiki/GMRES
  */
 
 #ifdef __cplusplus
@@ -42,10 +54,22 @@ extern "C" {
 #endif
 
 /**
+ * callback
  * y = Ax
  */
 typedef void (*Ax_t)(double * y, const void * A, const double * x, int n);
 
+/**
+ * Solve equation Ax=b
+ *
+ * @param x right part
+ * @param A matrix
+ * @param b right part
+ * @param Ax callback that calculates y=Ax
+ * @param n dimension of system
+ * @param k_dim Krylov dimension
+ * @param max_id maximum numner of iterations
+ */
 void gmres(double * x, const void * A, const double * b, 
 			 Ax_t Ax, int n, int k_dim, int max_it);
 

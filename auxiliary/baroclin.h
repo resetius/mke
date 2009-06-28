@@ -8,6 +8,8 @@
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  *
+ * @section LICENSE
+ *
  * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
