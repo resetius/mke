@@ -59,8 +59,8 @@ extern "C" {
 #endif
 
 /**
- * power of x
- * @return \f$x^p\f$
+ * Power function.
+ * @return the value of x raised to the power of p
  */
 inline double
 ipow(double x, int p)
@@ -172,7 +172,8 @@ void sparse_print(const struct Sparse * A, int n, FILE * f);
 /**
  * r = k1 * a + k2 * b
  */
-void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n);
+void vec_sum1(double * r, const double * a,
+			  const double *b, double k1, double k2, int n);
 
 /**
  * a = b * k
