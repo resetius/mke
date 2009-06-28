@@ -42,6 +42,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ * The baroclin equations class.
  */
 
 #include <vector>
@@ -50,12 +53,26 @@
 #include "solver.h"
 #include "jacobian.h"
 
+/**
+ * Solve the baroclin equations:
+ \f{eqnarray*}
+  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
+  + J(u_2, \Delta u2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
+  - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
+  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
+  + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
+  - \mu \Delta^2 u_2
+    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+	- \mu_1 \Delta u_2
+	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0
+ \f}
+ */
 class Baroclin: public SphereNorm {
 public:
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 	                double sigma, double mu, double sigma1,
 					double mu1, double alpha);
-        typedef double (*coriolis_t) (double phi, double lambda);
+	typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
 	const Mesh & m_;

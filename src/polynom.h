@@ -3,7 +3,15 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/**
+ * @file polynom.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ *
+ * <pre>
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +43,10 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * </pre>
+ *
+ * @section DESCRIPTION
+ * This file contains the polynom class and methods.
  */
 
 #include <vector>
@@ -45,41 +57,78 @@ typedef unsigned int uint;
 
 namespace phelm {
 
-/* Полином от (x, y) */
+/**
+ * Polynom of variables (x, y).
+ * Examples:
+  \f[
+    x^2 y + y + x + 1,
+  \f]
+  x degree = 2; y degree = 1,
+  \f[
+    x^2 + 1,
+  \f]
+  x degree = 2; y degree = 0.
+  \f[
+  P(x,y) = \sum_{i=0}^{x\_deg}\sum_{j=0}^{y\_deg}k_{ij}x^i y^j.
+  \f]
+*/
 struct Polynom {
-	short x_deg_;                   /* !<degree    */
-	short y_deg_;                   /* !<degree    */
-	std::vector < double > koef_;   /* !<масив коэф-тов */
+	short x_deg_;                   ///<x degree
+	short y_deg_;                   ///<y degree 
+	std::vector < double > koef_;   ///<coefficients
 
 /**
- * создает новый полином
- * @param x_deg - степень по x
- * @param y_deg - степень по y
- * @return полином
+ * Creates new empty polynom.
+ * @param x_deg - x degree 
+ * @param y_deg - y degree
  */
 	Polynom(short x_deg, short y_deg)
 		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
 	{
 	}
 
+/**
+ * Creates new polynom from coefficients.
+ * @param x_deg - x degree 
+ * @param y_deg - y degree
+ * @param koef - the coefficients
+ * @param l - the number of elements in the coefficients array
+ */
 	Polynom(short x_deg, short y_deg, double * koef, int l)
 		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
 	{
-		memcpy(&koef_[0], koef, std::min(l, (int)koef_.size()) * sizeof(double));
+		memcpy(&koef_[0], koef, std::min(l, (int)koef_.size())
+			   * sizeof(double));
 	}
 
 	~Polynom() {}
 
+	/**
+	 * Prints polynom into the string.
+	 * @return string representation of the polynom. 
+	 */
 	std::string print() const;
 
+	/**
+	 * Calculates Polynom(x, y).
+	 * @return Polynom(x, y)
+	 */
 	double apply(double x, double y) const;
 
+	/**
+	 * Returns polynom coefficient.
+	 * @return \f$k_{ij}\f$
+	 */
 	double k(int i, int j) const
 	{
 		if (i > x_deg_ || j > y_deg_) return 0;
 		return koef_[i * (y_deg_ + 1) + j];
 	}
 
+	/**
+	 * Calculates new polynom.
+	 * @return \f$\frac{P(x,y)}{k}\f$
+	 */
 	void operator /= (double k) {
 		uint sz   = (uint)koef_.size();
 		double k1 = 1.0 / k;
@@ -89,7 +138,14 @@ struct Polynom {
 	}
 };
 
+/**
+ * The polynom: \f$P(x,y)=x\f$.
+ */
 extern const Polynom P2X; //p(x, y) = x
+
+/**
+ * The polynom:  \f$P(x,y)=y\f$.
+ */
 extern const Polynom P2Y; //p(x, y) = y
 
 struct Triangle;
@@ -99,13 +155,46 @@ struct MeshPoint;
 //!возвращает производную полинома p по переменной i
 Polynom diff(const Polynom & p, int i);
 //!возвращает интеграл полинома p по треугольнику t
-double integrate(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
-//!int p cos x dx dy
-double integrate_cos(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
-//!int p sin x dx dy
-double integrate_sin(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
-//!int p / cos(x) dx dy
-double integrate_1_cos(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
+double integrate(const Polynom & p, const Triangle & t,
+				 const std::vector < MeshPoint > & ps);
+
+/**
+ * Calculates the integral on the triangle t.
+ \f[
+  \int_t p(x,y) cos(x) dx dy
+ \f]
+ *
+ * @param p  - the polynom
+ * @param t  - the triangle
+ * @param ps - the mesh points 
+ */
+double integrate_cos(const Polynom & p, const Triangle & t,
+					 const std::vector < MeshPoint > & ps);
+/**
+ * Calculates the integral on the triangle t.
+ \f[
+  \int_t p(x,y) sin(x) dx dy
+ \f]
+ *
+ * @param p  - the polynom
+ * @param t  - the triangle
+ * @param ps - the mesh points 
+ */
+double integrate_sin(const Polynom & p, const Triangle & t,
+					 const std::vector < MeshPoint > & ps);
+
+/**
+ * Calculates the integral on the triangle t.
+ \f[
+  \int_t \frac{p(x,y)}{cos(x)} dx dy
+ \f]
+ *
+ * @param p  - the polynom
+ * @param t  - the triangle
+ * @param ps - the mesh points 
+ */
+double integrate_1_cos(const Polynom & p, const Triangle & t,
+					   const std::vector < MeshPoint > & ps);
 //!произведение полиномов
 Polynom operator * (const Polynom &p1, const Polynom &p2);
 //!разность полиномов
