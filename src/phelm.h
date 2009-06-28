@@ -3,7 +3,15 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/**
+ * @file phelm.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ *
+ * <pre>
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +43,10 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * </pre>
+ *
+ * @section DESCRIPTION
+ * Main File.
  */
 
 #include <stdio.h>
@@ -45,6 +57,9 @@ typedef unsigned int uint;
 
 namespace phelm {
 
+/**
+ * Point class represents a point on a plane.
+ */
 struct Point {
 	double x;
 	double y;
@@ -69,7 +84,7 @@ inline Point operator + (const Point & p1, const Point & p2)
 	return Point(p1.x + p2.x, p1.y + p2.y);
 }
 
-/** 
+/**
  * Точка на сетке может входить одновременно в несколько областей, 
  * для поддержки этой возможности нужен этот класс
  */
@@ -99,9 +114,12 @@ struct MeshPoint {
 	}
 };
 
+/**
+ * Triangle class.
+ */
 struct Triangle {
-	int p[3];  /* point numbers */
-	int z;     /* zone number   */
+	int p[3];  ///< point number
+	int z;     ///< zone number
 	std::vector < Polynom > phik;
 	double x[3];
 	double y[3];
@@ -164,6 +182,9 @@ struct Triangle {
 	}
 };
 
+/**
+ * Mesh class.
+ */
 struct Mesh {
 	typedef std::vector < Triangle > triangles_t;
 	typedef std::vector < MeshPoint > points_t; 
@@ -190,13 +211,33 @@ struct Mesh {
 };
 
 /**
- * to global coordinates
+ * callback that convert local coordinates to global coordinates.
  */
 typedef double (* x_t)(double u, double v);
 
+/**
+ * Prints function to file @param to
+ *
+ * @param to[in] output file
+ * @param ans[in] function to output
+ * @param m[in] mesh
+ * @param x[in] (optional) local coordinates to global 'x' converter
+ * @param y[in] (optional) local coordinates to global 'y' converter
+ * @param z[in] (optional) local coordinates to global 'z' converter
+ */
 void print_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
+/**
+ * Prints function to file @param to
+ *
+ * @param to[in] output file
+ * @param ans[in] function to output
+ * @param m[in] mesh
+ * @param x[in] (optional) local coordinates to global 'x' converter
+ * @param y[in] (optional) local coordinates to global 'y' converter
+ * @param z[in] (optional) local coordinates to global 'z' converter
+ */
 void print_function(const char * fname, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
