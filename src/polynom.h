@@ -220,13 +220,41 @@ double integrate_sin(const Polynom & p, const Triangle & t,
  */
 double integrate_1_cos(const Polynom & p, const Triangle & t,
 					   const std::vector < MeshPoint > & ps);
-//!произведение полиномов
+
+/**
+ * A product of polynom p1 by polynom p2.
+ *
+ * @param p1 - the polynom
+ * @param p2 - the polynom
+ * @return a product of polynoms. 
+ */
 Polynom operator * (const Polynom &p1, const Polynom &p2);
-//!разность полиномов
+
+/**
+ * A difference of two polynoms.
+ *
+ * @param p1 - the polynom
+ * @param p2 - the polynom
+ * @return p1 - p2
+ */
 Polynom operator - (const Polynom &p1, const Polynom &p2);
-//!сумма полиномов
+
+/**
+ * A sum of two polynoms.
+ *
+ * @param p1 - the polynom
+ * @param p2 - the polynom
+ * @return p1 + p2
+ */
 Polynom operator + (const Polynom &p1, const Polynom &p2);
 
+/**
+ * A difference between a polynom and a number.
+ *
+ * @param p1 - the polynom
+ * @param x - the number
+ * @return p1 - x
+ */
 inline Polynom operator - (const Polynom &p1, double x)
 {
 	Polynom r(p1);
@@ -234,6 +262,13 @@ inline Polynom operator - (const Polynom &p1, double x)
 	return r;
 }
 
+/**
+ * A product of a polynom p1 by a number x.
+ *
+ * @param p1 - the polynom
+ * @param x - the number
+ * @return a product of a polynom and a number. 
+ */
 inline Polynom operator * (const Polynom &p1, double x)
 {
 	Polynom r(p1);
