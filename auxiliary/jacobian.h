@@ -3,8 +3,8 @@
 
 #include "solver.h"
 
-using MKE::Matrix;
-using MKE::Mesh;
+using phelm::Matrix;
+using phelm::Mesh;
 
 class SphereJacobian {
 	const Mesh & m_;

@@ -29,7 +29,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "mke.h"
+#include "phelm.h"
 #include "util.h"
 #include "solver.h"
 #include "laplace.h"
@@ -39,7 +39,7 @@
 VERSION("$Id$");
 
 using namespace std;
-using namespace MKE;
+using namespace phelm;
 
 /**
  * phi    = x - latitude
@@ -176,7 +176,7 @@ void SphereLaplace::solve(double * Ans,
 //	vector_sum(&b[0], &b[0], &x[0], x.size()); // not necessary !
 #endif
 
-	MKE::solve(Ans, bnd, &b[0], laplace_, m_);
+	phelm::solve(Ans, bnd, &b[0], laplace_, m_);
 #ifdef _DEBUG
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 #endif
@@ -404,6 +404,6 @@ void SphereChafe::solve(double * Ans, const double * X0,
 //	fprintf(stderr, "rp: \n");vector_print(&delta_u[0], rs);
 //	fprintf(stderr, "matrix:\n");A_.print();
 //	laplace_.print();
-	MKE::solve(Ans, bnd, &rp[0], A_, m_);
+	phelm::solve(Ans, bnd, &rp[0], A_, m_);
 }
 

@@ -37,7 +37,7 @@
 #endif
 #endif
 
-namespace MKE {
+namespace phelm {
 
 /**
  * Решатель Ax = b

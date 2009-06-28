@@ -3,17 +3,17 @@ project(core CXX C)
 include_directories(/usr/include/suitesparse/)
 set(LIBRARY_OUTPUT_PATH "../lib")
 
-add_library(mke 
-	mke.cpp 
+add_library(phelm 
+	phelm.cpp 
 	util.cpp 
 	polynom.cpp 
 	solver.cpp 
 	ver.cpp
 	gmres.c 
 	quadrature.c
-	mke.h
-	mke_generators.h
-	mke_private.h
+	phelm.h
+	phelm_generators.h
+	phelm_private.h
 	gmres.h
 	polynom.h
 	solver.h

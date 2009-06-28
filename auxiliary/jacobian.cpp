@@ -1,7 +1,7 @@
 #include <vector>
 #include <math.h>
 
-#include "mke.h"
+#include "phelm.h"
 #include "jacobian.h"
 #include "util.h"
 #include "ver.h"
@@ -9,7 +9,7 @@
 VERSION("$Id$");
 
 using namespace std;
-using namespace MKE;
+using namespace phelm;
 
 static double 
 jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 

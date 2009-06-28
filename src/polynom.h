@@ -34,7 +34,7 @@
 
 typedef unsigned int uint;
 
-namespace MKE {
+namespace phelm {
 
 /* Полином от (x, y) */
 struct Polynom {

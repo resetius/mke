@@ -29,7 +29,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "mke.h"
+#include "phelm.h"
 #include "util.h"
 #include "solver.h"
 #include "laplace.h"
@@ -38,7 +38,7 @@
 VERSION("$Id$");
 
 using namespace std;
-using namespace MKE;
+using namespace phelm;
 
 struct laplace_right_part_cb_data
 {
@@ -153,7 +153,7 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 //	vec_sum(&b[0], &b[0], &x[0], x.size());
 #endif	
 
-	MKE::solve(Ans, bnd, &b[0], laplace_, m_);
+	phelm::solve(Ans, bnd, &b[0], laplace_, m_);
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
@@ -396,6 +396,6 @@ void Chafe::solve(double * Ans, const double * X0,
 	generate_right_part(&rp[0], m_, 
 		chafe_right_part_cb, &data2);
 
-	MKE::solve(Ans, bnd, &rp[0], A_, m_);
+	phelm::solve(Ans, bnd, &rp[0], A_, m_);
 }
 

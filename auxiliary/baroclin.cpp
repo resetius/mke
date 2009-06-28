@@ -37,7 +37,7 @@
 VERSION("$Id$");
 
 using namespace std;
-using namespace MKE;
+using namespace phelm;
 
 static elements_t
 integrate_cb( const Polynom & phi_i,

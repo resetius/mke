@@ -44,7 +44,7 @@ VERSION("$Id$");
 
 using namespace std;
 
-namespace MKE
+namespace phelm
 {
 
 #define off(i, j) ((i) * (y_deg_ + 1) + j)

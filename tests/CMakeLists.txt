@@ -1,4 +1,4 @@
-project(mke CXX C)
+project(phelm CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 include_directories(../src ../auxiliary)
@@ -10,11 +10,11 @@ add_executable(test_gmres test_gmres.cpp)
 add_executable(test_quadrature test_quadrature.c)
 add_executable(test_funcgen test_funcgen.cpp)
 
-target_link_libraries(test_polynom mke mke_aux ${UMFPACK})
-target_link_libraries(test_integrate mke mke_aux ${UMFPACK})
-target_link_libraries(test_gmres mke mke_aux)
-target_link_libraries(test_quadrature mke mke_aux ${MATH})
-target_link_libraries(test_funcgen mke mke_aux ${MATH} ${UMFPACK})
+target_link_libraries(test_polynom phelm phelm_aux ${UMFPACK})
+target_link_libraries(test_integrate phelm phelm_aux ${UMFPACK})
+target_link_libraries(test_gmres phelm phelm_aux)
+target_link_libraries(test_quadrature phelm phelm_aux ${MATH})
+target_link_libraries(test_funcgen phelm phelm_aux ${MATH} ${UMFPACK})
 
 if (OPENMP_FOUND)
 set_target_properties(test_polynom PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})

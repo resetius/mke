@@ -1,8 +1,8 @@
 
-namespace MKE
+namespace phelm
 {
 
-namespace MKE_Private_ 
+namespace phelm_private_ 
 {
 	inline void mat_add(Matrix & A, int i, int j, double a, bool transpose)
 	{

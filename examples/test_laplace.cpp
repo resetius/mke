@@ -39,7 +39,7 @@
 #include "laplace.h"
 
 using namespace std;
-using namespace MKE;
+using namespace phelm;
 
 void usage(const char * name)
 {

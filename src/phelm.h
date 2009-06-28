@@ -34,7 +34,7 @@
 
 typedef unsigned int uint;
 
-namespace MKE {
+namespace phelm {
 
 struct Point {
 	double x;
@@ -261,7 +261,7 @@ struct Element {
 typedef std::vector < Element > elements_t;
 }
 
-#include "mke_generators.h"
+#include "phelm_generators.h"
 
 #endif /* MKE_H */
 

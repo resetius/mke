@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6.3)
-project(mke CXX C)
+project(phelm CXX C)
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR) # <- root project
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")

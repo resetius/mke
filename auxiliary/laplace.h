@@ -30,13 +30,13 @@
 
 #include <vector>
 
-#include "mke.h"
+#include "phelm.h"
 #include "solver.h"
 
-using MKE::Matrix;
-using MKE::Mesh;
-using MKE::Triangle;
-using MKE::Polynom;
+using phelm::Matrix;
+using phelm::Mesh;
+using phelm::Triangle;
+using phelm::Polynom;
 
 class SphereNorm {
 public:
@@ -45,22 +45,22 @@ public:
 
 	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
 	{
-		MKE::generate_full_matrix(NORM_, m_, MKE::sphere_scalar_cb, (void*)0);
+		phelm::generate_full_matrix(NORM_, m_, phelm::sphere_scalar_cb, (void*)0);
 	}
 
 	double dist(const double * u, const double * v)
 	{
-		return MKE::fast_dist(u, v, m_, NORM_);
+		return phelm::fast_dist(u, v, m_, NORM_);
 	}
 
 	double norm(const double * u)
 	{
-		return MKE::fast_norm(u, m_, NORM_);
+		return phelm::fast_norm(u, m_, NORM_);
 	}
 
 	double scalar(const double * u, const double * v)
 	{
-		return MKE::fast_scalar(u, v, m_, NORM_);
+		return phelm::fast_scalar(u, v, m_, NORM_);
 	}
 };
 

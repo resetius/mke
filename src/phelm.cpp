@@ -39,7 +39,7 @@ VERSION("$Id$");
 
 using namespace std;
 
-namespace MKE {
+namespace phelm {
 
 bool Mesh::load(FILE * f)
 {

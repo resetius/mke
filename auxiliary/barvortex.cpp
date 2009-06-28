@@ -37,7 +37,7 @@
 VERSION("$Id$");
 
 using namespace std;
-using namespace MKE;
+using namespace phelm;
 
 #define SCHEME_THETA 0.5
 //#define SCHEME_THETA 1.0

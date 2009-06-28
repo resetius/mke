@@ -1,8 +1,8 @@
 #include "solver.h"
 #include "util.h"
-#include "mke_private.h"
+#include "phelm_private.h"
 
-namespace MKE {
+namespace phelm {
 
 /**
  * Создает матрицу системы.
@@ -31,7 +31,7 @@ void generate_matrix(Matrix & A, const Mesh & m,
 					 Data user_data, 
 					 bool transpose = false)
 {
-	using namespace MKE_Private_;
+	using namespace phelm_private_;
 	int rs  = (int)m.inner.size();     // размерность
 
 	Timer t;
@@ -73,7 +73,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 						  Data user_data,
 						  bool transpose = false)
 {
-	using namespace MKE_Private_;
+	using namespace phelm_private_;
 	int sz  = (int)m.ps.size();
 
 	Timer t;
@@ -104,7 +104,7 @@ void generate_right_part(double * b, const Mesh & m,
 						 Functor right_part_cb, 
 						 Data user_data)
 {
-	using namespace MKE_Private_;
+	using namespace phelm_private_;
 	int rs  = (int)m.inner.size();     // размерность
 	Timer t;
 
@@ -147,7 +147,7 @@ void generate_full_right_part(double * b, const Mesh & m,
 							  Functor right_part_cb, 
 							  Data user_data)
 {
-	using namespace MKE_Private_;
+	using namespace phelm_private_;
 	int sz  = (int)m.ps.size();     // размерность
 
 	Timer t;
@@ -196,7 +196,7 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
 							  Data user_data,
 							  bool transpose = false)
 {
-	using namespace MKE_Private_;
+	using namespace phelm_private_;
 	int os = (int)m.outer.size(); // размер границы
 	for (int j = 0; j < os; ++j) {
 		// по внешним точкам
@@ -230,7 +230,7 @@ template < typename Functor, typename Data >
 void convolution(double * ans, const double * u, const double * v, 
 				 const Mesh & m, Functor cb, Data user_data)
 {
-	using namespace MKE_Private_;
+	using namespace phelm_private_;
 
 	int sz  = (int)m.ps.size(); // размерность
 
