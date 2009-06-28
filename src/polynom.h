@@ -46,7 +46,7 @@
  * </pre>
  *
  * @section DESCRIPTION
- * This file contains the polynom class and methods.
+ * The polynom class, methods, functions.
  */
 
 #include <vector>
@@ -152,14 +152,39 @@ struct Triangle;
 struct Point;
 struct MeshPoint;
 
-//!возвращает производную полинома p по переменной i
+/**
+ * A derivative of the polynom with respect to x or y.
+ * If i equals to 0 then calculate a derivative with respect to x.
+ * If i equals to 0 then calculate a derivative with respect to y.
+ \f[
+ \frac{\partial P(x,y)}{\partial x}
+ \f]
+ \f[
+ \frac{\partial P(x,y)}{\partial y}
+ \f]
+ *
+ * @param p - the polynom
+ * @param i - 0 or 1 (x or y)
+ * @return \f$\frac{\partial P(x,y)}{\partial x}\f$
+ * or \f$\frac{\partial P(x,y)}{\partial y}\f$. 
+ */
 Polynom diff(const Polynom & p, int i);
-//!возвращает интеграл полинома p по треугольнику t
+
+/**
+ * Takes the integral of Polynom over the Triangle t.
+ \f[
+  \int_t p(x,y) dx dy
+ \f]
+ *
+ * @param p  - the polynom
+ * @param t  - the triangle
+ * @param ps - the mesh points 
+ */
 double integrate(const Polynom & p, const Triangle & t,
 				 const std::vector < MeshPoint > & ps);
 
 /**
- * Calculates the integral on the triangle t.
+ * Takes the integral of Polynom over the Triangle t.
  \f[
   \int_t p(x,y) cos(x) dx dy
  \f]
@@ -171,7 +196,7 @@ double integrate(const Polynom & p, const Triangle & t,
 double integrate_cos(const Polynom & p, const Triangle & t,
 					 const std::vector < MeshPoint > & ps);
 /**
- * Calculates the integral on the triangle t.
+ * Takes the integral of Polynom over the Triangle t.
  \f[
   \int_t p(x,y) sin(x) dx dy
  \f]
@@ -184,7 +209,7 @@ double integrate_sin(const Polynom & p, const Triangle & t,
 					 const std::vector < MeshPoint > & ps);
 
 /**
- * Calculates the integral on the triangle t.
+ * Takes the integral of Polynom over the Triangle t.
  \f[
   \int_t \frac{p(x,y)}{cos(x)} dx dy
  \f]
