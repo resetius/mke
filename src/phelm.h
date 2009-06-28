@@ -242,7 +242,14 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * prints function without a boundary
+ * Prints inner part of the function to file @param to
+ *
+ * @param to[in] output file
+ * @param ans[in] function to output
+ * @param m[in] mesh
+ * @param x[in] (optional) local coordinates to global 'x' converter
+ * @param y[in] (optional) local coordinates to global 'y' converter
+ * @param z[in] (optional) local coordinates to global 'z' converter
  */
 void print_inner_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
