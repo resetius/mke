@@ -1,5 +1,6 @@
 #ifndef LAPL_H
 #define LAPL_H
+/* -*- charset: utf-8 -*- */
 /*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)

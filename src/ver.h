@@ -1,6 +1,6 @@
 #ifndef VER_H
 #define VER_H
-
+/* -*- charset: utf-8 -*- */
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *

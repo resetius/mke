@@ -1,5 +1,6 @@
 #ifndef SOLVER_H
 #define SOLVER_H
+/* -*- charset: utf-8 -*- */
 /*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)

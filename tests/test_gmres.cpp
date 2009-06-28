@@ -1,3 +1,5 @@
+/* -*- charset: utf-8 -*- */
+
 #include <stdlib.h>
 #include <stdio.h>
 

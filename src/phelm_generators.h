@@ -1,7 +1,4 @@
-#include "solver.h"
-#include "util.h"
-#include "phelm_private.h"
-
+/* -*- charset: utf-8 -*- */
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
@@ -35,6 +32,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "solver.h"
+#include "util.h"
+#include "phelm_private.h"
 
 namespace phelm {
 

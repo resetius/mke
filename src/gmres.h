@@ -1,5 +1,6 @@
 #ifndef GMRES_H
 #define GMRES_H
+/* -*- charset: utf-8 -*- */
 /*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky

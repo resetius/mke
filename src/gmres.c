@@ -1,3 +1,4 @@
+/* -*- charset: utf-8 -*- */
 /*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)

@@ -1,4 +1,4 @@
-
+/* -*- charset: utf-8 -*- */
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
