@@ -11,8 +11,16 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission
+ * 3. Redistributions in any form must be accompanied by information on
+ *    how to obtain complete source code for the Phelm software and any
+ *    accompanying software that uses the Phelm software.  The source code
+ *    must either be included in the distribution or be available for no
+ *    more than the cost of distribution plus a nominal fee, and must be
+ *    freely redistributable under reasonable conditions.  For an
+ *    executable file, complete source code means the source code for all
+ *    modules it contains.  It does not include source code for modules or
+ *    files that typically accompany the major components of the operating
+ *    system on which the executable file runs.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -25,7 +33,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+ 
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdlib.h>
