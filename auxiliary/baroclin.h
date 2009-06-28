@@ -3,7 +3,12 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/**
+ * @file baroclin.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
