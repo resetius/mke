@@ -13,6 +13,7 @@
  * Copyright (c) 2009 Alexey Ozeritsky \n
  * All rights reserved.
  *
+ * <pre>
  * Redistribution and use in source and binary forms, with or without \n
  * modification, are permitted provided that the following conditions \n
  * are met: \n
@@ -42,6 +43,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT \n
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF \n
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. \n
+ * </pre>
  *
  * @section DESCRIPTION
  *
