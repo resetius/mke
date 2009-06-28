@@ -3,7 +3,15 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/**
+ * @file util.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ *
+ * <pre>
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +43,10 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * </pre>
+ *
+ * @section DESCRIPTION
+ * Misc functions.
  */
 
 #ifdef __cplusplus
@@ -46,7 +58,10 @@ extern "C" {
 #define inline __inline
 #endif
 
-#if 1
+/**
+ * power of x
+ * @return \f$x^p\f$
+ */
 inline double
 ipow(double x, int p)
 {
@@ -57,9 +72,8 @@ ipow(double x, int p)
 	}
 	return r;
 }
-#endif
 
-#if 0
+/*
 inline double
 ipow(double x, int n)
 {
@@ -78,8 +92,17 @@ ipow(double x, int n)
 		p = p * p;
 	}
 }
-#endif
+*/
 
+/**
+ * The Gauss method. Solves a linear system Ax=b.
+ *
+ * @param A - the matrix of the system.
+ * @param b - the right part.
+ * @param x - the answer.
+ * @param n - dimension.
+ * @retuen 0 on success.
+ */
 int gauss (double *A, double *b, double *x, int n);
 
 //интеграл от x^k*y^n по трапеции
@@ -132,7 +155,8 @@ struct Sparse {
  * Если матрица хранится по строкам, то умножаем на вектор СПРАВА
  * r = A x
  */
-void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x, int n);
+void sparse_mult_vector_l(double * r, const struct Sparse * A,
+						  const double * x, int n);
 
 /**
  * Если матрица хранится по столбцам, то умножаем на вектор СПРАВА
@@ -140,7 +164,8 @@ void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x,
  * Если матрица хранится по строкам, то умножаем на вектор СЛЕВА
  * r = x A
  */
-void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x, int n);
+void sparse_mult_vector_r(double * r, const struct Sparse * A,
+						  const double * x, int n);
 
 void sparse_print(const struct Sparse * A, int n, FILE * f);
 
@@ -182,15 +207,25 @@ void set_fpe_except();
 #endif
 
 #ifdef __cplusplus
+/**
+ * Timer class.
+ */
 class Timer {
 	double t1_;
 
 public:
 	Timer(): t1_(get_full_time()) {}
+
+	/**
+	 * @return the number of seconds from timer initialize or restart. 
+	 */
 	double elapsed() { return (get_full_time() - t1_) / 100.0; }
+
+	/**
+	 * Restart timer.
+	 */
 	void restart() { t1_ = get_full_time(); }
 };
 #endif
 
 #endif /* UTIL_H */
-
