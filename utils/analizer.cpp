@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,8 +64,8 @@ public:
 
 typedef Point < double > Pointd;
 
-void load_file(std::vector < Pointd > & points,  //!<координаты точек
-			   std::vector < double > & colors,  //!<номера узлов
+void load_file(std::vector < Pointd > & points,  //!<РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚РѕС‡РµРє
+			   std::vector < double > & colors,  //!<РЅРѕРјРµСЂР° СѓР·Р»РѕРІ
 			   std::vector < std::vector < int > > & tri, 
 			   FILE * f)
 {
@@ -134,7 +134,7 @@ void load_file(std::vector < Pointd > & points,  //!<координаты точек
 			sscanf(str, "%d", &zone);
 		}
 
-		//так как индексы в файле с 1 а не с 0
+		//С‚Р°Рє РєР°Рє РёРЅРґРµРєСЃС‹ РІ С„Р°Р№Р»Рµ СЃ 1 Р° РЅРµ СЃ 0
 		--n1;
 		--n2;
 		--n3;
@@ -170,8 +170,8 @@ bad:
 
 void analize(FILE * fp)
 {
-	std::vector < Pointd >  points;  //!<координаты точек
-	std::vector < double >  f;       //!<номера узлов
+	std::vector < Pointd >  points;  //!<РєРѕРѕСЂРґРёРЅР°С‚С‹ С‚РѕС‡РµРє
+	std::vector < double >  f;       //!<РЅРѕРјРµСЂР° СѓР·Р»РѕРІ
 	std::vector < double >  m;
 	std::vector < double >  m2;
 	std::vector < double >  d;

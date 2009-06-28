@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -160,7 +160,7 @@ double rp_g1(double x, double y, double t, double sigma,
 }
 
 /**
- * Операторы:
+ * РћРїРµСЂР°С‚РѕСЂС‹:
  * proc (u1, u2) options operator, arrow; diff(L(u1), t)+(1/2)*sigma*L(u1-u2)-mu*L(L(u1)) end proc
  * proc (u1, u2) options operator, arrow; diff(L(u2), t)+(1/2)*sigma*L(u1+u2)-mu*L(L(u2)) end proc
  */

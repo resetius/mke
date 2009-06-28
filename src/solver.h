@@ -2,7 +2,7 @@
 #define SOLVER_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,17 +48,17 @@
 namespace phelm {
 
 /**
- * Решатель Ax = b
+ * Р РµС€Р°С‚РµР»СЊ Ax = b
  */
 class Matrix {
 	int n_;
 
 #ifdef SPARSE
-	// разреженная матрица
-	// формат хранения как в MatLab и UMFPACK
-	std::vector < int > Ap_;    // количества ненулевых в столбцах
-	std::vector < int > Ai_;    // индексы (номер строки) ненулевых элементов
-	std::vector < double > Ax_; // ненулевые элементы матрицы
+	// СЂР°Р·СЂРµР¶РµРЅРЅР°СЏ РјР°С‚СЂРёС†Р°
+	// С„РѕСЂРјР°С‚ С…СЂР°РЅРµРЅРёСЏ РєР°Рє РІ MatLab Рё UMFPACK
+	std::vector < int > Ap_;    // РєРѕР»РёС‡РµСЃС‚РІР° РЅРµРЅСѓР»РµРІС‹С… РІ СЃС‚РѕР»Р±С†Р°С…
+	std::vector < int > Ai_;    // РёРЅРґРµРєСЃС‹ (РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё) РЅРµРЅСѓР»РµРІС‹С… СЌР»РµРјРµРЅС‚РѕРІ
+	std::vector < double > Ax_; // РЅРµРЅСѓР»РµРІС‹Рµ СЌР»РµРјРµРЅС‚С‹ РјР°С‚СЂРёС†С‹
 
 	//column_number -> row_number -> value
 	typedef std::map < int , double > column_t;
@@ -72,10 +72,10 @@ class Matrix {
 #endif
 
 #else
-	std::vector < double > A_;  // матрица
+	std::vector < double > A_;  // РјР°С‚СЂРёС†Р°
 #endif
 
-	//заполняет Ap, Ai, Ax по промежуточным данным
+	//Р·Р°РїРѕР»РЅСЏРµС‚ Ap, Ai, Ax РїРѕ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Рј РґР°РЅРЅС‹Рј
 	void make_sparse();
 	void add_sparse(int i, int j, double a);
 	void solve_sparse(double * x, const double * b);

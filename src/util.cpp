@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ int gauss (double *A, double *b, double *x, int n)
 
 #include "cnk_6.h"
 
-//це из ен по ка
+//С†Рµ РёР· РµРЅ РїРѕ РєР°
 inline double CNK(int n,int k)
 {
 	assert(n < 6 && k < 6);
@@ -171,16 +171,16 @@ ssum(double x, int k, int n, double k1, double b1,
 	return sum;
 }
 
-// интеграл от x^k * y^n по трапеции
+// РёРЅС‚РµРіСЂР°Р» РѕС‚ x^k * y^n РїРѕ С‚СЂР°РїРµС†РёРё
 // y = k1 x + b1 y = k2 x + b2 
-// прямые ограничивающие трапецию
-// x меняется от x1 до x3 
+// РїСЂСЏРјС‹Рµ РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰РёРµ С‚СЂР°РїРµС†РёСЋ
+// x РјРµРЅСЏРµС‚СЃСЏ РѕС‚ x1 РґРѕ x3 
 double trapezoid_integral(int k, int n, 
 						  double k1, double b1, 
 						  double k2, double b2, 
 						  double x1, double x3)
 {
-	// надо вычислить интеграл от x1 до x3 от :
+	// РЅР°РґРѕ РІС‹С‡РёСЃР»РёС‚СЊ РёРЅС‚РµРіСЂР°Р» РѕС‚ x1 РґРѕ x3 РѕС‚ :
 	// 1 / (n + 1) x^{k+1} ((k2 x + b2)^{n+1}-(k1 x + b1)^{n+1})
 	double retval=(ssum(x3, k, n, k1, b1, k2, b2) 
 		- ssum(x1, k, n, k1, b1, k2, b2)) / (double)(n + 1);

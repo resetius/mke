@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,8 @@ Baroclin::Baroclin(const Mesh & m, rp_t f, rp_t g,
 	lh_.resize(m_.ps.size());
 	proj(&lh_[0], m_, coriolis);
 
-	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	/* РњР°С‚СЂРёС†Р° Р»РµРІРѕР№ С‡Р°СЃС‚Рё СЃРѕРІРїР°РґР°РµС‚ СЃ Р§Р°С„Рµ-РРЅС„Р°РЅС‚РѕРј РЅР° СЃС„РµСЂРµ */
+	/* РѕРїРµСЂР°С‚РѕСЂ(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_,  integrate_cb, this);
 	generate_matrix(Ab_, m_, integrate_backward_cb, this);
 }
@@ -237,8 +237,8 @@ right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0        = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0        = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		elements_t r1 = integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
 		double rp[] = {0, 0, 0, 0};
@@ -313,8 +313,8 @@ right_part_backward_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0        = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0        = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		elements_t r1 = integrate_backward_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
 		double rp[] = {0, 0, 0, 0};
@@ -385,13 +385,13 @@ void Baroclin::calc(double * u11,  double * u21,
 		const double * u1, const double * u2, 
 		const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
-	// правая часть 1:
+	// РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ 1:
 	// -J(0.5(u1+u1), 0.5(w1+w1)+l+h) - J(0.5(u2+u2),w2+w2)+
 	// + w1/tau - 0.5 (1-theta)sigma (w1-w2)+mu(1-theta)(\Delta w1)
-	// правая часть 2:
+	// РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ 2:
 	// -J(0.5(u1+u1), 0.5(w2+w2)) - J(0.5(u2+u2), 0.5(w1+w1)+l+h) -
 	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu \Delta w2
 	// + w2/tau - alpha^2 u2/tau + alpha^2 J(0.5(u1+u1), 0.5(u2+u2)) -
@@ -555,14 +555,14 @@ void Baroclin::calc_L(double * u11, double * u21,
 		const double * z1, const double * z2,
 		const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
-	// правая часть 1:
+	// РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ 1:
 	// - J(z1, 0.5(w1+w1)) - J(u1, L(z1)+l+h) -
 	// - J(z2, 0.5(w2+w2)) - J(0.5(u2+u2), L(z2)) +
 	// + w1/tau - 0.5 (1-theta)sigma (w1-w2)+mu(1-theta)(L w1)
-	// правая часть 2:
+	// РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ 2:
 	// - J(z1, 0.5(w2+w2)) - J(0.5(u1+u1), L(z2)) -
 	// - J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) -
 	// - 0.5 (1-theta)sigma (w1 + w2) + (1-theta) mu L w2
@@ -736,14 +736,14 @@ void Baroclin::calc_L_1(double * u11, double * u21,
 		const double * z1, const double * z2,
 		const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
-	// правая часть 1:
+	// РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ 1:
 	//  J(z1, 0.5(w1+w1)) + J(u1, L(z1)+l+h) +
 	// + J(z2, 0.5(w2+w2)) + J(0.5(u2+u2), L(z2)) +
 	// + w1/tau + 0.5 theta sigma (w1-w2) - mu theta (L w1)
-	// правая часть 2:
+	// РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ 2:
 	//  J(z1, 0.5(w2+w2)) + J(0.5(u1+u1), L(z2)) +
 	// + J(0.5(u2+u2), L(z1)+l+h) - J(z2, 0.5(w1+w1)) +
 	// + 0.5 theta sigma (w1 + w2) - theta mu L w2 +

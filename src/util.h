@@ -2,7 +2,7 @@
 #define UTIL_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,10 +81,10 @@ ipow(double x, int n)
 
 int gauss (double *A, double *b, double *x, int n);
 
-//интеграл от x^k*y^n по трапеции
+//РёРЅС‚РµРіСЂР°Р» РѕС‚ x^k*y^n РїРѕ С‚СЂР°РїРµС†РёРё
 //y=k1x+b1 y=k2x+b2 
-//прямые ограничивающие трапецию
-//x меняется от x1 до x3 
+//РїСЂСЏРјС‹Рµ РѕРіСЂР°РЅРёС‡РёРІР°СЋС‰РёРµ С‚СЂР°РїРµС†РёСЋ
+//x РјРµРЅСЏРµС‚СЃСЏ РѕС‚ x1 РґРѕ x3 
 double trapezoid_integral(int k, int n, 
 			 double k1, double b1, 
 			 double k2, double b2, 
@@ -126,17 +126,17 @@ struct Sparse {
 };
 
 /**
- * Если матрица хранится по столбцам, то умножаем на вектор СЛЕВА
+ * Р•СЃР»Рё РјР°С‚СЂРёС†Р° С…СЂР°РЅРёС‚СЃСЏ РїРѕ СЃС‚РѕР»Р±С†Р°Рј, С‚Рѕ СѓРјРЅРѕР¶Р°РµРј РЅР° РІРµРєС‚РѕСЂ РЎР›Р•Р’Рђ
  * r = x A
- * Если матрица хранится по строкам, то умножаем на вектор СПРАВА
+ * Р•СЃР»Рё РјР°С‚СЂРёС†Р° С…СЂР°РЅРёС‚СЃСЏ РїРѕ СЃС‚СЂРѕРєР°Рј, С‚Рѕ СѓРјРЅРѕР¶Р°РµРј РЅР° РІРµРєС‚РѕСЂ РЎРџР РђР’Рђ
  * r = A x
  */
 void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x, int n);
 
 /**
- * Если матрица хранится по столбцам, то умножаем на вектор СПРАВА
+ * Р•СЃР»Рё РјР°С‚СЂРёС†Р° С…СЂР°РЅРёС‚СЃСЏ РїРѕ СЃС‚РѕР»Р±С†Р°Рј, С‚Рѕ СѓРјРЅРѕР¶Р°РµРј РЅР° РІРµРєС‚РѕСЂ РЎРџР РђР’Рђ
  * r = A x
- * Если матрица хранится по строкам, то умножаем на вектор СЛЕВА
+ * Р•СЃР»Рё РјР°С‚СЂРёС†Р° С…СЂР°РЅРёС‚СЃСЏ РїРѕ СЃС‚СЂРѕРєР°Рј, С‚Рѕ СѓРјРЅРѕР¶Р°РµРј РЅР° РІРµРєС‚РѕСЂ РЎР›Р•Р’Рђ
  * r = x A
  */
 void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x, int n);
@@ -162,7 +162,7 @@ double vec_norm2(const double *v, int n);
 double vec_scalar2(const double * a, const double * b, int n);
 
 /**
- * поэлементное умножение
+ * РїРѕСЌР»РµРјРµРЅС‚РЅРѕРµ СѓРјРЅРѕР¶РµРЅРёРµ
  * r = a * b
  */
 void vec_mult(double * r, const double * a, const double * b, int n);

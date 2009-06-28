@@ -2,7 +2,7 @@
 #include "util.h"
 #include "phelm_private.h"
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,23 +39,23 @@
 namespace phelm {
 
 /**
- * Создает матрицу системы.
- * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
- * в общей точке point на треугольнике tr
- * если установлен флаг transpose, то генерит 
- * транспонированную матрицу
+ * РЎРѕР·РґР°РµС‚ РјР°С‚СЂРёС†Сѓ СЃРёСЃС‚РµРјС‹.
+ * Р’С‹Р·С‹РІР°РµС‚ integrate_cb РґР»СЏ РІСЃРµС… С„СѓРЅРєС†РёР№ phi_i, phi_j, РѕРїСЂРµРґРµР»РµРЅРЅС‹С…
+ * РІ РѕР±С‰РµР№ С‚РѕС‡РєРµ point РЅР° С‚СЂРµСѓРіРѕР»СЊРЅРёРєРµ tr
+ * РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі transpose, С‚Рѕ РіРµРЅРµСЂРёС‚ 
+ * С‚СЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРЅСѓСЋ РјР°С‚СЂРёС†Сѓ
  * 
- * параметры callback'а:
+ * РїР°СЂР°РјРµС‚СЂС‹ callback'Р°:
  *
  *	const Polynom & phi_i, 
  *	const Polynom & phi_j, 
- *	const Triangle & tr,   номер треугольника 
- *	const Mesh & mesh,     сетка 
- *	int point_i,           глобальный номер точки 
- *	int point_j,           глобальный номер точки 
- *	int i,                 номер строки матрицы
- *	int j,                 номер столбца матрицы
- *	void * user_data       сюда могу входить любые данные
+ *	const Triangle & tr,   РЅРѕРјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° 
+ *	const Mesh & mesh,     СЃРµС‚РєР° 
+ *	int point_i,           РіР»РѕР±Р°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ С‚РѕС‡РєРё 
+ *	int point_j,           РіР»РѕР±Р°Р»СЊРЅС‹Р№ РЅРѕРјРµСЂ С‚РѕС‡РєРё 
+ *	int i,                 РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё РјР°С‚СЂРёС†С‹
+ *	int j,                 РЅРѕРјРµСЂ СЃС‚РѕР»Р±С†Р° РјР°С‚СЂРёС†С‹
+ *	void * user_data       СЃСЋРґР° РјРѕРіСѓ РІС…РѕРґРёС‚СЊ Р»СЋР±С‹Рµ РґР°РЅРЅС‹Рµ
  *
  */
 
@@ -66,17 +66,17 @@ void generate_matrix(Matrix & A, const Mesh & m,
 					 bool transpose = false)
 {
 	using namespace phelm_private_;
-	int rs  = (int)m.inner.size();     // размерность
+	int rs  = (int)m.inner.size();     // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 
 	Timer t;
 #pragma omp parallel for
-	for (int i = 0; i < rs; ++i) { // номер строки
-		// по внутренним точкам
+	for (int i = 0; i < rs; ++i) { // РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё
+		// РїРѕ РІРЅСѓС‚СЂРµРЅРЅРёРј С‚РѕС‡РєР°Рј
 		int p = m.inner[i];
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) 
 		{
-			// по треугольника в точке
+			// РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ С‚РѕС‡РєРµ
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
@@ -84,10 +84,10 @@ void generate_matrix(Matrix & A, const Mesh & m,
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
-				int j    = m.p2io[p2]; // номер внутренней точки
-				                       // номер столбца
+				int j    = m.p2io[p2]; // РЅРѕРјРµСЂ РІРЅСѓС‚СЂРµРЅРЅРµР№ С‚РѕС‡РєРё
+				                       // РЅРѕРјРµСЂ СЃС‚РѕР»Р±С†Р°
 				if (m.ps_flags[p2] == 1) {
-					; // граница
+					; // РіСЂР°РЅРёС†Р°
 				} else {
 					mat_add(A, i, j, 
 						integrate_cb(phi_i, phik[i0], trk, 
@@ -114,7 +114,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 //#pragma omp parallel for
 	for (int p = 0; p < sz; ++p) {
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольника в точке
+			// РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ С‚РѕС‡РєРµ
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
@@ -139,29 +139,29 @@ void generate_right_part(double * b, const Mesh & m,
 						 Data user_data)
 {
 	using namespace phelm_private_;
-	int rs  = (int)m.inner.size();     // размерность
+	int rs  = (int)m.inner.size();     // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 	Timer t;
 
-	// WARNING: если генерируем правую часть для системы уравнений,
-	// то реальная размерность не известна, поэтому 
-	// memset(b, 0) надо вызывать руками до вызова generate_right_part !
+	// WARNING: РµСЃР»Рё РіРµРЅРµСЂРёСЂСѓРµРј РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ РґР»СЏ СЃРёСЃС‚РµРјС‹ СѓСЂР°РІРЅРµРЅРёР№,
+	// С‚Рѕ СЂРµР°Р»СЊРЅР°СЏ СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РЅРµ РёР·РІРµСЃС‚РЅР°, РїРѕСЌС‚РѕРјСѓ 
+	// memset(b, 0) РЅР°РґРѕ РІС‹Р·С‹РІР°С‚СЊ СЂСѓРєР°РјРё РґРѕ РІС‹Р·РѕРІР° generate_right_part !
 
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i)
 	{
-		// по внутренним точкам
+		// РїРѕ РІРЅСѓС‚СЂРµРЅРЅРёРј С‚РѕС‡РєР°Рј
 		int p = m.inner[i];
 		b[i]  = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольника в точке
+			// РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ С‚РѕС‡РєРµ
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
 			const Polynom & phi_i           = trk.elem1(p);
 			
-			// если граница не меняется по времени, то надо делать отдельный callback
-			// для вычисления постоянной поправки к правой части?
+			// РµСЃР»Рё РіСЂР°РЅРёС†Р° РЅРµ РјРµРЅСЏРµС‚СЃСЏ РїРѕ РІСЂРµРјРµРЅРё, С‚Рѕ РЅР°РґРѕ РґРµР»Р°С‚СЊ РѕС‚РґРµР»СЊРЅС‹Р№ callback
+			// РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїРѕСЃС‚РѕСЏРЅРЅРѕР№ РїРѕРїСЂР°РІРєРё Рє РїСЂР°РІРѕР№ С‡Р°СЃС‚Рё?
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
@@ -182,13 +182,13 @@ void generate_full_right_part(double * b, const Mesh & m,
 							  Data user_data)
 {
 	using namespace phelm_private_;
-	int sz  = (int)m.ps.size();     // размерность
+	int sz  = (int)m.ps.size();     // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 
 	Timer t;
 
-	// WARNING: если генерируем правую часть для системы уравнений,
-	// то реальная размерность не известна, поэтому 
-	// memset(b, 0) надо вызывать руками до вызова generate_right_part !
+	// WARNING: РµСЃР»Рё РіРµРЅРµСЂРёСЂСѓРµРј РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ РґР»СЏ СЃРёСЃС‚РµРјС‹ СѓСЂР°РІРЅРµРЅРёР№,
+	// С‚Рѕ СЂРµР°Р»СЊРЅР°СЏ СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РЅРµ РёР·РІРµСЃС‚РЅР°, РїРѕСЌС‚РѕРјСѓ 
+	// memset(b, 0) РЅР°РґРѕ РІС‹Р·С‹РІР°С‚СЊ СЂСѓРєР°РјРё РґРѕ РІС‹Р·РѕРІР° generate_right_part !
 
 #pragma omp parallel for
 	for (int p = 0; p < sz; ++p)
@@ -196,14 +196,14 @@ void generate_full_right_part(double * b, const Mesh & m,
 		b[p]  = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольника в точке
+			// РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ С‚РѕС‡РєРµ
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
 			const Polynom & phi_i           = trk.elem1(p);
 			
-			// если граница не меняется по времени, то надо делать отдельный callback
-			// для вычисления постоянной поправки к правой части?
+			// РµСЃР»Рё РіСЂР°РЅРёС†Р° РЅРµ РјРµРЅСЏРµС‚СЃСЏ РїРѕ РІСЂРµРјРµРЅРё, С‚Рѕ РЅР°РґРѕ РґРµР»Р°С‚СЊ РѕС‚РґРµР»СЊРЅС‹Р№ callback
+			// РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїРѕСЃС‚РѕСЏРЅРЅРѕР№ РїРѕРїСЂР°РІРєРё Рє РїСЂР°РІРѕР№ С‡Р°СЃС‚Рё?
 			
 			for (uint i0 = 0; i0 < phik.size(); ++i0) {
 				int p2   = m.tr[trk_i].p[i0];
@@ -219,10 +219,10 @@ void generate_full_right_part(double * b, const Mesh & m,
 }
 
 /**
- * генерирует матрицу для интеграции краевых условий в правую часть
+ * РіРµРЅРµСЂРёСЂСѓРµС‚ РјР°С‚СЂРёС†Сѓ РґР»СЏ РёРЅС‚РµРіСЂР°С†РёРё РєСЂР°РµРІС‹С… СѓСЃР»РѕРІРёР№ РІ РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ
  * inner.size() x outer.size()
- * в cb передается phi_j где j точка границы
- * phi_i, где i внутренняя точка
+ * РІ cb РїРµСЂРµРґР°РµС‚СЃСЏ phi_j РіРґРµ j С‚РѕС‡РєР° РіСЂР°РЅРёС†С‹
+ * phi_i, РіРґРµ i РІРЅСѓС‚СЂРµРЅРЅСЏСЏ С‚РѕС‡РєР°
  */
 template < typename Functor, typename Data >
 void generate_boundary_matrix(Matrix & A, const Mesh & m, 
@@ -231,13 +231,13 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
 							  bool transpose = false)
 {
 	using namespace phelm_private_;
-	int os = (int)m.outer.size(); // размер границы
+	int os = (int)m.outer.size(); // СЂР°Р·РјРµСЂ РіСЂР°РЅРёС†С‹
 	for (int j = 0; j < os; ++j) {
-		// по внешним точкам
+		// РїРѕ РІРЅРµС€РЅРёРј С‚РѕС‡РєР°Рј
 		int p2 = m.outer[j];
 
 		for (uint tk = 0; tk < m.adj[p2].size(); ++tk) {
-			// по треугольникам в точке
+			// РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°Рј РІ С‚РѕС‡РєРµ
 			int trk_j = m.adj[p2][tk];
 			const Triangle & trk    = m.tr[trk_j];
 			const std::vector < Polynom > & phik = trk.elem1();
@@ -249,7 +249,7 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
 				if (m.ps_flags[p] == 1) {
 					;
 				} else {
-					// p - внутренняя точка
+					// p - РІРЅСѓС‚СЂРµРЅРЅСЏСЏ С‚РѕС‡РєР°
 					int i = m.p2io[p];
 					mat_add(A, i, j, 
 						right_part_cb(phik[i0], phi_j, 
@@ -266,17 +266,17 @@ void convolution(double * ans, const double * u, const double * v,
 {
 	using namespace phelm_private_;
 
-	int sz  = (int)m.ps.size(); // размерность
+	int sz  = (int)m.ps.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 
 //#pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
-		// по всем точкам
+		// РїРѕ РІСЃРµРј С‚РѕС‡РєР°Рј
 		int p = i;
 		ans[i] = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
-			// по треугольникам в точке
+			// РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°Рј РІ С‚РѕС‡РєРµ
 			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
@@ -292,7 +292,7 @@ void convolution(double * ans, const double * u, const double * v,
 	}
 }
 
-/* сеточное скалярное произведение двух функций */
+/* СЃРµС‚РѕС‡РЅРѕРµ СЃРєР°Р»СЏСЂРЅРѕРµ РїСЂРѕРёР·РІРµРґРµРЅРёРµ РґРІСѓС… С„СѓРЅРєС†РёР№ */
 template < typename Functor, typename Data >
 double scalar(const double * u, const double * v, const Mesh & m, 
 				  Functor cb, Data user_data)
@@ -315,7 +315,7 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m,
 	generate_full_matrix(mat, m, cb, user_data);
 }
 
-/* сеточная норма */
+/* СЃРµС‚РѕС‡РЅР°СЏ РЅРѕСЂРјР° */
 template < typename Functor, typename Data >
 double norm(const double * u, const Mesh & m, 
 				Functor cb, Data user_data)
@@ -328,12 +328,12 @@ inline double norm(const double * u, const Mesh & m)
 	return norm(u, m, generic_scalar_cb, (void*)0);
 }
 
-/* сеточное расстояние */
+/* СЃРµС‚РѕС‡РЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ */
 template < typename Functor, typename Data>
 double dist(const double * u, const double * v, const Mesh & m, 
 				Functor cb, Data user_data)
 {
-	int sz  = (int)m.ps.size(); // размерность
+	int sz  = (int)m.ps.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 	std::vector < double > diff(sz);
 	vec_diff(&diff[0], u, v, sz);
 	return norm(&diff[0], m, cb, user_data);

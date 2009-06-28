@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,8 +112,8 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 	lh_.resize(sz);
 	proj(&lh_[0], m_, coriolis);
 
-	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	/* РњР°С‚СЂРёС†Р° Р»РµРІРѕР№ С‡Р°СЃС‚Рё СЃРѕРІРїР°РґР°РµС‚ СЃ Р§Р°С„Рµ-РРЅС„Р°РЅС‚РѕРј РЅР° СЃС„РµСЂРµ */
+	/* РѕРїРµСЂР°С‚РѕСЂ(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, integrate_cb, this);
 	generate_boundary_matrix(bnd_, m_, integrate_cb, this);
 
@@ -142,8 +142,8 @@ right_part_cb( const Polynom & phi_i,
 
 	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
@@ -168,8 +168,8 @@ right_part_backward_cb( const Polynom & phi_i,
 
 	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * integrate_backward_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
@@ -187,12 +187,12 @@ right_part_backward_cb( const Polynom & phi_i,
 void BarVortex::calc(double * u1, const double * u, 
 					 const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
 	vector < double > w(sz);       // w = L(u)
 	vector < double > dw(sz);      // dw = L(w) = LL(u)
-	vector < double > FC(sz);      // правая часть
+	vector < double > FC(sz);      // РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ
 
 	// next
 	vector < double > u_n(sz);
@@ -210,7 +210,7 @@ void BarVortex::calc(double * u1, const double * u,
 	vector < double > F(rs);
 	vector < double > rp(rs);
 
-	// генерируем правую часть
+	// РіРµРЅРµСЂРёСЂСѓРµРј РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ
 	// w/dt + mu (1-theta) L w - \sigma(1-theta) w -
 	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 
@@ -242,10 +242,10 @@ void BarVortex::calc(double * u1, const double * u,
 	memcpy(&u_n[0], &u[0], sz * sizeof(double));
 	memcpy(&w_n[0], &w[0], sz * sizeof(double));
 
-	// в FC содержится правая часть, которая не меняется при итерациях!
+	// РІ FC СЃРѕРґРµСЂР¶РёС‚СЃСЏ РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ, РєРѕС‚РѕСЂР°СЏ РЅРµ РјРµРЅСЏРµС‚СЃСЏ РїСЂРё РёС‚РµСЂР°С†РёСЏС…!
 
 	for (int it = 0; it < 20; ++it) {
-		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
+		// 0.5(w+w) + l + h <- РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РЇРєРѕР±РёР°РЅР° СЌС‚Рѕ РЅР°РґРѕ Р·РЅР°С‚СЊ Рё РЅР° РіСЂР°РЅРёС†Рµ!
 		vec_sum1(&tmp1[0], &w_n[0], &w[0], theta_, 
 			1.0 - theta_, sz);
 		vec_sum(&tmp1[0], &tmp1[0], &lh_[0], sz);
@@ -263,7 +263,7 @@ void BarVortex::calc(double * u1, const double * u,
 		}
 #if 0
 		right_part_cb_data data2;
-		//генератор правой части учитывает то, что функция задана внутри!!!
+		//РіРµРЅРµСЂР°С‚РѕСЂ РїСЂР°РІРѕР№ С‡Р°СЃС‚Рё СѓС‡РёС‚С‹РІР°РµС‚ С‚Рѕ, С‡С‚Рѕ С„СѓРЅРєС†РёСЏ Р·Р°РґР°РЅР° РІРЅСѓС‚СЂРё!!!
 		data2.F   = &F[0];
 		data2.bnd = bnd; 
 		data2.d   = this;
@@ -278,9 +278,9 @@ void BarVortex::calc(double * u1, const double * u,
 			vec_sum(&rp[0], &rp[0], &tmp1[0], (int)rp.size());
 		}
 
-		// тут граничное условие на омега!
+		// С‚СѓС‚ РіСЂР°РЅРёС‡РЅРѕРµ СѓСЃР»РѕРІРёРµ РЅР° РѕРјРµРіР°!
 		solve(&w_n[0], bnd, &rp[0], A_, m_);
-		// а тут граничное условие на пси!
+		// Р° С‚СѓС‚ РіСЂР°РЅРёС‡РЅРѕРµ СѓСЃР»РѕРІРёРµ РЅР° РїСЃРё!
 		l_.solve(&u_n1[0], &w_n[0], bnd);
 
 		double nr = dist(&u_n1[0], &u_n[0]);
@@ -309,17 +309,17 @@ double l_rp(double x, double y, double t, double sigma, double mu)
 void BarVortex::calc_L(double * u1, const double * u, const double * z,
 					   const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
 	vector < double > z_lapl(sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1(sz); //Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt2(sz); //Р»Р°РїР»Р°СЃ РІ РєРІР°РґСЂР°С‚Рµ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt3(sz); //СЏРєРѕР±РёР°РЅ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
 
 	l_.calc1(&z_lapl[0], z, bnd);
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1(&pt1[0], u, bnd); //РїРµСЂРІР°СЏ С‡Р°СЃС‚СЊ - Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„, 
 
 	{
 		vector < double > jac1(sz);
@@ -375,17 +375,17 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
 					   const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
 	vector < double > z_lapl(sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1(sz); //Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt2(sz); //Р»Р°РїР»Р°СЃ РІ РєРІР°РґСЂР°С‚Рµ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt3(sz); //СЏРєРѕР±РёР°РЅ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
 
 	l_.calc1(&z_lapl[0], z, bnd);
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1(&pt1[0], u, bnd); //РїРµСЂРІР°СЏ С‡Р°СЃС‚СЊ - Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„, 
 
 	{
 		vector < double > jac1(sz);
@@ -429,14 +429,14 @@ void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
 
 void BarVortex::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
 	vector < double > lz(sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1(sz); //Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt2(sz); //Р»Р°РїР»Р°СЃ РІ РєРІР°РґСЂР°С‚Рµ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt3(sz); //СЏРєРѕР±РёР°РЅ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
 
 	l_.calc1(&lz[0], z, bnd);
 	l_.solve(&v1[0], v, bnd);
@@ -493,18 +493,18 @@ void BarVortex::S_step(double * Ans, const double * F)
 /* J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) */
 void BarVortex::L_spectr(double * u1, const double * u, const double * z, const double * bnd)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
 	vector < double > z_lapl(sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1(sz); //Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt2(sz); //Р»Р°РїР»Р°СЃ РІ РєРІР°РґСЂР°С‚Рµ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt3(sz); //СЏРєРѕР±РёР°РЅ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
 
 	l_.calc1(&z_lapl[0], z, bnd);
 	memcpy(&pt1[0], u, pt1.size() * sizeof(double));
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1(&pt1[0], u, bnd); //РїРµСЂРІР°СЏ С‡Р°СЃС‚СЊ - Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„, 
 
 	{
 		vector < double > jac1(sz);
@@ -536,17 +536,17 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 
 void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int)m_.inner.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РІРЅСѓС‚СЂРµРЅРЅРµР№ РѕР±Р»Р°СЃС‚Рё
+	int sz = (int)m_.ps.size();    // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ РїРѕР»РЅР°СЏ
 
 	vector < double > z_lapl(sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1(sz); //Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt2(sz); //Р»Р°РїР»Р°СЃ РІ РєРІР°РґСЂР°С‚Рµ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
+	vector < double > pt3(sz); //СЏРєРѕР±РёР°РЅ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„
 
 	l_.calc1(&z_lapl[0], z, bnd);
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1(&pt1[0], u, bnd); //РїРµСЂРІР°СЏ С‡Р°СЃС‚СЊ - Р»Р°РїР»Р°СЃ, СѓРјРЅРѕР¶РµРЅРЅС‹Р№ РЅР° РєРѕСЌС„, 
 
 	{
 		vector < double > jac1(sz);

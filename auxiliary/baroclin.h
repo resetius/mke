@@ -2,7 +2,7 @@
 #define BARVORTEX_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,12 +79,12 @@ public:
 		double sigma1, double mu1, double alpha);
 
 	/**
-	 * u1  -- ответ
-	 * u2  -- ответ
-	 * u11  -- значение функции на предыдущем шаге по времени
-	 * u21  -- значение функции на предыдущем шаге по времени
-	 * bnd -- граничное условие
-	 * t   -- время
+	 * u1  -- РѕС‚РІРµС‚
+	 * u2  -- РѕС‚РІРµС‚
+	 * u11  -- Р·РЅР°С‡РµРЅРёРµ С„СѓРЅРєС†РёРё РЅР° РїСЂРµРґС‹РґСѓС‰РµРј С€Р°РіРµ РїРѕ РІСЂРµРјРµРЅРё
+	 * u21  -- Р·РЅР°С‡РµРЅРёРµ С„СѓРЅРєС†РёРё РЅР° РїСЂРµРґС‹РґСѓС‰РµРј С€Р°РіРµ РїРѕ РІСЂРµРјРµРЅРё
+	 * bnd -- РіСЂР°РЅРёС‡РЅРѕРµ СѓСЃР»РѕРІРёРµ
+	 * t   -- РІСЂРµРјСЏ
 	 */
 	void calc(double * u11,  double * u21, 
 		const double * u1, const double * u2, 

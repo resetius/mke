@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ bool Mesh::load(FILE * f)
 			goto bad;
 		}
 
-		//так как индексы в файле с 1 а не с 0
+		//С‚Р°Рє РєР°Рє РёРЅРґРµРєСЃС‹ РІ С„Р°Р№Р»Рµ СЃ 1 Р° РЅРµ СЃ 0
 		--n1;
 		--n2;
 		--n3;
@@ -324,8 +324,8 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 
 void solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
 {
-	int rs  = (int)m.inner.size();     // размерность
-	vector < double > x(rs);      // ответ
+	int rs  = (int)m.inner.size();     // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
+	vector < double > x(rs);      // РѕС‚РІРµС‚
 
 	solve2(&x[0], b, A, m);
 	p2u(Ans, &x[0], bnd, m);
@@ -334,8 +334,8 @@ void solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh 
 void solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
-	int rs  = (int)m.inner.size();     // размерность
-	vector < double > x(rs);      // ответ
+	int rs  = (int)m.inner.size();     // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
+	vector < double > x(rs);      // РѕС‚РІРµС‚
 
 #ifdef _DEBUG
 	Timer t;
@@ -347,7 +347,7 @@ void solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 #endif
 }
 
-/* добавляем краевые условия */
+/* РґРѕР±Р°РІР»СЏРµРј РєСЂР°РµРІС‹Рµ СѓСЃР»РѕРІРёСЏ */
 void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
@@ -355,20 +355,20 @@ void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
 		if (m.ps_flags[i] == 1) {
-			//внешняя
+			//РІРЅРµС€РЅСЏСЏ
 			if (bnd) {
 				u[i] = bnd[m.p2io[i]];
 			} else {
 				u[i] = 0;
 			}
 		} else {
-			//внутренняя
+			//РІРЅСѓС‚СЂРµРЅРЅСЏСЏ
 			u[i] = p[m.p2io[i]];
 		}
 	}
 }
 
-/* убираем краевые условия */
+/* СѓР±РёСЂР°РµРј РєСЂР°РµРІС‹Рµ СѓСЃР»РѕРІРёСЏ */
 void u2p(double * p, const double * u, const Mesh & m)
 {
 	int j = 0;
@@ -417,7 +417,7 @@ double fast_norm(const double * u, const Mesh & m, Matrix & A)
 
 double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
-	int sz  = (int)m.ps.size(); // размерность
+	int sz  = (int)m.ps.size(); // СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 	vector < double > diff(sz);
 	vec_diff(&diff[0], u, v, sz);
 	return fast_norm(&diff[0], m, A);

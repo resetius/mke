@@ -2,7 +2,7 @@
 #define BARVORTEX_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public:
 	double tau_;
 	double sigma_;
 	double mu_;
-	double theta_; // параметр схемы от 0 до 1
+	double theta_; // РїР°СЂР°РјРµС‚СЂ СЃС…РµРјС‹ РѕС‚ 0 РґРѕ 1
 
 private:
 	rp_t rp_;
@@ -75,9 +75,9 @@ public:
 	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
 
 	/**
-	 * F   -- значение функции на предыдущем шаге по времени
-	 * bnd -- граничное условие
-	 * t   -- время
+	 * F   -- Р·РЅР°С‡РµРЅРёРµ С„СѓРЅРєС†РёРё РЅР° РїСЂРµРґС‹РґСѓС‰РµРј С€Р°РіРµ РїРѕ РІСЂРµРјРµРЅРё
+	 * bnd -- РіСЂР°РЅРёС‡РЅРѕРµ СѓСЃР»РѕРІРёРµ
+	 * t   -- РІСЂРµРјСЏ
 	 */
 	void calc(double * Ans, const double * F, const double * bnd, double t);
 

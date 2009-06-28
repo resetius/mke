@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,7 +136,7 @@ Polynom diff(const Polynom & p, int d)
 
 	assert(d == 0 || d == 1);
 
-	if (d == 0) { //производная по x
+	if (d == 0) { //РїСЂРѕРёР·РІРѕРґРЅР°СЏ РїРѕ x
 		x_deg -= 1;
 		Polynom r(x_deg, y_deg);
 		for (j = 0; j <= y_deg; ++j) { //y
@@ -146,7 +146,7 @@ Polynom diff(const Polynom & p, int d)
 			}
 		}
 		return r;
-	} else { //d == 1 производная по y
+	} else { //d == 1 РїСЂРѕРёР·РІРѕРґРЅР°СЏ РїРѕ y
 		y_deg -= 1;
 		Polynom r(x_deg, y_deg);
 		for (i = 0; i <= x_deg; ++i) { //x

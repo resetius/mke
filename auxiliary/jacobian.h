@@ -1,6 +1,6 @@
 #ifndef JACOBIAN_H
 #define JACOBIAN_H
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,24 +66,24 @@ public:
 	SphereJacobian(const Mesh & m);
 
 	/**
-	 * Находит J(u, v) во внутренних точках. 
-	 * В точках границы просто кладет значение из bnd.
+	 * РќР°С…РѕРґРёС‚ J(u, v) РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… С‚РѕС‡РєР°С…. 
+	 * Р’ С‚РѕС‡РєР°С… РіСЂР°РЅРёС†С‹ РїСЂРѕСЃС‚Рѕ РєР»Р°РґРµС‚ Р·РЅР°С‡РµРЅРёРµ РёР· bnd.
 	 */
 	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
-	 * сопряженный к J(u, v) (=-J(u, v))
+	 * СЃРѕРїСЂСЏР¶РµРЅРЅС‹Р№ Рє J(u, v) (=-J(u, v))
 	 */
 	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
-	 * Находит J(u, v) во внутренних точках. 
-	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
+	 * РќР°С…РѕРґРёС‚ J(u, v) РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… С‚РѕС‡РєР°С…. 
+	 * Р’РѕР·РІСЂР°С‰Р°РµС‚ РІРµРєС‚РѕСЂ, СЃРѕРґРµСЂР¶Р°С‰РёР№ РўРћР›Р¬РљРћ РІРЅСѓС‚СЂРµРЅРЅРёРµ С‚РѕС‡РєРё
 	 */
 	void calc2(double * Ans, const double * u, const double * v);
 
 	/**
-	 * сопряженный к J(u, v) (=-J(u, v))
+	 * СЃРѕРїСЂСЏР¶РµРЅРЅС‹Р№ Рє J(u, v) (=-J(u, v))
 	 */
 	void calc2t(double * Ans, const double * u, const double * v);
 };

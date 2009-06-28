@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,8 +103,8 @@ slaplace_right_part_cb( const Polynom & phi_i,
 
 	b = F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		const double * bnd = d->bnd;
 		b += -bnd[j0] * slaplace(phi_j, phi_i, trk, m.ps);
 	}
@@ -155,13 +155,13 @@ slaplace_integrate_cb( const Polynom & phi_i,
 void SphereLaplace::solve(double * Ans,
 			  const double * F, const double * bnd)
 {
-	//пока используем первый порядок
+	//РїРѕРєР° РёСЃРїРѕР»СЊР·СѓРµРј РїРµСЂРІС‹Р№ РїРѕСЂСЏРґРѕРє
 	int sz  = (int)m_.ps.size();
 	int ntr = (int)m_.tr.size();
-	int rs  = (int)m_.inner.size();     //размерность
+	int rs  = (int)m_.inner.size();     //СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 
-	vector < double > b(rs);      // правая часть
-	vector < double > x(rs);      // ответ
+	vector < double > b(rs);      // РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ
+	vector < double > x(rs);      // РѕС‚РІРµС‚
 
 	Timer full;
 #if 0
@@ -214,8 +214,8 @@ static double lp_rp(const Polynom & phi_i,
 	const double * F = d->F;
 	double b = F[point_j] * slaplace(phi_j, phi_i, trk, m.ps);;
 #if 0
-	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1 && d->bnd) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
 				trk, m, point_i, point_j, 0);
 	}
@@ -343,8 +343,8 @@ schafe_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	double b;
 
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		const double * bnd = d->bnd;
 		b = -bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
@@ -359,8 +359,8 @@ SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
 	: m_(m), laplace_(m), A_((int)m.inner.size()), 
 	tau_(tau), mu_(mu), sigma_(sigma)
 {
-	/* Матрица левой части */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	/* РњР°С‚СЂРёС†Р° Р»РµРІРѕР№ С‡Р°СЃС‚Рё */
+	/* РѕРїРµСЂР°С‚РѕСЂ(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 
 	generate_matrix(A_, m_, schafe_integrate_cb, this);
 }
@@ -378,7 +378,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 	vector < double > delta_u(rs);
 	vector < double > rp(rs);
 
-	// генерируем правую часть
+	// РіРµРЅРµСЂРёСЂСѓРµРј РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
 	u2p(&u[0], X0, m_);
@@ -400,7 +400,7 @@ void SphereChafe::solve(double * Ans, const double * X0,
 		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
 	}
 
-	// правую часть на границе не знаем !!!
+	// РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ РЅР° РіСЂР°РЅРёС†Рµ РЅРµ Р·РЅР°РµРј !!!
 	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	schafe_right_part_cb_data data2;
 	data2.F   = &p[0];

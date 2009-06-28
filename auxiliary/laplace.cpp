@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ laplace(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, cons
 static double 
 laplace_right_part_cb( const Polynom & phi_i,
                        const Polynom & phi_j,
-                       const Triangle & trk, /* номер треугольника */
+                       const Triangle & trk, /* РЅРѕРјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° */
                        const Mesh & m,
                        int point_i,
 		       int point_j,
@@ -77,8 +77,8 @@ laplace_right_part_cb( const Polynom & phi_i,
 
 	//b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1) {         // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) {         // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		const double * bnd = d->bnd;
 		b += - bnd[j0] * laplace(phi_i, phi_j, trk, m.ps);
 	}
@@ -118,7 +118,7 @@ laplace_bnd2_cb( const Polynom & phi_i,
 static double 
 laplace_integrate_cb( const Polynom & phi_i,
                       const Polynom & phi_j, 
-                      const Triangle & trk, /* номер треугольника */
+                      const Triangle & trk, /* РЅРѕРјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° */
                       const Mesh & m,
                       int point_i,
 		      int point_j,
@@ -130,13 +130,13 @@ laplace_integrate_cb( const Polynom & phi_i,
 
 void Laplace::solve(double * Ans, const double * F, const double * bnd)
 {
-	//пока используем первый порядок
+	//РїРѕРєР° РёСЃРїРѕР»СЊР·СѓРµРј РїРµСЂРІС‹Р№ РїРѕСЂСЏРґРѕРє
 	int sz  = (int)m_.ps.size();
 	int ntr = (int)m_.tr.size();
-	int rs  = (int)m_.inner.size();     //размерность
+	int rs  = (int)m_.inner.size();     //СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 
-	vector < double > b(rs);      // правая часть
-	vector < double > x(rs);      // ответ
+	vector < double > b(rs);      // РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ
+	vector < double > x(rs);      // РѕС‚РІРµС‚
 
 	Timer full;
 
@@ -220,8 +220,8 @@ chafe_right_part_cb( const Polynom & phi_i,
 
 //	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) { // РЅР° РіСЂР°РЅРёС†Рµ
+		int j0       = m.p2io[point_j]; //РЅРѕРјРµСЂ РІРЅРµС€РЅРµР№ С‚РѕС‡РєРё
 		const double * bnd = d->bnd;
 		b += - bnd[j0] * chafe_integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
@@ -320,11 +320,11 @@ void Laplace::calc2(double * Ans, const double * F)
 }
 
 /**
- * Оператор Лапласа на границе не определен, поэтому вставляйте сюда
- * границу только если вы знаете, что делаете!
+ * РћРїРµСЂР°С‚РѕСЂ Р›Р°РїР»Р°СЃР° РЅР° РіСЂР°РЅРёС†Рµ РЅРµ РѕРїСЂРµРґРµР»РµРЅ, РїРѕСЌС‚РѕРјСѓ РІСЃС‚Р°РІР»СЏР№С‚Рµ СЃСЋРґР°
+ * РіСЂР°РЅРёС†Сѓ С‚РѕР»СЊРєРѕ РµСЃР»Рё РІС‹ Р·РЅР°РµС‚Рµ, С‡С‚Рѕ РґРµР»Р°РµС‚Рµ!
  *
- * Если этот оператор Лапласа входит в праву часть уравнения, то
- * напишите 0 вместо границы.
+ * Р•СЃР»Рё СЌС‚РѕС‚ РѕРїРµСЂР°С‚РѕСЂ Р›Р°РїР»Р°СЃР° РІС…РѕРґРёС‚ РІ РїСЂР°РІСѓ С‡Р°СЃС‚СЊ СѓСЂР°РІРЅРµРЅРёСЏ, С‚Рѕ
+ * РЅР°РїРёС€РёС‚Рµ 0 РІРјРµСЃС‚Рѕ РіСЂР°РЅРёС†С‹.
  */
 void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 {
@@ -354,8 +354,8 @@ Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
 	: m_(m), laplace_(m), A_((int)m.inner.size()), 
 	tau_(tau), mu_(mu), sigma_(sigma)
 {
-	/* Матрица левой части */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	/* РњР°С‚СЂРёС†Р° Р»РµРІРѕР№ С‡Р°СЃС‚Рё */
+	/* РѕРїРµСЂР°С‚РѕСЂ(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, chafe_integrate_cb, this);
 }
 
@@ -372,7 +372,7 @@ void Chafe::solve(double * Ans, const double * X0,
 	vector < double > delta_u(rs);
 	vector < double > rp(rs);
 
-	// генерируем правую часть
+	// РіРµРЅРµСЂРёСЂСѓРµРј РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
 	u2p(&u[0], X0, m_);
@@ -384,7 +384,7 @@ void Chafe::solve(double * Ans, const double * X0,
 	// u/dt + mu \Delta u / 2 - \sigma u / 2
 	vec_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
 
-	// TODO: тут надо сделать метод простой итерации
+	// TODO: С‚СѓС‚ РЅР°РґРѕ СЃРґРµР»Р°С‚СЊ РјРµС‚РѕРґ РїСЂРѕСЃС‚РѕР№ РёС‚РµСЂР°С†РёРё
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
 	for (int i = 0; i < rs; ++i) {
@@ -395,7 +395,7 @@ void Chafe::solve(double * Ans, const double * X0,
 		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
 	}
 
-	// правую часть на границе не знаем !
+	// РїСЂР°РІСѓСЋ С‡Р°СЃС‚СЊ РЅР° РіСЂР°РЅРёС†Рµ РЅРµ Р·РЅР°РµРј !
 	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	chafe_right_part_cb_data data2;
 	data2.F   = &p[0];

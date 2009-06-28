@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Àëåêñåé Îçåðèöêèé)
+/* Copyright (c) 2009 Alexey Ozeritsky (ÐÐ»ÐµÐºÑÐµÐ¹ ÐžÐ·ÐµÑ€Ð¸Ñ†ÐºÐ¸Ð¹)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ double g(double x, double y)
 static elements_t
 laplace_integrate_cb( const Polynom & phi_i,
                       const Polynom & phi_j, 
-                      const Triangle & trk, /* íîìåð òðåóãîëüíèêà */
+                      const Triangle & trk, /* Ð½Ð¾Ð¼ÐµÑ€ Ñ‚Ñ€ÐµÑƒÐ³Ð¾Ð»ÑŒÐ½Ð¸ÐºÐ° */
                       const Mesh & m,
                       int point_i, int point_j,
                       int i, int j,
@@ -116,7 +116,7 @@ struct laplace_right_part_cb_data
 static elements_t 
 laplace_right_part_cb( const Polynom & phi_i,
                        const Polynom & phi_j,
-                       const Triangle & trk, /* íîìåð òðåóãîëüíèêà */
+                       const Triangle & trk, /* Ð½Ð¾Ð¼ÐµÑ€ Ñ‚Ñ€ÐµÑƒÐ³Ð¾Ð»ÑŒÐ½Ð¸ÐºÐ° */
                        const Mesh & m,
                        int point_i, int point_j,
                        int i, int j,
@@ -127,8 +127,8 @@ laplace_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1) {     // íà ãðàíèöå
-		int j0       = m.p2io[point_j]; //íîìåð âíåøíåé òî÷êè
+	if (m.ps_flags[point_j] == 1) {     // Ð½Ð° Ð³Ñ€Ð°Ð½Ð¸Ñ†Ðµ
+		int j0       = m.p2io[point_j]; //Ð½Ð¾Ð¼ÐµÑ€ Ð²Ð½ÐµÑˆÐ½ÐµÐ¹ Ñ‚Ð¾Ñ‡ÐºÐ¸
 		const double * BU = d->BU;
 		const double * BV = d->BV;
 		double a = laplace(phi_i, phi_j, trk, m.ps);

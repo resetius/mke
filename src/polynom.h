@@ -2,7 +2,7 @@
 #define POLYNOM_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,17 +44,17 @@ typedef unsigned int uint;
 
 namespace phelm {
 
-/* Полином от (x, y) */
+/* РџРѕР»РёРЅРѕРј РѕС‚ (x, y) */
 struct Polynom {
 	short x_deg_;                   /* !<degree    */
 	short y_deg_;                   /* !<degree    */
-	std::vector < double > koef_;   /* !<масив коэф-тов */
+	std::vector < double > koef_;   /* !<РјР°СЃРёРІ РєРѕСЌС„-С‚РѕРІ */
 
 /**
- * создает новый полином
- * @param x_deg - степень по x
- * @param y_deg - степень по y
- * @return полином
+ * СЃРѕР·РґР°РµС‚ РЅРѕРІС‹Р№ РїРѕР»РёРЅРѕРј
+ * @param x_deg - СЃС‚РµРїРµРЅСЊ РїРѕ x
+ * @param y_deg - СЃС‚РµРїРµРЅСЊ РїРѕ y
+ * @return РїРѕР»РёРЅРѕРј
  */
 	Polynom(short x_deg, short y_deg)
 		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
@@ -95,9 +95,9 @@ struct Triangle;
 struct Point;
 struct MeshPoint;
 
-//!возвращает производную полинома p по переменной i
+//!РІРѕР·РІСЂР°С‰Р°РµС‚ РїСЂРѕРёР·РІРѕРґРЅСѓСЋ РїРѕР»РёРЅРѕРјР° p РїРѕ РїРµСЂРµРјРµРЅРЅРѕР№ i
 Polynom diff(const Polynom & p, int i);
-//!возвращает интеграл полинома p по треугольнику t
+//!РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅС‚РµРіСЂР°Р» РїРѕР»РёРЅРѕРјР° p РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєСѓ t
 double integrate(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
 //!int p cos x dx dy
 double integrate_cos(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
@@ -105,11 +105,11 @@ double integrate_cos(const Polynom & p, const Triangle & t, const std::vector < 
 double integrate_sin(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
 //!int p / cos(x) dx dy
 double integrate_1_cos(const Polynom & p, const Triangle & t, const std::vector < MeshPoint > & ps);
-//!произведение полиномов
+//!РїСЂРѕРёР·РІРµРґРµРЅРёРµ РїРѕР»РёРЅРѕРјРѕРІ
 Polynom operator * (const Polynom &p1, const Polynom &p2);
-//!разность полиномов
+//!СЂР°Р·РЅРѕСЃС‚СЊ РїРѕР»РёРЅРѕРјРѕРІ
 Polynom operator - (const Polynom &p1, const Polynom &p2);
-//!сумма полиномов
+//!СЃСѓРјРјР° РїРѕР»РёРЅРѕРјРѕРІ
 Polynom operator + (const Polynom &p1, const Polynom &p2);
 
 inline Polynom operator - (const Polynom &p1, double x)

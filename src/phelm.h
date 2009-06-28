@@ -2,7 +2,7 @@
 #define MKE_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,8 +69,8 @@ inline Point operator + (const Point & p1, const Point & p2)
 }
 
 /** 
- * Точка на сетке может входить одновременно в несколько областей, 
- * для поддержки этой возможности нужен этот класс
+ * РўРѕС‡РєР° РЅР° СЃРµС‚РєРµ РјРѕР¶РµС‚ РІС…РѕРґРёС‚СЊ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РІ РЅРµСЃРєРѕР»СЊРєРѕ РѕР±Р»Р°СЃС‚РµР№, 
+ * РґР»СЏ РїРѕРґРґРµСЂР¶РєРё СЌС‚РѕР№ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РЅСѓР¶РµРЅ СЌС‚РѕС‚ РєР»Р°СЃСЃ
  */
 struct MeshPoint {
 	std::vector < Point > p;
@@ -169,18 +169,18 @@ struct Mesh {
 	typedef std::vector < int > points_flags_t;
 	triangles_t tr;
 	points_t ps;
-	//флаги
-	//0 - внутренняя точка
-	//1 - точка на границе области
+	//С„Р»Р°РіРё
+	//0 - РІРЅСѓС‚СЂРµРЅРЅСЏСЏ С‚РѕС‡РєР°
+	//1 - С‚РѕС‡РєР° РЅР° РіСЂР°РЅРёС†Рµ РѕР±Р»Р°СЃС‚Рё
 	points_flags_t ps_flags;
 
-	// точка -> треугольники в точке
+	// С‚РѕС‡РєР° -> С‚СЂРµСѓРіРѕР»СЊРЅРёРєРё РІ С‚РѕС‡РєРµ
 	std::vector < std::vector < int > > adj;
-	// номера внутренних точек
+	// РЅРѕРјРµСЂР° РІРЅСѓС‚СЂРµРЅРЅРёС… С‚РѕС‡РµРє
 	std::vector < int > inner;
-	// номера внешних точек
+	// РЅРѕРјРµСЂР° РІРЅРµС€РЅРёС… С‚РѕС‡РµРє
 	std::vector < int > outer;
-	// соответствие номера в массиве ps номеру в массиве inner или outer
+	// СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РЅРѕРјРµСЂР° РІ РјР°СЃСЃРёРІРµ ps РЅРѕРјРµСЂСѓ РІ РјР°СЃСЃРёРІРµ inner РёР»Рё outer
 	std::vector < int > p2io;
 
 	bool load(FILE * f);
@@ -211,26 +211,26 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
 class Matrix;
 
 /**
- * Решает систему
+ * Р РµС€Р°РµС‚ СЃРёСЃС‚РµРјСѓ
  */
 void solve(double * answer, const double * bnd, double * rp, Matrix & A, const Mesh & m);
 
 /**
- * Решает систему.
- * answer - это только значения во внутренних точках!
+ * Р РµС€Р°РµС‚ СЃРёСЃС‚РµРјСѓ.
+ * answer - СЌС‚Рѕ С‚РѕР»СЊРєРѕ Р·РЅР°С‡РµРЅРёСЏ РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёС… С‚РѕС‡РєР°С…!
  */
 void solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
 
-/* добавляем краевые условия */
+/* РґРѕР±Р°РІР»СЏРµРј РєСЂР°РµРІС‹Рµ СѓСЃР»РѕРІРёСЏ */
 void p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 
-/* убираем краевые условия */
+/* СѓР±РёСЂР°РµРј РєСЂР°РµРІС‹Рµ СѓСЃР»РѕРІРёСЏ */
 void u2p(double * u, const double * p, const Mesh & m);
 
-/* тут вычисляется интеграл от произведения функций по треугольнику */
+/* С‚СѓС‚ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РёРЅС‚РµРіСЂР°Р» РѕС‚ РїСЂРѕРёР·РІРµРґРµРЅРёСЏ С„СѓРЅРєС†РёР№ РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєСѓ */
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * );
 
-/* тут вычисляется интеграл от произведения функций по треугольнику на сфере */
+/* С‚СѓС‚ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РёРЅС‚РµРіСЂР°Р» РѕС‚ РїСЂРѕРёР·РІРµРґРµРЅРёСЏ С„СѓРЅРєС†РёР№ РїРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєСѓ РЅР° СЃС„РµСЂРµ */
 double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * user_data);
 
 
@@ -241,21 +241,21 @@ double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & ma
 typedef double (* f_xy_t)(double x, double y);
 typedef double (* f_xyt_t)(double x, double y, double t);
 
-/* проектирование непрерывной функции f(x,y) на сетку */
+/* РїСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРµ РЅРµРїСЂРµСЂС‹РІРЅРѕР№ С„СѓРЅРєС†РёРё f(x,y) РЅР° СЃРµС‚РєСѓ */
 void proj(double * F, const Mesh & mesh, f_xy_t f);
 
-/* проектирование непрерывной функции f(x,y) на границу сетки */
+/* РїСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРµ РЅРµРїСЂРµСЂС‹РІРЅРѕР№ С„СѓРЅРєС†РёРё f(x,y) РЅР° РіСЂР°РЅРёС†Сѓ СЃРµС‚РєРё */
 void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 
-/* проектирование функции F1 на границу сетки */
+/* РїСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРµ С„СѓРЅРєС†РёРё F1 РЅР° РіСЂР°РЅРёС†Сѓ СЃРµС‚РєРё */
 void proj_bnd(double * F, const double * F1, const Mesh & m);
 
 void set_bnd(double * F, const double * bnd, const Mesh & m);
 
-/* проектирование непрерывной функции f(x,y,t) на сетку */
+/* РїСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРµ РЅРµРїСЂРµСЂС‹РІРЅРѕР№ С„СѓРЅРєС†РёРё f(x,y,t) РЅР° СЃРµС‚РєСѓ */
 void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 
-/* проектирование непрерывной функции f(x,y,t) на границу сетки */
+/* РїСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРµ РЅРµРїСЂРµСЂС‹РІРЅРѕР№ С„СѓРЅРєС†РёРё f(x,y,t) РЅР° РіСЂР°РЅРёС†Сѓ СЃРµС‚РєРё */
 void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
 struct Element {
