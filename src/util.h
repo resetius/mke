@@ -105,7 +105,7 @@ ipow(double x, int n)
  * @param b - the right part.
  * @param x - the answer.
  * @param n - dimension.
- * @retuen 0 on success.
+ * @return 0 on success.
  */
 int gauss (double *A, double *b, double *x, int n);
 

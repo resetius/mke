@@ -64,13 +64,13 @@ typedef void (*Ax_t)(double * y, const void * A, const double * x, int n);
 /**
  * Solve equation Ax=b
  *
- * @param x right part
- * @param A matrix
- * @param b right part
- * @param Ax callback that calculates y=Ax
- * @param n dimension of system
- * @param k_dim Krylov dimension
- * @param max_id maximum numner of iterations
+ * @param x - right part
+ * @param A - matrix
+ * @param b - right part
+ * @param Ax - callback that calculates y=Ax
+ * @param n  - dimension of system
+ * @param k_dim  - Krylov dimension
+ * @param max_it - maximum numner of iterations
  */
 void gmres(double * x, const void * A, const double * b, 
 			 Ax_t Ax, int n, int k_dim, int max_it);

@@ -3,7 +3,15 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/**
+ * @file barvortex.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ *
+ * <pre>
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +43,10 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * </pre>
+ *
+ * @section DESCRIPTION
+ * The Barvortex equation class.
  */
 
 #include <vector>
@@ -43,6 +55,20 @@
 #include "solver.h"
 #include "jacobian.h"
 
+/**
+ * @defgroup aux Auxiliary Functions and Classes
+ * @{
+ */
+
+/**
+ * Solve the barvortex equation.
+ \f[
+ \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
+    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+ \f]
+ * where \f$J(\cdot,\cdot)\f$ is SphereJacobian and \f$\Delta\f$ is SphereLaplace.
+ * @see SphereJacobian, SphereLaplace
+ */
 class BarVortex: public SphereNorm {
 public:
 	typedef double (*rp_t ) (double phi, double lambda, double t,
@@ -76,16 +102,24 @@ public:
 	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
 
 	/**
-	 * F   -- значение функции на предыдущем шаге по времени
-	 * bnd -- граничное условие
-	 * t   -- время
+ \f[
+ \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi)
+    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+ \f]
+	 * @param Ans - output value
+         * @param F - значение функции на предыдущем шаге по времени
+	 * @param bnd - граничное условие
+	 * @param t   - время
 	 */
 	void calc(double * Ans, const double * F, const double * bnd, double t);
 
 
 	/**
-	 * d L(psi)/dt + J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = 0
-	 * L = Laplace
+	 *
+ \f[
+ \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta z)  + J(z, \Delta \psi)
+    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = 0
+ \f]
 	 */
 	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
 	void calc_L_1(double * Ans, const double * F, const double * z, const double * bnd, double t);
@@ -101,6 +135,8 @@ public:
 	void L_1_step(double * Ans, const double * F, const double * z);
 	void LT_step(double * Ans, const double * F, const double * z);
 };
+
+/** @} */
 
 #endif /* BARVORTEX_H */
 

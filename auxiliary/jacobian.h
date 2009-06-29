@@ -44,7 +44,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * </pre>
  *
- * @section 
+ * @section DESCRIPTION
  * The sphere jacobian class.
  */
 

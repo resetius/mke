@@ -191,7 +191,7 @@ void SphereJacobian::calc2t(double * Ans, const double * u, const double * v)
 	vec_mult_scalar(Ans, Ans, -1.0, (int)m_.inner.size());
 }
 
-/**
+/*
  * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
  */
 SphereJacobian::SphereJacobian(const Mesh & m): m_(m), 

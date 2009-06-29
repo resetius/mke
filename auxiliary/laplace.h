@@ -3,7 +3,14 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/**
+ * @file laplace.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ * <pre>
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +42,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * </pre>
  */
 
 #include <vector>
@@ -46,6 +54,11 @@ using phelm::Matrix;
 using phelm::Mesh;
 using phelm::Triangle;
 using phelm::Polynom;
+
+/**
+ * @defgroup aux Auxiliary Functions and Classes
+ * @{
+ */
 
 class SphereNorm {
 public:
@@ -103,7 +116,6 @@ public:
 /**
  * обращает оператор лапласа на плоской области
  * @param Ans - ответ
- * @param m - сетка
  * @param F - правая часть
  * @param bnd - краевое условие
  */
@@ -174,7 +186,6 @@ public:
 	/**
 	 * обращает оператор лапласа на плоской области
 	 * @param Ans - ответ
-	 * @param m - сетка
 	 * @param F - правая часть
 	 * @param bnd - краевое условие
 	 */
@@ -199,6 +210,8 @@ public:
 	void solve(double * Ans, const double * X0,
 						const double * bnd, double t);
 };
+
+/** @} */
 
 #endif /* LAPL_H */
 

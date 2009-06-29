@@ -181,7 +181,7 @@ right_part_backward_cb( const Polynom & phi_i,
 	return b;
 }
 
-/**
+/*
  * d L(phi)/dt + J(psi, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
  * L = Laplace
  */
@@ -577,7 +577,7 @@ void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const
 	}
 }
 
-/**
+/*
  * d L(psi)/dt + J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = 0
  * L = Laplace
  */

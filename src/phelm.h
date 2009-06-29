@@ -245,9 +245,9 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the function @param ans to the file @param to
+ * Prints the function @param ans to the file fname
  *
- * @param to output file
+ * @param fname output file
  * @param ans function to output
  * @param m mesh
  * @param x (optional) local coordinates to global 'x' converter
@@ -258,7 +258,7 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the inner part of the function @ans to file @param to
+ * Prints the inner part of the function ans to file to
  *
  * @param to output file
  * @param ans function to output
@@ -271,7 +271,7 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the inner part of the function @ans to file @param to
+ * Prints the inner part of the function ans to file to
  *
  * @param to output file name
  * @param ans function to output
