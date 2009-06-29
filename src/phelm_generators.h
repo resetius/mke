@@ -1,5 +1,13 @@
 /* -*- charset: utf-8 -*- */
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* $Id$ */
+/**
+ * @file phelm_generators.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section LICENSE
+ *
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +39,10 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @section DESCRIPTION
+ * finite-element matrix generators, right-part generator, mesh-vector norm, 
+ * mesh-vectors inner-product, mesh-vectors distance.
  */
 
 #include "solver.h"
@@ -59,7 +71,6 @@ namespace phelm {
  *	void * user_data       сюда могу входить любые данные
  *
  */
-
 template < typename Functor, typename Data >
 void generate_matrix(Matrix & A, const Mesh & m, 
 					 Functor integrate_cb, 
@@ -102,6 +113,9 @@ void generate_matrix(Matrix & A, const Mesh & m,
 #endif
 }
 
+/**
+ * Generate finite-elements matrix.
+ */
 template < typename Functor, typename Data >
 void generate_full_matrix(Matrix & A, const Mesh & m, 
 						  Functor integrate_cb, 
@@ -134,6 +148,9 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 #endif
 }
 
+/**
+ * Generate right part. 
+ */
 template < typename Functor, typename Data >
 void generate_right_part(double * b, const Mesh & m, 
 						 Functor right_part_cb, 
@@ -177,6 +194,9 @@ void generate_right_part(double * b, const Mesh & m,
 #endif
 }
 
+/**
+ * Generate right-part.
+ */
 template < typename Functor, typename Data >
 void generate_full_right_part(double * b, const Mesh & m, 
 							  Functor right_part_cb, 
