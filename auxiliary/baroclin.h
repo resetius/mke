@@ -57,7 +57,7 @@
  * Solve the baroclin equations:
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
-  + J(u_2, \Delta u2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
+  + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
   - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
   \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
   + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
@@ -106,22 +106,72 @@ public:
 		double sigma1, double mu1, double alpha);
 
 	/**
-	 * u1  -- ответ
-	 * u2  -- ответ
-	 * u11  -- значение функции на предыдущем шаге по времени
-	 * u21  -- значение функции на предыдущем шаге по времени
-	 * bnd -- граничное условие
-	 * t   -- время
+	 * Solve the baroclin equations
+ \f{eqnarray*}
+  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
+  + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
+  - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
+  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
+  + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
+  - \mu \Delta^2 u_2
+    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+	- \mu_1 \Delta u_2
+	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
+ \f}
+         * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param bnd - boundary condition
+	 * @param t   - time
 	 */
 	void calc(double * u11,  double * u21, 
 		const double * u1, const double * u2, 
 		const double * bnd, double t);
 
+	/**
+	 * Solve the linearized baroclin equations in a neibourhood of point (z1, z2)
+ \f{eqnarray*}
+  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta z_1 + l + h) + J(z_1, \Delta u_1)
+  + J(z_2, \Delta u_2) + J(u_2, \Delta z_2) +
+  \frac{\sigma}{2} \Delta (u_1 - u_2)
+  - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
+  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta z_2) + J(z_1, \Delta u_2)
+  + J(u_2, \Delta z_1 + l + h) + J(z_2, \Delta u_1)
+  + \frac{\sigma}{2} \Delta (u_1 + u_2)
+  - \mu \Delta^2 u_2
+    - \alpha^2 (\frac{\partial u_2}{\partial t} 
+    + J(z_1, u_2) + J(u_1, z_2)
+	- \mu_1 \Delta u_2
+	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
+ \f}
+ 
+	 * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param z1  - z1
+	 * @param z2  - z2
+	 * @param bnd - boundary condition
+	 * @param t   - time
+	 */
 	void calc_L(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2,
 		const double * bnd, double t);
 
+
+	/**
+	 * Solve the invert linearized baroclin equations in a neibourhood of point (z1, z2)
+	 * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param z1  - z1
+	 * @param z2  - z2
+	 * @param bnd - boundary condition
+	 * @param t   - time
+	 */
 	void calc_L_1(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2,
