@@ -54,7 +54,12 @@
 #include "jacobian.h"
 
 /**
- * Solve the baroclin equations:
+ * @defgroup aux Auxiliary Functions and Classes
+ * @{
+ */
+
+/**
+ * Solve the baroclin equations.
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
@@ -194,6 +199,8 @@ public:
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
 };
+
+/** @} */
 
 #endif /* BARVORTEX_H */
 

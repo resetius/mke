@@ -62,6 +62,11 @@
 typedef unsigned int uint;
 
 /**
+ * @defgroup main Main Functions and Classes.
+ * @{
+ */
+
+/**
  * @namespace phelm
  *
  * That namespace contains all Phelm functions and classes.
@@ -376,6 +381,7 @@ struct Element {
 
 typedef std::vector < Element > elements_t;
 }
+/**@}*/
 
 #include "phelm_generators.h"
 

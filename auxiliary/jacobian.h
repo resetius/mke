@@ -54,6 +54,11 @@ using phelm::Matrix;
 using phelm::Mesh;
 
 /**
+ * @defgroup aux Auxiliary Functions and Classes
+ * @{
+ */
+
+/**
  * Calculates jacobian on sphere.
  \f[
  J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi} 
@@ -108,6 +113,8 @@ public:
 	 */
 	void calc2t(double * Ans, const double * u, const double * v);
 };
+
+/** @} */
 
 #endif /* JACOBIAN_H */
 
