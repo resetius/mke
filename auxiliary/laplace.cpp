@@ -360,9 +360,7 @@ Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
 	generate_matrix(A_, m_, chafe_integrate_cb, this);
 }
 
-/**
- * \f$\frac{du}{dt} = \mu \delta u - \sigma u + f (u)\f$
- */
+/* \frac{du}{dt} = \mu \Delta u - \sigma u + f (u) */
 void Chafe::solve(double * Ans, const double * X0,
 						const double * bnd, double t)
 {

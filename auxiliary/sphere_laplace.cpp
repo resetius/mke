@@ -366,7 +366,7 @@ SphereChafe::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
 	generate_matrix(A_, m_, schafe_integrate_cb, this);
 }
 
-/**
+/*
  * \f$\frac{du}{dt} = \mu \delta u - \sigma u + f (u)\f$
  */
 void SphereChafe::solve(double * Ans, const double * X0,

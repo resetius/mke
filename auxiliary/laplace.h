@@ -156,6 +156,11 @@ double laplace(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps);
 //@}
 
+/**
+ * Chafe-Infante equation on sphere.
+ * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
+ * \f$Delta\f$ is SphereLaplace. @see SphereLaplace
+ */
 class SphereChafe {
 private:
 	const Mesh & m_;
@@ -171,6 +176,10 @@ public:
 	SphereChafe(const Mesh & m, double tau, double sigma, double mu);
 	~SphereChafe() {}
 
+/**
+ * Solve Chafe-Infante equation on sphere.
+ * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
+ */
 	void solve(double * Ans, const double * X0,
 						const double * bnd, double t);
 };
@@ -216,6 +225,11 @@ public:
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
+/**
+ * 2D Chafe-Infante equation.
+ * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
+ * \f$Delta\f$ is Laplace. @see Laplace
+ */
 class Chafe {
 private:
 	const Mesh & m_;
@@ -231,6 +245,10 @@ public:
 	Chafe(const Mesh & m, double tau, double sigma, double mu);
 	~Chafe() {}
 
+	/**
+	 * Solve 2D Chafe-Infante equation.
+	 * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
+	 */
 	void solve(double * Ans, const double * X0,
 						const double * bnd, double t);
 };

@@ -49,7 +49,7 @@
 namespace phelm {
 
 /**
- * Решатель Ax = b
+ * Matrix class.
  */
 class Matrix {
 	int n_;
@@ -76,22 +76,44 @@ class Matrix {
 	std::vector < double > A_;  // матрица
 #endif
 
-	//заполняет Ap, Ai, Ax по промежуточным данным
+	/* заполняет Ap, Ai, Ax по промежуточным данным */
 	void make_sparse();
 	void add_sparse(int i, int j, double a);
 	void solve_sparse(double * x, const double * b);
 
 public:
+	/**
+	 * create matrix NxN.
+	 * @param n - dimension
+	 */
 	Matrix(int n);
 	~Matrix();
 
-	// A[i][j] += a;
+	/**
+	 *  Add a number to element (i, j) (A[i][j] += a).
+	 *  @param i - index
+	 *  @param j - index
+	 *  @param a - value
+	 */
 	void add(int i, int j, double a);
 
-	// Ax = b
+	/**
+	 * Solve equation Ax = b
+	 * @param x - answer
+	 * @param b - right part
+	 */
 	void solve(double * x, const double * b);
+
+	/**
+	 * Product of matrix by vector. out = A in
+	 * @param out - result
+	 * @param in  - input vector
+	 */
 	void mult_vector(double * out, const double * in);
 
+	/**
+	 * print matrix to stdout.
+	 */
 	void print();
 };
 
