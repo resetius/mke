@@ -8,25 +8,6 @@
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  *
- * @mainpage Phelm Documentation
- * @section into_sec Introduction
- * write smth here
- * @section build_sec Build
- * @subsection Unix-like
- * @verbatim
-  mkdir build-directory
-  cd build-directory
-  cmake -DCMAKE_BUILD_TYPE=Debug path-to-sources   # for Debug build
-  cmake -DCMAKE_BUILD_TYPE=Release path-to-sources # for Release build
-  make
-  @endverbatim
- * @subsection Windows
- * @verbatim
-  mkdir build-directory
-  cd build-directory
-  cmake -G "Visual Studio 2009" #place your version of Visual Studio here
-  @endverbatim
- *
  * @page License
  * @section LICENSE
  *
@@ -64,16 +45,118 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @endverbatim
+ *
+ * @mainpage Phelm Documentation
+ * @section into_sec Introduction
+ * write smth here
+ *
+ * @section Examples
+    -# @ref test_laplace.cpp "Laplace on a 2D-domain"
+  \f{eqnarray*}
+  \Delta u &=& f(x, y) \\
+  u|_{\partial\Omega}&=&u_0
+  \f}
+    -# @ref test_laplace.cpp "Laplace on a sphere"
+    -# @ref test_system_laplace.cpp "Double Laplace"
+  \f{eqnarray*}
+  \Delta u + v &=& f(x, y)\\
+  u + \Delta v &=& g(x, y)\\
+  u|_{\partial\Omega}&=&u_0\\
+  v|_{\partial\Omega}&=&v_0\\
+  \f}
+    -# @ref test_chafe.cpp "Chafe-Infante equation on a 2D-Domain"
+  \f{eqnarray*}
+  \frac{du}{dt} &=& \mu \Delta u - \sigma u + f (u) \\
+  u(x,y,t)|_{\partial\Omega}&=&a \\
+  u(x,y,t)|_{t=0} &=& u_0 \\
+  \f}
+    -# @ref test_chafe.cpp "Chafe-Infante equation on a sphere"
+    -# @ref test_barvortex.cpp "BarVortex equation on sphere"
+  \f{eqnarray*}
+  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
+    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi &=& f(\varphi, \lambda) \\
+	\psi|_{t=0}=\psi_0
+  \f}
+    -# @ref test_baroclin.cpp  "Baroclin equations on sphere"
+ \f{eqnarray*}
+  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
+  + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
+  - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
+  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
+  + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
+  - \mu \Delta^2 u_2
+    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+	- \mu_1 \Delta u_2
+	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,\\
+	u_1|{t=0}&=&u_{10}\\
+	u_2|{t=0}&=&u_{20}\\
+ \f}
+ *
+ * @page Build
+ * @section build_sec Build
+ * @subsection Unix-like
+ * @verbatim
+  mkdir build-directory
+  cd build-directory
+  cmake -DCMAKE_BUILD_TYPE=Debug path-to-sources   # for Debug build
+  cmake -DCMAKE_BUILD_TYPE=Release path-to-sources # for Release build
+  make
+  @endverbatim
+ * @subsection Windows
+ * @verbatim
+  mkdir build-directory
+  cd build-directory
+  cmake -G "Visual Studio 2009" #place your version of Visual Studio here
+  @endverbatim
  */
 
 /**
- *
+ * 
+  @example test_laplace.cpp
+  Laplace on a 2D-Domain
+  \f{eqnarray*}
+  \Delta u &=& f(x, y) \\
+  u|_{\partial\Omega}&=&u_0
+  \f}
+  @example test_slaplace.cpp
+  Laplace on a sphere
   @example test_system_laplace.cpp
+  Double Laplace on a 2D-Domain
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
-  u + \Delta v &=& g(x, y)
+  u + \Delta v &=& g(x, y)\\
+  u|_{\partial\Omega}&=&u_0\\
+  v|_{\partial\Omega}&=&v_0\\
   \f}
- */
+  @example test_chafe.cpp
+  Chafe-Infante equation on a 2D-Domain
+  \f{eqnarray*}
+  \frac{du}{dt} &=& \mu \Delta u - \sigma u + f (u) \\
+  u(x,y,t)|_{\partial\Omega}&=&a \\
+  u(x,y,t)|_{t=0} &=& u_0 \\
+  \f}
+  @example test_schafe.cpp
+  Chafe-Infante equation on a sphere
+  @example test_barvortex.cpp
+  BarVortex equation on sphere
+  \f[
+  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
+    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+  \f]
+  @example test_baroclin.cpp
+  Baroclin equations on sphere
+ \f{eqnarray*}
+  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
+  + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
+  - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
+  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
+  + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
+  - \mu \Delta^2 u_2
+    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+	- \mu_1 \Delta u_2
+	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
+ \f}
+  */
 
 #include <stdio.h>
 
