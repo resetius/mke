@@ -52,6 +52,12 @@
 namespace phelm {
 
 /**
+ * @defgroup generatorsn Generators.
+ * Describtion here.
+ * @{
+ */
+
+/**
  * Создает матрицу системы.
  * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
  * в общей точке point на треугольнике tr
@@ -365,5 +371,6 @@ inline double dist(const double * u, const double * v, const Mesh & m)
 	return dist(u, v, m, generic_scalar_cb, (void*)0);
 }
 
+/** @} */
 }
 

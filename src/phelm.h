@@ -83,6 +83,7 @@ typedef unsigned int uint;
 
 /**
  * @defgroup main Main Functions and Classes.
+ * Describtion here.
  * @{
  */
 
@@ -92,6 +93,12 @@ typedef unsigned int uint;
  * That namespace contains all Phelm functions and classes.
  */
 namespace phelm {
+
+/**
+ * @defgroup main Main Functions and Classes.
+ * @{
+ */
+
 
 /**
  * Point class represents a 2-dimensional point on a plane.
@@ -400,8 +407,10 @@ struct Element {
 };
 
 typedef std::vector < Element > elements_t;
+
+/** @} */
 }
-/**@}*/
+
 
 #include "phelm_generators.h"
 
