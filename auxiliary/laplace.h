@@ -60,26 +60,46 @@ using phelm::Polynom;
  * @{
  */
 
+/**
+ * The fast sphere norm calculator.
+ */
 class SphereNorm {
 public:
-	const Mesh & m_;
-	Matrix NORM_; // for fast norm calculation
+	const Mesh & m_; ///< mesh
+	Matrix NORM_;    ///< for fast norm calculation
 
 	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
 	{
 		phelm::generate_full_matrix(NORM_, m_, phelm::sphere_scalar_cb, (void*)0);
 	}
 
+	/**
+	 * distance between two vectors.
+	 * @param u - input vector
+	 * @param v - input vector
+	 * @return distance between u and v
+	 */
 	double dist(const double * u, const double * v)
 	{
 		return phelm::fast_dist(u, v, m_, NORM_);
 	}
 
+	/**
+	 * norm of vector
+	 * @param u - input vector
+	 * @return norm of v
+	 */
 	double norm(const double * u)
 	{
 		return phelm::fast_norm(u, m_, NORM_);
 	}
 
+	/**
+	 * inner product of two vectors
+	 * @param u - input vector
+	 * @param v - input vector
+	 * @return inner product of u and v
+	 */
 	double scalar(const double * u, const double * v)
 	{
 		return phelm::fast_scalar(u, v, m_, NORM_);
@@ -87,7 +107,11 @@ public:
 };
 
 /**
- * Сферический Лаплас
+ * Сферический Лаплас.
+ \f[
+  \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
+  \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi
+ \f]
  */
 class SphereLaplace {
 public:
