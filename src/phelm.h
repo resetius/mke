@@ -11,11 +11,26 @@
  * @mainpage Phelm Documentation
  * @section into_sec Introduction
  * write smth here
- * @section install_sec Installation
- * write smth here
+ * @section build_sec Build
+ * @subsection Unix-like
+ * @verbatim
+  mkdir build-directory
+  cd build-directory
+  cmake -DCMAKE_BUILD_TYPE=Debug path-to-sources   # for Debug build
+  cmake -DCMAKE_BUILD_TYPE=Release path-to-sources # for Release build
+  make
+  @endverbatim
+ * @subsection Windows
+ * @verbatim
+  mkdir build-directory
+  cd build-directory
+  cmake -G "Visual Studio 2009" #place your version of Visual Studio here
+  @endverbatim
+ *
+ * @page License
  * @section LICENSE
  *
- * <pre>
+ * @verbatim
  * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
@@ -48,7 +63,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * </pre>
+ * @endverbatim
  */
 
 /**
