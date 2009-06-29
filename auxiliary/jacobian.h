@@ -1,7 +1,16 @@
 #ifndef JACOBIAN_H
 #define JACOBIAN_H
 /* -*- charset: utf-8 -*- */
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* $Id$ */
+/**
+ * @file jacobian.h
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ * 
+ * @section LICENSE
+ *
+ * <pre>
+ * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +42,10 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * </pre>
+ *
+ * @section 
+ * The sphere jacobian class.
  */
 
 #include "solver.h"
@@ -40,6 +53,13 @@
 using phelm::Matrix;
 using phelm::Mesh;
 
+/**
+ * Calculates jacobian on sphere.
+ \f[
+ J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi} 
+ - \frac{\partial u}{\partial \varphi}\frac{\partial v}{\partial \lambda})
+ \f] 
+ */
 class SphereJacobian {
 	const Mesh & m_;
 	Matrix idt_;
@@ -90,3 +110,4 @@ public:
 };
 
 #endif /* JACOBIAN_H */
+
