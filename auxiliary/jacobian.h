@@ -2,15 +2,8 @@
 #define JACOBIAN_H
 /* -*- charset: utf-8 -*- */
 /* $Id$ */
-/**
- * @file jacobian.h
- * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision$
- * 
- * @section LICENSE
- *
- * <pre>
- * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+
+/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +35,13 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * </pre>
- *
+ */
+ 
+/**
+ * @file
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ * 
  * @section DESCRIPTION
  * The sphere jacobian class.
  */

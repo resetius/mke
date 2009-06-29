@@ -3,15 +3,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/**
- * @file polynom.h
- * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision$
- *
- * @section LICENSE
- *
- * <pre>
- * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +35,12 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * </pre>
+ */
+ 
+/**
+ * @file
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
  *
  * @section DESCRIPTION
  * The polynom class, methods, functions.
@@ -156,12 +153,7 @@ struct MeshPoint;
  * A derivative of the polynom with respect to x or y.
  * If i equals to 0 then calculate a derivative with respect to x.
  * If i equals to 0 then calculate a derivative with respect to y.
- \f[
- \frac{\partial P(x,y)}{\partial x}
- \f]
- \f[
- \frac{\partial P(x,y)}{\partial y}
- \f]
+ * Calculates \f$ \frac{\partial P(x,y)}{\partial x} \f$ or \f$ \frac{\partial P(x,y)}{\partial y} \f$.
  *
  * @param p - the polynom
  * @param i - 0 or 1 (x or y)

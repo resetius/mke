@@ -4,10 +4,15 @@
 /*$Id$*/
 
 /**
- * @file phelm.h
+ * @file 
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  *
+ * @mainpage Phelm Documentation
+ * @section into_sec Introduction
+ * write smth here
+ * @section install_sec Installation
+ * write smth here
  * @section LICENSE
  *
  * <pre>
@@ -44,15 +49,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * </pre>
- *
- * @section DESCRIPTION
- * Main File.
- *
- * @mainpage Phelm Documentation
- * @section into_sec Introduction
- * write smth here
- * @section install_sec Installation
- * write smth here
  */
 
 /**

@@ -37,6 +37,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * @file
+ * @author Alexey Ozeritsky <aozeritsky@gmail.com>
+ * @version $Revision$
+ *
+ * @section DESCRIPTION
+ * The Matrix class and linear system solver.
+ */
+
 #include <vector>
 
 #ifdef SPARSE
