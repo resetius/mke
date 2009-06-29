@@ -57,7 +57,7 @@ const char * const add_version_string(const char * const str);
 #else
 #ifdef _MSC_VER
 #define VERSION(id) \
-#pragma comment(exestr, id)
+	__pragma(comment(user, id))
 #else
 #define VERSION(id) \
 	static const char * const USED ver = id
