@@ -55,6 +55,15 @@
  * write smth here
  */
 
+/**
+ *
+  @example test_system_laplace.cpp
+  \f{eqnarray*}
+  \Delta u + v &=& f(x, y)\\
+  u + \Delta v &=& g(x, y)
+  \f}
+ */
+
 #include <stdio.h>
 
 #include "polynom.h"

@@ -49,6 +49,11 @@
  * Misc functions.
  */
 
+	/**
+	 * @defgroup misc Misc Functions and Classes.
+	 * @{
+	 */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -58,10 +63,6 @@ extern "C" {
 #define inline __inline
 #endif
 
-	/**
-	 * @defgroup misc Misc Functions and Classes.
-	 * @{
-	 */
 /**
  * Power function.
  * @return the value of x raised to the power of p
@@ -333,9 +334,7 @@ public:
 	void restart() { t1_ = get_full_time(); }
 };
 
-/**
- * @}
- */
+/** @} */
 
 #endif
 
