@@ -122,7 +122,7 @@ public:
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
-         * @param u1  - output value
+	 * @param u1  - output value
 	 * @param u2  - output value
 	 * @param u11 - input value (previous time step)
 	 * @param u21 - input value (previous time step)
