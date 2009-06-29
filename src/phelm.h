@@ -47,6 +47,12 @@
  *
  * @section DESCRIPTION
  * Main File.
+ *
+ * @mainpage Phelm Documentation
+ * @section into_sec Introduction
+ * write smth here
+ * @section install_sec Installation
+ * write smth here
  */
 
 #include <stdio.h>
