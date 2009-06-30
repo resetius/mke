@@ -510,16 +510,6 @@ void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
  */
 void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
-struct Element {
-	int i;
-	int j;
-	double a;
-
-	Element(int i1, int j1, double a1) : i(i1), j(j1), a(a1) {}
-};
-
-typedef std::vector < Element > elements_t;
-
 /** @} */
 }
 

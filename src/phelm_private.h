@@ -33,9 +33,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace phelm
-{
-
 namespace phelm_private_ 
 {
 	inline void mat_add(Matrix & A, int i, int j, double a, bool transpose)
@@ -85,5 +82,3 @@ namespace phelm_private_
 		}
 	}
 };
-}
-
