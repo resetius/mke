@@ -234,7 +234,7 @@ struct Point {
 	/**
 	 * multiply each coordinate by k 
 	 * @param k - a number
-	 * @param new point
+	 * @return new point
 	 */
 	Point operator * (double k)
 	{
@@ -255,12 +255,14 @@ inline Point operator + (const Point & p1, const Point & p2)
 }
 
 /**
- * Точка на сетке может входить одновременно в несколько областей, 
- * для поддержки этой возможности нужен этот класс
+ * A point of a manifold can be included into multiple subdomains.
+ * That class supports this.
  */
 struct MeshPoint {
 	/**
-	 * p[i] координаты точки в области i
+	 * p[i] local coordinates of point in subdomain i.
+	 * @todo what should we do if the point is included only in one subdomain
+	 * with sequence number greater that 0 ?
 	 */
 	std::vector < Point > p;
 
@@ -270,42 +272,43 @@ struct MeshPoint {
 	MeshPoint() {}
 	
 	/**
-	 * инициализация по двум координатам
-	 * @param x - координата x
-	 * @param y - координата y
+	 * initialization of x and y.
+	 * @param x - x coordinate
+	 * @param y - y coordinate
 	 */
 	MeshPoint(double x, double y) {
 		add(Point(x, y));
 	}
 
 	/**
-	 * инициализация по массиву x[2]
-	 * @param x - массив из двух координат
+	 * initialization of array x[2].
+	 * @param x - array x[2]
 	 */
 	MeshPoint(double *x) {
 		add(Point(x));
 	}
 
 	/**
-	 * добавляет координаты для следующей зоны
+	 * Adds local coordinates for next subdomain.
+	 * @param p1 - point in local coordinates of next subdomain.
 	 */
 	void add(const Point & p1) {
 		p.push_back(p1);
 	}
 
 	/**
-	 * Возвращает x координату точки в области zone
-	 * @param zone - номер области
-	 * @return координата x
+	 * Returns x coordinate in subdomain
+	 * @param zone - a sequence number of subdomain
+	 * @return x coordiante
 	 */
 	double x(int zone = 0) const {
 		return p[zone].x;
 	}
 
 	/**
-	 * Возвращает y координату точки в области zone
-	 * @param zone - номер области
-	 * @return координата y
+	 * Returns y coordinate in subdomain
+	 * @param zone - a sequence number of subdomain
+	 * @return y coordiante
 	 */
 	double y(int zone = 0) const {
 		return p[zone].y;
