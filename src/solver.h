@@ -58,7 +58,16 @@
 namespace phelm {
 
 /**
+ * @defgroup solver Решатель линейных систем.
+ * содержит класс для решения линейных систем и вспомогательные функции.
+ * @{
+ */
+
+/**
  * Matrix class.
+ * В зависимости от флагов компиляции используется либо
+ * разреженное либо полное представление матрицы.
+ * Для разреженных матриц используется формат UMFPACK.
  */
 class Matrix {
 	int n_;
@@ -107,14 +116,19 @@ public:
 	void add(int i, int j, double a);
 
 	/**
-	 * Solve equation Ax = b
+	 * Solve equation Ax = b.
+	 * В зависимости от параметров компиляции используется либо Gauss
+	 * либо GMRES либо UMFPACK.
+	 * Если определен SPARSE и GMRES, то используется GMRES
+	 * Если определен SPARSE, то используется UMFPACK
+	 * Если не определен SPARSE, то используется Gauss
 	 * @param x - answer
 	 * @param b - right part
 	 */
 	void solve(double * x, const double * b);
 
 	/**
-	 * Product of matrix by vector. out = A in
+	 * Product of matrix by vector (out = A in).
 	 * @param out - result
 	 * @param in  - input vector
 	 */
@@ -125,6 +139,35 @@ public:
 	 */
 	void print();
 };
+
+/**
+ * Solve the system with A matrix (Ax=rp).
+ * (Helper function) 
+ * The function founds an answer on the inner part of the domain
+ * and then sets boundary value of the answer to bnd    
+ *
+ * @param answer - the answer
+ * @param bnd - boundary
+ * @param rp - right part
+ * @param A - the matrix of the system
+ * @param m - mesh
+ */
+void solve(double * answer, const double * bnd,
+		   double * rp, Matrix & A, const Mesh & m);
+
+/**
+ * Solve the system with A matrix (Ax=rp).
+ * (Helper function)
+ * Found an answer on the inner part of the domain.    
+ *
+ * @param answer the answer
+ * @param rp the right part
+ * @param A the matrix of the system
+ * @param m the mesh
+ */
+void solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
+
+/** @} */ /* solver */
 
 }
 

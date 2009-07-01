@@ -51,7 +51,7 @@
 namespace phelm {
 
 /**
- * @defgroup generatorsn Generators.
+ * @defgroup generators Generators.
  * Describtion here.
  * @{
  */
@@ -345,7 +345,16 @@ void convolution(double * ans, const double * u, const double * v,
 	}
 }
 
-/* сеточное скалярное произведение двух функций */
+/** @} */ /* generators */
+
+/**
+ * @ingroup scalar
+ * @{
+ */
+
+/**
+ * сеточное скалярное произведение двух функций
+ */
 template < typename Functor, typename Data >
 double scalar(const double * u, const double * v, const Mesh & m, 
 				  Functor cb, Data user_data)
@@ -361,6 +370,9 @@ double scalar(const double * u, const double * v, const Mesh & m,
 	return s;
 }
 
+/**
+ * создает матрицу для быстрого вычисления скалярного произведения.
+ */
 template < typename Functor, typename Data >
 void generate_scalar_matrix(Matrix & mat, const Mesh & m, 
 							Functor cb, Data user_data)
@@ -368,7 +380,9 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m,
 	generate_full_matrix(mat, m, cb, user_data);
 }
 
-/* сеточная норма */
+/**
+ * сеточная норма
+ */
 template < typename Functor, typename Data >
 double norm(const double * u, const Mesh & m, 
 				Functor cb, Data user_data)
@@ -376,12 +390,17 @@ double norm(const double * u, const Mesh & m,
 	return sqrt(scalar(u, u, m, cb, user_data));
 }
 
+/**
+ * сеточная норма
+ */
 inline double norm(const double * u, const Mesh & m)
 {
 	return norm(u, m, generic_scalar_cb, (void*)0);
 }
 
-/* сеточное расстояние */
+/**
+ * сеточное расстояние
+ */
 template < typename Functor, typename Data>
 double dist(const double * u, const double * v, const Mesh & m, 
 				Functor cb, Data user_data)
@@ -392,6 +411,9 @@ double dist(const double * u, const double * v, const Mesh & m,
 	return norm(&diff[0], m, cb, user_data);
 }
 
+/**
+ * сеточное расстояние
+ */
 inline double dist(const double * u, const double * v, const Mesh & m)
 {
 	return dist(u, v, m, generic_scalar_cb, (void*)0);

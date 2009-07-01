@@ -182,8 +182,7 @@
 typedef unsigned int uint;
 
 /**
- * @defgroup main Main Functions and Classes.
- * Describtion here.
+ * @defgroup main Классы и Функции для работы с сеткой и сеточными функциями.
  * @{
  */
 
@@ -244,26 +243,54 @@ inline Point operator + (const Point & p1, const Point & p2)
  * для поддержки этой возможности нужен этот класс
  */
 struct MeshPoint {
+	/**
+	 * p[i] координаты точки в области i
+	 */
 	std::vector < Point > p;
 
+	/**
+	 * default constructor.
+	 */
 	MeshPoint() {}
 	
-	MeshPoint(double x1, double y1) {
-		add(Point(x1, y1));
+	/**
+	 * инициализация по двум координатам
+	 * @param x - координата x
+	 * @param y - координата y
+	 */
+	MeshPoint(double x, double y) {
+		add(Point(x, y));
 	}
 
-	MeshPoint(double *x1) {
-		add(Point(x1));
+	/**
+	 * инициализация по массиву x[2]
+	 * @param x - массив из двух координат
+	 */
+	MeshPoint(double *x) {
+		add(Point(x));
 	}
 
+	/**
+	 * добавляет координаты для следующей зоны
+	 */
 	void add(const Point & p1) {
 		p.push_back(p1);
 	}
 
+	/**
+	 * Возвращает x координату точки в области zone
+	 * @param zone - номер области
+	 * @return координата x
+	 */
 	double x(int zone = 0) const {
 		return p[zone].x;
 	}
 
+	/**
+	 * Возвращает y координату точки в области zone
+	 * @param zone - номер области
+	 * @return координата y
+	 */
 	double y(int zone = 0) const {
 		return p[zone].y;
 	}
@@ -275,26 +302,51 @@ struct MeshPoint {
 struct Triangle {
 	int p[3];  ///< point number
 	int z;     ///< zone number
-	std::vector < Polynom > phik;
-	double x[3];
-	double y[3];
+	std::vector < Polynom > phik; ///< элементы на треугольнике
+	double x[3]; ///< x координата вершин
+	double y[3]; ///< y координата вершин
 
-	Triangle(int p1_, int p2_, int p3_, int zone = 0)
+	/**
+	 * инициализация треугольника по номерам точек и номеру области.
+	 * @param p1 - точка 1
+	 * @param p2 - точка 2
+	 * @param p3 - точка 3
+	 * @param zone - номер области, которой пренадлежит треугольник
+	 */
+	Triangle(int p1, int p2, int p3, int zone = 0)
 	{
-		p[0] = p1_;
-		p[1] = p2_;
-		p[2] = p3_;
+		p[0] = p1;
+		p[1] = p2;
+		p[2] = p3;
 		z    = zone;
 	}
 
-	double X(int i, const std::vector < MeshPoint > & ps) const {
+	/**
+	 * возвращает x координату вершины по номеру вершины.
+	 * @param i - номер вершины (от 0 до 2)
+	 * @param ps - массив точек сетки
+	 * @return x координата
+	 */
+	double X(int i, const std::vector < MeshPoint > & ps) const 
+	{
 		return ps[p[i]].x(z);
 	}
 
-	double Y(int i, const std::vector < MeshPoint > & ps) const {
+	/**
+	 * возвращает y координату вершины по номеру вершины.
+	 * @param i - номер вершины (от 0 до 2)
+	 * @param ps - массив точек сетки
+	 * @return y координата
+	 */
+	double Y(int i, const std::vector < MeshPoint > & ps) const 
+	{
 		return ps[p[i]].y(z);
 	}
 
+	/**
+	 * инициализирует массивы x и y по массиву точек
+	 * @param ps - массив точек
+	 */
 	void prepare(const std::vector < MeshPoint > & ps)
 	{
 		std::vector < Polynom > & r = phik;
@@ -320,11 +372,20 @@ struct Triangle {
 		x[2] = X(2, ps); y[2] = Y(2, ps);
 	}
 
+	/**
+	 * возвращает конечные элементы первого порядка.
+	 * @return массив конечных элементов первого порядка
+	 */
 	const std::vector < Polynom > & elem1() const
 	{
 		return phik;
 	}
 
+	/**
+	 * возвращает конечный элемент по номеру точки.
+	 * @param p1 - номер точки
+	 * @return конечный элемент
+	 */
 	const Polynom & elem1(int p1) const
 	{
 		if (p1 == p[0]) {
@@ -341,32 +402,57 @@ struct Triangle {
  * Mesh class.
  */
 struct Mesh {
-	typedef std::vector < Triangle > triangles_t;
-	typedef std::vector < MeshPoint > points_t; 
-	typedef std::vector < int > points_flags_t;
-	triangles_t tr;
-	points_t ps;
-	//флаги
-	//0 - внутренняя точка
-	//1 - точка на границе области
+	typedef std::vector < Triangle > triangles_t;///<контейнер треугольников
+	typedef std::vector < MeshPoint > points_t;  ///<контейнер точек
+	typedef std::vector < int > points_flags_t;  ///<контейнер свойст точек
+
+	triangles_t tr; ///<массив треугольников
+	points_t ps;    ///<массив точек
+
+	/**
+	 * флаги.
+	 * 0 - внутренняя точка
+	 * 1 - точка на границе области
+	 */
 	points_flags_t ps_flags;
 
-	// точка -> треугольники в точке
+	//! точка -> треугольники в точке
 	std::vector < std::vector < int > > adj;
-	// номера внутренних точек
+	//! номера внутренних точек
 	std::vector < int > inner;
-	// номера внешних точек
+	//! номера внешних точек
 	std::vector < int > outer;
-	// соответствие номера в массиве ps номеру в массиве inner или outer
+	//! соответствие номера в массиве ps номеру в массиве inner или outer
 	std::vector < int > p2io;
 
+	/**
+	 * загружает сетку из файла.
+	 * @param f - файл
+	 * @return true в случае успеха
+	 */
 	bool load(FILE * f);
+
+	/**
+	 * подгатавливает треугольники.
+	 */
 	void prepare();
+
+	/**
+	 * распечатывает в stdout информацию о сетке.
+	 */
 	void info();
 };
 
+/** @} */ /* main */
+
 /**
- * callback that convert local coordinates to global coordinates.
+ * @defgroup print Функции печати 
+ * @ingroup print
+ * @{
+ */
+
+/**
+ * callback that converts local coordinates to global coordinates.
  */
 typedef double (* x_t)(double u, double v);
 
@@ -422,32 +508,62 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 void print_inner_function(const char * to, double * ans, const Mesh & m,
 		x_t x = 0, x_t y = 0, x_t z = 0);
 
-class Matrix;
+/** @} */ /* print */
 
 /**
- * Solve the system with A matrix. Ax=rp
- * The function founds an answer on the inner part of the domain
- * and then sets boundary value of the answer to bnd    
- *
- * @param answer - the answer
- * @param bnd - boundary
- * @param rp - right part
- * @param A - the matrix of the system
- * @param m - mesh
+ * @defgroup scalar Скалярные произведения, нормы, расстояния.
+ * @ingroup scalar
+ * @{
  */
-void solve(double * answer, const double * bnd,
-		   double * rp, Matrix & A, const Mesh & m);
 
 /**
- * Solve the system with A matrix. Ax=rp.
- * Found an answer on the inner part of the domain.    
- *
- * @param answer the answer
- * @param rp the right part
- * @param A the matrix of the system
- * @param m the mesh
+ * тут вычисляется интеграл от произведения функций по треугольнику.
  */
-void solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
+						 const Triangle & trk, const Mesh & m, int, int,
+						 int, int, void * );
+
+/**
+ * тут вычисляется интеграл от произведения функций по треугольнику на сфере.
+ */
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
+						const Triangle & trk, const Mesh & m,
+						int, int, int, int, void * user_data);
+
+/**
+ * fast_scalar.
+ */
+double fast_scalar(const double * u, const double * v,
+				   const Mesh & m, Matrix & mat);
+
+/**
+ * fast norm.
+ */
+double fast_norm(const double * u, const Mesh & m, Matrix & mat);
+
+/**
+ * fast_dist.
+ */
+double fast_dist(const double * u, const double * v,
+				 const Mesh & m, Matrix & mat);
+
+/** @} */ /* scalar */
+
+/**
+ * @defgroup proj Конвертеры и проекторы функций.
+ * @ingroup main
+ * @{
+ */
+
+/**
+ * функция от двух пространственных переменных.
+ */
+typedef double (* f_xy_t)(double x, double y);
+
+/**
+ * функция от двух пространственных переменных и времени.
+ */
+typedef double (* f_xyt_t)(double x, double y, double t);
 
 /**
  * добавляем краевые условия
@@ -460,59 +576,38 @@ void p2u(double * p, const double * u, const double * bnd, const Mesh & m);
 void u2p(double * u, const double * p, const Mesh & m);
 
 /**
- * тут вычисляется интеграл от произведения функций по треугольнику
- */
-double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
-						 const Triangle & trk, const Mesh & m, int, int,
-						 int, int, void * );
-
-/**
- * тут вычисляется интеграл от произведения функций по треугольнику на сфере
- */
-double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
-						const Triangle & trk, const Mesh & m,
-						int, int, int, int, void * user_data);
-
-
-double fast_scalar(const double * u, const double * v,
-				   const Mesh & m, Matrix & mat);
-double fast_norm(const double * u, const Mesh & m, Matrix & mat);
-double fast_dist(const double * u, const double * v,
-				 const Mesh & m, Matrix & mat);
-
-typedef double (* f_xy_t)(double x, double y);
-typedef double (* f_xyt_t)(double x, double y, double t);
-
-/**
- * проектирование непрерывной функции f(x,y) на сетку
+ * проектирование непрерывной функции f(x,y) на сетку.
  */
 void proj(double * F, const Mesh & mesh, f_xy_t f);
 
 /**
- * проектирование непрерывной функции f(x,y) на границу сетки
+ * проектирование непрерывной функции f(x,y) на границу сетки.
  */
 void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 
 /**
- * проектирование функции F1 на границу сетки
+ * проектирование функции F1 на границу сетки.
  */
 void proj_bnd(double * F, const double * F1, const Mesh & m);
 
+/**
+ * инициализирует граничное значение.
+ */
 void set_bnd(double * F, const double * bnd, const Mesh & m);
 
 /**
- * проектирование непрерывной функции f(x,y,t) на сетку
+ * проектирование непрерывной функции f(x,y,t) на сетку.
  */
 void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 
 /**
- * проектирование непрерывной функции f(x,y,t) на границу сетки
+ * проектирование непрерывной функции f(x,y,t) на границу сетки.
  */
 void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
-/** @} */
-}
+/** @} */ /* proj */
 
+}
 
 #include "phelm_generators.h"
 
