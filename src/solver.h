@@ -58,8 +58,9 @@
 namespace phelm {
 
 /**
- * @defgroup solver Решатель линейных систем.
- * содержит класс для решения линейных систем и вспомогательные функции.
+ * @defgroup solver Linear equations solver.
+ * Contains Linear equations solver class and
+ * auxiliary routines.
  * @{
  */
 

@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 	/**
-	 * @defgroup misc Misc Functions and Classes.
+	 * @defgroup misc Miscellaneous functions and classes.
 	 * @{
 	 */
 

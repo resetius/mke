@@ -54,7 +54,7 @@ using phelm::Triangle;
 using phelm::Polynom;
 
 /**
- * @defgroup aux Решатели некоторых задач математической физики.
+ * @defgroup aux Some problems of mathematical physics.
  * @{
  */
 

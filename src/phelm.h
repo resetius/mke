@@ -195,7 +195,7 @@ typedef unsigned int uint;
 namespace phelm {
 
 /**
- * @defgroup main Работа с сеткой и сеточными функциям.
+ * @defgroup main Mesh and mesh functions.
  * @{
  */
 
@@ -447,7 +447,7 @@ struct Mesh {
 /** @} */ /* main */
 
 /**
- * @defgroup print Печать сеточных функций.
+ * @defgroup print Mesh functions output.
  * @ingroup main
  * @{
  */
@@ -512,7 +512,7 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
 /** @} */ /* print */
 
 /**
- * @defgroup scalar Скалярные произведения, нормы, расстояния.
+ * @defgroup scalar Inner products, norms, distances.
  * @ingroup main
  * @{
  */
@@ -553,7 +553,7 @@ double fast_dist(const double * u, const double * v,
 /** @} */ /* scalar */
 
 /**
- * @defgroup proj Конвертеры и проекторы.
+ * @defgroup proj Converters and projectors.
  * @ingroup main
  * @{
  */

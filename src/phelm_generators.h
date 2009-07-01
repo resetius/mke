@@ -51,8 +51,8 @@
 namespace phelm {
 
 /**
- * @defgroup generators Генераторы матриц конечных элементов.
- * Генераторы матриц конечных элементов, генераторы правых частей.
+ * @defgroup generators Finite element matrix generators.
+ * Finite element matrix generators, right-parts generators.
  * Describtion here.
  * @{
  */
