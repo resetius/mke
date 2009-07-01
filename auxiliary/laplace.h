@@ -68,6 +68,7 @@ public:
 
 	/**
 	 * constructor.
+	 * @param m - mesh
 	 */
 	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
 	{
@@ -126,18 +127,24 @@ public:
 public:
 	/**
 	 * constructor.
+	 * @param m - mesh
 	 */
 	SphereLaplace(const Mesh & m);
 
 	/**
 	 * Находит оператор Лапласа функции F во внутренних
 	 * точках. В точках границы просто кладет значение из bnd.
+	 * @param Ans - ответ
+	 * @param F - функция лаплас от которой хотим найти
+	 * @param bnd - значение на границе, которое хотим получить
 	 */
 	void calc1(double * Ans, const double * F, const double * bnd);
 
 	/**
 	 * Находит оператор Лапласа функции F во внутренних точках.
 	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
+	 * @param Ans - ответ
+	 * @param F - функция лаплас от которой хотим найти
 	 */
 	void calc2(double * Ans, const double * F);
 
@@ -150,12 +157,25 @@ public:
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
-// calculate right part or matrix elements
-/* for sphere */
+/**
+ * Считает один элемент конечно-элементной матрицы для
+ * оператора лапласа на сфере.
+ * @param phi_i - базисная функция
+ * @param phi_j - базисная функция
+ * @param trk - треугольник по которому считаем интеграл
+ * @param ps - точки сетки
+ */
 double slaplace(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps);
 
-/* for plane */
+/**
+ * Считает один элемент конечно-элементной матрицы для
+ * оператора лапласа на плоскости.
+ * @param phi_i - базисная функция
+ * @param phi_j - базисная функция
+ * @param trk - треугольник по которому считаем интеграл
+ * @param ps - точки сетки
+ */
 double laplace(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps);
 
@@ -171,13 +191,17 @@ private:
 	Matrix  A_;             /* Матрица левой части */
 
 public:
-	double tau_;   ///<tau
-	double mu_;    ///<tau
-	double sigma_; ///<tau
+	double tau_;   ///<time step
+	double mu_;    ///<\f$\mu\f$
+	double sigma_; ///<\f$\sigma\f$
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
+	 * @param m - mesh
+	 * @param tau - time step
+	 * @param sigma - \f$\sigma\f$
+	 * @param mu - \f$\mu\f$
 	 */
 	SphereChafe(const Mesh & m, double tau, double sigma, double mu);
 	~SphereChafe() {}
@@ -185,6 +209,10 @@ public:
 /**
  * Solve Chafe-Infante equation on sphere.
  * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
+ * @param Ans - output vector
+ * @param X0 - intput vector (previous time step)
+ * @param bnd - boundary condition
+ * @param t - time
  */
 	void solve(double * Ans, const double * X0,
 						const double * bnd, double t);
@@ -210,18 +238,24 @@ class Laplace {
 public:
 	/**
 	 * constructor.
+	 * @param m - mesh
 	 */
 	Laplace(const Mesh & m);
 
 	/**
 	 * Находит оператор Лапласа функции F во внутренних
 	 * точках. В точках границы просто кладет значение из bnd.
+	 * @param Ans - ответ
+	 * @param F - функция лаплас от которой хотим найти
+	 * @param bnd - значение награнице, которое хотим получить
 	 */
 	void calc1(double * Ans, const double * F, const double * bnd);
 
 	/**
 	 * Находит оператор Лапласа функции F во внутренних точках.
 	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
+	 * @param Ans - ответ
+	 * @param F - функция лаплас от которой хотим найти
 	 */
 	void calc2(double * Ans, const double * F);
 
@@ -246,13 +280,17 @@ private:
 	Matrix A_;        /* Матрица левой части */
 
 public:
-	double tau_;   ///<tau
-	double mu_;    ///<mu
-	double sigma_; ///<sigma
+	double tau_;   ///<time step
+	double mu_;    ///<\f$\mu\f$
+	double sigma_; ///<\f$\sigma\f$
 
 public:
 	/**
 	 * constructor.
+	 * @param m - mesh
+	 * @param tau - time step
+	 * @param sigma - \f$\sigma\f$
+	 * @param mu - \f$\mu\f$
 	 */
 	Chafe(const Mesh & m, double tau, double sigma, double mu);
 	~Chafe() {}
@@ -260,6 +298,10 @@ public:
 	/**
 	 * Solve 2D Chafe-Infante equation.
 	 * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
+	 * @param Ans - output vector
+	 * @param X0 - intput vector (previous time step)
+	 * @param bnd - boundary condition
+	 * @param t - time
 	 */
 	void solve(double * Ans, const double * X0,
 						const double * bnd, double t);

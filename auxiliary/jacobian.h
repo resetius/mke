@@ -89,28 +89,44 @@ class SphereJacobian {
 public:
 	/**
 	 * constructor.
+	 * @param m - mesh
 	 */
 	SphereJacobian(const Mesh & m);
 
 	/**
 	 * Находит J(u, v) во внутренних точках. 
 	 * В точках границы просто кладет значение из bnd.
+	 * @param Ans - ответ
+	 * @param u - вектор u
+	 * @param v - вектор v
+	 * @param bnd - значение на границе, которое хотим получить
 	 */
 	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
 	 * сопряженный к J(u, v) (=-J(u, v))
+	 * В точках границы просто кладет значение из bnd.
+	 * @param Ans - ответ
+	 * @param u - вектор u
+	 * @param v - вектор v
+	 * @param bnd - значение на границе, которое хотим получить
 	 */
 	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
 	 * Находит J(u, v) во внутренних точках. 
 	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
+	 * @param Ans - ответ
+	 * @param u - вектор u
+	 * @param v - вектор v
 	 */
 	void calc2(double * Ans, const double * u, const double * v);
 
 	/**
 	 * сопряженный к J(u, v) (=-J(u, v))
+	 * @param Ans - ответ
+	 * @param u - вектор u
+	 * @param v - вектор v
 	 */
 	void calc2t(double * Ans, const double * u, const double * v);
 };
