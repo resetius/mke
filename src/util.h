@@ -89,10 +89,21 @@ ipow(double x, int p)
 int gauss (double *A, double *b, double *x, int n);
 
 /**
- * интеграл от x^k*y^n по трапеции
+ * интеграл от x^k*y^n по трапеции.
  * y=k1x+b1 y=k2x+b2 
  * прямые ограничивающие трапецию
- * x меняется от x1 до x3 
+ * x меняется от x1 до x3
+ \f[
+ \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n dx dy
+ \f]
+ * @param k - power
+ * @param n - power
+ * @param k1 - coefficient
+ * @param b1 - coefficient
+ * @param k2 - coefficient
+ * @param b2 - coefficient
+ * @param x1 - the begging of segment
+ * @param x3 - the end of segment
  */
 double trapezoid_integral(int k, int n, 
 			 double k1, double b1, 
@@ -100,7 +111,18 @@ double trapezoid_integral(int k, int n,
 			 double x1, double x3);
 
 /**
- * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n cos x) dx dy
+ * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n cos x) dx dy.
+ \f[
+ \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n cos(x) dx dy
+ \f]
+ * @param k - power
+ * @param n - power
+ * @param k1 - coefficient
+ * @param b1 - coefficient
+ * @param k2 - coefficient
+ * @param b2 - coefficient
+ * @param x1 - the begging of segment
+ * @param x3 - the end of segment
  */
 double trapezoid_integral_cos(int k, int n,
 	double k1, double b1,
@@ -108,7 +130,18 @@ double trapezoid_integral_cos(int k, int n,
 	double x1, double x3);
 
 /**
- * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n sin x) dx dy
+ * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n sin x) dx dy.
+ \f[
+ \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n sin(x) dx dy
+ \f]
+ * @param k - power
+ * @param n - power
+ * @param k1 - coefficient
+ * @param b1 - coefficient
+ * @param k2 - coefficient
+ * @param b2 - coefficient
+ * @param x1 - the begging of segment
+ * @param x2 - the end of segment
  */
 double trapezoid_integral_sin(int k, int n,
 	double k1, double b1,
@@ -116,7 +149,18 @@ double trapezoid_integral_sin(int k, int n,
 	double x1, double x3);
 
 /**
- * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n/cos x) dx dy
+ * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n/cos x) dx dy.
+ \f[
+ \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} \frac{x^k y ^n}{cos(x)} dx dy
+ \f]
+ * @param k - power
+ * @param n - power
+ * @param k1 - coefficient
+ * @param b1 - coefficient
+ * @param k2 - coefficient
+ * @param b2 - coefficient
+ * @param x1 - the begging of segment
+ * @param x3 - the end of segment
  */
 double trapezoid_integral_1_cos(int k, int n,
 	double k1, double b1,
@@ -234,7 +278,7 @@ double vec_norm2(const double *v, int n);
 /**
  * Inner product of two vectors.
    \f[
-   \sum_{i=0}{n}a_i b_i
+   \sum_{i=0}^{n}a_i b_i
    \f]
  * @param a - input vector
  * @param b - input vector
