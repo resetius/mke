@@ -141,7 +141,7 @@ double trapezoid_integral_cos(int k, int n,
  * @param k2 - coefficient
  * @param b2 - coefficient
  * @param x1 - the begging of segment
- * @param x2 - the end of segment
+ * @param x3 - the end of segment
  */
 double trapezoid_integral_sin(int k, int n,
 	double k1, double b1,
