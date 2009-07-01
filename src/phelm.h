@@ -530,6 +530,8 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
 						const Triangle & trk, const Mesh & m,
 						int, int, int, int, void * user_data);
 
+class Matrix;
+
 /**
  * fast_scalar.
  */
