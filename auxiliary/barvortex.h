@@ -53,7 +53,7 @@
 #include "jacobian.h"
 
 /**
- * @ingroup aux.
+ * @ingroup aux
  * @{
  */
 
@@ -69,8 +69,14 @@
  */
 class BarVortex: public SphereNorm {
 public:
+	/**
+	 * function of right part.
+	 */
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 		double mu, double sigma);
+	/**
+	 * coriolis
+	 */
 	typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
@@ -87,16 +93,19 @@ private:
 	std::vector < double > f_;  // f right part
 
 public:
-	double tau_;
-	double sigma_;
-	double mu_;
-	double theta_; // параметр схемы от 0 до 1
+	double tau_;   ///< tau
+	double sigma_; ///< sigma
+	double mu_;    ///< theta
+	double theta_; ///< параметр схемы от 0 до 1
 
 private:
 	rp_t rp_;
 	coriolis_t coriolis_;
 
 public:
+	/**
+	 * describe!
+	 */
 	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
 
 	/**
@@ -120,17 +129,40 @@ public:
  \f]
 	 */
 	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
+	/**
+	 * describe!
+	 */
 	void calc_L_1(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
+	/**
+	 * describe!
+	 */
 	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
-	/* J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) */
+	/**
+	 * J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) 
+	 */
 	void L_spectr(double * u1, const double * u, const double * z, const double * bnd);
+	/**
+	 * describe!
+	 */
 	void LT_spectr(double * u1, const double * u, const double * z, const double * bnd);
 
+	/**
+	 * describe!
+	 */
 	void S_step(double * Ans, const double * F);
+	/**
+	 * describe!
+	 */
 	void L_step(double * Ans, const double * F, const double * z);
+	/**
+	 * describe!
+	 */
 	void L_1_step(double * Ans, const double * F, const double * z);
+	/**
+	 * describe!
+	 */
 	void LT_step(double * Ans, const double * F, const double * z);
 };
 

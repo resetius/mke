@@ -87,6 +87,9 @@ class SphereJacobian {
 	Matrix diff2_cos_rp_t_;
 
 public:
+	/**
+	 * constructor.
+	 */
 	SphereJacobian(const Mesh & m);
 
 	/**

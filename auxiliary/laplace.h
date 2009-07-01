@@ -66,6 +66,9 @@ public:
 	const Mesh & m_; ///< mesh
 	Matrix NORM_;    ///< for fast norm calculation
 
+	/**
+	 * constructor.
+	 */
 	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
 	{
 		phelm::generate_full_matrix(NORM_, m_, phelm::sphere_scalar_cb, (void*)0);
@@ -121,6 +124,9 @@ public:
 	const Mesh & m_;
 
 public:
+	/**
+	 * constructor.
+	 */
 	SphereLaplace(const Mesh & m);
 
 	/**
@@ -165,11 +171,14 @@ private:
 	Matrix  A_;             /* Матрица левой части */
 
 public:
-	double tau_;
-	double mu_;
-	double sigma_;
+	double tau_;   ///<tau
+	double mu_;    ///<tau
+	double sigma_; ///<tau
 
 public:
+	/**
+	 * constructor.
+	 */
 	SphereChafe(const Mesh & m, double tau, double sigma, double mu);
 	~SphereChafe() {}
 
@@ -199,6 +208,9 @@ class Laplace {
 	void init_boundary_vectors();
 
 public:
+	/**
+	 * constructor.
+	 */
 	Laplace(const Mesh & m);
 
 	/**
@@ -234,11 +246,14 @@ private:
 	Matrix A_;        /* Матрица левой части */
 
 public:
-	double tau_;
-	double mu_;
-	double sigma_;
+	double tau_;   ///<tau
+	double mu_;    ///<mu
+	double sigma_; ///<sigma
 
 public:
+	/**
+	 * constructor.
+	 */
 	Chafe(const Mesh & m, double tau, double sigma, double mu);
 	~Chafe() {}
 

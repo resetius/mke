@@ -75,9 +75,15 @@
  */
 class Baroclin: public SphereNorm {
 public:
+	/**
+	 * function of right part
+	 */
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 	                double sigma, double mu, double sigma1,
 					double mu1, double alpha);
+	/**
+	 * coriolis
+	 */
 	typedef double (*coriolis_t) (double phi, double lambda);
 
 private:
@@ -104,6 +110,9 @@ private:
 	coriolis_t coriolis_;
 
 public:
+	/**
+	 * describe!
+	 */
 	Baroclin(const Mesh & m, rp_t f, rp_t g, 
 		coriolis_t coriolis, double tau, 
 		double sigma, double mu, 
@@ -181,19 +190,33 @@ public:
 		const double * z1, const double * z2,
 		const double * bnd, double t);
 
+	/**
+	 * describe!
+	 * @todo implement!
+	 */
 	void calc_LT(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2,
 		const double * bnd, double t);
 
+	/**
+	 * describe!
+	 */
 	void L_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
 
+	/**
+	 * describe!
+	 */
 	void L_1_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
 
+	/**
+	 * describe!
+	 * @todo implement!
+	 */
 	void LT_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
