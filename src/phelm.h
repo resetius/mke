@@ -12,69 +12,71 @@
  * @section LICENSE
  *
  * @verbatim
- * Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Redistributions in any form must be accompanied by information on
- *    how to obtain complete source code for the Phelm software and any
- *    accompanying software that uses the Phelm software.  The source code
- *    must either be included in the distribution or be available for no
- *    more than the cost of distribution plus a nominal fee, and must be
- *    freely redistributable under reasonable conditions.  For an
- *    executable file, complete source code means the source code for all
- *    modules it contains.  It does not include source code for modules or
- *    files that typically accompany the major components of the operating
- *    system on which the executable file runs.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * @endverbatim
+  Copyright (c) 2009 Alexey Ozeritsky
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. Redistributions in any form must be accompanied by information on
+     how to obtain complete source code for the Phelm software and any
+     accompanying software that uses the Phelm software.  The source code
+     must either be included in the distribution or be available for no
+     more than the cost of distribution plus a nominal fee, and must be
+     freely redistributable under reasonable conditions.  For an
+     executable file, complete source code means the source code for all
+     modules it contains.  It does not include source code for modules or
+     files that typically accompany the major components of the operating
+     system on which the executable file runs.
+ 
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  @endverbatim
+ * If you want to use Phelm in closed-source software 
+ * contact me by sending email to aozeritsky@gmail.com.
  *
  * @mainpage Phelm Documentation
  * @section into_sec Introduction
- * Эта библиотека предназначена для решения уравнений в частных производных
- * Методом Конечных Элементов.
- * Библиотека поддерживает решение уравнений на двумерных гладких 
- * многообразиях в локальных координатах. 
+ * This library is meant to solve partial differential equations.
+ * It implements the Finite Element Method.
+ * The library is able to solve partial differential equations 
+ * on two-dimensional smooth manifolds. 
  *
- * Для решения задачи от пользователя требуются: 
- * - разбиение многообразия на области
- * - задание в каждой области локальной системы координат
- * - функция вычисления поверхностного интеграла по треугольнику в локальных координатах.
+ * To solve a problem you need the following:
+ * - triangulate the manifold;
+ * - partition the manifold into subdomains;
+ * - specify a local coordinate system in each subdomain;
+ * - specify a function of surface integral in the local coordinates.
  *
- * Библиотека уже содержит построитель сферических поверхностей и плоских прямоугольных
- * областей.
- * 
- * Пример работы построителя сетки на сфере. 
- * В данном случае сфера разбита на четыре области.
+ * The library already contains triangulation builders for spherical surfaces 
+ * and flat rectangular domains.
  *
+ * The sample result of mesh builder is shown below: 
  * @image html zones.png
+ * In that case the sphere is built on 4 parts.
  * 
- * @section Examples
- * Доступны следующие примеры:
-    -# @ref test_laplace.cpp "Laplace on a 2D-domain"
+ * @section ex Usage examples
+ * These examples are to give you some tips on Phelm features.
+    -# @ref test_laplace.cpp "Laplace equation on a 2D-domain"
   \f{eqnarray*}
   \Delta u &=& f(x, y) \\
   u|_{\partial\Omega}&=&u_0
   \f}
-    -# @ref test_laplace.cpp "Laplace on a sphere"
-    -# @ref test_system_laplace.cpp "Double Laplace"
+    -# @ref test_laplace.cpp "Laplace equation on a sphere"
+    -# @ref test_system_laplace.cpp "Double Laplace's equations on a 2D-domain"
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
@@ -111,6 +113,10 @@
  *
  * @page Build
  * @section build_sec Build
+ * Phelm uses GMRES method to solve linear equations. If you do not like
+ * that you should install UMFPACK or place UMFPACK sources in 
+ * /path-to-phelm/contrib/umfpack
+ * 
  * @subsection Unix-like
  * @verbatim
   mkdir build-directory
@@ -130,7 +136,7 @@
 /**
  * 
   @example test_laplace.cpp
-  Laplace on a 2D-Domain
+  Laplace equation on a 2D-Domain
   \f{eqnarray*}
   \Delta u &=& f(x, y) \\
   u|_{\partial\Omega}&=&u_0
@@ -138,7 +144,7 @@
   @example test_slaplace.cpp
   Laplace on a sphere
   @example test_system_laplace.cpp
-  Double Laplace on a 2D-Domain
+  Double Laplace equations on a 2D-Domain
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
