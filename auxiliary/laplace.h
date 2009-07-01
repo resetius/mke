@@ -54,7 +54,7 @@ using phelm::Triangle;
 using phelm::Polynom;
 
 /**
- * @defgroup aux Auxiliary Functions and Classes
+ * @defgroup aux Решатели некоторых задач математической физики.
  * @{
  */
 
@@ -144,7 +144,7 @@ public:
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
-//@{ calculate right part or matrix elements
+// calculate right part or matrix elements
 /* for sphere */
 double slaplace(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps);
@@ -152,7 +152,6 @@ double slaplace(const Polynom & phi_i, const Polynom & phi_j,
 /* for plane */
 double laplace(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps);
-//@}
 
 /**
  * Chafe-Infante equation on sphere.

@@ -52,7 +52,7 @@ using phelm::Matrix;
 using phelm::Mesh;
 
 /**
- * @defgroup aux Auxiliary Functions and Classes
+ * @ingroup aux
  * @{
  */
 

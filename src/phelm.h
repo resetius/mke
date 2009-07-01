@@ -182,11 +182,6 @@
 typedef unsigned int uint;
 
 /**
- * @defgroup main Классы и Функции для работы с сеткой и сеточными функциями.
- * @{
- */
-
-/**
  * @namespace phelm
  *
  * That namespace contains all Phelm functions and classes.
@@ -194,7 +189,7 @@ typedef unsigned int uint;
 namespace phelm {
 
 /**
- * @defgroup main Main Functions and Classes.
+ * @defgroup main Классы и Функции для работы с сеткой и сеточными функциями.
  * @{
  */
 
@@ -447,7 +442,7 @@ struct Mesh {
 
 /**
  * @defgroup print Функции печати 
- * @ingroup print
+ * @ingroup main
  * @{
  */
 
@@ -512,7 +507,7 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
 
 /**
  * @defgroup scalar Скалярные произведения, нормы, расстояния.
- * @ingroup scalar
+ * @ingroup main
  * @{
  */
 

@@ -53,7 +53,7 @@
 #include "jacobian.h"
 
 /**
- * @defgroup aux Auxiliary Functions and Classes
+ * @ingroup aux
  * @{
  */
 

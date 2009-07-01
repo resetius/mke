@@ -53,12 +53,13 @@
 #include "jacobian.h"
 
 /**
- * @defgroup aux Auxiliary Functions and Classes
+ * @ingroup aux.
  * @{
  */
 
 /**
  * Solve the barvortex equation.
+ *
  \f[
  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
