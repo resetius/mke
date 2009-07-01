@@ -140,6 +140,8 @@ public:
 	void print();
 };
 
+class Mesh;
+
 /**
  * Solve the system with A matrix (Ax=rp).
  * (Helper function) 
