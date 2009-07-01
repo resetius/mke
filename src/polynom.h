@@ -54,6 +54,11 @@ typedef unsigned int uint;
 
 namespace phelm {
 
+	/**
+	 * @defgroup polynom Polynom functions and classes
+	 * @{
+	 */
+
 /**
  * Polynom of variables (x, y).
  * Examples:
@@ -137,11 +142,13 @@ struct Polynom {
 
 /**
  * The polynom: \f$P(x,y)=x\f$.
+ * @relates Polynom
  */
 extern const Polynom P2X; //p(x, y) = x
 
 /**
  * The polynom:  \f$P(x,y)=y\f$.
+ * @relates Polynom
  */
 extern const Polynom P2Y; //p(x, y) = y
 
@@ -155,6 +162,7 @@ struct MeshPoint;
  * If i equals to 0 then calculate a derivative with respect to y.
  * Calculates \f$ \frac{\partial P(x,y)}{\partial x} \f$ or \f$ \frac{\partial P(x,y)}{\partial y} \f$.
  *
+ * @relates Polynom
  * @param p - the polynom
  * @param i - 0 or 1 (x or y)
  * @return \f$\frac{\partial P(x,y)}{\partial x}\f$
@@ -167,7 +175,7 @@ Polynom diff(const Polynom & p, int i);
  \f[
   \int_t p(x,y) dx dy
  \f]
- *
+ * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
  * @param ps - the mesh points 
@@ -181,6 +189,7 @@ double integrate(const Polynom & p, const Triangle & t,
   \int_t p(x,y) cos(x) dx dy
  \f]
  *
+ * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
  * @param ps - the mesh points 
@@ -193,6 +202,7 @@ double integrate_cos(const Polynom & p, const Triangle & t,
   \int_t p(x,y) sin(x) dx dy
  \f]
  *
+ * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
  * @param ps - the mesh points 
@@ -206,6 +216,7 @@ double integrate_sin(const Polynom & p, const Triangle & t,
   \int_t \frac{p(x,y)}{cos(x)} dx dy
  \f]
  *
+ * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
  * @param ps - the mesh points 
@@ -216,6 +227,7 @@ double integrate_1_cos(const Polynom & p, const Triangle & t,
 /**
  * A product of polynom p1 by polynom p2.
  *
+ * @relates Polynom
  * @param p1 - the polynom
  * @param p2 - the polynom
  * @return a product of polynoms. 
@@ -225,6 +237,7 @@ Polynom operator * (const Polynom &p1, const Polynom &p2);
 /**
  * A difference of two polynoms.
  *
+ * @relates Polynom
  * @param p1 - the polynom
  * @param p2 - the polynom
  * @return p1 - p2
@@ -234,6 +247,7 @@ Polynom operator - (const Polynom &p1, const Polynom &p2);
 /**
  * A sum of two polynoms.
  *
+ * @relates Polynom
  * @param p1 - the polynom
  * @param p2 - the polynom
  * @return p1 + p2
@@ -243,6 +257,7 @@ Polynom operator + (const Polynom &p1, const Polynom &p2);
 /**
  * A difference between a polynom and a number.
  *
+ * @relates Polynom
  * @param p1 - the polynom
  * @param x - the number
  * @return p1 - x
@@ -257,6 +272,7 @@ inline Polynom operator - (const Polynom &p1, double x)
 /**
  * A product of a polynom p1 by a number x.
  *
+ * @relates Polynom
  * @param p1 - the polynom
  * @param x - the number
  * @return a product of a polynom and a number. 
@@ -271,6 +287,9 @@ inline Polynom operator * (const Polynom &p1, double x)
 	}
 	return r;
 }
+
+/** @} */
+
 }
 
 #endif /* POLYNOM_H */

@@ -62,6 +62,8 @@ extern "C" {
 
 /**
  * Power function.
+ * @param x - value
+ * @param p - power
  * @return the value of x raised to the power of p
  */
 inline double
@@ -74,27 +76,6 @@ ipow(double x, int p)
 	}
 	return r;
 }
-
-/*
-inline double
-ipow(double x, int n)
-{
-	double p, y;
-	y = 1.0;
-	p = x;
-
-	while (1) {
-		if (n & 1) {
-			y = p * y;
-		}
-		n = n >> 1;
-		if (n == 0) {
-			return y;
-		}
-		p = p * p;
-	}
-}
-*/
 
 /**
  * The Gauss method. Solves a linear system Ax=b.
@@ -263,8 +244,12 @@ double vec_norm2(const double *v, int n);
 double vec_scalar2(const double * a, const double * b, int n);
 
 /**
- * поэлементное умножение
+ * поэлементное умножение.
  * r = a * b
+ * @param r - output vector
+ * @param a - input vector
+ * @param b - input vector
+ * @param n - dimension of vectors
  */
 void vec_mult(double * r, const double * a, const double * b, int n);
 
@@ -286,6 +271,9 @@ double get_full_time();
 
 /**
  * Function-callback that is passed is passed to gauss_kronrod15.
+ * @param x - function argument
+ * @param data - user data
+ * @return the value of f(x)
  */
 typedef double (*fx_t)(double x, void * data);
 

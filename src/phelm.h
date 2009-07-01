@@ -222,8 +222,8 @@ struct Point {
 };
 
 /**
- * @relates Point
  * sum of two points.
+ * @relates Point
  * @param p1 - input point
  * @param p2 - input point
  * @return p1 + p2
