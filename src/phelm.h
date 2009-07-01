@@ -476,7 +476,7 @@ struct Mesh {
 typedef double (* x_t)(double u, double v);
 
 /**
- * Prints the function @param ans to file @param to
+ * Prints a mesh function to file.
  *
  * @param to output file
  * @param ans function to output
@@ -489,7 +489,7 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the function @param ans to the file fname
+ * Prints a mesh function to file.
  *
  * @param fname output file
  * @param ans function to output
@@ -502,7 +502,7 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the inner part of the function ans to file to
+ * Prints the inner part of a mesh function to file.
  *
  * @param to output file
  * @param ans function to output
@@ -515,7 +515,7 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the inner part of the function ans to file to
+ * Prints the inner part of a mesh function to file.
  *
  * @param to output file name
  * @param ans function to output
