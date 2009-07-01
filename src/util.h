@@ -210,6 +210,10 @@ struct Sparse {
  * r = x A
  * Если матрица хранится по строкам, то умножаем на вектор СПРАВА
  * r = A x
+ * @param r - output vector
+ * @param A - sparse matrix
+ * @param x - intput vector
+ * @param n - the size of vector and matrix
  */
 void sparse_mult_vector_l(double * r, const struct Sparse * A,
 						  const double * x, int n);
@@ -219,6 +223,10 @@ void sparse_mult_vector_l(double * r, const struct Sparse * A,
  * r = A x
  * Если матрица хранится по строкам, то умножаем на вектор СЛЕВА
  * r = x A
+ * @param r - output vector
+ * @param A - sparse matrix
+ * @param x - intput vector
+ * @param n - the size of vector and matrix
  */
 void sparse_mult_vector_r(double * r, const struct Sparse * A,
 						  const double * x, int n);
