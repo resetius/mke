@@ -209,18 +209,33 @@ struct Point {
 
 	/** default constructor */
 	Point(): x(0), y(0) {}
-	/** initialize point by x1 and y1 */
+	/**
+	 * initialization of x1 and y1 
+	 * @param x1 - x coordinate
+	 * @param y1 - y coordinate
+	 */
 	Point(double x1, double y1): x(x1), y(y1) {}
-	/** initialize point by x[2] array */
+	/**
+	 * initialization of x[2] array 
+	 * @param x1 - array x1[2]
+	 */
 	Point(double *x1): x(x1[0]), y(x1[1]) {}
 
-	/** divide each coordinate by k */
+	/**
+	 * divide each coordinate by k 
+	 * @param k - a number
+	 * @return new point
+	 */
 	Point operator / (double k)
 	{
 		return Point(x / k, y / k);
 	}
 
-	/** multiply each coordinate by k */
+	/**
+	 * multiply each coordinate by k 
+	 * @param k - a number
+	 * @param new point
+	 */
 	Point operator * (double k)
 	{
 		return Point(x * k, y * k);
