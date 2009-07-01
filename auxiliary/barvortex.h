@@ -43,7 +43,7 @@
  * @version $Revision$
  *
  * @section DESCRIPTION
- * The Barvortex equation class.
+ * The Barotropic vorticity equation class.
  */
 
 #include <vector>
@@ -58,7 +58,7 @@
  */
 
 /**
- * Solve the barvortex equation.
+ * Solve the Barotropic vorticity equation.
  *
  \f[
  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
@@ -71,11 +71,19 @@ class BarVortex: public SphereNorm {
 public:
 	/**
 	 * function of right part.
+	 * @param phi - \f$\varphi\f$
+	 * @param lambda - \f$\lambda\f$
+	 * @param t - time
+	 * @param mu - \f$\mu\f$
+	 * @param sigma - \f$\sigma\f$
 	 */
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 		double mu, double sigma);
 	/**
-	 * coriolis
+	 * coriolis.
+	 * l+h: coriolis function plus orographic function.
+	 * @param phi - \f$\varphi\f$
+	 * @param lambda - \f$\lambda\f$
 	 */
 	typedef double (*coriolis_t) (double phi, double lambda);
 
@@ -93,10 +101,14 @@ private:
 	std::vector < double > f_;  // f right part
 
 public:
-	double tau_;   ///< tau
-	double sigma_; ///< sigma
-	double mu_;    ///< theta
-	double theta_; ///< параметр схемы от 0 до 1
+	double tau_;   ///< time step
+	double sigma_; ///< \f$sigma\f$
+	double mu_;    ///< \f$theta\f$
+	/**
+	 * Time discretization scheme parameter \f$\theta\f$.
+	 * The default value is 0.5 (Crank–Nicolson).
+	 */
+	double theta_; 
 
 private:
 	rp_t rp_;
@@ -104,17 +116,24 @@ private:
 
 public:
 	/**
-	 * describe!
+	 * constructor.
+	 * @param m - mesh
+	 * @param rp - function of right part (\f$f\f$)
+	 * @param coriolis - h+l
+	 * @param tau - time step
+	 * @param sigma - \f$\sigma\f$
+	 * @param mu - \f$\mu\f$
 	 */
 	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
 
 	/**
+	 * Solve the Barotropic vorticity equation.
  \f[
  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi)
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
  \f]
 	 * @param Ans - output value
-         * @param F - значение функции на предыдущем шаге по времени
+	 * @param F - значение функции на предыдущем шаге по времени
 	 * @param bnd - граничное условие
 	 * @param t   - время
 	 */
@@ -122,46 +141,82 @@ public:
 
 
 	/**
-	 *
+	 * Solve the linearized Barotropic vorticity equation in a neibourhood of point (z).
  \f[
  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta z)  + J(z, \Delta \psi)
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = 0
  \f]
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
+	 * @param z - vector z
+	 * @param bnd - boundary condition
+	 * @param t - time
 	 */
 	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
 	/**
-	 * describe!
+	 * Solve the invert linearized Barotropic vorticity equation in a neibourhood of point (z).
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
+	 * @param z - vector z
+	 * @param bnd - boundary condition
+	 * @param t - time
 	 */
 	void calc_L_1(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
 	/**
-	 * describe!
+	 * Adjoint operator to calc_L.
+	 * (L u, v) = (u, LT v)
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
+	 * @param z - vector z
+	 * @param bnd - boundary condition
+	 * @param t - time
 	 */
 	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
 	/**
-	 * J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) 
+	 * calculate operator
+	 *
+	 \f[
+	 J(\psi, \Delta z) + J(z, \Delta \psi) + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi
+	 \f]
 	 */
 	void L_spectr(double * u1, const double * u, const double * z, const double * bnd);
 	/**
-	 * describe!
+	 * Adjoint operator to L_spectr.
+	 * (L u, v) = (u, LT v)
 	 */
 	void LT_spectr(double * u1, const double * u, const double * z, const double * bnd);
 
 	/**
-	 * describe!
+	 * Helper-function.
+	 * call calc(Ans, F, 0, 0).
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
 	 */
 	void S_step(double * Ans, const double * F);
 	/**
-	 * describe!
+	 * Helper-function.
+	 * call calc_L(Ans, F, z, 0, 0).
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
+	 * @param z - vector z
 	 */
 	void L_step(double * Ans, const double * F, const double * z);
 	/**
-	 * describe!
+	 * Helper-function.
+	 * call calc_L_1(Ans, F, z, 0, 0).
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
+	 * @param z - vector z
 	 */
 	void L_1_step(double * Ans, const double * F, const double * z);
 	/**
-	 * describe!
+   	 * Helper-function.
+	 * call calc_LT(Ans, F, z, 0, 0).
+	 * @param Ans - output vector
+	 * @param F - input vector (previous time step)
+	 * @param z - vector z
 	 */
 	void LT_step(double * Ans, const double * F, const double * z);
 };

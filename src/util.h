@@ -46,15 +46,15 @@
  * Misc functions.
  */
 
-	/**
-	 * @defgroup misc Misc Functions and Classes.
-	 * @{
-	 */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+	/**
+	 * @defgroup misc Misc Functions and Classes.
+	 * @{
+	 */
 
 #ifdef WIN32
 #define inline __inline
@@ -306,18 +306,24 @@ double gauss_kronrod15(double a, double b, fx_t fm, void * data);
  */
 void set_fpe_except();
 
+/** @} */
+
 #ifdef __cplusplus
 }
 #endif
 
 #ifdef __cplusplus
 /**
+ * @ingroup misc 
  * Timer class.
  */
 class Timer {
 	double t1_;
 
 public:
+	/**
+	 * default constructor.
+	 */
 	Timer(): t1_(get_full_time()) {}
 
 	/**
@@ -330,8 +336,6 @@ public:
 	 */
 	void restart() { t1_ = get_full_time(); }
 };
-
-/** @} */
 
 #endif
 

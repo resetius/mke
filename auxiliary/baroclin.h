@@ -43,7 +43,7 @@
  * @version $Revision$
  *
  * @section DESCRIPTION
- * The baroclin equations class.
+ * The two-dimensional baroclinic atmosphere equations class.
  */
 
 #include <vector>
@@ -58,7 +58,7 @@
  */
 
 /**
- * Solve the baroclin equations.
+ * Solve the two-dimensional baroclinic atmosphere equations.
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
@@ -76,13 +76,24 @@
 class Baroclin: public SphereNorm {
 public:
 	/**
-	 * function of right part
+	 * function of right part.
+	 * @param phi - \f$\varphi\f$
+	 * @param lambda - \f$\lambda\f$
+	 * @param t - time
+	 * @param sigma - \f$\sigma\f$
+	 * @param mu - \f$\mu\f$
+	 * @param sigma1 - \f$\sigma_1\f$
+	 * @param mu1 - \f$\mu_1\f$
+	 * @param alpha - \f$\alpha\f$
 	 */
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 	                double sigma, double mu, double sigma1,
 					double mu1, double alpha);
 	/**
-	 * coriolis
+	 * coriolis.
+	 * l+h: coriolis function plus orographic function.
+	 * @param phi - \f$\varphi\f$
+	 * @param lambda - \f$\lambda\f$
 	 */
 	typedef double (*coriolis_t) (double phi, double lambda);
 
@@ -96,13 +107,18 @@ private:
 	std::vector < double > lh_; // l + h
 
 public:
-	double tau_;
-	double sigma_;
-	double mu_;
-	double sigma1_;
-	double mu1_;
-	double alpha_;
-	double theta_;
+	double tau_;   ///<time step
+	double sigma_; ///<\f$\sigma\f$
+	double mu_;    ///<\f$\mu\f$
+	double sigma1_;///<\f$\sigma\f$
+	double mu1_;   ///<\f$\mu_1\f$
+	double alpha_; ///<\f$\alpha\f$
+
+	/**
+	 * Time discretization scheme parameter \f$\theta\f$.
+	 * The default value is 0.5 (Crank–Nicolson).
+	 */
+	double theta_; 
 
 private:
 	rp_t f_;
@@ -111,7 +127,17 @@ private:
 
 public:
 	/**
-	 * describe!
+	 * constructor.
+	 * @param m - mesh
+	 * @param f - function of right part (\f$f\f$)
+	 * @param g - function of right part (\f$g\f$)
+	 * @param coriolis - h+l
+	 * @param tau - time step
+	 * @param sigma - \f$\sigma\f$
+	 * @param mu - \f$\mu\f$
+	 * @param sigma1 - \f$\sigma_1\f$
+	 * @param mu1 - \f$\mu_1\f$
+	 * @param alpha - \f$\alpha\f$
 	 */
 	Baroclin(const Mesh & m, rp_t f, rp_t g, 
 		coriolis_t coriolis, double tau, 
@@ -119,7 +145,7 @@ public:
 		double sigma1, double mu1, double alpha);
 
 	/**
-	 * Solve the baroclin equations
+	 * Solve the two-dimensional baroclinic atmosphere equations.
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
@@ -131,10 +157,10 @@ public:
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
-	 * @param u1  - output value
-	 * @param u2  - output value
-	 * @param u11 - input value (previous time step)
-	 * @param u21 - input value (previous time step)
+	 * @param u1  - output vector
+	 * @param u2  - output vector
+	 * @param u11 - input vector (previous time step)
+	 * @param u21 - input vector (previous time step)
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
@@ -143,7 +169,7 @@ public:
 		const double * bnd, double t);
 
 	/**
-	 * Solve the linearized baroclin equations in a neibourhood of point (z1, z2)
+	 * Solve the linearized two-dimensional baroclinic atmosphere equations in a neibourhood of point (z1, z2)
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta z_1 + l + h) + J(z_1, \Delta u_1)
   + J(z_2, \Delta u_2) + J(u_2, \Delta z_2) +
@@ -159,12 +185,12 @@ public:
 	+ \sigma_1 u_2) &=& 0,
  \f}
  
-	 * @param u1  - output value
-	 * @param u2  - output value
-	 * @param u11 - input value (previous time step)
-	 * @param u21 - input value (previous time step)
-	 * @param z1  - z1
-	 * @param z2  - z2
+	 * @param u1  - output vector
+	 * @param u2  - output vector
+	 * @param u11 - input vector (previous time step)
+	 * @param u21 - input vector (previous time step)
+	 * @param z1  - vector z1
+	 * @param z2  - vector z2
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
@@ -175,13 +201,13 @@ public:
 
 
 	/**
-	 * Solve the invert linearized baroclin equations in a neibourhood of point (z1, z2)
-	 * @param u1  - output value
-	 * @param u2  - output value
-	 * @param u11 - input value (previous time step)
-	 * @param u21 - input value (previous time step)
-	 * @param z1  - z1
-	 * @param z2  - z2
+	 * Solve the invert linearized two-dimensional baroclinic atmosphere equations in a neibourhood of point (z1, z2)
+	 * @param u1  - output vector
+	 * @param u2  - output vector
+	 * @param u11 - input vector (previous time step)
+	 * @param u21 - input vector (previous time step)
+	 * @param z1  - vector z1
+	 * @param z2  - vector z2
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
@@ -191,8 +217,17 @@ public:
 		const double * bnd, double t);
 
 	/**
-	 * describe!
+	 * Adjoint operator to calc_L.
+	 * (L u, v) = (u, LT v)
 	 * @todo implement!
+	 * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param z1  - vector z1
+	 * @param z2  - vector z2
+	 * @param bnd - boundary condition
+	 * @param t   - time
 	 */
 	void calc_LT(double * u11, double * u21, 
 		const double * u1, const double * u2,
@@ -200,22 +235,42 @@ public:
 		const double * bnd, double t);
 
 	/**
-	 * describe!
+	 * Helper-function. 
+	 * Call calc_L(u11, u21, u1, u2, z1, z2, 0, 0).
+	 * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param z1  - vector z1
+	 * @param z2  - vector z2
 	 */
 	void L_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
 
 	/**
-	 * describe!
+	 * Helper-function.
+	 * Call calc_L_1(u11, u21, u1, u2, z1, z2, 0, 0).
+	 * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param z1  - vector z1
+	 * @param z2  - vector z2
 	 */
 	void L_1_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
 
 	/**
-	 * describe!
-	 * @todo implement!
+	 * Helper-function.
+	 * Call calc_L(u11, u21, u1, u2, z1, z2, 0, 0).
+	 * @param u1  - output value
+	 * @param u2  - output value
+	 * @param u11 - input value (previous time step)
+	 * @param u21 - input value (previous time step)
+	 * @param z1  - vector z1
+	 * @param z2  - vector z2
 	 */
 	void LT_step(double * u11, double * u21, 
 		const double * u1, const double * u2,

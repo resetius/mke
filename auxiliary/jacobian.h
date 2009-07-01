@@ -43,7 +43,7 @@
  * @version $Revision$
  * 
  * @section DESCRIPTION
- * The sphere jacobian class.
+ * The spherical jacobian.
  */
 
 #include "solver.h"
@@ -57,7 +57,7 @@ using phelm::Mesh;
  */
 
 /**
- * Calculates jacobian on sphere.
+ * Calculates the jacobian on a sphere.
  \f[
  J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi} 
  - \frac{\partial u}{\partial \varphi}\frac{\partial v}{\partial \lambda})

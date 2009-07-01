@@ -88,13 +88,13 @@
   u(x,y,t)|_{t=0} &=& u_0 \\
   \f}
     -# @ref test_chafe.cpp "Chafe-Infante equation on a sphere"
-    -# @ref test_barvortex.cpp "BarVortex equation on sphere"
+    -# @ref test_barvortex.cpp "The Barotropic vorticity equation"
   \f{eqnarray*}
   \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi &=& f(\varphi, \lambda) \\
 	\psi|_{t=0}=\psi_0
   \f}
-    -# @ref test_baroclin.cpp  "Baroclin equations on sphere"
+    -# @ref test_baroclin.cpp  "The two-dimensional baroclinic atmosphere equations"
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
@@ -155,13 +155,13 @@
   @example test_schafe.cpp
   Chafe-Infante equation on a sphere
   @example test_barvortex.cpp
-  BarVortex equation on sphere
+  the Barotropic vorticity equation
   \f[
   \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
   \f]
   @example test_baroclin.cpp
-  Baroclin equations on sphere
+  The two-dimensional baroclinic atmosphere equations
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
