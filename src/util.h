@@ -192,23 +192,23 @@ void mat_mult_vector(double * r, const double * A, const double * x, int n);
 /**
  * Sparse Matrix structure.
  * UMFPACK format.
- * Хранение по столбцам или по строкам.
- * Если хранится по строкам, то индексы в Ap это число элементов в строках, 
- * Ai индексы элементов в строках.
- * Если хранится по стобцам, то индексы в Ap это число элементов в столбцах,
- * Ai индексы элементов в столбцах.
+ * The matrix can be stored by rows or by columns.
+ *
+ * If matrix is stored by rows then  Ap[i+1]-Ap[i] is the number of nonzero entries in row i, 
+ * Ai contains indices of nonzero entries of row.
+ *
+ * If matrix is stored by columns then  Ap[i+1]-Ap[i] is the number of nonzero entries in column i, 
+ * Ai contains indices of nonzero entries of column.
  */
 struct Sparse {
 	int * Ap;    ///< the number of elements in columns or rows
 	int * Ai;    ///< column or row indices
-	double * Ax; ///< matrix values
+	double * Ax; ///< holds nonzero matrix entires
 };
 
 /**
- * Если матрица хранится по столбцам, то умножаем на вектор СЛЕВА
- * r = x A
- * Если матрица хранится по строкам, то умножаем на вектор СПРАВА
- * r = A x
+ * If matrix is stored by columns then left multiply by vector: r = x A
+ * If matrix is stored by rows then right multiply by vector: r = A x
  * @param r - output vector
  * @param A - sparse matrix
  * @param x - intput vector
@@ -218,10 +218,8 @@ void sparse_mult_vector_l(double * r, const struct Sparse * A,
 						  const double * x, int n);
 
 /**
- * Если матрица хранится по столбцам, то умножаем на вектор СПРАВА
- * r = A x
- * Если матрица хранится по строкам, то умножаем на вектор СЛЕВА
- * r = x A
+ * If matrix is stored by columns then right multiply by vector: r = A x
+ * If matrix is stored by rows then left multiply by vector: r = x A
  * @param r - output vector
  * @param A - sparse matrix
  * @param x - intput vector
