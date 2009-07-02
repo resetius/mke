@@ -61,6 +61,7 @@ namespace phelm {
 	 * Эта структура используется для изменения матрицы конечных элементов.
 	 * Вектор структур данного типа должен быть возвращен в колбеке, если пользователь хочет поменять
 	 * сразу несколько элементов в матрице конечных элементов.
+	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
 	struct Element {
 		int i;     ///< номер строки матрицы конечных элементов
@@ -77,8 +78,10 @@ namespace phelm {
 	};
 
 	/**
-	 * Вектор элементов. Должен возвращаться в колбеке, если пользователь
-	 * хочет поменять несколько элементов в матрице.
+	 * Elements vector.
+	 * If smb wants to change more then one entries of finite-element matrix
+	 * or finite-element right part he should return that structure in callback.
+	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
 	typedef std::vector < Element > elements_t;
 
