@@ -115,11 +115,10 @@ public:
 
 	/**
 	 * Solve equation Ax = b.
-	 * В зависимости от параметров компиляции используется либо Gauss
-	 * либо GMRES либо UMFPACK.
-	 * Если определен SPARSE и GMRES, то используется GMRES
-	 * Если определен SPARSE, то используется UMFPACK
-	 * Если не определен SPARSE, то используется Gauss
+	 * That function uses GMRES or UMFPACK or Gauss depends on compilation flags.
+	 * If SPARSE and GMRES are defined then use GMRES
+	 * If SPARSE is defined then use UMFPACK
+	 * If SPARSE is not defined then use Gauss
 	 * @param x - answer
 	 * @param b - right part
 	 */
