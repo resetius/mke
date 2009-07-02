@@ -70,20 +70,20 @@
  * 
  * @section ex Usage examples
  * These examples are to give you some tips on Phelm features.
-    -# @ref test_laplace.cpp "Laplace equation on a 2D-domain"
+    -# @ref test_laplace.cpp "Laplace equation on a flat domain"
   \f{eqnarray*}
   \Delta u &=& f(x, y) \\
   u|_{\partial\Omega}&=&u_0
   \f}
     -# @ref test_laplace.cpp "Laplace equation on a sphere"
-    -# @ref test_system_laplace.cpp "Double Laplace's equations on a 2D-domain"
+    -# @ref test_system_laplace.cpp "Double Laplace's equations on a flat domain"
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
   u|_{\partial\Omega}&=&u_0\\
   v|_{\partial\Omega}&=&v_0\\
   \f}
-    -# @ref test_chafe.cpp "Chafe-Infante equation on a 2D-Domain"
+    -# @ref test_chafe.cpp "Chafe-Infante equation on a flat domain"
   \f{eqnarray*}
   \frac{du}{dt} &=& \mu \Delta u - \sigma u + f (u) \\
   u(x,y,t)|_{\partial\Omega}&=&a \\
@@ -136,7 +136,7 @@
 /**
  * 
   @example test_laplace.cpp
-  Laplace equation on a 2D-Domain
+  Laplace equation on a flat domain
   \f{eqnarray*}
   \Delta u &=& f(x, y) \\
   u|_{\partial\Omega}&=&u_0
@@ -144,7 +144,7 @@
   @example test_slaplace.cpp
   Laplace on a sphere
   @example test_system_laplace.cpp
-  Double Laplace equations on a 2D-Domain
+  Double Laplace equations on a flat domain
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
@@ -152,7 +152,7 @@
   v|_{\partial\Omega}&=&v_0\\
   \f}
   @example test_chafe.cpp
-  Chafe-Infante equation on a 2D-Domain
+  Chafe-Infante equation on a flat domain
   \f{eqnarray*}
   \frac{du}{dt} &=& \mu \Delta u - \sigma u + f (u) \\
   u(x,y,t)|_{\partial\Omega}&=&a \\
@@ -207,22 +207,22 @@ struct Point {
 	double x; ///< x coordinate
 	double y; ///< y coordinate
 
-	/** default constructor */
+	/** Default constructor. */
 	Point(): x(0), y(0) {}
 	/**
-	 * initialization of x1 and y1 
+	 * Initialization of x1 and y1.
 	 * @param x1 - x coordinate
 	 * @param y1 - y coordinate
 	 */
 	Point(double x1, double y1): x(x1), y(y1) {}
 	/**
-	 * initialization of x[2] array 
+	 * Initialization of x[2] array.
 	 * @param x1 - array x1[2]
 	 */
 	Point(double *x1): x(x1[0]), y(x1[1]) {}
 
 	/**
-	 * divide each coordinate by k 
+	 * Divide each coordinate by k.
 	 * @param k - a number
 	 * @return new point
 	 */
@@ -232,7 +232,7 @@ struct Point {
 	}
 
 	/**
-	 * multiply each coordinate by k 
+	 * Multiply each coordinate by k.
 	 * @param k - a number
 	 * @return new point
 	 */
@@ -243,7 +243,7 @@ struct Point {
 };
 
 /**
- * sum of two points.
+ * Sum of two points.
  * @relates Point
  * @param p1 - input point
  * @param p2 - input point
@@ -267,12 +267,12 @@ struct MeshPoint {
 	std::vector < Point > p;
 
 	/**
-	 * default constructor.
+	 * Default constructor.
 	 */
 	MeshPoint() {}
 	
 	/**
-	 * initialization of x and y.
+	 * Initialization of x and y.
 	 * @param x - x coordinate
 	 * @param y - y coordinate
 	 */
@@ -281,7 +281,7 @@ struct MeshPoint {
 	}
 
 	/**
-	 * initialization of array x[2].
+	 * Initialization of array x[2].
 	 * @param x - array x[2]
 	 */
 	MeshPoint(double *x) {
@@ -289,7 +289,7 @@ struct MeshPoint {
 	}
 
 	/**
-	 * Adds local coordinates for next subdomain.
+	 * Add local coordinates for next subdomain.
 	 * @param p1 - point in local coordinates of next subdomain.
 	 */
 	void add(const Point & p1) {
@@ -297,8 +297,8 @@ struct MeshPoint {
 	}
 
 	/**
-	 * Returns x coordinate in subdomain
-	 * @param zone - a sequence number of subdomain
+	 * Returns x coordinate in subdomain.
+	 * @param zone - sequence number of subdomain
 	 * @return x coordiante
 	 */
 	double x(int zone = 0) const {
@@ -306,7 +306,7 @@ struct MeshPoint {
 	}
 
 	/**
-	 * Returns y coordinate in subdomain
+	 * Returns y coordinate in subdomain.
 	 * @param zone - a sequence number of subdomain
 	 * @return y coordiante
 	 */
@@ -321,16 +321,16 @@ struct MeshPoint {
 struct Triangle {
 	int p[3];  ///< point number
 	int z;     ///< zone number
-	std::vector < Polynom > phik; ///< элементы на треугольнике
-	double x[3]; ///< x координата вершин
-	double y[3]; ///< y координата вершин
+	std::vector < Polynom > phik; ///< basis functions
+	double x[3]; ///< vertices x coordinates
+	double y[3]; ///< vertices y coordinates
 
 	/**
-	 * инициализация треугольника по номерам точек и номеру области.
-	 * @param p1 - точка 1
-	 * @param p2 - точка 2
-	 * @param p3 - точка 3
-	 * @param zone - номер области, которой пренадлежит треугольник
+	 * Initialization of point numbers and subdomain number.
+	 * @param p1 - point 1
+	 * @param p2 - point 2
+	 * @param p3 - point 3
+	 * @param zone - subdomain number, the triangle belongs to that subdomain
 	 */
 	Triangle(int p1, int p2, int p3, int zone = 0)
 	{
@@ -341,10 +341,10 @@ struct Triangle {
 	}
 
 	/**
-	 * возвращает x координату вершины по номеру вершины.
-	 * @param i - номер вершины (от 0 до 2)
-	 * @param ps - массив точек сетки
-	 * @return x координата
+	 * Returns vertex x coordinate.
+	 * @param i - vertex number (from 0 to 2)
+	 * @param ps - mesh points
+	 * @return x coordinate
 	 */
 	double X(int i, const std::vector < MeshPoint > & ps) const 
 	{
@@ -352,10 +352,10 @@ struct Triangle {
 	}
 
 	/**
-	 * возвращает y координату вершины по номеру вершины.
-	 * @param i - номер вершины (от 0 до 2)
-	 * @param ps - массив точек сетки
-	 * @return y координата
+	 * Returns vertex y coordinate.
+	 * @param i - vertex number (from 0 to 2)
+	 * @param ps - mesh points
+	 * @return y coordinate
 	 */
 	double Y(int i, const std::vector < MeshPoint > & ps) const 
 	{
@@ -363,8 +363,8 @@ struct Triangle {
 	}
 
 	/**
-	 * инициализирует массивы x и y по массиву точек
-	 * @param ps - массив точек
+	 * Initialize arrays x and y of mesh points array.
+	 * @param ps - mesh points
 	 */
 	void prepare(const std::vector < MeshPoint > & ps)
 	{
@@ -392,8 +392,8 @@ struct Triangle {
 	}
 
 	/**
-	 * возвращает конечные элементы первого порядка.
-	 * @return массив конечных элементов первого порядка
+	 * Returns first order finite elements.
+	 * @return first order finite elements
 	 */
 	const std::vector < Polynom > & elem1() const
 	{
@@ -401,9 +401,9 @@ struct Triangle {
 	}
 
 	/**
-	 * возвращает конечный элемент по номеру точки.
-	 * @param p1 - номер точки
-	 * @return конечный элемент
+	 * Returns finite element in point p1.
+	 * @param p1 - point number
+	 * @return finite element
 	 */
 	const Polynom & elem1(int p1) const
 	{
@@ -421,43 +421,51 @@ struct Triangle {
  * Mesh class.
  */
 struct Mesh {
-	typedef std::vector < Triangle > triangles_t;///<контейнер треугольников
-	typedef std::vector < MeshPoint > points_t;  ///<контейнер точек
-	typedef std::vector < int > points_flags_t;  ///<контейнер свойст точек
+	typedef std::vector < Triangle > triangles_t;///<triangles container
+	typedef std::vector < MeshPoint > points_t;  ///<points container
+	typedef std::vector < int > points_flags_t;  ///<points properties container
 
-	triangles_t tr; ///<массив треугольников
-	points_t ps;    ///<массив точек
+	triangles_t tr; ///<triangles array
+	points_t ps;    ///<points array
 
 	/**
-	 * флаги.
-	 * 0 - внутренняя точка
-	 * 1 - точка на границе области
+	 * Properties array/
+	 *  - 0 - inner point
+	 *  - 1 - boundary point
 	 */
 	points_flags_t ps_flags;
 
-	//! точка -> треугольники в точке
+	/**
+	 * mapping: point -> triangle in point.
+	 */
 	std::vector < std::vector < int > > adj;
-	//! номера внутренних точек
+	/**
+	 * Sequence numbers of inner points.
+	 */
 	std::vector < int > inner;
-	//! номера внешних точек
+	/**
+	 * Sequence numbers of boundary points.
+	 */
 	std::vector < int > outer;
-	//! соответствие номера в массиве ps номеру в массиве inner или outer
+	/**
+	 * mapping: global point number -> inner point number or outer point number.
+	 */
 	std::vector < int > p2io;
 
 	/**
-	 * загружает сетку из файла.
-	 * @param f - файл
-	 * @return true в случае успеха
+	 * Load mesh from file.
+	 * @param f - file
+	 * @return true if success
 	 */
 	bool load(FILE * f);
 
 	/**
-	 * подгатавливает треугольники.
+	 * Prepare all of mesh triangles.
 	 */
 	void prepare();
 
 	/**
-	 * распечатывает в stdout информацию о сетке.
+	 * Print mesh information to stdout.
 	 */
 	void info();
 };
@@ -476,7 +484,7 @@ struct Mesh {
 typedef double (* x_t)(double u, double v);
 
 /**
- * Prints a mesh function to file.
+ * Print a mesh function to file.
  *
  * @param to output file
  * @param ans function to output
@@ -489,7 +497,7 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints a mesh function to file.
+ * Print a mesh function to file.
  *
  * @param fname output file
  * @param ans function to output
@@ -502,7 +510,7 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the inner part of a mesh function to file.
+ * Print the inner part of a mesh function to file.
  *
  * @param to output file
  * @param ans function to output
@@ -515,7 +523,7 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
- * Prints the inner part of a mesh function to file.
+ * Print the inner part of a mesh function to file.
  *
  * @param to output file name
  * @param ans function to output
@@ -536,7 +544,7 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
  */
 
 /**
- * Calculates inner product of two basis functions on flat domain.
+ * Calculate inner product of two basis functions on flat domain.
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - triangle
@@ -552,7 +560,7 @@ double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
 						 int i2, int j2, void * user_data);
 
 /**
- * Calculates inner product of two basis functions on sphere.
+ * Calculate inner product of two basis functions on sphere.
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - triangle
@@ -612,7 +620,7 @@ double fast_dist(const double * u, const double * v,
  */
 
 /**
- * function.
+ * Function.
  * @param x - x coordinate 
  * @param y - y coordinate
  * @return value
@@ -620,7 +628,7 @@ double fast_dist(const double * u, const double * v,
 typedef double (* f_xy_t)(double x, double y);
 
 /**
- * function.
+ * Function.
  * @param x - x coordinate
  * @param y - y cooddinate
  * @param t - time
@@ -629,7 +637,7 @@ typedef double (* f_xy_t)(double x, double y);
 typedef double (* f_xyt_t)(double x, double y, double t);
 
 /**
- * Adds boundary conditions to p.
+ * Add boundary conditions to p.
  * @param p - the value of u on the inner mesh points
  * @param u - (output) mesh function
  * @param bnd - the value of u on the boundary mesh points
@@ -638,7 +646,7 @@ typedef double (* f_xyt_t)(double x, double y, double t);
 void p2u(double * u, const double * p, const double * bnd, const Mesh & m);
 
 /**
- * Removes boundary conditions from u.
+ * Remove boundary conditions from u.
  * @param p - (output) the value of u on the inner mesh points
  * @param u - mesh function
  * @param m - mesh
@@ -646,7 +654,7 @@ void p2u(double * u, const double * p, const double * bnd, const Mesh & m);
 void u2p(double * p, const double * u, const Mesh & m);
 
 /**
- * Projects function f(x,y) to the mesh.
+ * Project function f(x,y) to the mesh.
  * @param F - (output) the value of f(x,y) on mesh points
  * @param mesh - the mesh
  * @param f - function f(x, y)
@@ -654,7 +662,7 @@ void u2p(double * p, const double * u, const Mesh & m);
 void proj(double * F, const Mesh & mesh, f_xy_t f);
 
 /**
- * Projects function f(x,y) to the boundary of the mesh.
+ * Project function f(x,y) to the boundary of the mesh.
  * @param F - (output) the value of f(x,y) on boundary points
  * @param m - the mesh
  * @param f - function f(x, y)
@@ -662,7 +670,7 @@ void proj(double * F, const Mesh & mesh, f_xy_t f);
 void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 
 /**
- * Projects vector F1 to the boundary of the mesh.
+ * Project vector F1 to the boundary of the mesh.
  * @param F  - (output) the value of F1 on boundary points
  * @param m  - the mesh
  * @param F1 - mesh vector 
@@ -670,7 +678,7 @@ void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 void proj_bnd(double * F, const double * F1, const Mesh & m);
 
 /**
- * Sets the boundary value of vector F.
+ * Set the boundary value of vector F.
  * @param F - (input/output) mesh vector
  * @param bnd - boundary value
  * @param m - mesh  
@@ -678,7 +686,7 @@ void proj_bnd(double * F, const double * F1, const Mesh & m);
 void set_bnd(double * F, const double * bnd, const Mesh & m);
 
 /**
- * Projects function f(x,y,t) to the mesh.
+ * Project function f(x,y,t) to the mesh.
  * @param F - (output) the value of f(x,y) on mesh points
  * @param mesh - the mesh
  * @param f - function f(x, y)
@@ -687,7 +695,7 @@ void set_bnd(double * F, const double * bnd, const Mesh & m);
 void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 
 /**
- * Projects function f(x,y,t) to the boundary of the mesh.
+ * Project function f(x,y,t) to the boundary of the mesh.
  * @param F - (output) the value of f(x,y) on boundary points
  * @param m - the mesh
  * @param f - function f(x, y)

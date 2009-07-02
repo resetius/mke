@@ -69,7 +69,7 @@ namespace phelm {
 		double a;  ///< the value (A[i][j] += a)
 
 		/**
-		 * initialization of row and column numbers and value
+		 * Initialization of row and column numbers and value.
 		 * @param i1 - row number
 		 * @param j1 - columnt number
 		 * @param a1 - value
@@ -394,7 +394,7 @@ void convolution(double * ans, const double * u, const double * v,
  */
 
 /**
- * Calculates inner product of two mesh vectors.
+ * Calculate inner product of two mesh vectors.
  * @param u - mesh vector
  * @param v - mesh vector
  * @param m - mesh
@@ -419,7 +419,7 @@ double scalar(const double * u, const double * v, const Mesh & m,
 }
 
 /**
- * Creates matrix for fast innper product computation.
+ * Create matrix for fast innper product computation.
  * @param mat - output matrix
  * @param m - mesh
  * @param cb callback that calculates inner product of two basis functions on a triangle
@@ -434,7 +434,7 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m,
 }
 
 /**
- * Calculates norm of mesh vector.
+ * Calculate norm of mesh vector.
  * @param u - mesh vector
  * @param m - mesh
  * @param cb - callback that calculates inner product of two basis functions on a triangle
@@ -450,7 +450,7 @@ double norm(const double * u, const Mesh & m,
 }
 
 /**
- * Calculates norm of mesh vector on flat domain.
+ * Calculate norm of mesh vector on flat domain.
  * @param u - mesh vector
  * @param m - mesh
  * @return norm of mesh vector on flat domain
@@ -461,7 +461,7 @@ inline double norm(const double * u, const Mesh & m)
 }
 
 /**
- * Calculates distance between two mesh vectors.
+ * Calculate distance between two mesh vectors.
  * @param u - mesh vector
  * @param v - mesh vector
  * @param m - mesh
@@ -481,7 +481,7 @@ double dist(const double * u, const double * v, const Mesh & m,
 }
 
 /**
- * Calculates distance between two mesh vectors on flat domain.
+ * Calculate distance between two mesh vectors on flat domain.
  * @param u - mesh vector
  * @param v - mesh vector
  * @param m - mesh

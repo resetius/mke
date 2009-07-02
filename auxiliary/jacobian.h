@@ -57,7 +57,7 @@ using phelm::Mesh;
  */
 
 /**
- * Calculates the jacobian on a sphere.
+ * Calculate the jacobian on a sphere.
  \f[
  J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi} 
  - \frac{\partial u}{\partial \varphi}\frac{\partial v}{\partial \lambda})
@@ -88,13 +88,13 @@ class SphereJacobian {
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 */
 	SphereJacobian(const Mesh & m);
 
 	/**
-	 * Calculates J(u, v) in the inner points.
+	 * Calculate J(u, v) in the inner points.
  	 * Sets the value of boundary points from bnd.
 	 * @param Ans - the answer
 	 * @param u - vector u
@@ -104,7 +104,7 @@ public:
 	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
-	 * Calculates adjoint operator to J(u, v) (=-J(u, v))
+	 * Calculate adjoint operator to J(u, v) (=-J(u, v))
 	 * Sets the value of boundary points from bnd.
 	 * @param Ans - the answer
 	 * @param u - vector u
@@ -114,7 +114,7 @@ public:
 	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
-	 * Calculates J(u, v) in the inner points.
+	 * Calculate J(u, v) in the inner points.
 	 * Returns vector containing only inner points.
 	 * @param Ans - the answer
 	 * @param u - vector u
@@ -123,7 +123,7 @@ public:
 	void calc2(double * Ans, const double * u, const double * v);
 
 	/**
-	 * Calculates ajoint operator to J(u, v) (=-J(u, v))
+	 * Calculate ajoint operator to J(u, v) (=-J(u, v))
 	 * @param Ans - the answer
 	 * @param u - vector u
 	 * @param v - vector v

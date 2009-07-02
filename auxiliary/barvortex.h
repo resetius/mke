@@ -70,7 +70,7 @@
 class BarVortex: public SphereNorm {
 public:
 	/**
-	 * function of right part.
+	 * Function of right part.
 	 * @param phi - \f$\varphi\f$
 	 * @param lambda - \f$\lambda\f$
 	 * @param t - time
@@ -80,7 +80,7 @@ public:
 	typedef double (*rp_t ) (double phi, double lambda, double t,
 		double mu, double sigma);
 	/**
-	 * coriolis.
+	 * Coriolis.
 	 * l+h: coriolis function plus orographic function.
 	 * @param phi - \f$\varphi\f$
 	 * @param lambda - \f$\lambda\f$
@@ -116,7 +116,7 @@ private:
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 * @param rp - function of right part (\f$f\f$)
 	 * @param coriolis - h+l
@@ -175,7 +175,7 @@ public:
 	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
 
 	/**
-	 * calculate operator
+	 * Calculate operator.
 	 *
 	 \f[
 	 J(\psi, \Delta z) + J(z, \Delta \psi) + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi
@@ -190,7 +190,7 @@ public:
 
 	/**
 	 * Helper-function.
-	 * call calc(Ans, F, 0, 0).
+	 * Call calc(Ans, F, 0, 0).
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 */
@@ -205,7 +205,7 @@ public:
 	void L_step(double * Ans, const double * F, const double * z);
 	/**
 	 * Helper-function.
-	 * call calc_L_1(Ans, F, z, 0, 0).
+	 * Call calc_L_1(Ans, F, z, 0, 0).
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
@@ -213,7 +213,7 @@ public:
 	void L_1_step(double * Ans, const double * F, const double * z);
 	/**
    	 * Helper-function.
-	 * call calc_LT(Ans, F, z, 0, 0).
+	 * Call calc_LT(Ans, F, z, 0, 0).
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z

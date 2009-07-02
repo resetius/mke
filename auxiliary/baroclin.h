@@ -76,7 +76,7 @@
 class Baroclin: public SphereNorm {
 public:
 	/**
-	 * function of right part.
+	 * Function of right part.
 	 * @param phi - \f$\varphi\f$
 	 * @param lambda - \f$\lambda\f$
 	 * @param t - time
@@ -90,7 +90,7 @@ public:
 	                double sigma, double mu, double sigma1,
 					double mu1, double alpha);
 	/**
-	 * coriolis.
+	 * Coriolis.
 	 * l+h: coriolis function plus orographic function.
 	 * @param phi - \f$\varphi\f$
 	 * @param lambda - \f$\lambda\f$
@@ -127,7 +127,7 @@ private:
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 * @param f - function of right part (\f$f\f$)
 	 * @param g - function of right part (\f$g\f$)

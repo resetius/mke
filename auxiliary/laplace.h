@@ -67,7 +67,7 @@ public:
 	Matrix NORM_;    ///< for fast norm calculation
 
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 */
 	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
@@ -76,7 +76,7 @@ public:
 	}
 
 	/**
-	 * distance between two vectors.
+	 * Distance between two vectors.
 	 * @param u - input vector
 	 * @param v - input vector
 	 * @return distance between u and v
@@ -87,7 +87,7 @@ public:
 	}
 
 	/**
-	 * norm of vector.
+	 * Norm of vector.
 	 * @param u - input vector
 	 * @return norm of v
 	 */
@@ -97,7 +97,7 @@ public:
 	}
 
 	/**
-	 * inner product of two vectors.
+	 * Inner product of two vectors.
 	 * @param u - input vector
 	 * @param v - input vector
 	 * @return inner product of u and v
@@ -126,7 +126,7 @@ public:
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 */
 	SphereLaplace(const Mesh & m);
@@ -162,7 +162,7 @@ public:
 };
 
 /**
- * Calculates one element of finite-element matrix
+ * Calculate one element of finite-element matrix
  * for spheric Laplace operator.
  * @param phi_i - basis function
  * @param phi_j - basis function
@@ -173,8 +173,8 @@ double slaplace(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps);
 
 /**
- * Calculates one element of finite-element matrix
- * for Laplace operator on 2D-domain.
+ * Calculate one element of finite-element matrix
+ * for Laplace operator on flat domain.
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - integral is taken over that triangle
@@ -223,7 +223,7 @@ public:
 };
 
 /**
- * Laplace operator on a 2D-domain
+ * Laplace operator on a flat domain
  */
 class Laplace {
 	Matrix idt_;      // inner
@@ -241,7 +241,7 @@ class Laplace {
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 */
 	Laplace(const Mesh & m);
@@ -277,7 +277,7 @@ public:
 };
 
 /**
- * 2D Chafe-Infante equation.
+ * Chafe-Infante equation on flat domain.
  * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
  * \f$Delta\f$ is Laplace. @see Laplace
  */
@@ -294,7 +294,7 @@ public:
 
 public:
 	/**
-	 * constructor.
+	 * Constructor.
 	 * @param m - mesh
 	 * @param tau - time step
 	 * @param sigma - \f$\sigma\f$
@@ -304,7 +304,7 @@ public:
 	~Chafe() {}
 
 	/**
-	 * Solve 2D Chafe-Infante equation.
+	 * Solve Chafe-Infante equation on flat domain.
 	 * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
 	 * @param Ans - output vector
 	 * @param X0 - intput vector (previous time step)

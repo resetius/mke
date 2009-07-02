@@ -66,9 +66,6 @@ namespace phelm {
 
 /**
  * Matrix class.
- * В зависимости от флагов компиляции используется либо
- * разреженное либо полное представление матрицы.
- * Для разреженных матриц используется формат UMFPACK.
  */
 class Matrix {
 	int n_;
@@ -141,7 +138,7 @@ public:
 	void print();
 };
 
-class Mesh;
+struct Mesh;
 
 /**
  * Solve the system with A matrix (Ax=rp).
