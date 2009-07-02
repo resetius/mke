@@ -314,6 +314,16 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
 	}
 }
 
+/**
+ * Convolution.
+ * @param ans - answer
+ * @param u - mesh vector
+ * @param v - mesh vector
+ * @param m - mesh
+ * @param cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data that is passed to callback
+ */
 template < typename Functor, typename Data >
 void convolution(double * ans, const double * u, const double * v, 
 				 const Mesh & m, Functor cb, Data user_data)
@@ -361,6 +371,7 @@ void convolution(double * ans, const double * u, const double * v,
  * @param cb - callback that calculates inner product of two basis functions on a triangle
  * @see generic_scalar_cb, sphere_scalar_cb
  * @param user_data - user data that is passed to callback
+ * @return inner product of two mesh vectors
  */
 template < typename Functor, typename Data >
 double scalar(const double * u, const double * v, const Mesh & m, 
@@ -378,7 +389,12 @@ double scalar(const double * u, const double * v, const Mesh & m,
 }
 
 /**
- * создает матрицу для быстрого вычисления скалярного произведения.
+ * Creates matrix for fast innper product computation.
+ * @param mat - output matrix
+ * @param m - mesh
+ * @param cb callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data that is passed to callback
  */
 template < typename Functor, typename Data >
 void generate_scalar_matrix(Matrix & mat, const Mesh & m, 
@@ -388,7 +404,13 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m,
 }
 
 /**
- * сеточная норма
+ * Calculates norm of mesh vector.
+ * @param u - mesh vector
+ * @param m - mesh
+ * @param cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data that is passed to callback
+ * @return norm of mesh vector
  */
 template < typename Functor, typename Data >
 double norm(const double * u, const Mesh & m, 
@@ -398,7 +420,10 @@ double norm(const double * u, const Mesh & m,
 }
 
 /**
- * сеточная норма
+ * Calculates norm of mesh vector on flat domain.
+ * @param u - mesh vector
+ * @param m - mesh
+ * @return norm of mesh vector on flat domain
  */
 inline double norm(const double * u, const Mesh & m)
 {
@@ -406,7 +431,14 @@ inline double norm(const double * u, const Mesh & m)
 }
 
 /**
- * сеточное расстояние
+ * Calculates distance between two mesh vectors.
+ * @param u - mesh vector
+ * @param v - mesh vector
+ * @param m - mesh
+ * @param cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data that is passed to callback
+ * @return distance between two mesh vectors
  */
 template < typename Functor, typename Data>
 double dist(const double * u, const double * v, const Mesh & m, 
@@ -419,7 +451,11 @@ double dist(const double * u, const double * v, const Mesh & m,
 }
 
 /**
- * сеточное расстояние
+ * Calculates distance between two mesh vectors on flat domain.
+ * @param u - mesh vector
+ * @param v - mesh vector
+ * @param m - mesh
+ * @return distance between two mesh vectors on flat domain
  */
 inline double dist(const double * u, const double * v, const Mesh & m)
 {
