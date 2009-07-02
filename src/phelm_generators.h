@@ -85,24 +85,30 @@ namespace phelm {
 	#include "phelm_private.h"
 
 /**
- * Создает матрицу системы.
- * Вызывает integrate_cb для всех функций phi_i, phi_j, определенных
- * в общей точке point на треугольнике tr
- * если установлен флаг transpose, то генерит 
- * транспонированную матрицу
+ * Generate finite element matrix.
+ * Call integrate_cb for all phi_i, phi_j defined 
+ * at shared point in triangle tr.
+ * If flag transpose is set then generate  
+ * transposed matrix
  * 
- * параметры callback'а:
+ * Callback parameters:
  *
- *	const Polynom & phi_i, 
- *	const Polynom & phi_j, 
- *	const Triangle & tr,   номер треугольника 
- *	const Mesh & mesh,     сетка 
- *	int point_i,           глобальный номер точки 
- *	int point_j,           глобальный номер точки 
- *	int i,                 номер строки матрицы
- *	int j,                 номер столбца матрицы
- *	void * user_data       сюда могу входить любые данные
+ *	- const Polynom & phi_i, 
+ *	- const Polynom & phi_j, 
+ *	- const Triangle & tr  - triangle, 
+ *	- const Mesh & mesh    - mesh,
+ *	- int point_i          - global point number, 
+ *	- int point_j          - global point number ,
+ *	- int i                - number of row in matrix (inner point number),
+ *	- int j                - number of columnt in matrix (inner point number),
+ *	- void * user_data     - user data
  *
+ * @param A - output matrix
+ * @param m - mesh
+ * @param integrate_cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data
+ * @param transpose - generate transposed matrix ?
  */
 template < typename Functor, typename Data >
 void generate_matrix(Matrix & A, const Mesh & m, 
