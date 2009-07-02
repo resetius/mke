@@ -59,7 +59,7 @@ using phelm::Polynom;
  */
 
 /**
- * The fast sphere norm calculator.
+ * A fast spherical norm calculator.
  */
 class SphereNorm {
 public:
@@ -87,7 +87,7 @@ public:
 	}
 
 	/**
-	 * norm of vector
+	 * norm of vector.
 	 * @param u - input vector
 	 * @return norm of v
 	 */
@@ -97,7 +97,7 @@ public:
 	}
 
 	/**
-	 * inner product of two vectors
+	 * inner product of two vectors.
 	 * @param u - input vector
 	 * @param v - input vector
 	 * @return inner product of u and v
@@ -109,9 +109,9 @@ public:
 };
 
 /**
- * Сферический Лаплас.
+ * Spherical Laplace operator.
  \f[
-  \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
+  \Delta \psi(\varphi, \lambda) \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
   \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi
  \f]
  */
@@ -132,49 +132,53 @@ public:
 	SphereLaplace(const Mesh & m);
 
 	/**
-	 * Находит оператор Лапласа функции F во внутренних
-	 * точках. В точках границы просто кладет значение из bnd.
-	 * @param Ans - ответ
-	 * @param F - функция лаплас от которой хотим найти
-	 * @param bnd - значение на границе, которое хотим получить
+	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
+	 * Set the value of boundary points from bnd.
+	 * @param Ans - the answer
+	 * @param F - the value of Laplace operator in all mesh points
+	 * @param bnd - needed boundary condition
 	 */
 	void calc1(double * Ans, const double * F, const double * bnd);
 
 	/**
-	 * Находит оператор Лапласа функции F во внутренних точках.
-	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
-	 * @param Ans - ответ
-	 * @param F - функция лаплас от которой хотим найти
+	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
+	 * Returns vector of inner points.
+	 * @param Ans - the answer
+	 * @param F - the value of Laplace operator in the inner points
 	 */
 	void calc2(double * Ans, const double * F);
 
 /**
- * обращает оператор лапласа на плоской области
- * @param Ans - ответ
- * @param F - правая часть
- * @param bnd - краевое условие
+ * Solve Laplace equation.
+ \f{eqnarray*}
+   \Delta \psi &=& f(x, y) \\
+  \psi|_{\partial\Omega}&=&u_0
+  \f} 
+ * @param Ans - the answer
+ * @param F - right part
+ * @param bnd - boundary condition
  */
 	void solve(double * Ans, const double * F, const double * bnd);
 };
 
 /**
- * Считает один элемент конечно-элементной матрицы для
- * оператора лапласа на сфере.
- * @param phi_i - базисная функция
- * @param phi_j - базисная функция
- * @param trk - треугольник по которому считаем интеграл
- * @param ps - точки сетки
+ * Calculates one element of finite-element matrix
+ * for spheric Laplace operator.
+ * @param phi_i - basis function
+ * @param phi_j - basis function
+ * @param trk - integral is taken over that triangle
+ * @param ps - mesh points
  */
 double slaplace(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps);
 
 /**
- * Считает один элемент конечно-элементной матрицы для
- * оператора лапласа на плоскости.
- * @param phi_i - базисная функция
- * @param phi_j - базисная функция
- * @param trk - треугольник по которому считаем интеграл
- * @param ps - точки сетки
+ * Calculates one element of finite-element matrix
+ * for Laplace operator on 2D-domain.
+ * @param phi_i - basis function
+ * @param phi_j - basis function
+ * @param trk - integral is taken over that triangle
+ * @param ps - mesh points
  */
 double laplace(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps);
@@ -219,7 +223,7 @@ public:
 };
 
 /**
- * Лаплас на плоской сетке
+ * Laplace operator on a 2D-domain
  */
 class Laplace {
 	Matrix idt_;      // inner
@@ -243,27 +247,31 @@ public:
 	Laplace(const Mesh & m);
 
 	/**
-	 * Находит оператор Лапласа функции F во внутренних
-	 * точках. В точках границы просто кладет значение из bnd.
-	 * @param Ans - ответ
-	 * @param F - функция лаплас от которой хотим найти
-	 * @param bnd - значение награнице, которое хотим получить
+	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
+	 * Set the value of boundary points from bnd.
+	 * @param Ans - the answer
+	 * @param F - the value of Laplace operator in all mesh points
+	 * @param bnd - needed boundary condition
 	 */
 	void calc1(double * Ans, const double * F, const double * bnd);
 
 	/**
-	 * Находит оператор Лапласа функции F во внутренних точках.
-	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
-	 * @param Ans - ответ
-	 * @param F - функция лаплас от которой хотим найти
+	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
+	 * Returns vector of inner points.
+	 * @param Ans - the answer
+	 * @param F - the value of Laplace operator in the inner points
 	 */
 	void calc2(double * Ans, const double * F);
 
 	/**
-	 * обращает оператор лапласа на плоской области
-	 * @param Ans - ответ
-	 * @param F - правая часть
-	 * @param bnd - краевое условие
+	 * Solve Laplace equation.
+ \f{eqnarray*}
+ \Delta u &=& f(x, y) \\
+  \psi|_{\partial\Omega}&=&u_0
+  \f} 
+	 * @param Ans - the answer
+	 * @param F - right part
+	 * @param bnd - boundary condition
 	 */
 	void solve(double * Ans, const double * F, const double * bnd);
 };
