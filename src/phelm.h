@@ -536,34 +536,69 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
  */
 
 /**
- * тут вычисляется интеграл от произведения функций по треугольнику.
+ * Calculates inner product of two basis functions on flat domain.
+ * @param phi_i - basis function
+ * @param phi_j - basis function
+ * @param trk - triangle
+ * @param m - mesh
+ * @param i1 - point number
+ * @param j1 - point number
+ * @param i2 - inner point number
+ * @param j2 - inner point number
+ * @param user_data - user data
  */
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
-						 const Triangle & trk, const Mesh & m, int, int,
-						 int, int, void * );
+						 const Triangle & trk, const Mesh & m, int i1, int j1,
+						 int i2, int j2, void * user_data);
 
 /**
- * тут вычисляется интеграл от произведения функций по треугольнику на сфере.
+ * Calculates inner product of two basis functions on sphere.
+ * @param phi_i - basis function
+ * @param phi_j - basis function
+ * @param trk - triangle
+ * @param m - mesh
+ * @param i1 - point number
+ * @param j1 - point number
+ * @param i2 - inner point number
+ * @param j2 - inner point number
+ * @param user_data - user data
  */
 double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
 						const Triangle & trk, const Mesh & m,
-						int, int, int, int, void * user_data);
+						int i1, int j1, int i2, int j2, void * user_data);
 
 class Matrix;
 
 /**
- * fast_scalar.
+ * Fast mesh inner product calculator.
+ * @see generate_scalar_matrix
+ * @param u - mesh function
+ * @param v - mesh function
+ * @param m - mesh
+ * @param mat - matrix
+ * @return (u, v)
  */
 double fast_scalar(const double * u, const double * v,
 				   const Mesh & m, Matrix & mat);
 
 /**
- * fast norm.
+ * Fast mesh norm calculator.
+ * @see generate_scalar_matrix
+ * @param u - mesh function
+ * @param m - mesh
+ * @param mat - matrix
+ * @return ||u||
  */
 double fast_norm(const double * u, const Mesh & m, Matrix & mat);
 
 /**
- * fast_dist.
+ * Fast mesh distance calculator.
+ * @see generate_scalar_matrix
+ * @param u - mesh function
+ * @param v - mesh function
+ * @param m - mesh
+ * @param mat - matrix
+ * @return distance between u and v
  */
 double fast_dist(const double * u, const double * v,
 				 const Mesh & m, Matrix & mat);
@@ -577,52 +612,86 @@ double fast_dist(const double * u, const double * v,
  */
 
 /**
- * функция от двух пространственных переменных.
+ * function.
+ * @param x - x coordinate 
+ * @param y - y coordinate
+ * @return value
  */
 typedef double (* f_xy_t)(double x, double y);
 
 /**
- * функция от двух пространственных переменных и времени.
+ * function.
+ * @param x - x coordinate
+ * @param y - y cooddinate
+ * @param t - time
+ * @return value
  */
 typedef double (* f_xyt_t)(double x, double y, double t);
 
 /**
- * добавляем краевые условия
+ * Adds boundary conditions to p.
+ * @param p - the value of u on the inner mesh points
+ * @param u - (output) mesh function
+ * @param bnd - the value of u on the boundary mesh points
+ * @param m - mesh
  */
-void p2u(double * p, const double * u, const double * bnd, const Mesh & m);
+void p2u(double * u, const double * p, const double * bnd, const Mesh & m);
 
 /**
- * убираем краевые условия
+ * Removes boundary conditions from u.
+ * @param p - (output) the value of u on the inner mesh points
+ * @param u - mesh function
+ * @param m - mesh
  */
-void u2p(double * u, const double * p, const Mesh & m);
+void u2p(double * p, const double * u, const Mesh & m);
 
 /**
- * проектирование непрерывной функции f(x,y) на сетку.
+ * Projects function f(x,y) to the mesh.
+ * @param F - (output) the value of f(x,y) on mesh points
+ * @param mesh - the mesh
+ * @param f - function f(x, y)
  */
 void proj(double * F, const Mesh & mesh, f_xy_t f);
 
 /**
- * проектирование непрерывной функции f(x,y) на границу сетки.
+ * Projects function f(x,y) to the boundary of the mesh.
+ * @param F - (output) the value of f(x,y) on boundary points
+ * @param m - the mesh
+ * @param f - function f(x, y)
  */
 void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 
 /**
- * проектирование функции F1 на границу сетки.
+ * Projects vector F1 to the boundary of the mesh.
+ * @param F  - (output) the value of F1 on boundary points
+ * @param m  - the mesh
+ * @param F1 - mesh vector 
  */
 void proj_bnd(double * F, const double * F1, const Mesh & m);
 
 /**
- * инициализирует граничное значение.
+ * Sets the boundary value of vector F.
+ * @param F - (input/output) mesh vector
+ * @param bnd - boundary value
+ * @param m - mesh  
  */
 void set_bnd(double * F, const double * bnd, const Mesh & m);
 
 /**
- * проектирование непрерывной функции f(x,y,t) на сетку.
+ * Projects function f(x,y,t) to the mesh.
+ * @param F - (output) the value of f(x,y) on mesh points
+ * @param mesh - the mesh
+ * @param f - function f(x, y)
+ * @param t - time
  */
 void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
 
 /**
- * проектирование непрерывной функции f(x,y,t) на границу сетки.
+ * Projects function f(x,y,t) to the boundary of the mesh.
+ * @param F - (output) the value of f(x,y) on boundary points
+ * @param m - the mesh
+ * @param f - function f(x, y)
+ * @param t - time
  */
 void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 

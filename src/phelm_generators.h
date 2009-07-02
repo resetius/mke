@@ -354,7 +354,13 @@ void convolution(double * ans, const double * u, const double * v,
  */
 
 /**
- * сеточное скалярное произведение двух функций
+ * Calculates inner product of two mesh vectors.
+ * @param u - mesh vector
+ * @param v - mesh vector
+ * @param m - mesh
+ * @param cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data that is passed to callback
  */
 template < typename Functor, typename Data >
 double scalar(const double * u, const double * v, const Mesh & m, 
