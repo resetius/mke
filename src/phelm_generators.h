@@ -58,21 +58,21 @@ namespace phelm {
  */
 
 	/**
-	 * Эта структура используется для изменения матрицы конечных элементов.
-	 * Вектор структур данного типа должен быть возвращен в колбеке, если пользователь хочет поменять
-	 * сразу несколько элементов в матрице конечных элементов.
+	 * Destination of this structure is finite-element matrix changing.
+	 * If smb wants to change more then one entries of finite-element matrix
+	 * or finite-element right part he should return elements_t in callback.
 	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
 	struct Element {
-		int i;     ///< номер строки матрицы конечных элементов
-		int j;     ///< номер столбца матрицы конечных элементов
-		double a;  ///< значение, которое будем писать в матрицу
+		int i;     ///< the number of row in finite-element matrix
+		int j;     ///< the number of column in finite-element matrix
+		double a;  ///< the value (A[i][j] += a)
 
 		/**
-		 * инициализация по номерам строки, столбца и значению
-		 * @param i1 - номер строки
-		 * @param j1 - номер столбца
-		 * @param a1 - значение элемента
+		 * initialization of row and column numbers and value
+		 * @param i1 - row number
+		 * @param j1 - columnt number
+		 * @param a1 - value
 		 */
 		Element(int i1, int j1, double a1) : i(i1), j(j1), a(a1) {}
 	};
@@ -80,7 +80,7 @@ namespace phelm {
 	/**
 	 * Elements vector.
 	 * If smb wants to change more then one entries of finite-element matrix
-	 * or finite-element right part he should return that structure in callback.
+	 * or finite-element right part he should return that vector in callback.
 	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
 	typedef std::vector < Element > elements_t;
