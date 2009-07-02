@@ -66,7 +66,8 @@
   \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
   + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
   - \mu \Delta^2 u_2
-    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+    &-& \\
+	- \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
@@ -153,7 +154,8 @@ public:
   \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
   + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
   - \mu \Delta^2 u_2
-    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+    &-&\\
+	- \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
@@ -179,7 +181,8 @@ public:
   + J(u_2, \Delta z_1 + l + h) + J(z_2, \Delta u_1)
   + \frac{\sigma}{2} \Delta (u_1 + u_2)
   - \mu \Delta^2 u_2
-    - \alpha^2 (\frac{\partial u_2}{\partial t} 
+    &-&\\
+	- \alpha^2 (\frac{\partial u_2}{\partial t} 
     + J(z_1, u_2) + J(u_1, z_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2) &=& 0,

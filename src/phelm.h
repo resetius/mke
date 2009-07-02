@@ -82,7 +82,7 @@
   \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi\\
   \psi|_{\partial\Omega}&=&\psi_0 \\
   \f}
-    -# @ref test_system_laplace.cpp "Double Laplace's equations on a flat domain"
+    -# @ref test_system_laplace.cpp "Double Laplace equations on a flat domain"
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
@@ -110,7 +110,8 @@
   \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
   + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
   - \mu \Delta^2 u_2
-    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+    &-&\\
+	-\alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,\\
 	u_1|{t=0}&=&u_{10}\\
@@ -120,7 +121,7 @@
  * @page Build
  * @section build_sec Build
  * Phelm uses GMRES method to solve linear equations. If you do not like
- * that you should install UMFPACK or place UMFPACK sources in 
+ * that, install UMFPACK or place UMFPACK sources in 
  * /path-to-phelm/contrib/umfpack
  * 
  * @subsection Unix-like
@@ -187,7 +188,8 @@
   \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
   + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
   - \mu \Delta^2 u_2
-    - \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
+    &-&\\
+	-\alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
