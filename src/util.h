@@ -319,7 +319,7 @@ void vec_diff(double * r, const double * a, const double * b, int n);
 double get_full_time();
 
 /**
- * Function-callback that is passed is passed to gauss_kronrod15.
+ * Function-callback that is passed to gauss_kronrod15.
  * @param x - function argument
  * @param data - user data
  * @return the value of f(x)

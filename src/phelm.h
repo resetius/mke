@@ -204,7 +204,7 @@ typedef unsigned int uint;
 /**
  * @namespace phelm
  *
- * That namespace contains all Phelm functions and classes.
+ * This namespace contains all Phelm functions and classes.
  */
 namespace phelm {
 
