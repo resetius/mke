@@ -53,13 +53,12 @@ namespace phelm {
 /**
  * @defgroup generators Finite element matrix generators.
  * Finite element matrix generators, right-parts generators.
- * Describtion here.
  * @{
  */
 
 	/**
 	 * Destination of this structure is finite-element matrix changing.
-	 * If smb wants to change more then one entries of finite-element matrix
+	 * If one wants to change multiple entries of finite-element matrix
 	 * or finite-element right part he should return elements_t in callback.
 	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
@@ -79,7 +78,7 @@ namespace phelm {
 
 	/**
 	 * Elements vector.
-	 * If smb wants to change more then one entries of finite-element matrix
+	 * If one wants to change multiple entries of finite-element matrix
 	 * or finite-element right part he should return that vector in callback.
 	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
@@ -419,7 +418,7 @@ double scalar(const double * u, const double * v, const Mesh & m,
 }
 
 /**
- * Create matrix for fast innper product computation.
+ * Create matrix for fast inner product computation.
  * @param mat - output matrix
  * @param m - mesh
  * @param cb callback that calculates inner product of two basis functions on a triangle

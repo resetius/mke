@@ -71,7 +71,8 @@
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
- * where \f$J(\cdot,\cdot)\f$ is SphereJacobian and \f$\Delta\f$ is SphereLaplace.
+ * where \f$J(\cdot,\cdot)\f$ is spherical jacobian and \f$\Delta\f$ is spherical 
+ * Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
 class Baroclin: public SphereNorm {

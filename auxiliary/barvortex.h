@@ -64,7 +64,8 @@
  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
  \f]
- * where \f$J(\cdot,\cdot)\f$ is SphereJacobian and \f$\Delta\f$ is SphereLaplace.
+ * where \f$J(\cdot,\cdot)\f$ is spherical jacobian operator 
+ * and \f$\Delta\f$ is spherical Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
 class BarVortex: public SphereNorm {

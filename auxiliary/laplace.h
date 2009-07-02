@@ -186,7 +186,7 @@ double laplace(const Polynom & phi_i, const Polynom & phi_j,
 /**
  * Chafe-Infante equation on sphere.
  * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
- * \f$Delta\f$ is SphereLaplace. @see SphereLaplace
+ * \f$\Delta\f$ is Laplace operator on a sphere. @see SphereLaplace
  */
 class SphereChafe {
 private:
