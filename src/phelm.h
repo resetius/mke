@@ -76,6 +76,12 @@
   u|_{\partial\Omega}&=&u_0
   \f}
     -# @ref test_laplace.cpp "Laplace equation on a sphere"
+  \f{eqnarray*}
+  \Delta \psi &=& f(\varphi, \lambda) \\
+  \Delta \psi &=& \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
+  \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi\\
+  \psi|_{\partial\Omega}&=&\psi_0 \\
+  \f}
     -# @ref test_system_laplace.cpp "Double Laplace's equations on a flat domain"
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
@@ -90,13 +96,13 @@
   u(x,y,t)|_{t=0} &=& u_0 \\
   \f}
     -# @ref test_chafe.cpp "Chafe-Infante equation on a sphere"
-    -# @ref test_barvortex.cpp "The Barotropic vorticity equation"
+    -# @ref test_barvortex.cpp "The Barotropic vorticity equation on a sphere"
   \f{eqnarray*}
   \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi &=& f(\varphi, \lambda) \\
 	\psi|_{t=0}=\psi_0
   \f}
-    -# @ref test_baroclin.cpp  "The two-dimensional baroclinic atmosphere equations"
+    -# @ref test_baroclin.cpp  "The two-dimensional baroclinic atmosphere equations  on a sphere"
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
@@ -142,7 +148,13 @@
   u|_{\partial\Omega}&=&u_0
   \f}
   @example test_slaplace.cpp
-  Laplace on a sphere
+  Laplace equation on a sphere
+  \f{eqnarray*}
+  \Delta \psi &=& f(\varphi, \lambda) \\
+  \Delta \psi &=& \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
+  \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi\\
+  \psi|_{\partial\Omega}&=&\psi_0 \\
+  \f}
   @example test_system_laplace.cpp
   Double Laplace equations on a flat domain
   \f{eqnarray*}
