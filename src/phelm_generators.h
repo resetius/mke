@@ -89,7 +89,7 @@ namespace phelm {
 
 /**
  * Generate finite element matrix.
- * Call integrate_cb for all phi_i, phi_j defined 
+ * Call integrate_cb for all phi_i, phi_j that are defined 
  * at shared point in triangle tr.
  * If flag transpose is set then generate  
  * transposed matrix
