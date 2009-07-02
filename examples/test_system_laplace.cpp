@@ -82,7 +82,7 @@ struct laplace_right_part_cb_data
 static elements_t 
 laplace_right_part_cb( const Polynom & phi_i,
                        const Polynom & phi_j,
-                       const Triangle & trk, /* номер треугольника */
+                       const Triangle & trk, 
                        const Mesh & m,
                        int point_i, int point_j,
                        int i, int j,
@@ -93,8 +93,8 @@ laplace_right_part_cb( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1) {     // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
+	if (m.ps_flags[point_j] == 1) {    
+		int j0       = m.p2io[point_j];
 		const double * BU = d->BU;
 		const double * BV = d->BV;
 		double a = laplace(phi_i, phi_j, trk, m.ps);
