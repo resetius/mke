@@ -197,7 +197,7 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
  * Generate right part. 
  * @param b - output right part vector
  * @param m - mesh
- * @param integrate_cb - callback that calculates inner product of two basis functions on a triangle
+ * @param right_part_cb - callback that calculates inner product of two basis functions on a triangle
  * @see generic_scalar_cb, sphere_scalar_cb
  * @param user_data - user data
  */
@@ -248,7 +248,7 @@ void generate_right_part(double * b, const Mesh & m,
  * Generate full right part. 
  * @param b - output right part vector
  * @param m - mesh
- * @param integrate_cb - callback that calculates inner product of two basis functions on a triangle
+ * @param right_part_cb - callback that calculates inner product of two basis functions on a triangle
  * @see generic_scalar_cb, sphere_scalar_cb
  * @param user_data - user data
  */
@@ -295,10 +295,15 @@ void generate_full_right_part(double * b, const Mesh & m,
 }
 
 /**
- * генерирует матрицу для интеграции краевых условий в правую часть
- * inner.size() x outer.size()
- * в cb передается phi_j где j точка границы
- * phi_i, где i внутренняя точка
+ * Generate boundary conditions matrix.
+ * The size of matrix is inner.size() x outer.size().
+ * Callback parameters: j in boundary point, i is inner point
+ * @param A - output matrix.
+ * @param m - mesh
+ * @param right_part_cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data
+ * @param transpose - generate transposed matrix?
  */
 template < typename Functor, typename Data >
 void generate_boundary_matrix(Matrix & A, const Mesh & m, 
