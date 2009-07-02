@@ -94,39 +94,39 @@ public:
 	SphereJacobian(const Mesh & m);
 
 	/**
-	 * Находит J(u, v) во внутренних точках. 
-	 * В точках границы просто кладет значение из bnd.
-	 * @param Ans - ответ
-	 * @param u - вектор u
-	 * @param v - вектор v
-	 * @param bnd - значение на границе, которое хотим получить
+	 * Calculates J(u, v) in the inner points.
+ 	 * Sets the value of boundary points from bnd.
+	 * @param Ans - the answer
+	 * @param u - vector u
+	 * @param v - vector v
+	 * @param bnd - needed boundary condition
 	 */
 	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
-	 * сопряженный к J(u, v) (=-J(u, v))
-	 * В точках границы просто кладет значение из bnd.
-	 * @param Ans - ответ
-	 * @param u - вектор u
-	 * @param v - вектор v
-	 * @param bnd - значение на границе, которое хотим получить
+	 * Calculates adjoint operator to J(u, v) (=-J(u, v))
+	 * Sets the value of boundary points from bnd.
+	 * @param Ans - the answer
+	 * @param u - vector u
+	 * @param v - vector v
+	 * @param bnd - needed boundary condition
 	 */
 	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
-	 * Находит J(u, v) во внутренних точках. 
-	 * Возвращает вектор, содержащий ТОЛЬКО внутренние точки
-	 * @param Ans - ответ
-	 * @param u - вектор u
-	 * @param v - вектор v
+	 * Calculates J(u, v) in the inner points.
+	 * Returns vector containing only inner points.
+	 * @param Ans - the answer
+	 * @param u - vector u
+	 * @param v - vector v
 	 */
 	void calc2(double * Ans, const double * u, const double * v);
 
 	/**
-	 * сопряженный к J(u, v) (=-J(u, v))
-	 * @param Ans - ответ
-	 * @param u - вектор u
-	 * @param v - вектор v
+	 * Calculates ajoint operator to J(u, v) (=-J(u, v))
+	 * @param Ans - the answer
+	 * @param u - vector u
+	 * @param v - vector v
 	 */
 	void calc2t(double * Ans, const double * u, const double * v);
 };

@@ -134,8 +134,8 @@ public:
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
 	 * Set the value of boundary points from bnd.
-	 * @param Ans - the answer
-	 * @param F - the value of Laplace operator in all mesh points
+	 * @param Ans - the answer (the value of Laplace operator in all mesh points)
+	 * @param F -vector F
 	 * @param bnd - needed boundary condition
 	 */
 	void calc1(double * Ans, const double * F, const double * bnd);
@@ -143,8 +143,8 @@ public:
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
 	 * Returns vector of inner points.
-	 * @param Ans - the answer
-	 * @param F - the value of Laplace operator in the inner points
+	 * @param Ans - the answer (the value of Laplace operator in the inner points)
+	 * @param F -vector F
 	 */
 	void calc2(double * Ans, const double * F);
 
@@ -249,8 +249,8 @@ public:
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
 	 * Set the value of boundary points from bnd.
-	 * @param Ans - the answer
-	 * @param F - the value of Laplace operator in all mesh points
+	 * @param Ans - the answer (the value of Laplace operator in all mesh points)
+	 * @param F - vector F
 	 * @param bnd - needed boundary condition
 	 */
 	void calc1(double * Ans, const double * F, const double * bnd);
@@ -258,8 +258,8 @@ public:
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
 	 * Returns vector of inner points.
-	 * @param Ans - the answer
-	 * @param F - the value of Laplace operator in the inner points
+	 * @param Ans - the answer (the value of Laplace operator in the inner points)
+	 * @param F - vector F
 	 */
 	void calc2(double * Ans, const double * F);
 

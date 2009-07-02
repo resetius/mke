@@ -133,9 +133,9 @@ public:
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
  \f]
 	 * @param Ans - output value
-	 * @param F - значение функции на предыдущем шаге по времени
-	 * @param bnd - граничное условие
-	 * @param t   - время
+	 * @param F - input vector (previous time step)
+	 * @param bnd - boundary condition
+	 * @param t   - time
 	 */
 	void calc(double * Ans, const double * F, const double * bnd, double t);
 

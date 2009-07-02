@@ -89,10 +89,9 @@ ipow(double x, int p)
 int gauss (double *A, double *b, double *x, int n);
 
 /**
- * интеграл от x^k*y^n по трапеции.
- * y=k1x+b1 y=k2x+b2 
- * прямые ограничивающие трапецию
- * x меняется от x1 до x3
+ * Takes the integral of \f$x^k y^n\f$ over trapezoid.
+ * y=k1x+b1 y=k2x+b2 - bounding lines. 
+ * x belongs to segment [x1, x3].
  \f[
  \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n dx dy
  \f]
@@ -111,7 +110,7 @@ double trapezoid_integral(int k, int n,
 			 double x1, double x3);
 
 /**
- * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n cos x) dx dy.
+ * Takes the integral of \f$x^k y^n cos(x)\f$ over trapezoid.
  \f[
  \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n cos(x) dx dy
  \f]
@@ -130,7 +129,7 @@ double trapezoid_integral_cos(int k, int n,
 	double x1, double x3);
 
 /**
- * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n sin x) dx dy.
+ * Takes the integral of \f$x^k y^n sin(x)\f$ over trapezoid.
  \f[
  \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n sin(x) dx dy
  \f]
@@ -149,7 +148,7 @@ double trapezoid_integral_sin(int k, int n,
 	double x1, double x3);
 
 /**
- * int [x1,x3] int [k1x+b1,k2x+b2] (x^k y^n/cos x) dx dy.
+ * Takes the integral of \f$x^k y^n / cos(x)\f$ over trapezoid.
  \f[
  \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} \frac{x^k y ^n}{cos(x)} dx dy
  \f]
@@ -296,7 +295,7 @@ double vec_norm2(const double *v, int n);
 double vec_scalar2(const double * a, const double * b, int n);
 
 /**
- * поэлементное умножение.
+ * Element by element vector multiplication.
  * r = a * b
  * @param r - output vector
  * @param a - input vector
