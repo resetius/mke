@@ -153,7 +153,13 @@ void generate_matrix(Matrix & A, const Mesh & m,
 }
 
 /**
- * Generate finite-elements matrix.
+ * Generate full finite-elements matrix.
+ * @param A - output matrix
+ * @param m - mesh
+ * @param integrate_cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data
+ * @param transpose - generate transposed matrix ?
  */
 template < typename Functor, typename Data >
 void generate_full_matrix(Matrix & A, const Mesh & m, 
@@ -189,6 +195,11 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
 
 /**
  * Generate right part. 
+ * @param b - output right part vector
+ * @param m - mesh
+ * @param integrate_cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data
  */
 template < typename Functor, typename Data >
 void generate_right_part(double * b, const Mesh & m, 
@@ -234,7 +245,12 @@ void generate_right_part(double * b, const Mesh & m,
 }
 
 /**
- * Generate right-part.
+ * Generate full right part. 
+ * @param b - output right part vector
+ * @param m - mesh
+ * @param integrate_cb - callback that calculates inner product of two basis functions on a triangle
+ * @see generic_scalar_cb, sphere_scalar_cb
+ * @param user_data - user data
  */
 template < typename Functor, typename Data >
 void generate_full_right_part(double * b, const Mesh & m, 
