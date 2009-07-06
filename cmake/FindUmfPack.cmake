@@ -1,7 +1,7 @@
 if (UMFPACK_SOURCE_FOUND)
-	include_directories(${MKE_SUBDIR}contrib/umfpack/UMFPACK/Include)
-	include_directories(${MKE_SUBDIR}contrib/umfpack/AMD/Include)
-	include_directories(${MKE_SUBDIR}contrib/umfpack/UFconfig)
+	include_directories(${PHELM_SUBDIR}contrib/umfpack/UMFPACK/Include)
+	include_directories(${PHELM_SUBDIR}contrib/umfpack/AMD/Include)
+	include_directories(${PHELM_SUBDIR}contrib/umfpack/UFconfig)
 	set(UMFPACK umfpack)
 else (UMFPACK_SOURCE_FOUND)
 	# UMFPACK_LIBRARY_PATH, system libs
