@@ -114,8 +114,8 @@
 	-\alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,\\
-	u_1|{t=0}&=&u_{10}\\
-	u_2|{t=0}&=&u_{20}\\
+	u_1|_{t=0}&=&u_{10}\\
+	u_2|_{t=0}&=&u_{20}\\
  \f}
  *
  * @page Build
