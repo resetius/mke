@@ -138,6 +138,9 @@
   cd build-directory
   cmake -G "Visual Studio 2009" #place your version of Visual Studio here
   @endverbatim
+ * @page Thanks
+ *  - Andrey Kornev for consultations, <br/>
+ *  - Andrey Ivanchikov for initial idea and consultations. 
  */
 
 /**
