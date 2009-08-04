@@ -3,9 +3,10 @@ project(core CXX C)
 include_directories(/usr/include/suitesparse/)
 set(LIBRARY_OUTPUT_PATH "../lib")
 
-add_library(phelm 
+set(CUDA_SDK "/opt/cuda")
+
+set(SOURCE 
 	phelm.cpp 
-	util.cpp 
 	polynom.cpp 
 	solver.cpp 
 	ver.cpp
@@ -17,6 +18,21 @@ add_library(phelm
 	gmres.h
 	polynom.h
 	solver.h
-	util.h
+	util.h)
+
+
+add_library(phelm 
+	${SOURCE}
+	util.cpp 
 	)
+
+if (CUDA_SDK)
+add_library(phelm_cu
+	${SOURCE}
+	util_cu.cpp 
+	)
+
+set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")
+endif (CUDA_SDK)
+
 

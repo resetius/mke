@@ -31,10 +31,10 @@ public:
 	const_pointer address (const_reference x) const { return &x; }
 
 	pointer allocate (size_type size,
-	                  allocator<void>::const_pointer hint = 0)
+	                  const void * hint = 0)
 	{
 		pointer ret;
-		cublasAlloc(size, 1, &ret);
+		cublasAlloc(size, 1, (void**)&ret);
 		return ret;
 	}
 
@@ -60,14 +60,14 @@ public:
 };
 
 template <class T1, class T2>
-bool operator== (const allocator<T1>&, const allocator<T2>&)
+bool operator== (const cuda_allocator<T1>&, const cuda_allocator<T2>&)
 throw()
 {
 	return true;
 }
 
 template <class T1, class T2>
-bool operator!= (const allocator<T1>&, const allocator<T2>&)
+bool operator!= (const cuda_allocator<T1>&, const cuda_allocator<T2>&)
 throw()
 {
 	return false;

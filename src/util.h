@@ -387,6 +387,7 @@ public:
 #include "alloc_cu.h"
 #endif
 
+namespace phelm {
 /**
  * @ingroup misc
  * vector.
@@ -394,8 +395,9 @@ public:
 #ifndef GPGPU
 typedef std::vector < double > vec;
 #else
-typedef std::vector < double, cuda_allocator > vec;
+typedef std::vector < double, cuda_allocator < double > > vec;
 #endif
+}
 
 #endif
 
