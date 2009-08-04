@@ -138,6 +138,7 @@ class UmfPackMatrix: public SparseMatrix < T >
 	double Info_ [UMFPACK_INFO];
 	void *Symbolic_, *Numeric_ ;
 
+	typedef SparseMatrix < T > base;
 public:
 	typedef T data_type;
 

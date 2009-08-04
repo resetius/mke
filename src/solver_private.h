@@ -36,6 +36,7 @@
  */
 
 #include <assert.h>
+#include "gmres.h"
 
 template < typename T >
 void SparseMatrix < T > ::mult_vector(T * out, const T * in)
@@ -102,7 +103,7 @@ void SparseMatrix < T > ::print()
 template < typename T >
 void SimpleMatrix < T > ::print()
 {
-	print_matrix(&A_[0], n);
+	print_matrix(&A_[0], n_);
 }
 
 template < typename T >
@@ -127,7 +128,7 @@ void SparseMatrix < T > ::make_sparse()
 	for (uint i = 0; i < A_.size(); ++i)
 	{
 		Ap_[i + 1] = Ap_[i] + (int)A_[i].size();
-		for (column_t::iterator it = A_[i].begin();
+		for (typename column_t::iterator it = A_[i].begin();
 				it != A_[i].end(); ++it)
 		{
 			Ax_[idx] = it->second;
@@ -166,23 +167,29 @@ void SparseMatrix < T > ::solve(T * x, const T * b)
 template < typename T >
 void UmfPackMatrix < T > ::solve(T * x, const T * b)
 {
-	if (Ax_.empty()) {
-		make_sparse();
+	if (base::Ax_.empty()) {
+		base::make_sparse();
 	}
 
 	int status;
 
 	if (Symbolic_ == 0) {
-		status = umfpack_di_symbolic (n_, n_, &Ap_[0], &Ai_[0], &Ax_[0], &Symbolic_, Control_, Info_);
+		status = umfpack_di_symbolic (base::n_, base::n_, 
+				&base::Ap_[0], &base::Ai_[0], &base::Ax_[0], 
+				&Symbolic_, Control_, Info_);
 		assert(status == UMFPACK_OK);
 	}
 
 	if (Numeric_ == 0) {
-		status = umfpack_di_numeric (&Ap_[0], &Ai_[0], &Ax_[0], Symbolic_, &Numeric_, Control_, Info_) ;
+		status = umfpack_di_numeric (&base::Ap_[0], &base::Ai_[0], 
+				&base::Ax_[0], 
+				Symbolic_, &Numeric_, Control_, Info_) ;
 		assert(status == UMFPACK_OK);
 	}
 
-	status = umfpack_di_solve (UMFPACK_At, &Ap_[0], &Ai_[0], &Ax_[0], x, b, Numeric_, Control_, Info_);
+	status = umfpack_di_solve (UMFPACK_At, &base::Ap_[0], &base::Ai_[0], 
+			&base::Ax_[0], x, b, Numeric_, Control_, Info_);
 	assert(status == UMFPACK_OK);
 }
 #endif
+
