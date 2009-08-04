@@ -92,6 +92,8 @@ protected:
 	void make_sparse();
 
 public:
+	typedef T data_type;
+
 	SparseMatrix(int n): Ap_(n + 1) {}
 
 	/**
@@ -137,6 +139,8 @@ class UmfPackMatrix: public SparseMatrix < T >
 	void *Symbolic_, *Numeric_ ;
 
 public:
+	typedef T data_type;
+
 	UmfPackMatrix(int n): SparseMatrix < T >(n), Symbolic_(0), Numeric_(0) 
 	{
 		umfpack_di_defaults(Control_);
@@ -169,6 +173,8 @@ class SimpleMatrix
 	std::vector < T, phelm_allocator < T > > A_;  // матрица
 
 public:
+	typedef T data_type;
+
 	SimpleMatrix(int n): A_(n * n) {}
 
 	/**

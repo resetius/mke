@@ -35,16 +35,17 @@
 
 namespace phelm_private_ 
 {
-	inline void mat_add(Matrix & A, int i, int j, double a, bool transpose)
+	template < typename Matrix >
+	void mat_add(Matrix & A, int i, int j, double a, bool transpose)
 	{
 		if (transpose) {
-			A.add(j, i, a);
+			A.add(j, i, (typename Matrix::data_type)a);
 		} else {
-			A.add(i, j, a);
+			A.add(i, j, (typename Matrix::data_type)a);
 		}
 	}
 
-	template < typename Container >
+	template < typename Matrix, typename Container >
 	void mat_add(Matrix & A, int i, int j, const Container & c, bool transpose)
 	{
 		typename Container::const_iterator b = c.begin();
@@ -54,12 +55,12 @@ namespace phelm_private_
 		if (transpose) {
 			for (it = b; it != e; ++it)
 			{
-				A.add(it->j, it->i, it->a);
+				A.add(it->j, it->i, (typename Matrix::data_type)it->a);
 			}
 		} else {
 			for (it = b; it != e; ++it)
 			{
-				A.add(it->i, it->j, it->a);
+				A.add(it->i, it->j, (typename Matrix::data_type)it->a);
 			}
 		}
 	}
