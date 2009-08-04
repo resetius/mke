@@ -29,3 +29,15 @@ set_target_properties(test_barvortex PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_baroclin PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
+
+if (CUDA_SDK)
+	link_directories(${CUDA_SDK}/lib)
+	add_executable(test_laplace_cu test_laplace.cpp)
+	target_link_libraries(test_laplace_cu phelm_cu phelm_aux_cu cublas ${UMFPACK})
+	set_target_properties(test_laplace_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")
+
+	if (OPENMP_FOUND)
+		set_target_properties(test_laplace_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+	endif (OPENMP_FOUND)
+endif (CUDA_SDK)
+

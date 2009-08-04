@@ -531,5 +531,21 @@ double get_full_time()
 	return (double)(tv.tv_sec * 100.0 + tv.tv_usec / 10000.0);
 }
 
+void phelm_init()
+{
+	if (cublasInit() != CUBLAS_STATUS_SUCCESS)
+	{
+		fprintf(stderr, "failed to initialize library\n");
+		exit(1);
+	} else {
+		fprintf(stderr, "library initialized\n");
+	}
+}
+
+void phelm_shutdown()
+{
+	cublasShutdown();
+}
+
 } /* extern "C" */
 

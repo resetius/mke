@@ -353,6 +353,9 @@ void set_fpe_except();
 
 /** @} */
 
+void phelm_init();
+void phelm_shutdown();
+
 #ifdef __cplusplus
 }
 #endif
@@ -397,6 +400,7 @@ typedef std::vector < double > vec;
 #else
 typedef std::vector < double, cuda_allocator < double > > vec;
 #endif
+
 }
 
 #endif

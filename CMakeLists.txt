@@ -15,6 +15,8 @@ include(CommonDefinitions)
 include(Bison)
 endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
+set(CUDA_SDK "/opt/cuda")
+
 add_subdirectory(contrib)
 add_subdirectory(src)
 add_subdirectory(auxiliary)

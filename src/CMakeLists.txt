@@ -3,8 +3,6 @@ project(core CXX C)
 include_directories(/usr/include/suitesparse/)
 set(LIBRARY_OUTPUT_PATH "../lib")
 
-set(CUDA_SDK "/opt/cuda")
-
 set(SOURCE 
 	phelm.cpp 
 	polynom.cpp 

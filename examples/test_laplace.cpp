@@ -55,10 +55,10 @@ void test_invert(Mesh & mesh)
 	int rs = (int)mesh.inner.size();
 	int os = (int)mesh.outer.size();
 
-	vector < double > F(sz);
-	vector < double > B(os);
-	vector < double > Ans(sz);
-	vector < double > rans(sz);
+	vec F(sz);
+	vec B(os);
+	vec Ans(sz);
+	vec rans(sz);
 
 	proj(&F[0], mesh, rp);
 	proj(&rans[0], mesh, ans);
@@ -87,18 +87,22 @@ void test_laplace(Mesh & mesh)
 	int rs = (int)mesh.inner.size();
 	int os = (int)mesh.outer.size();
 
-	vector < double > U(sz);
-	vector < double > LU(sz);
-	vector < double > LU1(sz);
-	vector < double > B1(os);
-	vector < double > B2(os);
-	vector < double > P(rs);
-	vector < double > P1(rs);
+	vec U(sz);
+	vec LU(sz);
+	vec LU1(sz);
+	vec B1(os);
+	vec B2(os);
+	vec P(rs);
+	vec P1(rs);
+
+	fprintf(stderr, "prepare ... \n");
 
 	proj(&U[0], mesh, ans);
 	proj(&LU[0], mesh, rp);
 	proj_bnd(&B1[0], mesh, rp);
 	proj_bnd(&B2[0], mesh, ans);
+
+	fprintf(stderr, "start ... \n");
 
 	Laplace l(mesh);
 	l.calc1(&LU1[0], &U[0], &B1[0]);
@@ -114,7 +118,7 @@ void test_laplace(Mesh & mesh)
 		fclose(f);
 
 		f = fopen("lu_diff.txt", "w");
-		vector < double > tmp(LU.size());
+		vec tmp(LU.size());
 		vec_diff(&tmp[0], &LU[0], &LU1[0], (int)LU.size());
 		print_inner_function (f, &tmp[0], mesh);
 		fclose(f);
@@ -133,6 +137,7 @@ void test_laplace(Mesh & mesh)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
+
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
 		if (!f) {
@@ -150,9 +155,12 @@ int main(int argc, char *argv[])
 	//omp_set_num_threads(nprocs);
 
 	mesh.info();
-	test_invert(mesh);
+	//test_invert(mesh);
 	//getchar();
+
+	phelm_init();
 	test_laplace(mesh);
+	phelm_shutdown();
 	return 0;
 }
 
