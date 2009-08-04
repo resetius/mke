@@ -313,6 +313,14 @@ void vec_mult(double * r, const double * a, const double * b, int n);
 void vec_diff(double * r, const double * a, const double * b, int n);
 
 /**
+ * Copy vector a to vector b.
+ * @param b - the output vector
+ * @param a - the input vector
+ * @param n - the dimension of vectors
+ */
+void vec_copy(double * b, const double * a, int n);
+
+/**
  * Returns the number of seconds since epoch.
  * @return the number of seconds since epoch.
  */
@@ -373,6 +381,21 @@ public:
 	 */
 	void restart() { t1_ = get_full_time(); }
 };
+
+#include <vector>
+#ifdef GPGPU
+#include "alloc_cu.h"
+#endif
+
+/**
+ * @ingroup misc
+ * vector.
+ */
+#ifndef GPGPU
+typedef std::vector < double > vec;
+#else
+typedef std::vector < double, cuda_allocator > vec;
+#endif
 
 #endif
 

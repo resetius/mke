@@ -326,7 +326,7 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 void solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
 {
 	int rs  = (int)m.inner.size();     // размерность
-	vector < double > x(rs);      // ответ
+	vec x(rs);      // ответ
 
 	solve2(&x[0], b, A, m);
 	p2u(Ans, &x[0], bnd, m);
@@ -336,7 +336,7 @@ void solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
 	int rs  = (int)m.inner.size();     // размерность
-	vector < double > x(rs);      // ответ
+	vec x(rs);      // ответ
 
 #ifdef _DEBUG
 	Timer t;
@@ -406,7 +406,7 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tria
 double fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
 	int sz = (int)m.ps.size();
-	vector < double > tmp(sz);
+	vec tmp(sz);
 	A.mult_vector(&tmp[0], v);
 	return vec_scalar2(u, &tmp[0], sz);
 }
@@ -419,7 +419,7 @@ double fast_norm(const double * u, const Mesh & m, Matrix & A)
 double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
 {
 	int sz  = (int)m.ps.size(); // размерность
-	vector < double > diff(sz);
+	vec diff(sz);
 	vec_diff(&diff[0], u, v, sz);
 	return fast_norm(&diff[0], m, A);
 }

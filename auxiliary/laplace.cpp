@@ -136,8 +136,8 @@ void Laplace::solve(double * Ans, const double * F, const double * bnd)
 	int ntr = (int)m_.tr.size();
 	int rs  = (int)m_.inner.size();     //размерность
 
-	vector < double > b(rs);      // правая часть
-	vector < double > x(rs);      // ответ
+	vec b(rs);      // правая часть
+	vec x(rs);      // ответ
 
 	Timer full;
 
@@ -295,9 +295,9 @@ void Laplace::calc2(double * Ans, const double * F)
 	int sz = (int)m_.ps.size();
 
 #if 1
-	vector < double > in(rs);
-	vector < double > out(rs);
-	vector < double > tmp(os);
+	vec in(rs);
+	vec out(rs);
+	vec tmp(os);
 	u2p(&in[0], F, m_);
 	proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
@@ -345,7 +345,7 @@ void Laplace::calc1(double * Ans, const double * F, const double * bnd)
 	p2u(Ans, &p1[0], bnd, m_);
 #endif
 #if 1
-	vector < double > out(m_.inner.size());
+	vec out(m_.inner.size());
 	calc2(&out[0], F);
 	p2u(Ans, &out[0], bnd, m_);
 #endif
@@ -366,10 +366,10 @@ void Chafe::solve(double * Ans, const double * X0,
 {
 	int rs  = (int)m_.inner.size();
 	int sz  = (int)m_.ps.size();
-	vector < double > u(rs);
-	vector < double > p(sz);
-	vector < double > delta_u(rs);
-	vector < double > rp(rs);
+	vec u(rs);
+	vec p(sz);
+	vec delta_u(rs);
+	vec rp(rs);
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)

@@ -360,6 +360,11 @@ void vec_mult_scalar(double * a, const double * b, double k, int n)
 	cublasDscal(n, k, a, 1);
 }
 
+void vec_copy(double * a, const double * b, int n)
+{
+	cublasDcopy(n, b, 1, a, 1);
+}
+
 /**
  * r = a - b
  */

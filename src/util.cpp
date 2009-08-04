@@ -345,6 +345,11 @@ void vec_sum(double * r, const double * a, const double *b, int n)
 	}
 }
 
+void vec_copy(double * b, const double * a, int n)
+{
+	memcpy(b, a, n * sizeof(double));
+}
+
 void vec_mult(double * r, const double * a, const double *b, int n)
 {
 	int i;
