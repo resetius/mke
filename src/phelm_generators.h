@@ -62,10 +62,11 @@ namespace phelm {
 	 * or finite-element right part he should return elements_t in callback.
 	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
 	 */
-	struct Element {
-		int i;     ///< the number of row in finite-element matrix
-		int j;     ///< the number of column in finite-element matrix
-		double a;  ///< the value (A[i][j] += a)
+	template < typename T >
+	struct AElement {
+		int i; ///< the number of row in finite-element matrix
+		int j; ///< the number of column in finite-element matrix
+		T a;   ///< the value (A[i][j] += a)
 
 		/**
 		 * Initialization of row and column numbers and value.
@@ -73,8 +74,10 @@ namespace phelm {
 		 * @param j1 - columnt number
 		 * @param a1 - value
 		 */
-		Element(int i1, int j1, double a1) : i(i1), j(j1), a(a1) {}
+		AElement(int i1, int j1, T a1) : i(i1), j(j1), a(a1) {}
 	};
+
+	typedef AElement < double > Element;
 
 	/**
 	 * Elements vector.
