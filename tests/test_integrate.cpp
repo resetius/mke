@@ -65,11 +65,11 @@ void test_simple3()
 
 	fprintf(stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", integrate_cos(p, t1, ps));
 	ans = (4.0 * sin(1.) - 9.0 * cos(1.)) / 2.0 + 1.0;
-	fprintf(stderr, "real ans = %.16lf\n", ans);
+	fprintf(stderr, "double ans = %.16lf\n", ans);
 
 	fprintf(stderr, "integral (x - 1) (y - 2) sin x = %.16lf\n", integrate_sin(p, t1, ps));
 	ans = 5.0 - (9.0 * sin(1.) + 4.0 * cos(1.)) / 2.0;
-	fprintf(stderr, "real ans = %.16lf\n", ans);
+	fprintf(stderr, "double ans = %.16lf\n", ans);
 
 	fprintf(stderr, "integral (x - 1) (y - 2) / cos x = %.16lf\n", integrate_1_cos(p, t1, ps));
 

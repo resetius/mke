@@ -200,8 +200,14 @@
   */
 
 #include <stdio.h>
+#include <vector>
 
 #include "polynom.h"
+#include "solver.h"
+
+#ifdef GPGPU
+#include "alloc_cu.h"
+#endif
 
 typedef unsigned int uint;
 
@@ -216,7 +222,6 @@ namespace phelm {
  * @defgroup main Mesh and mesh functions.
  * @{
  */
-
 
 /**
  * Point class represents a 2-dimensional point on a plane.
@@ -592,8 +597,6 @@ double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
 double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
 						const Triangle & trk, const Mesh & m,
 						int i1, int j1, int i2, int j2, void * user_data);
-
-class Matrix;
 
 /**
  * Fast mesh inner product calculator.

@@ -47,13 +47,19 @@
  */
 
 #include <vector>
+#include <map>
 
 #ifdef SPARSE
-#include <map>
 #ifndef GMRES
+#define UMFPACK
+#endif
+#endif
+
+#ifdef UMFPACK
 #include <umfpack.h>
 #endif
-#endif
+
+#include "util.h"
 
 namespace phelm {
 
@@ -67,43 +73,26 @@ namespace phelm {
 /**
  * Matrix class.
  */
-class Matrix {
+template < typename T >
+class SparseMatrix {
+protected:
 	int n_;
 
-#ifdef SPARSE
 	// разреженная матрица
 	// формат хранения как в MatLab и UMFPACK
-	std::vector < int > Ap_;    // количества ненулевых в столбцах
-	std::vector < int > Ai_;    // индексы (номер строки) ненулевых элементов
-	std::vector < double > Ax_; // ненулевые элементы матрицы
+	std::vector < int, phelm_allocator < int > > Ap_; // количества ненулевых в столбцах
+	std::vector < int, phelm_allocator < int > > Ai_; // индексы (номер строки) ненулевых элементов
+	std::vector < T, phelm_allocator < T >  > Ax_;    // ненулевые элементы матрицы
 
 	//column_number -> row_number -> value
-	typedef std::map < int , double > column_t;
+	typedef std::map < int , T > column_t;
 	typedef std::vector < column_t > sparse_t;
 	sparse_t A_;
 
-#ifndef GMRES
-	double Control_ [UMFPACK_CONTROL];
-	double Info_ [UMFPACK_INFO];
-	void *Symbolic_, *Numeric_ ;
-#endif
-
-#else
-	std::vector < double > A_;  // матрица
-#endif
-
-	/* заполняет Ap, Ai, Ax по промежуточным данным */
 	void make_sparse();
-	void add_sparse(int i, int j, double a);
-	void solve_sparse(double * x, const double * b);
 
 public:
-	/**
-	 * create matrix NxN.
-	 * @param n - dimension
-	 */
-	Matrix(int n);
-	~Matrix();
+	SparseMatrix(int n): Ap_(n + 1) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
@@ -111,31 +100,111 @@ public:
 	 *  @param j - index
 	 *  @param a - value
 	 */
-	void add(int i, int j, double a);
+	void add(int i, int j, T a);
 
 	/**
 	 * Solve equation Ax = b.
-	 * That function uses GMRES or UMFPACK or Gauss depends on compilation flags.
-	 * If SPARSE and GMRES are defined then use GMRES
-	 * If SPARSE is defined then use UMFPACK
-	 * If SPARSE is not defined then use Gauss
+	 * That function uses GMRES
 	 * @param x - answer
 	 * @param b - right part
 	 */
-	void solve(double * x, const double * b);
+	void solve(T * x, const T * b);
 
 	/**
 	 * Product of matrix by vector (out = A in).
 	 * @param out - result
 	 * @param in  - input vector
 	 */
-	void mult_vector(double * out, const double * in);
+	void mult_vector(T * out, const T * in);
 
 	/**
 	 * print matrix to stdout.
 	 */
 	void print();
 };
+
+#ifdef UMFPACK
+
+/**
+ * Matrix class.
+ */
+template < typename T >
+class UmfPackMatrix: public SparseMatrix < T >
+{
+	int n_;
+	double Control_ [UMFPACK_CONTROL];
+	double Info_ [UMFPACK_INFO];
+	void *Symbolic_, *Numeric_ ;
+
+public:
+	UmfPackMatrix(int n): SparseMatrix < T >(n), Symbolic_(0), Numeric_(0) 
+	{
+		umfpack_di_defaults(Control_);
+	}
+
+	~UmfPackMatrix()
+	{
+		umfpack_di_free_symbolic (&Symbolic_);
+		umfpack_di_free_numeric (&Numeric_);
+	}
+
+	/**
+	 * Solve equation Ax = b.
+	 * That function uses UMFPACK
+	 * @param x - answer
+	 * @param b - right part
+	 */
+	void solve(T * x, const T * b);
+};
+
+#endif
+
+/**
+ * Matrix class.
+ */
+template < typename T >
+class SimpleMatrix
+{
+	int n_;
+	std::vector < T, phelm_allocator < T > > A_;  // матрица
+
+public:
+	SimpleMatrix(int n): A_(n * n) {}
+
+	/**
+	 *  Add a number to element (i, j) (A[i][j] += a).
+	 *  @param i - index
+	 *  @param j - index
+	 *  @param a - value
+	 */
+	void add(int i, int j, T a);
+
+	/**
+	 * Solve equation Ax = b.
+	 * That function uses Gauss
+	 * @param x - answer
+	 * @param b - right part
+	 */
+	void solve(T * x, const T * b);
+
+	/**
+	 * Product of matrix by vector (out = A in).
+	 * @param out - result
+	 * @param in  - input vector
+	 */
+	void mult_vector(T * out, const T * in);
+
+	/**
+	 * print matrix to stdout.
+	 */
+	void print();
+};
+
+#ifdef UMFPACK
+typedef UmfPackMatrix < double > Matrix;
+#else
+typedef SparseMatrix < double > Matrix;
+#endif
 
 struct Mesh;
 
@@ -167,6 +236,8 @@ void solve(double * answer, const double * bnd,
 void solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
 
 /** @} */ /* solver */
+
+#include "solver_private.h"
 
 }
 

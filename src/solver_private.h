@@ -36,51 +36,10 @@
  */
 
 #include <assert.h>
-#include <stdio.h>
 
-#include "solver.h"
-#include "util.h"
-#include "gmres.h"
-#include "ver.h"
-
-VERSION("$Id$");
-
-typedef unsigned int uint;
-using namespace phelm;
-
-#ifdef SPARSE
-Matrix::Matrix(int n): n_(n), Ap_(n_ + 1), A_(n_)
-#ifndef GMRES
-	, Symbolic_(0), Numeric_(0)
-#endif
+template < typename T >
+void SparseMatrix < T > ::mult_vector(T * out, const T * in)
 {
-#ifndef GMRES
-	umfpack_di_defaults(Control_);
-#endif
-}
-#else
-Matrix::Matrix(int n): n_(n), A_(n_ * n_) {}
-#endif
-
-Matrix::~Matrix()
-{
-#if defined(SPARSE) && !defined(GMRES)
-	umfpack_di_free_symbolic (&Symbolic_);
-	umfpack_di_free_numeric (&Numeric_);
-#endif
-}
-
-void Matrix::add(int i, int j, double a) {
-#ifdef SPARSE
-	add_sparse(i, j, a);
-#else
-	A_[i * n_ + j] += a;
-#endif
-}
-
-void Matrix::mult_vector(double * out, const double * in)
-{
-#ifdef SPARSE
 	if (Ax_.empty()) {
 		make_sparse();
 	}
@@ -90,34 +49,29 @@ void Matrix::mult_vector(double * out, const double * in)
 	A.Ai = &Ai_[0];
 
 	sparse_mult_vector_l(out, &A, in, n_);
-#else
-	matrix_mult_vector(out, &A_[0], in);
-#endif
 }
 
-void Matrix::solve(double * x, const double * b)
+template < typename T >
+void SimpleMatrix < T > ::mult_vector(T * out, const T * in)
+{
+	matrix_mult_vector(out, &A_[0], in);
+}
+
+template < typename T >
+void SimpleMatrix < T > ::solve(T * x, const T * b)
 {
 	Timer t;
 
-#ifdef SPARSE
-	solve_sparse(x, b);
-#else
-
-#ifdef GMRES
-	gmres(&x[0], &A_[0], &b[0], (Ax_t)matrix_mult_vector, n_, 100, 1000);
-#else
 	gauss(&A_[0], &b[0], &x[0], n_);
-#endif
 
-#endif
 #ifdef _DEBUG
 	fprintf(stderr, "solver time: %lf\n", t.elapsed());
 #endif
 }
 
-void Matrix::print()
+template < typename T >
+void SparseMatrix < T > ::print()
 {
-#ifdef SPARSE
 	if (Ax_.empty()) {
 		make_sparse();
 	}
@@ -131,7 +85,7 @@ void Matrix::print()
 	// diag:
 	{
 		int i, i0, j;
-		double * p = &Ax_[0];
+		T * p = &Ax_[0];
 		fprintf(stderr, "diag:\n");
 		for (j = 0; j < n_; ++j) {
 			for (i0 = Ap_[j]; i0 < Ap_[j + 1]; ++i0, ++p) {
@@ -143,20 +97,23 @@ void Matrix::print()
 		}
 		fprintf(stderr, "\n");
 	}
-#else
-	print_matrix(&A_[0], n);
-#endif
 }
 
-#ifdef SPARSE
+template < typename T >
+void SimpleMatrix < T > ::print()
+{
+	print_matrix(&A_[0], n);
+}
 
-void Matrix::add_sparse(int i, int j, double a)
+template < typename T >
+void SparseMatrix < T > ::add(int i, int j, T a)
 {
 	// transposed !
 	A_[i][j] += a;
 }
 
-void Matrix::make_sparse()
+template < typename T >
+void SparseMatrix < T > ::make_sparse()
 {
 	int nz = 0; // non-null elements
 	int idx = 0;
@@ -190,19 +147,29 @@ void Matrix::make_sparse()
 	}
 }
 
-void Matrix::solve_sparse(double * x, const double * b)
+template < typename T >
+void SparseMatrix < T > ::solve(T * x, const T * b)
 {
 	if (Ax_.empty()) {
 		make_sparse();
 	}
-#ifdef GMRES
+
 	Sparse A;
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 
 	gmres(&x[0], &A, &b[0], (Ax_t)sparse_mult_vector_l, n_, 100, 1000);
-#else // UMFPACK
+}
+
+#ifdef UMFPACK
+template < typename T >
+void UmfPackMatrix < T > ::solve(T * x, const T * b)
+{
+	if (Ax_.empty()) {
+		make_sparse();
+	}
+
 	int status;
 
 	if (Symbolic_ == 0) {
@@ -217,8 +184,5 @@ void Matrix::solve_sparse(double * x, const double * b)
 
 	status = umfpack_di_solve (UMFPACK_At, &Ap_[0], &Ai_[0], &Ax_[0], x, b, Numeric_, Control_, Info_);
 	assert(status == UMFPACK_OK);
-#endif
 }
-
 #endif
-

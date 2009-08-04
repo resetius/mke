@@ -391,15 +391,22 @@ public:
 #endif
 
 namespace phelm {
+
+/**
+ * @ingroup misc
+ * allocator.
+ */
+#ifndef GPGPU
+#define phelm_allocator std::allocator
+#else
+#define phelm_allocator cuda_allocator
+#endif
+
 /**
  * @ingroup misc
  * vector.
  */
-#ifndef GPGPU
-typedef std::vector < double > vec;
-#else
-typedef std::vector < double, cuda_allocator < double > > vec;
-#endif
+typedef std::vector < double, phelm_allocator < double > > vec;
 
 }
 

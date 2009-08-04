@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "phelm.h"
-#include "util.h"
 #include "laplace.h"
 
 using namespace std;
@@ -127,7 +126,7 @@ void test_invert(Mesh & m)
 	vector < double > F(sz);
 	vector < double > G(sz);
 
-	// real answer
+	// double answer
 	vector < double > RU(sz);
 	vector < double > RV(sz);
 
@@ -143,7 +142,7 @@ void test_invert(Mesh & m)
 	proj(&F[0], m, f);
 	proj(&G[0], m, g);
 
-	// real answer
+	// double answer
 	proj(&RU[0], m, u);
 	proj(&RV[0], m, v);
 

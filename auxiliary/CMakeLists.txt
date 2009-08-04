@@ -18,9 +18,11 @@ add_library(phelm_aux
 	${SOURCE}
 	)
 
+if (CUDA_SDK)
 add_library(phelm_aux_cu
 	${SOURCE}
 	)
 
 set_target_properties(phelm_aux_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")
+endif (CUDA_SDK)
 

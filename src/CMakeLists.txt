@@ -6,7 +6,7 @@ set(LIBRARY_OUTPUT_PATH "../lib")
 set(SOURCE 
 	phelm.cpp 
 	polynom.cpp 
-	solver.cpp 
+	solver_private.h 
 	ver.cpp
 	gmres.c 
 	quadrature.c
