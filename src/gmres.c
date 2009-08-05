@@ -53,18 +53,6 @@ double vec_scalar2(const double * a, const double * b, int n);
 double get_full_time();
 
 /**
- * a = b / k
- */
-static void vec_div_scalar(double * a, const double * b, double k, int n)
-{
-	int i;
-//#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		a[i] = b[i] / k;
-	}
-}
-
-/**
  * r = a + k2 * b
  */
 static void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
@@ -85,8 +73,8 @@ algorithm6_9(double * x, const void * A, const double * b,
 			 Ax_t Ax, double eps, int n, int k)
 {
 	double * q  = 0;
-	double * r  = malloc(n * sizeof(double)); /* b - Ax */
-	double * ax = malloc(n * sizeof(double));
+	double * r  = malloc(n * sizeof(double)); /* b - Ax */ // -> device
+	double * ax = malloc(n * sizeof(double)); // -> device
 	double * h  = 0;
 	double * gamma = 0;
 
@@ -113,13 +101,13 @@ algorithm6_9(double * x, const void * A, const double * b,
 		goto end;
 	}
 
-	h = calloc(hz * hz, sizeof(double));
-	q = malloc(hz * n * sizeof(double));
-	vec_mult_scalar(q, r, 1.0 / gamma_0, n);
-	gamma = malloc(hz * sizeof(double));
+	h = calloc(hz * hz, sizeof(double));     // -> host
+	q = malloc(hz * n * sizeof(double));     // -> device
+	vec_mult_scalar(q, r, 1.0 / gamma_0, n); 
+	gamma = malloc(hz * sizeof(double));     // -> host
 
-	s = malloc(hz * sizeof(double));
-	c = malloc(hz * sizeof(double));
+	s = malloc(hz * sizeof(double));         // -> host
+	c = malloc(hz * sizeof(double));         // -> host
 
 	gamma[0] = gamma_0;
 
@@ -181,7 +169,7 @@ done:
 	ret = gamma[j + 1];
 
 	{
-		double * y = malloc(hz * sizeof(double));
+		double * y = malloc(hz * sizeof(double));  // -> host
 		for (i = j; i >= 0; --i) {
 			double sum = 0.0;
 			for (k = i + 1; k <= j; ++k) {

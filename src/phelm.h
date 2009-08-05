@@ -202,12 +202,9 @@
 #include <stdio.h>
 #include <vector>
 
+#include "phelm_base.h"
 #include "polynom.h"
 #include "solver.h"
-
-#ifdef GPGPU
-#include "alloc_cu.h"
-#endif
 
 typedef unsigned int uint;
 

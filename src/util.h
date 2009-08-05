@@ -353,9 +353,6 @@ void set_fpe_except();
 
 /** @} */
 
-void phelm_init();
-void phelm_shutdown();
-
 #ifdef __cplusplus
 }
 #endif
@@ -384,31 +381,6 @@ public:
 	 */
 	void restart() { t1_ = get_full_time(); }
 };
-
-#include <vector>
-#ifdef GPGPU
-#include "alloc_cu.h"
-#endif
-
-namespace phelm {
-
-/**
- * @ingroup misc
- * allocator.
- */
-#ifndef GPGPU
-#define phelm_allocator std::allocator
-#else
-#define phelm_allocator cuda_allocator
-#endif
-
-/**
- * @ingroup misc
- * vector.
- */
-typedef std::vector < double, phelm_allocator < double > > vec;
-
-}
 
 #endif
 

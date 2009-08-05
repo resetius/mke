@@ -552,6 +552,10 @@ double get_full_time()
 	return (double)(tv.tv_sec * 100.0 + tv.tv_usec / 10000.0);
 }
 
+} /* extern "C" */
+
+namespace phelm {
+	
 void phelm_init()
 {
 }
@@ -560,5 +564,5 @@ void phelm_shutdown()
 {
 }
 
-} /* extern "C" */
+}
 
