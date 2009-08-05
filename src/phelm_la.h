@@ -1,5 +1,5 @@
-#ifndef PHELM_BASE_H
-#define PHELM_BASE_H
+#ifndef PHELM_LA_H
+#define PHELM_LA_H
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
@@ -36,39 +36,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+ 
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  */
 
-#include <vector>
-#ifdef GPGPU
-#include "alloc_cu.h"
-#endif
-
-namespace phelm {
-
-void phelm_init();
-void phelm_shutdown();
-
-/**
- * @ingroup misc
- * allocator.
- */
-#ifndef GPGPU
-#define phelm_allocator std::allocator
-#else
-#define phelm_allocator cuda_allocator
-#endif
-
-/**
- * @ingroup misc
- * vector.
- */
-typedef std::vector < double, phelm_allocator < double > > vec;
-
-}
-
-#endif /* PHELM_BASE_H */
+#endif /* PHELM_LA_H */
