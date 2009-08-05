@@ -202,7 +202,7 @@
 #include <stdio.h>
 #include <vector>
 
-#include "phelm_base.h"
+#include "base.h"
 #include "polynom.h"
 #include "solver.h"
 
@@ -725,7 +725,7 @@ void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
 
 }
 
-#include "phelm_generators.h"
+#include "generators.h"
 
 #endif /* MKE_H */
 

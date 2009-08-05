@@ -85,7 +85,7 @@ namespace phelm {
 	 */
 	typedef std::vector < Element > elements_t;
 
-	#include "phelm_private.h"
+	#include "private.h"
 
 /**
  * Generate finite element matrix.

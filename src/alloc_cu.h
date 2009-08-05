@@ -45,7 +45,7 @@ public:
 
 	size_type max_size() const throw()
 	{
-		return 1 << (sizeof(size_type) * 8 - 1);
+		return (size_type)1 << (sizeof(size_type) * 8 - 1);
 	}
 
 	void construct (pointer p, const T& val)

@@ -6,13 +6,14 @@ set(LIBRARY_OUTPUT_PATH "../lib")
 set(SOURCE 
 	phelm.cpp 
 	polynom.cpp 
-	solver_private.h 
 	ver.cpp
+	util.cpp
 	gmres.c 
 	quadrature.c
 	phelm.h
-	phelm_generators.h
-	phelm_private.h
+	generators.h
+	private.h
+	solver_private.h
 	gmres.h
 	polynom.h
 	solver.h
@@ -21,13 +22,13 @@ set(SOURCE
 
 add_library(phelm 
 	${SOURCE}
-	util.cpp 
+	linal.cpp 
 	)
 
 if (CUDA_SDK)
 add_library(phelm_cu
 	${SOURCE}
-	util_cu.cpp 
+	linal_cuda.cpp 
 	)
 
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")

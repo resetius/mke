@@ -230,7 +230,7 @@ public:
 
 #endif
 
-#include "phelm_la.h"
+#include "linal.h"
 
 #endif /* UTIL_H */
 

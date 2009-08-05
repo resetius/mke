@@ -31,7 +31,7 @@ set_target_properties(test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
 
 if (CUDA_SDK)
-	link_directories(${CUDA_SDK}/lib)
+	link_directories(${CUDA_SDK}/lib64)
 	add_executable(test_laplace_cu test_laplace.cpp)
 	target_link_libraries(test_laplace_cu phelm_cu phelm_aux_cu cublasemu ${UMFPACK})
 	set_target_properties(test_laplace_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")
