@@ -2,11 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <vector>
 
 #include "gmres.h"
 #include "util.h"
 
 using namespace phelm;
+using namespace std;
 
 template < typename T >
 void test_gmres()
@@ -14,11 +16,11 @@ void test_gmres()
 	int i, j = 0;
 	int n  = 300000;
 	int nz = n + n - 1 + n - 1;
-	int * Ap    = (int*)malloc((n + 1) * sizeof(double));
-	int * Ai    = (int*)malloc(nz * sizeof(double));
-	T * Ax = (T*)malloc(nz * sizeof(T));
-	T * b  = (T*)malloc(n * sizeof(T));
-	T * x  = (T*)malloc(n * sizeof(T));
+	vector < int > Ap((n + 1));
+	vector < int > Ai(nz);
+	vector < T, phelm_allocator < T > > Ax(nz);
+	vector < T, phelm_allocator < T > > b(n);
+	vector < T, phelm_allocator < T > > x(n);
 	Sparse_t < T > A;
 
 	/**
@@ -74,28 +76,27 @@ void test_gmres()
 		b[i] = 1;
 	}
 
-	A.Ax = Ax;
-	A.Ap = Ap;
-	A.Ai = Ai;
+	A.Ax = &Ax[0];
+	A.Ap = &Ap[0];
+	A.Ai = &Ai[0];
 
 	for (int k = 0; k < 10; ++k) {
-		gmres(x, &A, b, MatMultiplier < Sparse_t < T > > :: mult_vector_l, n, 10, 100);
+		gmres(&x[0], &A, &b[0], 
+			MatMultiplier < Sparse_t < T > > :: mult_vector_l, n, 10, 100);
 	}
-
-	free(Ap); free(Ai); free(Ax);
-	free(b); free(x);
 }
 
+template < typename T >
 void test_matvect()
 {
 	int i, j = 0;
 	int n  = 5000000;
 	int nz = n + n - 1 + n - 1;
-	int * Ap    = (int*)malloc((n + 1) * sizeof(double));
-	int * Ai    = (int*)malloc(nz * sizeof(double));
-	double * Ax = (double*)malloc(nz * sizeof(double));
-	double * b  = (double*)malloc(n * sizeof(double));
-	double * x  = (double*)malloc(n * sizeof(double));
+	vector < int > Ap((n + 1));
+	vector < int > Ai(nz);
+	vector < T, phelm_allocator < T > > Ax(nz);
+	vector < T, phelm_allocator < T > > b(n);
+	vector < T, phelm_allocator < T > > x(n);
 	Sparse A;
 
 	/**
@@ -151,16 +152,13 @@ void test_matvect()
 		b[i] = 1;
 	}
 
-	A.Ax = Ax;
-	A.Ap = Ap;
-	A.Ai = Ai;
+	A.Ax = &Ax[0];
+	A.Ap = &Ap[0];
+	A.Ai = &Ai[0];
 
 	for (int k = 0; k < 1000; ++k) {
-		sparse_mult_vector_l(x, &A, b, n);
+		sparse_mult_vector_l(&x[0], &A, &b[0], n);
 	}
-
-	free(Ap); free(Ai); free(Ax);
-	free(b); free(x);
 }
 
 int main(int argc, char * argv[])
