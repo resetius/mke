@@ -48,6 +48,8 @@
 #include "alloc_cu.h"
 #endif
 
+typedef unsigned int uint;
+
 namespace phelm {
 
 void phelm_init();

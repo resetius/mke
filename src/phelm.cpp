@@ -41,8 +41,6 @@
 
 #include "phelm.h"
 #include "ver.h"
-#include "util.h"
-#include "solver.h"
 
 VERSION("$Id$");
 
@@ -393,12 +391,14 @@ void set_bnd(double *u, const double * bnd, const Mesh & m)
 	}
 }
 
-double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * )
+double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
+						 const Mesh & m, int, int, int, int, void * )
 {
 	return integrate(phi_i * phi_j, trk, m.ps);
 }
 
-double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh & m, int, int, int, int, void * user_data)
+double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
+						const Mesh & m, int, int, int, int, void * user_data)
 {
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
