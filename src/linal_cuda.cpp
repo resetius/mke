@@ -242,7 +242,7 @@ double vec_scalar2(const double * a, const double * b, int n)
         return cublasDdot(n, a, 1, b, 1);
 }
 
-void sparse_print(const struct Sparse * A, int n, FILE * f)
+void sparse_print(const Sparse * A, int n, FILE * f)
 {
 	int i, i0, j, k, i_old;
 	const double * p = A->Ax;

@@ -34,7 +34,7 @@ public:
 	                  const void * hint = 0)
 	{
 		pointer ret;
-		cublasAlloc(size, sizeof(T), (void**)&ret);
+		cublasAlloc((int)size, sizeof(T), (void**)&ret);
 		return ret;
 	}
 
