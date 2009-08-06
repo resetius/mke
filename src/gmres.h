@@ -48,10 +48,9 @@
  * @see { http://en.wikipedia.org/wiki/GMRES }
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
 
+#include "base.h"
 #include "linal.h"
 
 /**
@@ -62,14 +61,14 @@ template < typename T, typename Mat, typename Ax_t >
 T algorithm6_9(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, T eps, int n, int k)
 {
-	T * q  = 0;
-	T * r  = (T*)malloc(n * sizeof(T)); /* b - Ax */ // -> device
-	T * ax = (T*)malloc(n * sizeof(T)); // -> device
-	T * h  = 0;
-	T * gamma = 0;
+	std::vector < T, phelm_allocator < T > > q;
+	std::vector < T, phelm_allocator < T > > r(n); /* b - Ax */ // -> device
+	std::vector < T, phelm_allocator < T > > ax(n); // -> device
+	std::vector < T > h;
+	std::vector < T > gamma;
 
-	T * s = 0;
-	T * c = 0;
+	std::vector < T > s;
+	std::vector < T > c;
 
 	T gamma_0;
 	T beta;
@@ -81,40 +80,40 @@ T algorithm6_9(T * x, const Mat * A, const T * b,
 
 	/* x0 = x */
 	/* r0 = b - Ax0 */
-	Ax(ax, A, x, n);
-	vec_diff(r, b, ax, n);
+	Ax(&ax[0], A, x, n);
+	vec_diff(&r[0], &b[0], &ax[0], n);
 
-	gamma_0 = vec_norm2(r, n);
+	gamma_0 = vec_norm2(&r[0], n);
 
 	if (gamma_0 <= eps) {
 		ret = gamma_0;
 		goto end;
 	}
 
-	h = (T*)calloc(hz * hz, sizeof(T));     // -> host
-	q = (T*)malloc(hz * n * sizeof(T));     // -> device
-	vec_mult_scalar(q, r, (T)1.0 / gamma_0, n); 
-	gamma = (T*)malloc(hz * sizeof(T));     // -> host
+	h.resize(hz * hz);    // -> host
+	q.resize(hz * n);     // -> device
+	vec_mult_scalar(&q[0], &r[0], (T)1.0 / gamma_0, n); 
+	gamma.resize(hz);     // -> host
 
-	s = (T*)malloc(hz * sizeof(T));         // -> host
-	c = (T*)malloc(hz * sizeof(T));         // -> host
+	s.resize(hz);         // -> host
+	c.resize(hz);         // -> host
 
 	gamma[0] = gamma_0;
 
 	for (j = 0; j < k; ++j) {
 		T nr1, nr2;
 
-		Ax(ax, A, &q[j * n], n);
-		nr1 = vec_norm2(ax, n);
+		Ax(&ax[0], A, &q[j * n], n);
+		nr1 = vec_norm2(&ax[0], n);
 
 		for (i = 0; i <= j; ++i) {
-			h[i * hz + j] = vec_scalar2(&q[i * n], ax, n); //-> j x j
+			h[i * hz + j] = vec_scalar2(&q[i * n], &ax[0], n); //-> j x j
 			//ax = ax - h[i * hz + j] * q[i * n];
-			vec_sum2(ax, ax, &q[i * n], -h[i * hz + j], n);
+			vec_sum2(&ax[0], &ax[0], &q[i * n], -h[i * hz + j], n);
 		}
 		
 		// h -> (j + 1) x j
-		h[(j + 1) * hz + j] = vec_norm2(ax, n);
+		h[(j + 1) * hz + j] = vec_norm2(&ax[0], n);
 
 		// loss of orthogonality detected
 		// C. T. Kelley: Iterative Methods for Linear and Nonlinear Equations, SIAM, ISBN 0-89871-352-8
@@ -122,11 +121,11 @@ T algorithm6_9(T * x, const Mat * A, const T * b,
 		if (fabs(nr2  - nr1) < eps) {
 			/*fprintf(stderr, "reortho!\n");*/
 			for (i = 0; i <= j; ++i) {
-				T hr = vec_scalar2(&q[i * n], ax, n);
+				T hr = vec_scalar2(&q[i * n], &ax[0], n);
 				h[i * hz + j] += hr;
-				vec_sum2(ax, ax, &q[i * n], -hr, n);
+				vec_sum2(&ax[0], &ax[0], &q[i * n], -hr, n);
 			}
-			h[(j + 1) * hz + j] = vec_norm2(ax, n);
+			h[(j + 1) * hz + j] = vec_norm2(&ax[0], n);
 		}
 
 		// rotate
@@ -147,7 +146,7 @@ T algorithm6_9(T * x, const Mat * A, const T * b,
 		gamma[j]     = c[j + 1] * gamma[j];
 
 		if (gamma[j + 1]  > eps) {
-			vec_mult_scalar(&q[(j + 1) * n], ax, (T)1.0 / h[(j + 1) * hz + j], n);
+			vec_mult_scalar(&q[(j + 1) * n], &ax[0], (T)1.0 / h[(j + 1) * hz + j], n);
 		} else {
 			goto done;
 		}
@@ -159,7 +158,7 @@ done:
 	ret = gamma[j + 1];
 
 	{
-		T * y = (T*)malloc(hz * sizeof(T));  // -> host
+		std::vector < T > y(hz);  // -> host
 		for (i = j; i >= 0; --i) {
 			T sum = 0.0;
 			for (k = i + 1; k <= j; ++k) {
@@ -169,17 +168,11 @@ done:
 		}
 
 		for (i = 0; i <= j; ++i) {
-			vec_sum2(x, x, &q[i * n], y[i], n);
+			vec_sum2(&x[0], &x[0], &q[i * n], y[i], n);
 		}
-		free(y);
 	}
 
 end:
-	free(q);  free(r);
-	free(ax); free(h);
-	free(gamma);
-	free(s); free(c);
-
 	return ret;
 }
 
