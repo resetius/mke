@@ -6,6 +6,7 @@
 #include "gmres.h"
 #include "util.h"
 
+using namespace phelm;
 
 void test_gmres()
 {

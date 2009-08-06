@@ -53,7 +53,7 @@
 
 VERSION("$Id$");
 
-extern "C" {
+namespace phelm {
 
 /**
  * Gauss
@@ -153,7 +153,7 @@ void mat_mult_vector(double * r, const double * A, const double * x, int n)
 	}
 }
 
-void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x, int n)
+void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)
 {
 	int j;
 
@@ -170,7 +170,7 @@ void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x,
 	}
 }
 
-void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x, int n)
+void sparse_mult_vector_r(double * r, const Sparse * A, const double * x, int n)
 {
 	int i0, i, j;
 	const double * p = A->Ax;
@@ -264,10 +264,6 @@ void sparse_print(const struct Sparse * A, int n, FILE * f)
 	}
 }
 
-} /* extern "C" */
-
-namespace phelm {
-
 void phelm_init()
 {
 	if (cublasInit() != CUBLAS_STATUS_SUCCESS)
@@ -284,5 +280,4 @@ void phelm_shutdown()
 	cublasShutdown();
 }
 
-}
-
+} /* namespace phelm */

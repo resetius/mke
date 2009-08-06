@@ -51,7 +51,7 @@
 
 VERSION("$Id$");
 
-extern "C" {
+namespace phelm {
 
 /**
  * Gauss
@@ -122,7 +122,8 @@ int gauss (double *A, double *b, double *x, int n)
 	return 0;
 }
 
-void mat_print(const double * A, int n)
+template < typename T >
+void mat_print_(const T * A, int n)
 {
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < n; ++j) {
@@ -132,7 +133,18 @@ void mat_print(const double * A, int n)
 	}
 }
 
-void vec_print(const double * A, int n)
+void mat_print(const float * A, int n)
+{
+	mat_print_(A, n);
+}
+
+void mat_print(const double * A, int n)
+{
+	mat_print_(A, n);
+}
+
+template < typename T >
+void vec_print_(const T * A, int n)
 {
 	for (int i = 0; i < n; ++i) {
 		printf("%9.2le ", A[i]);
@@ -140,7 +152,18 @@ void vec_print(const double * A, int n)
 	printf("\n");
 }
 
-void mat_mult_vector(double * r, const double * A, const double * x, int n)
+void vec_print(const double * A, int n)
+{
+	vec_print_(A, n);
+}
+
+void vec_print(const float * A, int n)
+{
+	vec_print_(A, n);
+}
+
+template < typename T >
+void mat_mult_vector_(T * r, const T * A, const T * x, int n)
 {
 	int i, j;
 	for (i = 0; i < n; ++i) {
@@ -151,13 +174,24 @@ void mat_mult_vector(double * r, const double * A, const double * x, int n)
 	}
 }
 
-void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x, int n)
+void mat_mult_vector(double * r, const double * A, const double * x, int n)
+{
+	mat_mult_vector_(r, A, x, n);
+}
+
+void mat_mult_vector(float * r, const float * A, const float * x, int n)
+{
+	mat_mult_vector_(r, A, x, n);
+}
+
+template < typename T, typename Sparse >
+void sparse_mult_vector_l_(T * r, const Sparse * A, const T * x, int n)
 {
 	int j;
 
 #pragma omp parallel for
 	for (j = 0; j < n; ++j) {
-		double *p = &A->Ax[A->Ap[j]];
+		T *p = &A->Ax[A->Ap[j]];
 		int i0;
 		r[j] = 0;
 
@@ -168,12 +202,23 @@ void sparse_mult_vector_l(double * r, const struct Sparse * A, const double * x,
 	}
 }
 
-void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x, int n)
+void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)
+{
+	sparse_mult_vector_l_(r, A, x, n);
+}
+
+void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x, int n)
+{
+	sparse_mult_vector_l_(r, A, x, n);
+}
+
+template < typename T, typename Sparse >
+void sparse_mult_vector_r_(T * r, const Sparse * A, const T * x, int n)
 {
 	int i0, i, j;
-	const double * p = A->Ax;
+	const T * p = A->Ax;
 
-	memset(r, 0, n * sizeof(double));
+	memset(r, 0, n * sizeof(T));
 	for (j = 0; j < n; ++j) {
 		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
 			i = A->Ai[i0];
@@ -182,10 +227,21 @@ void sparse_mult_vector_r(double * r, const struct Sparse * A, const double * x,
 	}
 }
 
+void sparse_mult_vector_r(double * r, const Sparse * A, const double * x, int n)
+{
+	sparse_mult_vector_r_(r, A, x, n);
+}
+
+void sparse_mult_vector_r(float * r, const Sparsef * A, const float * x, int n)
+{
+	sparse_mult_vector_r_(r, A, x, n);
+}
+
 /**
  * r = k1 * a + k2 * b
  */
-void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
+template < typename T >
+void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
 {
 	int i;
 #pragma omp parallel for
@@ -194,7 +250,18 @@ void vec_sum1(double * r, const double * a, const double *b, double k1, double k
 	}
 }
 
-void vec_sum(double * r, const double * a, const double *b, int n)
+void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
+{
+	vec_sum1_(r, a, b, k1, k2, n);
+}
+
+void vec_sum1(float * r, const float * a, const float *b, float k1, float k2, int n)
+{
+	vec_sum1_(r, a, b, k1, k2, n);
+}
+
+template < typename T >
+void vec_sum_(T * r, const T * a, const T *b, int n)
 {
 	int i;
 #pragma omp parallel for
@@ -203,12 +270,34 @@ void vec_sum(double * r, const double * a, const double *b, int n)
 	}
 }
 
-void vec_copy(double * b, const double * a, int n)
+void vec_sum(double * r, const double * a, const double *b, int n)
 {
-	memcpy(b, a, n * sizeof(double));
+	vec_sum_(r, a, b, n);
 }
 
-void vec_mult(double * r, const double * a, const double *b, int n)
+void vec_sum(float * r, const float * a, const float *b, int n)
+{
+	vec_sum_(r, a, b, n);
+}
+
+template < typename T >
+void vec_copy_(T * b, const T * a, int n)
+{
+	memcpy(b, a, n * sizeof(T));
+}
+
+void vec_copy(double * b, const double * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
+void vec_copy(float * b, const float * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
+template < typename T >
+void vec_mult_(T * r, const T * a, const T *b, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -217,10 +306,21 @@ void vec_mult(double * r, const double * a, const double *b, int n)
 	}
 }
 
+void vec_mult(double * r, const double * a, const double *b, int n)
+{
+	vec_mult_(r, a, b, n);
+}
+
+void vec_mult(float * r, const float * a, const float *b, int n)
+{
+	vec_mult_(r, a, b, n);
+}
+
 /**
  * a = b * k
  */
-void vec_mult_scalar(double * a, const double * b, double k, int n)
+template < typename T >
+void vec_mult_scalar_(T * a, const T * b, T k, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -229,10 +329,21 @@ void vec_mult_scalar(double * a, const double * b, double k, int n)
 	}
 }
 
+void vec_mult_scalar(double * a, const double * b, double k, int n)
+{
+	vec_mult_scalar_(a, b, k, n);
+}
+
+void vec_mult_scalar(float * a, const float * b, float k, int n)
+{
+	vec_mult_scalar_(a, b, k, n);
+}
+
 /**
  * r = a - b
  */
-void vec_diff(double * r, const double * a, const double * b, int n)
+template < typename T >
+void vec_diff_(T * r, const T * a, const T * b, int n)
 {
 	int i;
 //#pragma omp parallel for
@@ -241,32 +352,65 @@ void vec_diff(double * r, const double * a, const double * b, int n)
 	}
 }
 
+void vec_diff(double * r, const double * a, const double * b, int n)
+{
+	vec_diff_(r, a, b, n);
+}
+
+void vec_diff(float * r, const float * a, const float * b, int n)
+{
+	vec_diff_(r, a, b, n);
+}
+
+template < typename T >
+T vec_norm2_(const T * v, int n)
+{
+	T s = (T) 0.0;
+	int i;
+//#pragma omp parallel for reduction(+:s)
+	for (i = 0; i < n; ++i) {
+		s = s + v[i] * v[i];
+	}
+	return sqrt(s);
+}
+
 double vec_norm2(const double * v, int n)
 {
-        double s = 0.0;
-        int i;
+	return vec_norm2_(v, n);
+}
+
+float vec_norm2(const float * v, int n)
+{
+	return vec_norm2_(v, n);
+}
+
+template < typename T >
+T vec_scalar2_(const T * a, const T * b, int n)
+{
+	T s = (T)0.0;
+	int i;
 //#pragma omp parallel for reduction(+:s)
-        for (i = 0; i < n; ++i) {
-                s = s + v[i] * v[i];
-        }
-        return sqrt(s);
+	for (i = 0; i < n; ++i) {
+		s = s + a[i] * b[i];
+	}
+	return s;
 }
 
 double vec_scalar2(const double * a, const double * b, int n)
 {
-        double s = 0.0;
-        int i;
-//#pragma omp parallel for reduction(+:s)
-        for (i = 0; i < n; ++i) {
-                s = s + a[i] * b[i];
-        }
-        return s;
+	vec_scalar2_(a, b, n);
 }
 
-void sparse_print(const struct Sparse * A, int n, FILE * f)
+float vec_scalar2(const float * a, const float * b, int n)
+{
+	vec_scalar2_(a, b, n);
+}
+
+template < typename T , typename Sparse >
+void sparse_print_(const Sparse * A, int n, FILE * f)
 {
 	int i, i0, j, k, i_old;
-	const double * p = A->Ax;
+	const T * p = A->Ax;
 	for (j = 0; j < n; ++j) {
 		i_old = -1;
 		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
@@ -274,7 +418,7 @@ void sparse_print(const struct Sparse * A, int n, FILE * f)
 			for (k = i_old; k < i - 1; ++k) {
 				fprintf(f, "%8.3lf ", 0.0);
 			}
-			fprintf(f, "%8.3lf ", *p);
+			fprintf(f, "%8.3lf ", (double)*p);
 			i_old = i;
 		}
 
@@ -285,10 +429,16 @@ void sparse_print(const struct Sparse * A, int n, FILE * f)
 	}
 }
 
-} /* extern "C" */
+void sparse_print(const Sparse * A, int n, FILE * f)
+{
+	sparse_print_ < double > (A, n, f);
+}
 
-namespace phelm {
-	
+void sparse_print(const Sparsef * A, int n, FILE * f)
+{
+	sparse_print_ < float > (A, n, f);
+}
+
 void phelm_init()
 {
 }
@@ -297,5 +447,5 @@ void phelm_shutdown()
 {
 }
 
-}
+} /* namespace phelm */
 

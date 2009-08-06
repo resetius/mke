@@ -78,17 +78,6 @@ ipow(double x, int p)
 }
 
 /**
- * The Gauss method. Solves a linear system Ax=b.
- *
- * @param A - the matrix of the system.
- * @param b - the right part.
- * @param x - the answer.
- * @param n - dimension.
- * @return 0 on success.
- */
-int gauss (double *A, double *b, double *x, int n);
-
-/**
  * Take the integral of \f$x^k y^n\f$ over trapezoid.
  * y=k1x+b1 y=k2x+b2 - bounding lines. 
  * x belongs to segment [x1, x3].
