@@ -118,17 +118,16 @@ void mat_mult_vector(float * r, const float * A, const float * x, int n);
  * If matrix is stored by columns then  Ap[i+1]-Ap[i] is the number of nonzero entries in column i, 
  * Ai contains indices of nonzero entries of column.
  */
-struct Sparse {
+template < typename T >
+struct Sparse_t {
+	typedef T data_type;
 	int * Ap;    ///< the number of elements in columns or rows
 	int * Ai;    ///< column or row indices
-	double * Ax; ///< holds nonzero matrix entires
+	data_type * Ax; ///< holds nonzero matrix entires
 };
 
-struct Sparsef {
-	int * Ap;   ///< the number of elements in columns or rows
-	int * Ai;   ///< column or row indices
-	float * Ax; ///< holds nonzero matrix entires
-};
+typedef Sparse_t < double > Sparse;
+typedef Sparse_t < float > Sparsef;
 
 /**
  * If matrix is stored by columns then left multiply by vector: r = x A
@@ -158,6 +157,24 @@ void sparse_mult_vector_r(double * r, const Sparse * A,
 void sparse_mult_vector_r(float * r, const Sparsef * A,
 						  const float * x, int n);
 
+template < typename Sparse >
+struct MatMultiplier 
+{
+	typedef typename Sparse::data_type data_type;
+
+	static void mult_vector_l(data_type * r, const Sparse * A,
+		const data_type * x, int n)
+	{
+		sparse_mult_vector_l(r, A, x, n);
+	}
+
+	static void mult_vector_r(data_type * r, const Sparse * A,
+		const data_type * x, int n)
+	{
+		sparse_mult_vector_r(r, A, x, n);
+	}
+};
+
 /**
  * Print sparse matrix to file.
  * @param A - input sparse matrix
@@ -183,6 +200,21 @@ void vec_sum1(double * r, const double * a,
 
 void vec_sum1(float * r, const float * a,
 			  const float *b, float k1, float k2, int n);
+
+/**
+ * Linear combination of two vectors.
+ * @param r - output vector
+ * @param a - input vector
+ * @param b - input vector
+ * @param k2 - coefficient
+ * @param n - dimension of vectors
+ * @return r = a + k2 * b
+ */
+void vec_sum2(double * r, const double * a,
+			  const double *b, double k2, int n);
+
+void vec_sum2(float * r, const float * a,
+			  const float *b, float k2, int n);
 
 /**
  * Product of vector by number.

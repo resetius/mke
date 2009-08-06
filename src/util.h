@@ -217,9 +217,10 @@ public:
 	void restart() { t1_ = get_full_time(); }
 };
 
-#endif
 
 #include "linal.h"
+
+#endif
 
 #endif /* UTIL_H */
 

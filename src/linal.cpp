@@ -260,6 +260,29 @@ void vec_sum1(float * r, const float * a, const float *b, float k1, float k2, in
 	vec_sum1_(r, a, b, k1, k2, n);
 }
 
+/**
+ * r = a + k2 * b
+ */
+template < typename T >
+void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
+{
+	int i;
+//#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		r[i] = a[i] + k2 * b[i];
+	}
+}
+
+void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
+{
+	vec_sum2_(r, a, b, k2, n);
+}
+
+void vec_sum2(float * r, const float * a, const float *b, float k2, int n)
+{
+	vec_sum2_(r, a, b, k2, n);
+}
+
 template < typename T >
 void vec_sum_(T * r, const T * a, const T *b, int n)
 {
@@ -398,19 +421,19 @@ T vec_scalar2_(const T * a, const T * b, int n)
 
 double vec_scalar2(const double * a, const double * b, int n)
 {
-	vec_scalar2_(a, b, n);
+	return vec_scalar2_(a, b, n);
 }
 
 float vec_scalar2(const float * a, const float * b, int n)
 {
-	vec_scalar2_(a, b, n);
+	return vec_scalar2_(a, b, n);
 }
 
-template < typename T , typename Sparse >
+template < typename Sparse >
 void sparse_print_(const Sparse * A, int n, FILE * f)
 {
 	int i, i0, j, k, i_old;
-	const T * p = A->Ax;
+	const typename Sparse::data_type * p = A->Ax;
 	for (j = 0; j < n; ++j) {
 		i_old = -1;
 		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
@@ -431,12 +454,12 @@ void sparse_print_(const Sparse * A, int n, FILE * f)
 
 void sparse_print(const Sparse * A, int n, FILE * f)
 {
-	sparse_print_ < double > (A, n, f);
+	sparse_print_ (A, n, f);
 }
 
 void sparse_print(const Sparsef * A, int n, FILE * f)
 {
-	sparse_print_ < float > (A, n, f);
+	sparse_print_ (A, n, f);
 }
 
 void phelm_init()

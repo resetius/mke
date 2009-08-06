@@ -8,6 +8,7 @@
 
 using namespace phelm;
 
+template < typename T >
 void test_gmres()
 {
 	int i, j = 0;
@@ -15,10 +16,10 @@ void test_gmres()
 	int nz = n + n - 1 + n - 1;
 	int * Ap    = (int*)malloc((n + 1) * sizeof(double));
 	int * Ai    = (int*)malloc(nz * sizeof(double));
-	double * Ax = (double*)malloc(nz * sizeof(double));
-	double * b  = (double*)malloc(n * sizeof(double));
-	double * x  = (double*)malloc(n * sizeof(double));
-	struct Sparse A;
+	T * Ax = (T*)malloc(nz * sizeof(T));
+	T * b  = (T*)malloc(n * sizeof(T));
+	T * x  = (T*)malloc(n * sizeof(T));
+	Sparse_t < T > A;
 
 	/**
 	 * -4  1  0  ....  0
@@ -78,7 +79,7 @@ void test_gmres()
 	A.Ai = Ai;
 
 	for (int k = 0; k < 10; ++k) {
-		gmres(x, &A, b, (Ax_t)sparse_mult_vector_l, n, 10, 100);
+		gmres(x, &A, b, MatMultiplier < Sparse_t < T > > :: mult_vector_l, n, 10, 100);
 	}
 
 	free(Ap); free(Ai); free(Ax);
@@ -95,7 +96,7 @@ void test_matvect()
 	double * Ax = (double*)malloc(nz * sizeof(double));
 	double * b  = (double*)malloc(n * sizeof(double));
 	double * x  = (double*)malloc(n * sizeof(double));
-	struct Sparse A;
+	Sparse A;
 
 	/**
 	 * 2 1 0 .... 0
@@ -164,7 +165,8 @@ void test_matvect()
 
 int main(int argc, char * argv[])
 {
-	test_gmres();
+	test_gmres < double > ();
+	test_gmres < float > ();
 	//test_matvect();
 	return 0;
 }

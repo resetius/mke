@@ -8,7 +8,6 @@ set(SOURCE
 	polynom.cpp 
 	ver.cpp
 	util.cpp
-	gmres.c 
 	quadrature.c
 	phelm.h
 	generators.h
