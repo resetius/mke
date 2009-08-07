@@ -43,6 +43,7 @@
 #include <float.h>
 
 #include <cublas.h>
+#include <cuda_runtime_api.h>
 
 #include "linal.h"
 #include "ver.h"
@@ -132,6 +133,21 @@ void vec_copy_from_host(int * a, const int * b, int n)
 	cublasSetVector(n, sizeof(int), b, 1, a, 1);
 }
 
+void vec_copy_from_device(double * a, const double * b, int n)
+{
+	cublasGetVector(n, sizeof(double), b, 1, a, 1);
+}
+
+void vec_copy_from_device(float * a, const float * b, int n)
+{
+	cublasGetVector(n, sizeof(float), b, 1, a, 1);
+}
+
+void vec_copy_from_device(int * a, const int * b, int n)
+{
+	cublasGetVector(n, sizeof(int), b, 1, a, 1);
+}
+
 /**
  * r = a - b
  */
@@ -165,6 +181,14 @@ double vec_scalar2(const double * a, const double * b, int n)
 float vec_scalar2(const float * a, const float * b, int n)
 {
 	return cublasSdot(n, a, 1, b, 1);
+}
+
+int check_device_supports_double()
+{
+	double pi1 = M_PI;
+	double pi2 = M_PI;
+	cudaSetDoubleForDevice(&pi1);
+	return pi1 == pi2;
 }
 
 void phelm_init()

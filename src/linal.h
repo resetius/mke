@@ -298,6 +298,12 @@ void vec_copy_from_host(double * b, const double * a, int n);
 void vec_copy_from_host(float * b, const float * a, int n);
 void vec_copy_from_host(int * b, const int * a, int n);
 
+void vec_copy_from_device(double * b, const double * a, int n);
+void vec_copy_from_device(float * b, const float * a, int n);
+void vec_copy_from_device(int * b, const int * a, int n);
+
+int check_device_supports_double();
+
 /**
  * @}
  */

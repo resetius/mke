@@ -176,8 +176,16 @@ void test_matvect()
 int main(int argc, char * argv[])
 {
 	phelm_init();
-	test_gmres < double > ();
-	test_gmres < float > ();
+
+	int has_double = check_device_supports_double();
+	fprintf(stderr, "has double: %d\n", has_double);
+
+	if (has_double) {
+		test_gmres < float > ();
+		test_gmres < double > ();
+	} else {
+		test_gmres < float > ();
+	}
 	//test_matvect();
 	phelm_shutdown();
 	return 0;

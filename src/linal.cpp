@@ -146,6 +146,21 @@ void vec_copy_from_host(int * b, const int * a, int n)
 	vec_copy_(b, a, n);
 }
 
+void vec_copy_from_device(double * b, const double * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
+void vec_copy_from_device(float * b, const float * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
+void vec_copy_from_device(int * b, const int * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
 /**
  * a = b * k
  */
@@ -234,6 +249,11 @@ double vec_scalar2(const double * a, const double * b, int n)
 float vec_scalar2(const float * a, const float * b, int n)
 {
 	return vec_scalar2_(a, b, n);
+}
+
+int check_device_supports_double()
+{
+	return 1;
 }
 
 void phelm_init()
