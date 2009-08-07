@@ -199,7 +199,7 @@ void gmres(T * x, const Mat * A, const T * b,
 	int i;
 
 	/* x0 = b */
-	memcpy(x, b, n * sizeof(T));
+	vec_copy(x, b, n);
 	fprintf(stderr, "  gmres: ||b|| = %le\n", (double)bn);
 
 	if (bn < tol) {
