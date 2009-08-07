@@ -40,14 +40,13 @@ add_test(test_slaplace_half ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_s
 add_test(test_slaplace_test ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_slaplace.lua ${EXECUTABLE_OUTPUT_PATH} test)
 add_test(test_slaplace_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_slaplace.lua ${EXECUTABLE_OUTPUT_PATH} test2)
 
-if (CUDA_SDK)
-	link_directories(${CUDA_SDK}/lib64)
-	add_executable(test_gmres_cu test_gmres.cpp)
-	target_link_libraries(test_gmres_cu phelm_cu phelm_aux_cu cublas)
-
-	set_target_properties(test_gmres_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")
+if (CUDA_FOUND)
+	cuda_add_executable(test_gmres_cu test_gmres.cpp)
+	target_link_libraries(test_gmres_cu phelm_cu phelm_aux_cu)
+	cuda_add_cublas_to_target(test_gmres_cu)
+	set_target_properties(test_gmres_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 
 	if (OPENMP_FOUND)
 		set_target_properties(test_gmres_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 	endif (OPENMP_FOUND)
-endif (CUDA_SDK)
+endif (CUDA_FOUND)

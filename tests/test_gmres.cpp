@@ -83,10 +83,10 @@ void test_gmres()
 		b[i] = 1;
 	}
 
-	vec_copy_from_host(&cAp[0], &Ap[0], Ap.size());
-	vec_copy_from_host(&cAi[0], &Ai[0], Ai.size());
-	vec_copy_from_host(&cAx[0], &Ax[0], Ax.size());
-	vec_copy_from_host(&cb[0], &b[0], b.size());
+	vec_copy_from_host(&cAp[0], &Ap[0], (int)Ap.size());
+	vec_copy_from_host(&cAi[0], &Ai[0], (int)Ai.size());
+	vec_copy_from_host(&cAx[0], &Ax[0], (int)Ax.size());
+	vec_copy_from_host(&cb[0], &b[0], (int)b.size());
 
 	A.Ax = &cAx[0];
 	A.Ap = &cAp[0];

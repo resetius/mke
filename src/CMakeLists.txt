@@ -25,13 +25,13 @@ add_library(phelm
 	linal.cpp 
 	)
 
-if (CUDA_SDK)
-add_library(phelm_cu
+if (CUDA_FOUND)
+cuda_add_library(phelm_cu
 	${SOURCE}
 	linal_cuda.cpp 
 	)
 
-set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_SDK}/include")
-endif (CUDA_SDK)
+set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
+endif (CUDA_FOUND)
 
 

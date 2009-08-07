@@ -152,7 +152,7 @@ void SparseMatrix < T > ::make_sparse()
 
 	vec_copy_from_host(&Ax_[0], &Ax[0], nz);
 	vec_copy_from_host(&Ai_[0], &Ai[0], nz);
-	vec_copy_from_host(&Ap_[0], &Ap[0], Ap_.size());
+	vec_copy_from_host(&Ap_[0], &Ap[0], n_ + 1);
 }
 
 template < typename T >
