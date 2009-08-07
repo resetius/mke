@@ -163,8 +163,10 @@ void test_matvect()
 
 int main(int argc, char * argv[])
 {
+	phelm_init();
 	test_gmres < double > ();
 	test_gmres < float > ();
 	//test_matvect();
+	phelm_shutdown();
 	return 0;
 }
