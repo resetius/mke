@@ -43,6 +43,8 @@
  * @version $Revision$
  */
 
+#include <stdio.h>
+
 namespace phelm {
 
 /**
