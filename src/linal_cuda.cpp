@@ -117,6 +117,21 @@ void vec_copy(float * a, const float * b, int n)
 	cublasScopy(n, b, 1, a, 1);
 }
 
+void vec_copy_from_host(double * a, const double * b, int n)
+{
+	cublasSetVector(n, sizeof(double), b, 1, a, 1);
+}
+
+void vec_copy_from_host(float * a, const float * b, int n)
+{
+	cublasSetVector(n, sizeof(float), b, 1, a, 1);
+}
+
+void vec_copy_from_host(int * a, const int * b, int n)
+{
+	cublasSetVector(n, sizeof(int), b, 1, a, 1);
+}
+
 /**
  * r = a - b
  */

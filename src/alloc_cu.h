@@ -2,6 +2,8 @@
 #define ALLOC_CU_H
 
 #include <cublas.h>
+#include <cuda.h>
+#include <cuda_runtime_api.h>
 
 namespace phelm {
 
@@ -35,6 +37,7 @@ public:
 	{
 		pointer ret;
 		cublasAlloc((int)size, sizeof(T), (void**)&ret);
+		cudaMemset(ret, 0, size * sizeof(T));
 		return ret;
 	}
 
@@ -50,12 +53,10 @@ public:
 
 	void construct (pointer p, const T& val)
 	{
-		*p = val;
 	}
 
 	void destroy (pointer p)
 	{
-		p->~T();
 	}
 };
 

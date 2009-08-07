@@ -16,11 +16,18 @@ void test_gmres()
 	int i, j = 0;
 	int n  = 300000;
 	int nz = n + n - 1 + n - 1;
+	vector < int, phelm_allocator < T > > cAp((n + 1));
+	vector < int, phelm_allocator < T > > cAi(nz);
+	vector < T, phelm_allocator < T > > cAx(nz);
+
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
-	vector < T, phelm_allocator < T > > Ax(nz);
-	vector < T, phelm_allocator < T > > b(n);
-	vector < T, phelm_allocator < T > > x(n);
+	vector < T > Ax(nz);
+	vector < T > b(n);
+
+	vector < T, phelm_allocator < T > > cb(n);
+	vector < T, phelm_allocator < T > > cx(n);
+
 	Sparse_t < T > A;
 
 	/**
@@ -76,12 +83,17 @@ void test_gmres()
 		b[i] = 1;
 	}
 
-	A.Ax = &Ax[0];
-	A.Ap = &Ap[0];
-	A.Ai = &Ai[0];
+	vec_copy_from_host(&cAp[0], &Ap[0], Ap.size());
+	vec_copy_from_host(&cAi[0], &Ai[0], Ai.size());
+	vec_copy_from_host(&cAx[0], &Ax[0], Ax.size());
+	vec_copy_from_host(&cb[0], &b[0], b.size());
+
+	A.Ax = &cAx[0];
+	A.Ap = &cAp[0];
+	A.Ai = &cAi[0];
 
 	for (int k = 0; k < 10; ++k) {
-		gmres(&x[0], &A, &b[0], 
+		gmres(&cx[0], &A, &cb[0], 
 			MatMultiplier < Sparse_t < T > > :: mult_vector_l, n, 10, 100);
 	}
 }

@@ -122,16 +122,20 @@ void SparseMatrix < T > ::make_sparse()
 	}
 	Ax_.resize(nz);
 	Ai_.resize(nz);
-
 	Ap_[0] = 0;
+
+	std::vector < T > Ax(nz);
+	std::vector < int > Ai(nz);
+	std::vector < int > Ap(Ap_.size());
+
 	for (uint i = 0; i < A_.size(); ++i)
 	{
-		Ap_[i + 1] = Ap_[i] + (int)A_[i].size();
+		Ap[i + 1] = Ap[i] + (int)A_[i].size();
 		for (typename column_t::iterator it = A_[i].begin();
 				it != A_[i].end(); ++it)
 		{
-			Ax_[idx] = it->second;
-			Ai_[idx] = it->first;
+			Ax[idx] = it->second;
+			Ai[idx] = it->first;
 			idx += 1;
 		}
 
@@ -145,6 +149,10 @@ void SparseMatrix < T > ::make_sparse()
 		sparse_t t;
 		A_.swap(t);
 	}
+
+	vec_copy_from_host(&Ax_[0], &Ax[0], nz);
+	vec_copy_from_host(&Ai_[0], &Ai[0], nz);
+	vec_copy_from_host(&Ap_[0], &Ap[0], Ap_.size());
 }
 
 template < typename T >

@@ -131,6 +131,21 @@ void vec_copy(float * b, const float * a, int n)
 	vec_copy_(b, a, n);
 }
 
+void vec_copy_from_host(double * b, const double * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
+void vec_copy_from_host(float * b, const float * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
+void vec_copy_from_host(int * b, const int * a, int n)
+{
+	vec_copy_(b, a, n);
+}
+
 /**
  * a = b * k
  */
