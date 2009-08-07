@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id: linal_base.cpp,v b772905ca13d 2009/08/07 07:39:47 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
