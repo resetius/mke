@@ -60,6 +60,7 @@
 #endif
 
 #include "util.h"
+#include "gmres.h"
 
 namespace phelm {
 

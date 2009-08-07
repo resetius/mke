@@ -44,145 +44,12 @@
 
 #include <cublas.h>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "linal.h"
 #include "ver.h"
 
 VERSION("$Id$");
 
 namespace phelm {
-
-/**
- * Gauss
- * Copyright (c) 2009 Andrey Kornev, Andrey Ivanchikov, Alexey Ozeritsky
- * from manipro 
- */
-static void gauss_reverse (const double *A, const double *b, double *x, int n, int diagUnit)
-{
-	int j, k;
-
-	for (k = n - 1; k >= 0; k--) {
-		x[k] = b[k];
-		for (j = k + 1; j < n; j++) {
-			x[k] = x[k] - x[j] * A[k*n+j];
-		}
-		if (!diagUnit) {
-			x[k] = x[k] / A[k*n+k];
-		}
-	}
-}
-
-int gauss (double *A, double *b, double *x, int n)
-{
-	int i, j, k;
-	double p;
-	int imax;
-	double Eps = 1.e-15;
-
-	for (k = 0; k < n; k++) {
-		imax = k;
-
-		for (i = k + 1; i < n; i++) {
-			if (fabs(A[i*n+k]) > fabs(A[imax*n+k])) imax = i;
-		}
-
-		for (j = k; j < n; j++) {
-			p = A[imax*n+j];
-			A[imax*n+j] = A[k*n+j];
-			A[k*n+j] = p;
-		}
-		p = b[imax];
-		b[imax] = b[k];
-		b[k] = p;
-
-		p = A[k*n+k];
-
-		if (fabs(p) < Eps) {
-			printf("Warning in %s %s : Near-null zero element\n", __FILE__, __FUNCTION__);
-			return -1;
-		}
-
-		for (j = k; j < n; j++) {
-			A[k*n+j] = A[k*n+j] / p;
-		}
-		b[k] = b[k] / p;
-
-		for (i = k + 1; i < n; i++) {
-			p = A[i*n+k];
-			for (j = k; j < n; j++) {
-				A[i*n+j] = A[i*n+j] - A[k*n+j] * p;
-			}
-			b[i] = b[i] - b[k] * p;
-		}
-	}
-
-	gauss_reverse(A, b, x, n, true);
-
-	return 0;
-}
-
-void mat_print(const double * A, int n)
-{
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			printf("%9.2le ", A[i * n + j]);
-		}
-		printf("\n");
-	}
-}
-
-void vec_print(const double * A, int n)
-{
-	for (int i = 0; i < n; ++i) {
-		printf("%9.2le ", A[i]);
-	}
-	printf("\n");
-}
-
-void mat_mult_vector(double * r, const double * A, const double * x, int n)
-{
-	int i, j;
-	for (i = 0; i < n; ++i) {
-		r[i] = 0.0;
-		for (j = 0; j < n; ++j) {
-			r[i] += A[i * n + j] * x[j];
-		}
-	}
-}
-
-void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)
-{
-	int j;
-
-#pragma omp parallel for
-	for (j = 0; j < n; ++j) {
-		double *p = &A->Ax[A->Ap[j]];
-		int i0;
-		r[j] = 0;
-
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			int i = A->Ai[i0];
-			r[j] += *p * x[i];
-		}
-	}
-}
-
-void sparse_mult_vector_r(double * r, const Sparse * A, const double * x, int n)
-{
-	int i0, i, j;
-	const double * p = A->Ax;
-
-	memset(r, 0, n * sizeof(double));
-	for (j = 0; j < n; ++j) {
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			i = A->Ai[i0];
-			r[i] += *p * x[j];
-		}
-	}
-}
 
 /**
  * r = k1 * a + k2 * b
@@ -194,19 +61,35 @@ void vec_sum1(double * r, const double * a, const double *b, double k1, double k
 	cublasDaxpy(n, k2, b, 1, r, 1);
 }
 
+void vec_sum1(float * r, const float * a, const float *b, float k1, float k2, int n)
+{
+	cublasScopy(n, a, 1, r, 1);
+	cublasSscal(n, k1, r, 1);
+	cublasSaxpy(n, k2, b, 1, r, 1);
+}
+
 void vec_sum(double * r, const double * a, const double *b, int n)
 {
 	cublasDcopy(n, a, 1, r, 1);
 	cublasDaxpy(n, 1.0, b, 1, r, 1);
 }
 
-void vec_mult(double * r, const double * a, const double *b, int n)
+void vec_sum(float * r, const float * a, const float *b, int n)
 {
-	int i;
-//#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		r[i] = a[i] * b[i];
-	}
+	cublasScopy(n, a, 1, r, 1);
+	cublasSaxpy(n, 1.0f, b, 1, r, 1);
+}
+
+void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
+{
+	cublasDcopy(n, b, 1, r, 1);
+	cublasDaxpy(n, k2, a, 1, r, 1);
+}
+
+void vec_sum2(float * r, const float * a, const float *b, float k2, int n)
+{
+	cublasScopy(n, b, 1, r, 1);
+	cublasSaxpy(n, k2, a, 1, r, 1);
 }
 
 /**
@@ -218,9 +101,20 @@ void vec_mult_scalar(double * a, const double * b, double k, int n)
 	cublasDscal(n, k, a, 1);
 }
 
+void vec_mult_scalar(float * a, const float * b, float k, int n)
+{
+	cublasScopy(n, b, 1, a, 1);
+	cublasSscal(n, k, a, 1);
+}
+
 void vec_copy(double * a, const double * b, int n)
 {
 	cublasDcopy(n, b, 1, a, 1);
+}
+
+void vec_copy(float * a, const float * b, int n)
+{
+	cublasScopy(n, b, 1, a, 1);
 }
 
 /**
@@ -232,36 +126,30 @@ void vec_diff(double * r, const double * a, const double * b, int n)
 	cublasDaxpy(n, -1.0, b, 1, r, 1);
 }
 
+void vec_diff(float * r, const float * a, const float * b, int n)
+{
+	cublasScopy(n, a, 1, r, 1);
+	cublasSaxpy(n, -1.0f, b, 1, r, 1);
+}
+
 double vec_norm2(const double * v, int n)
 {
-        return cublasDnrm2(n, v, 1);
+	return cublasDnrm2(n, v, 1);
+}
+
+float vec_norm2(const float * v, int n)
+{
+	return cublasSnrm2(n, v, 1);
 }
 
 double vec_scalar2(const double * a, const double * b, int n)
 {
-        return cublasDdot(n, a, 1, b, 1);
+	return cublasDdot(n, a, 1, b, 1);
 }
 
-void sparse_print(const Sparse * A, int n, FILE * f)
+float vec_scalar2(const float * a, const float * b, int n)
 {
-	int i, i0, j, k, i_old;
-	const double * p = A->Ax;
-	for (j = 0; j < n; ++j) {
-		i_old = -1;
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			i = A->Ai[i0];
-			for (k = i_old; k < i - 1; ++k) {
-				fprintf(f, "%8.3lf ", 0.0);
-			}
-			fprintf(f, "%8.3lf ", *p);
-			i_old = i;
-		}
-
-		for (k = i_old + 1; k < n; ++k) {
-			fprintf(f, "%8.3lf ", 0.0);
-		}
-		fprintf(f, "\n");
-	}
+	return cublasSdot(n, a, 1, b, 1);
 }
 
 void phelm_init()

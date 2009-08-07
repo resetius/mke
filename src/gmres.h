@@ -52,6 +52,9 @@
 
 #include "base.h"
 #include "linal.h"
+#include "util.h"
+
+namespace phelm {
 
 /**
  * Demmel Algorithm  6.9 p 303
@@ -217,5 +220,7 @@ void gmres(T * x, const Mat * A, const T * b,
 		}
 	}
 }
+
+} /* namespace */
 
 #endif /* GMRES_H */

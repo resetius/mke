@@ -42,10 +42,6 @@
 #include <string.h>
 #include <float.h>
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "util.h"
 #include "ver.h"
 
@@ -54,197 +50,13 @@ VERSION("$Id$");
 namespace phelm {
 
 /**
- * Gauss
- * Copyright (c) 2009 Andrey Kornev, Andrey Ivanchikov, Alexey Ozeritsky
- * from manipro 
- */
-static void gauss_reverse (const double *A, const double *b, double *x, int n, int diagUnit)
-{
-	int j, k;
-
-	for (k = n - 1; k >= 0; k--) {
-		x[k] = b[k];
-		for (j = k + 1; j < n; j++) {
-			x[k] = x[k] - x[j] * A[k*n+j];
-		}
-		if (!diagUnit) {
-			x[k] = x[k] / A[k*n+k];
-		}
-	}
-}
-
-int gauss (double *A, double *b, double *x, int n)
-{
-	int i, j, k;
-	double p;
-	int imax;
-	double Eps = 1.e-15;
-
-	for (k = 0; k < n; k++) {
-		imax = k;
-
-		for (i = k + 1; i < n; i++) {
-			if (fabs(A[i*n+k]) > fabs(A[imax*n+k])) imax = i;
-		}
-
-		for (j = k; j < n; j++) {
-			p = A[imax*n+j];
-			A[imax*n+j] = A[k*n+j];
-			A[k*n+j] = p;
-		}
-		p = b[imax];
-		b[imax] = b[k];
-		b[k] = p;
-
-		p = A[k*n+k];
-
-		if (fabs(p) < Eps) {
-			printf("Warning in %s %s : Near-null zero element\n", __FILE__, __FUNCTION__);
-			return -1;
-		}
-
-		for (j = k; j < n; j++) {
-			A[k*n+j] = A[k*n+j] / p;
-		}
-		b[k] = b[k] / p;
-
-		for (i = k + 1; i < n; i++) {
-			p = A[i*n+k];
-			for (j = k; j < n; j++) {
-				A[i*n+j] = A[i*n+j] - A[k*n+j] * p;
-			}
-			b[i] = b[i] - b[k] * p;
-		}
-	}
-
-	gauss_reverse(A, b, x, n, true);
-
-	return 0;
-}
-
-template < typename T >
-void mat_print_(const T * A, int n)
-{
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			printf("%9.2le ", A[i * n + j]);
-		}
-		printf("\n");
-	}
-}
-
-void mat_print(const float * A, int n)
-{
-	mat_print_(A, n);
-}
-
-void mat_print(const double * A, int n)
-{
-	mat_print_(A, n);
-}
-
-template < typename T >
-void vec_print_(const T * A, int n)
-{
-	for (int i = 0; i < n; ++i) {
-		printf("%9.2le ", A[i]);
-	}
-	printf("\n");
-}
-
-void vec_print(const double * A, int n)
-{
-	vec_print_(A, n);
-}
-
-void vec_print(const float * A, int n)
-{
-	vec_print_(A, n);
-}
-
-template < typename T >
-void mat_mult_vector_(T * r, const T * A, const T * x, int n)
-{
-	int i, j;
-	for (i = 0; i < n; ++i) {
-		r[i] = 0.0;
-		for (j = 0; j < n; ++j) {
-			r[i] += A[i * n + j] * x[j];
-		}
-	}
-}
-
-void mat_mult_vector(double * r, const double * A, const double * x, int n)
-{
-	mat_mult_vector_(r, A, x, n);
-}
-
-void mat_mult_vector(float * r, const float * A, const float * x, int n)
-{
-	mat_mult_vector_(r, A, x, n);
-}
-
-template < typename T, typename Sparse >
-void sparse_mult_vector_l_(T * r, const Sparse * A, const T * x, int n)
-{
-	int j;
-
-#pragma omp parallel for
-	for (j = 0; j < n; ++j) {
-		T *p = &A->Ax[A->Ap[j]];
-		int i0;
-		r[j] = 0;
-
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			int i = A->Ai[i0];
-			r[j] += *p * x[i];
-		}
-	}
-}
-
-void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)
-{
-	sparse_mult_vector_l_(r, A, x, n);
-}
-
-void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x, int n)
-{
-	sparse_mult_vector_l_(r, A, x, n);
-}
-
-template < typename T, typename Sparse >
-void sparse_mult_vector_r_(T * r, const Sparse * A, const T * x, int n)
-{
-	int i0, i, j;
-	const T * p = A->Ax;
-
-	memset(r, 0, n * sizeof(T));
-	for (j = 0; j < n; ++j) {
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			i = A->Ai[i0];
-			r[i] += *p * x[j];
-		}
-	}
-}
-
-void sparse_mult_vector_r(double * r, const Sparse * A, const double * x, int n)
-{
-	sparse_mult_vector_r_(r, A, x, n);
-}
-
-void sparse_mult_vector_r(float * r, const Sparsef * A, const float * x, int n)
-{
-	sparse_mult_vector_r_(r, A, x, n);
-}
-
-/**
  * r = k1 * a + k2 * b
  */
 template < typename T >
 void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
 {
 	int i;
-#pragma omp parallel for
+#pragma omp for
 	for (i = 0; i < n; ++i) {
 		r[i] = k1 * a[i] + k2 * b[i];
 	}
@@ -267,7 +79,7 @@ template < typename T >
 void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
 {
 	int i;
-//#pragma omp parallel for
+#pragma omp for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] + k2 * b[i];
 	}
@@ -287,7 +99,7 @@ template < typename T >
 void vec_sum_(T * r, const T * a, const T *b, int n)
 {
 	int i;
-#pragma omp parallel for
+#pragma omp for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] + b[i];
 	}
@@ -319,26 +131,6 @@ void vec_copy(float * b, const float * a, int n)
 	vec_copy_(b, a, n);
 }
 
-template < typename T >
-void vec_mult_(T * r, const T * a, const T *b, int n)
-{
-	int i;
-//#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		r[i] = a[i] * b[i];
-	}
-}
-
-void vec_mult(double * r, const double * a, const double *b, int n)
-{
-	vec_mult_(r, a, b, n);
-}
-
-void vec_mult(float * r, const float * a, const float *b, int n)
-{
-	vec_mult_(r, a, b, n);
-}
-
 /**
  * a = b * k
  */
@@ -346,7 +138,7 @@ template < typename T >
 void vec_mult_scalar_(T * a, const T * b, T k, int n)
 {
 	int i;
-//#pragma omp parallel for
+#pragma omp for
 	for (i = 0; i < n; ++i) {
 		a[i] = b[i] * k;
 	}
@@ -369,7 +161,7 @@ template < typename T >
 void vec_diff_(T * r, const T * a, const T * b, int n)
 {
 	int i;
-//#pragma omp parallel for
+#pragma omp for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] - b[i];
 	}
@@ -390,7 +182,7 @@ T vec_norm2_(const T * v, int n)
 {
 	T s = (T) 0.0;
 	int i;
-//#pragma omp parallel for reduction(+:s)
+//#pragma omp for reduction(+:s)
 	for (i = 0; i < n; ++i) {
 		s = s + v[i] * v[i];
 	}
@@ -412,7 +204,7 @@ T vec_scalar2_(const T * a, const T * b, int n)
 {
 	T s = (T)0.0;
 	int i;
-//#pragma omp parallel for reduction(+:s)
+//#pragma omp for reduction(+:s)
 	for (i = 0; i < n; ++i) {
 		s = s + a[i] * b[i];
 	}
@@ -427,39 +219,6 @@ double vec_scalar2(const double * a, const double * b, int n)
 float vec_scalar2(const float * a, const float * b, int n)
 {
 	return vec_scalar2_(a, b, n);
-}
-
-template < typename Sparse >
-void sparse_print_(const Sparse * A, int n, FILE * f)
-{
-	int i, i0, j, k, i_old;
-	const typename Sparse::data_type * p = A->Ax;
-	for (j = 0; j < n; ++j) {
-		i_old = -1;
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			i = A->Ai[i0];
-			for (k = i_old; k < i - 1; ++k) {
-				fprintf(f, "%8.3lf ", 0.0);
-			}
-			fprintf(f, "%8.3lf ", (double)*p);
-			i_old = i;
-		}
-
-		for (k = i_old + 1; k < n; ++k) {
-			fprintf(f, "%8.3lf ", 0.0);
-		}
-		fprintf(f, "\n");
-	}
-}
-
-void sparse_print(const Sparse * A, int n, FILE * f)
-{
-	sparse_print_ (A, n, f);
-}
-
-void sparse_print(const Sparsef * A, int n, FILE * f)
-{
-	sparse_print_ (A, n, f);
 }
 
 void phelm_init()

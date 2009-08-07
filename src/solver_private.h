@@ -36,7 +36,6 @@
  */
 
 #include <assert.h>
-#include "gmres.h"
 
 template < typename T >
 void SparseMatrix < T > ::mult_vector(T * out, const T * in)
@@ -160,7 +159,7 @@ void SparseMatrix < T > ::solve(T * x, const T * b)
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 
-	gmres(&x[0], &A, &b[0], (Ax_t)sparse_mult_vector_l, n_, 100, 1000);
+	gmres(&x[0], &A, &b[0], Sparse_t < T > :: mult_vector_l, n_, 100, 1000);
 }
 
 #ifdef UMFPACK
