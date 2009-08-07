@@ -56,7 +56,7 @@ template < typename T >
 void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
 {
 	int i;
-#pragma omp for
+#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		r[i] = k1 * a[i] + k2 * b[i];
 	}
@@ -79,7 +79,7 @@ template < typename T >
 void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
 {
 	int i;
-#pragma omp for
+#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] + k2 * b[i];
 	}
@@ -99,7 +99,7 @@ template < typename T >
 void vec_sum_(T * r, const T * a, const T *b, int n)
 {
 	int i;
-#pragma omp for
+#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] + b[i];
 	}
@@ -138,7 +138,7 @@ template < typename T >
 void vec_mult_scalar_(T * a, const T * b, T k, int n)
 {
 	int i;
-#pragma omp for
+#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		a[i] = b[i] * k;
 	}
@@ -161,7 +161,7 @@ template < typename T >
 void vec_diff_(T * r, const T * a, const T * b, int n)
 {
 	int i;
-#pragma omp for
+#pragma omp parallel for
 	for (i = 0; i < n; ++i) {
 		r[i] = a[i] - b[i];
 	}
@@ -182,7 +182,7 @@ T vec_norm2_(const T * v, int n)
 {
 	T s = (T) 0.0;
 	int i;
-//#pragma omp for reduction(+:s)
+#pragma omp parallel for reduction(+:s)
 	for (i = 0; i < n; ++i) {
 		s = s + v[i] * v[i];
 	}
@@ -204,7 +204,7 @@ T vec_scalar2_(const T * a, const T * b, int n)
 {
 	T s = (T)0.0;
 	int i;
-//#pragma omp for reduction(+:s)
+#pragma omp parallel for reduction(+:s)
 	for (i = 0; i < n; ++i) {
 		s = s + a[i] * b[i];
 	}

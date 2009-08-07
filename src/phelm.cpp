@@ -426,8 +426,9 @@ double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
 
 void proj(double * F, const Mesh & mesh, f_xy_t f)
 {
-	size_t sz = mesh.ps.size();
-	for (size_t i = 0; i < sz; ++i)
+	int sz = (int)mesh.ps.size();
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i)
 	{
 		const Point & p = mesh.ps[i].p[0];
 		F[i] = f(p.x, p.y);
@@ -436,7 +437,9 @@ void proj(double * F, const Mesh & mesh, f_xy_t f)
 
 void proj_bnd(double * F, const Mesh & m, f_xy_t f)
 {
-	for (size_t i = 0; i < m.outer.size(); ++i) {
+	int sz = (int)m.outer.size();
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0].p[0];
 		F[i] = f(p.x, p.y);
@@ -445,8 +448,9 @@ void proj_bnd(double * F, const Mesh & m, f_xy_t f)
 
 void proj_bnd(double * F, const double * F1, const Mesh & m)
 {
+	size_t sz = m.outer.size();
 #pragma omp parallel for
-	for (int i = 0; i < (int)m.outer.size(); ++i) {
+	for (int i = 0; i < (int)sz; ++i) {
 		int p0 = m.outer[i];
 		F[i] = F1[p0];
 	}
@@ -454,7 +458,9 @@ void proj_bnd(double * F, const double * F1, const Mesh & m)
 
 void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 {
-	for (size_t i = 0; i < mesh.ps.size(); ++i)
+	int sz = (int)mesh.ps.size();
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i)
 	{
 		F[i] = f(mesh.ps[i].x(), mesh.ps[i].y(), t);
 	}
@@ -462,7 +468,9 @@ void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 
 void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
 {
-	for (size_t i = 0; i < m.outer.size(); ++i) {
+	size_t sz = m.outer.size();
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0].p[0];
 		F[i] = f(p.x, p.y, t);

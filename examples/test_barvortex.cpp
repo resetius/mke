@@ -530,12 +530,14 @@ int main (int argc, char *argv[])
 
 	mesh.info();
 
-	//test_jacobian(mesh);
-	//test_jacobian_T(mesh);
-	//test_barvortex_L(mesh);
-	//test_barvortex_L2(mesh);
-	//test_barvortex_LT(mesh);
-	//test_barvortex (mesh);
-	test_laplace_LT(mesh);
+	{
+		//test_jacobian(mesh);
+		//test_jacobian_T(mesh);
+		//test_barvortex_L(mesh);
+		//test_barvortex_L2(mesh);
+		//test_barvortex_LT(mesh);
+		test_barvortex (mesh);
+		//test_laplace_LT(mesh);
+	}
 	return 0;
 }

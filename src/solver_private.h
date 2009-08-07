@@ -154,12 +154,12 @@ void SparseMatrix < T > ::solve(T * x, const T * b)
 		make_sparse();
 	}
 
-	Sparse A;
+	Sparse_t < T > A;
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 
-	gmres(&x[0], &A, &b[0], Sparse_t < T > :: mult_vector_l, n_, 100, 1000);
+	gmres(&x[0], &A, &b[0], MatMultiplier < Sparse_t < T > > :: mult_vector_l, n_, 100, 1000);
 }
 
 #ifdef UMFPACK

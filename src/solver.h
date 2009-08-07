@@ -95,7 +95,7 @@ protected:
 public:
 	typedef T data_type;
 
-	SparseMatrix(int n): Ap_(n + 1) {}
+	SparseMatrix(int n): n_(n), Ap_(n + 1), A_(n) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
@@ -177,7 +177,7 @@ class SimpleMatrix
 public:
 	typedef T data_type;
 
-	SimpleMatrix(int n): A_(n * n) {}
+	SimpleMatrix(int n): n_(n), A_(n * n) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
