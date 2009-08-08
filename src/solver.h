@@ -204,7 +204,7 @@ public:
 
 			for (int i = 0; i < (int)Ap_.size(); ++i)
 			{
-				Ax_[i] = (float)base::Ax_[i];
+				Ax_[i] = (double)base::Ax_[i];
 			}
 		}
 
