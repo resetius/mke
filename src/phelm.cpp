@@ -448,9 +448,9 @@ void proj_bnd(double * F, const Mesh & m, f_xy_t f)
 
 void proj_bnd(double * F, const double * F1, const Mesh & m)
 {
-	size_t sz = m.outer.size();
+	int sz = (int)m.outer.size();
 #pragma omp parallel for
-	for (int i = 0; i < (int)sz; ++i) {
+	for (int i = 0; i < sz; ++i) {
 		int p0 = m.outer[i];
 		F[i] = F1[p0];
 	}
@@ -468,7 +468,7 @@ void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
 
 void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
 {
-	size_t sz = m.outer.size();
+	int sz = (int)m.outer.size();
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
 		int p0 = m.outer[i];

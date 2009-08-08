@@ -348,7 +348,7 @@ public:
 		}
 	}
 
-	void resize(int size) {
+	void resize(size_t size) {
 		if (size > size_) {
 			T * p = alloc_.allocate(size);
 			if (data_) {
@@ -364,12 +364,12 @@ public:
 	bool empty() const { return size_ == 0; }
 
 	T & operator [] (int i) {
-		assert(i < size_);
+		assert(i < (int)size_);
 		return data_[i];
 	}
 
 	const T & operator [] (int i) const {
-		assert(i < size_);
+		assert(i < (int)size_);
 		return data_[i];
 	}
 };
