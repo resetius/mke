@@ -47,7 +47,7 @@ public:
 
 	void deallocate (pointer p, size_type n)
 	{
-		cublasFree(&p);
+		cublasFree(p);
 	}
 
 	size_type max_size() const throw()

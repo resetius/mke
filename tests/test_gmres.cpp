@@ -14,7 +14,7 @@ template < typename T >
 void test_gmres()
 {
 	int i, j = 0;
-	int n  = 30000;
+	int n  = 3000000;
 	int nz = n + n - 1 + n - 1;
 
 	Vector < int, phelm_allocator < int > > cAp((n + 1));

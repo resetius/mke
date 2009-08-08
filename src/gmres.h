@@ -80,7 +80,7 @@ T algorithm6_9(T * x, const Mat * A, const T * b,
 
 	T gamma_0;
 	T beta;
-	T ret;
+	T ret = 1;
 
 	int i, j;
 
