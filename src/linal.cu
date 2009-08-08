@@ -35,6 +35,12 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef WIN32
+#define API __stdcall
+#else
+#define API
+#endif
+
 __global__ void _sparse_mult_vector_ld(double * r, 
 	const int * Ap, 
 	const int * Ai, 
@@ -56,7 +62,7 @@ __global__ void _sparse_mult_vector_ld(double * r,
 	}
 }
 
-__host__ void __stdcall sparse_mult_vector_ld(double * r, 
+__host__ void API sparse_mult_vector_ld(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
@@ -87,7 +93,7 @@ __global__ void _sparse_mult_vector_lf(float * r,
 	}
 }
 
-__host__ void __stdcall sparse_mult_vector_lf(float * r, 
+__host__ void API sparse_mult_vector_lf(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,

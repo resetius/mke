@@ -185,14 +185,20 @@ float vec_scalar2(const float * a, const float * b, int n)
 }
 
 extern "C" {
-void __stdcall sparse_mult_vector_ld(double * r, 
+#ifdef WIN32
+#define API __stdcall
+#else
+#define API
+#endif
+
+void API sparse_mult_vector_ld(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
 	const double * x, 
 	int n);
 
-void __stdcall sparse_mult_vector_lf(float * r, 
+void API sparse_mult_vector_lf(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
