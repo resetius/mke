@@ -1,8 +1,8 @@
 #ifndef ALLOC_CU_H
 #define ALLOC_CU_H
 
+#include <stdexcept>
 #include <cublas.h>
-#include <cuda.h>
 #include <cuda_runtime_api.h>
 
 namespace phelm {
@@ -38,6 +38,7 @@ public:
 		pointer ret = 0;
 		if (cublasAlloc((int)size, sizeof(T), (void**)&ret) != CUBLAS_STATUS_SUCCESS)
 		{
+			throw std::bad_alloc();
 			return 0;
 		}
 

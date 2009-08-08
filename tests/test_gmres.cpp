@@ -14,7 +14,7 @@ template < typename T >
 void test_gmres()
 {
 	int i, j = 0;
-	int n  = 3000000;
+	int n  = 300000;
 	int nz = n + n - 1 + n - 1;
 
 	Array < int, Allocator < int > > cAp((n + 1));
@@ -190,24 +190,28 @@ void test_matvect()
 
 int main(int argc, char * argv[])
 {
-	phelm_init();
+	try {
+		phelm_init();
 
-	int has_double = check_device_supports_double();
-	fprintf(stderr, "has double: %d\n", has_double);
+		int has_double = check_device_supports_double();
+		fprintf(stderr, "has double: %d\n", has_double);
 
-	Timer t;
-	if (has_double) {
-		test_gmres < float > ();
-//		test_gmres < double > ();
+		Timer t;
+		if (has_double) {
+			test_gmres < float > ();
+			//		test_gmres < double > ();
 
-//		test_matvect < float > ();
-//		test_matvect < double > ();
-	} else {
-		test_gmres < float > ();
-//		test_matvect < float > ();
+			//		test_matvect < float > ();
+			//		test_matvect < double > ();
+		} else {
+			test_gmres < float > ();
+			//		test_matvect < float > ();
+		}
+		fprintf(stderr, "elapsed: %lf\n", t.elapsed());
+
+		phelm_shutdown();
+	} catch (const std::exception & e) {
+		fprintf(stderr, "exception: %s\n", e.what());
 	}
-	fprintf(stderr, "elapsed: %lf\n", t.elapsed());
-
-	phelm_shutdown();
 	return 0;
 }
