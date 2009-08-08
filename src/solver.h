@@ -295,8 +295,6 @@ typedef UmfPackMatrix < double > Matrix;
 typedef SparseMatrix < double > Matrix;
 #endif
 
-struct Mesh;
-
 /**
  * Solve the system with A matrix (Ax=rp).
  * (Helper function) 
@@ -309,7 +307,7 @@ struct Mesh;
  * @param A - the matrix of the system
  * @param m - mesh
  */
-template < typename T, typename Matrix >
+template < typename T, typename Matrix, typename Mesh >
 void solve(T * answer, const T * bnd,
 		   T * rp, Matrix & A, const Mesh & m)
 {
@@ -330,7 +328,7 @@ void solve(T * answer, const T * bnd,
  * @param A the matrix of the system
  * @param m the mesh
  */
-template < typename T, typename Matrix >
+template < typename T, typename Matrix, typename Mesh >
 void solve2(T * answer, T * rp, Matrix & A, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
