@@ -54,62 +54,6 @@ VERSION("$Id$");
 
 namespace phelm {
 
-/**
- * r = k1 * a + k2 * b
- */
-void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
-{
-	cublasDcopy(n, a, 1, r, 1);
-	cublasDscal(n, k1, r, 1);
-	cublasDaxpy(n, k2, b, 1, r, 1);
-}
-
-void vec_sum1(float * r, const float * a, const float *b, float k1, float k2, int n)
-{
-	cublasScopy(n, a, 1, r, 1);
-	cublasSscal(n, k1, r, 1);
-	cublasSaxpy(n, k2, b, 1, r, 1);
-}
-
-void vec_sum(double * r, const double * a, const double *b, int n)
-{
-	cublasDcopy(n, a, 1, r, 1);
-	cublasDaxpy(n, 1.0, b, 1, r, 1);
-}
-
-void vec_sum(float * r, const float * a, const float *b, int n)
-{
-	cublasScopy(n, a, 1, r, 1);
-	cublasSaxpy(n, 1.0f, b, 1, r, 1);
-}
-
-void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
-{
-	cublasDcopy(n, b, 1, r, 1);
-	cublasDaxpy(n, k2, a, 1, r, 1);
-}
-
-void vec_sum2(float * r, const float * a, const float *b, float k2, int n)
-{
-	cublasScopy(n, b, 1, r, 1);
-	cublasSaxpy(n, k2, a, 1, r, 1);
-}
-
-/**
- * a = b * k
- */
-void vec_mult_scalar(double * a, const double * b, double k, int n)
-{
-	cublasDcopy(n, b, 1, a, 1);
-	cublasDscal(n, k, a, 1);
-}
-
-void vec_mult_scalar(float * a, const float * b, float k, int n)
-{
-	cublasScopy(n, b, 1, a, 1);
-	cublasSscal(n, k, a, 1);
-}
-
 void vec_copy(double * a, const double * b, int n)
 {
 	cublasDcopy(n, b, 1, a, 1);
@@ -148,21 +92,6 @@ void vec_copy_from_device(float * a, const float * b, int n)
 void vec_copy_from_device(int * a, const int * b, int n)
 {
 	cublasGetVector(n, sizeof(int), b, 1, a, 1);
-}
-
-/**
- * r = a - b
- */
-void vec_diff(double * r, const double * a, const double * b, int n)
-{
-	cublasDcopy(n, a, 1, r, 1);
-	cublasDaxpy(n, -1.0, b, 1, r, 1);
-}
-
-void vec_diff(float * r, const float * a, const float * b, int n)
-{
-	cublasScopy(n, a, 1, r, 1);
-	cublasSaxpy(n, -1.0f, b, 1, r, 1);
 }
 
 double vec_norm2(const double * v, int n)

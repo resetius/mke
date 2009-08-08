@@ -14,7 +14,7 @@ template < typename T >
 void test_gmres()
 {
 	int i, j = 0;
-	int n  = 3000;
+	int n  = 30000;
 	int nz = n + n - 1 + n - 1;
 
 	Vector < int, phelm_allocator < int > > cAp((n + 1));
@@ -103,6 +103,7 @@ void test_matvect()
 {
 	int i, j = 0;
 	int n  = 5000000;
+//	int n  = 500;
 	int nz = n + n - 1 + n - 1;
 
 	phelm_allocator < int > int_alloc;
@@ -189,7 +190,9 @@ void test_matvect()
 	A.Ai = &cAi[0];
 
 	for (int k = 0; k < 1000; ++k) {
-		sparse_mult_vector_l(&x[0], &A, &b[0], n);
+		sparse_mult_vector_l(&cx[0], &A, &cb[0], n);
+//		vec_copy_from_device(&x[0], &cx[0], n);
+//		vec_print(&x[0], n);
 	}
 }
 
@@ -202,7 +205,7 @@ int main(int argc, char * argv[])
 
 	Timer t;
 	if (has_double) {
-//		test_gmres < float > ();
+		test_gmres < float > ();
 //		test_gmres < double > ();
 
 //		test_matvect < float > ();
