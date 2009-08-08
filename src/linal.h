@@ -46,6 +46,10 @@
 #include <stdio.h>
 #include <assert.h>
 
+#ifdef GPGPU
+#include <cuda_runtime_api.h>
+#endif
+
 namespace phelm {
 
 /**
@@ -294,31 +298,50 @@ void vec_diff(float * r, const float * a, const float * b, int n);
  * @param a - the input vector
  * @param n - the dimension of vectors
  */
-void vec_copy(double * b, const double * a, int n);
-void vec_copy(float * b, const float * a, int n);
+template < typename T >
+void vec_copy(T * b, const T * a, int n)
+{
+#ifndef GPGPU
+	memcpy(b, a, n * sizeof(T));
+#else
+	cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToDevice);
+#endif
+}
 
-void vec_copy_from_host(double * b, const double * a, int n);
-void vec_copy_from_host(float * b, const float * a, int n);
-void vec_copy_from_host(int * b, const int * a, int n);
+template < typename T >
+void vec_copy_from_host(T * b, const T * a, int n)
+{
+#ifndef GPGPU
+	memcpy(b, a, n * sizeof(T));
+#else
+	cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyHostToDevice);
+#endif
+}
 
-void vec_copy_from_device(double * b, const double * a, int n);
-void vec_copy_from_device(float * b, const float * a, int n);
-void vec_copy_from_device(int * b, const int * a, int n);
+template < typename T >
+void vec_copy_from_device(T * b, const T * a, int n)
+{
+#ifndef GPGPU
+	memcpy(b, a, n * sizeof(T));
+#else
+	cudaMemcpy(b, a, n * sizeof(T), cudaMemcpyDeviceToHost);
+#endif
+}
 
 template < typename T, typename Alloc >
-class Vector {
+class Array {
 	size_t size_;
 	T * data_;
 	Alloc alloc_;
 
 public:
-	Vector(): size_(0), data_(0) {}
-	Vector(size_t size): size_(size), data_(0) 
+	Array(): size_(0), data_(0) {}
+	Array(size_t size): size_(size), data_(0) 
 	{
 		data_ = alloc_.allocate(size_);
 	}
 
-	~Vector() {
+	~Array() {
 		if (data_) {
 			alloc_.deallocate(data_, size_);
 		}
@@ -336,7 +359,15 @@ public:
 		}
 	}
 
+	size_t size() const { return size_; }
+	bool empty() const { return size_ == 0; }
+
 	T & operator [] (int i) {
+		assert(i < size_);
+		return data_[i];
+	}
+
+	const T & operator [] (int i) const {
 		assert(i < size_);
 		return data_[i];
 	}

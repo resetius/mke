@@ -115,52 +115,6 @@ void vec_sum(float * r, const float * a, const float *b, int n)
 	vec_sum_(r, a, b, n);
 }
 
-template < typename T >
-void vec_copy_(T * b, const T * a, int n)
-{
-	memcpy(b, a, n * sizeof(T));
-}
-
-void vec_copy(double * b, const double * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy(float * b, const float * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy_from_host(double * b, const double * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy_from_host(float * b, const float * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy_from_host(int * b, const int * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy_from_device(double * b, const double * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy_from_device(float * b, const float * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
-void vec_copy_from_device(int * b, const int * a, int n)
-{
-	vec_copy_(b, a, n);
-}
-
 /**
  * a = b * k
  */
@@ -182,6 +136,26 @@ void vec_mult_scalar(double * a, const double * b, double k, int n)
 void vec_mult_scalar(float * a, const float * b, float k, int n)
 {
 	vec_mult_scalar_(a, b, k, n);
+}
+
+template < typename T >
+void vec_mult_(T * r, const T * a, const T *b, int n)
+{
+	int i;
+#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		r[i] = a[i] * b[i];
+	}
+}
+
+void vec_mult(double * r, const double * a, const double *b, int n)
+{
+	vec_mult_(r, a, b, n);
+}
+
+void vec_mult(float * r, const float * a, const float *b, int n)
+{
+	vec_mult_(r, a, b, n);
 }
 
 /**

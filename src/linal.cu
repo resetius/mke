@@ -116,7 +116,7 @@ namespace phelm {
 
 /* r = k1 * a + k2 * b */
 template < typename T >
-__global__ void API vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
+__global__ void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	if (i < n) {
@@ -140,7 +140,7 @@ __host__ void vec_sum1(double * r, const double * a, const double *b, double k1,
 
 /* r = a + k2 * b */
 template < typename T >
-__global__ void API vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
+__global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	if (i < n) {
@@ -164,7 +164,7 @@ __host__ void vec_sum2(double * r, const double * a, const double *b, double k2,
 
 /* r = a + b */
 template < typename T >
-__global__ void API vec_sum_(T * r, const T * a, const T * b, int n)
+__global__ void vec_sum_(T * r, const T * a, const T * b, int n)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;;
 	if (i < n) {
@@ -186,9 +186,33 @@ __host__ void vec_sum(double * r, const double * a, const double *b, int n)
 	vec_sum_ <<< ctas, threads >>> (r, a, b, n);
 }
 
+/* r = a * b */
+template < typename T >
+__global__ void vec_mult_(T * r, const T * a, const T * b, int n)
+{
+	int i = blockDim.x * blockIdx.x + threadIdx.x;;
+	if (i < n) {
+		r[i] = a[i] * b[i];
+	}
+}
+
+__host__ void vec_mult(float * r, const float * a, const float *b, int n)
+{
+	int ctas, threads, elems;
+	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
+	vec_mult_ <<< ctas, threads >>> (r, a, b, n);
+}
+
+__host__ void vec_mult(double * r, const double * a, const double *b, int n)
+{
+	int ctas, threads, elems;
+	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
+	vec_mult_ <<< ctas, threads >>> (r, a, b, n);
+}
+
 /* r = a - b*/
 template < typename T >
-__global__ void API vec_diff_(T * r, const T * a, const T *b, int n)
+__global__ void vec_diff_(T * r, const T * a, const T *b, int n)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	if (i < n) {
@@ -212,7 +236,7 @@ __host__ void vec_diff(double * r, const double * a, const double *b,  int n)
 
 /* r = b * k*/
 template < typename T >
-__global__ void API vec_mult_scalar_(T * r, const T * b, T k, int n)
+__global__ void vec_mult_scalar_(T * r, const T * b, T k, int n)
 {
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	if (i < n) {

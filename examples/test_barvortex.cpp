@@ -445,8 +445,8 @@ void test_barvortex (const Mesh & m)
 
 void test_barvortex_L2 (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
 
 	double tau = 0.05;
 	double t = 0;

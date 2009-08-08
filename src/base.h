@@ -44,6 +44,8 @@
  */
 
 #include <vector>
+
+#include "linal.h"
 #ifdef GPGPU
 #include "alloc_cu.h"
 #endif
@@ -60,16 +62,26 @@ void phelm_shutdown();
  * allocator.
  */
 #ifndef GPGPU
-#define phelm_allocator std::allocator
+template < typename T >
+struct Allocator: public std::allocator < T >
+{
+	Allocator() throw() {};
+	Allocator (const Allocator&) throw() {};
+};
 #else
-#define phelm_allocator cuda_allocator
+template < typename T >
+struct Allocator: public cuda_allocator < T > 
+{
+	Allocator() throw() {};
+	Allocator (const Allocator&) throw() {};
+};
 #endif
 
 /**
  * @ingroup misc
- * vector.
+ * array.
  */
-typedef std::vector < double, phelm_allocator < double > > vec;
+typedef Array < double, Allocator < double > > vec;
 
 }
 

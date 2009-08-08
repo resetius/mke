@@ -64,13 +64,9 @@ template < typename T, typename Mat, typename Ax_t >
 T algorithm6_9(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, T eps, int n, int k)
 {
-	Vector < T, phelm_allocator < T > > q;
-	Vector < T, phelm_allocator < T > > r(n);
-	Vector < T, phelm_allocator < T > > ax(n);
-
-//	std::vector < T, phelm_allocator < T > > q;
-//	std::vector < T, phelm_allocator < T > > r(n); /* b - Ax */ // -> device
-//	std::vector < T, phelm_allocator < T > > ax(n); // -> device
+	Array < T, Allocator < T > > q;        // -> device
+	Array < T, Allocator < T > > r(n);     /* b - Ax */ // -> device
+	Array < T, Allocator < T > > ax(n);    // -> device
 
 	std::vector < T > h;
 	std::vector < T > gamma;

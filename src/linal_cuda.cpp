@@ -54,46 +54,6 @@ VERSION("$Id$");
 
 namespace phelm {
 
-void vec_copy(double * a, const double * b, int n)
-{
-	cublasDcopy(n, b, 1, a, 1);
-}
-
-void vec_copy(float * a, const float * b, int n)
-{
-	cublasScopy(n, b, 1, a, 1);
-}
-
-void vec_copy_from_host(double * a, const double * b, int n)
-{
-	cublasSetVector(n, sizeof(double), b, 1, a, 1);
-}
-
-void vec_copy_from_host(float * a, const float * b, int n)
-{
-	cublasSetVector(n, sizeof(float), b, 1, a, 1);
-}
-
-void vec_copy_from_host(int * a, const int * b, int n)
-{
-	cublasSetVector(n, sizeof(int), b, 1, a, 1);
-}
-
-void vec_copy_from_device(double * a, const double * b, int n)
-{
-	cublasGetVector(n, sizeof(double), b, 1, a, 1);
-}
-
-void vec_copy_from_device(float * a, const float * b, int n)
-{
-	cublasGetVector(n, sizeof(float), b, 1, a, 1);
-}
-
-void vec_copy_from_device(int * a, const int * b, int n)
-{
-	cublasGetVector(n, sizeof(int), b, 1, a, 1);
-}
-
 double vec_norm2(const double * v, int n)
 {
 	return cublasDnrm2(n, v, 1);

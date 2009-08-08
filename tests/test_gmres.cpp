@@ -17,11 +17,11 @@ void test_gmres()
 	int n  = 3000000;
 	int nz = n + n - 1 + n - 1;
 
-	Vector < int, phelm_allocator < int > > cAp((n + 1));
-	Vector < int, phelm_allocator < int > > cAi(nz);
-	Vector < T, phelm_allocator < T > > cAx(nz);
-	Vector < T, phelm_allocator < T > > cb(n);
-	Vector < T, phelm_allocator < T > > cx(n);
+	Array < int, Allocator < int > > cAp((n + 1));
+	Array < int, Allocator < int > > cAi(nz);
+	Array < T, Allocator < T > > cAx(nz);
+	Array < T, Allocator < T > > cb(n);
+	Array < T, Allocator < T > > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);

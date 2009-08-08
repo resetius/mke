@@ -81,9 +81,9 @@ protected:
 
 	// разреженная матрица
 	// формат хранения как в MatLab и UMFPACK
-	std::vector < int, phelm_allocator < int > > Ap_; // количества ненулевых в столбцах
-	std::vector < int, phelm_allocator < int > > Ai_; // индексы (номер строки) ненулевых элементов
-	std::vector < T, phelm_allocator < T >  > Ax_;    // ненулевые элементы матрицы
+	Array < int, Allocator < int > > Ap_; // количества ненулевых в столбцах
+	Array < int, Allocator < int > > Ai_; // индексы (номер строки) ненулевых элементов
+	Array < T, Allocator < T >  > Ax_;    // ненулевые элементы матрицы
 
 	//column_number -> row_number -> value
 	typedef std::map < int , T > column_t;
@@ -172,7 +172,7 @@ template < typename T >
 class SimpleMatrix
 {
 	int n_;
-	std::vector < T, phelm_allocator < T > > A_;  // матрица
+	Array < T, Allocator < T > > A_;  // матрица
 
 public:
 	typedef T data_type;
@@ -208,7 +208,7 @@ public:
 	void print();
 };
 
-#ifdef UMFPACK
+#if defined(UMFPACK) && !defined(GPGPU)
 typedef UmfPackMatrix < double > Matrix;
 #else
 typedef SparseMatrix < double > Matrix;
