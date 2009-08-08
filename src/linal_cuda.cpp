@@ -47,6 +47,7 @@
 #include <cuda_runtime_api.h>
 
 #include "linal.h"
+#include "linal_cuda.h"
 #include "ver.h"
 
 VERSION("$Id$");
@@ -182,28 +183,6 @@ double vec_scalar2(const double * a, const double * b, int n)
 float vec_scalar2(const float * a, const float * b, int n)
 {
 	return cublasSdot(n, a, 1, b, 1);
-}
-
-extern "C" {
-#ifdef WIN32
-#define API __stdcall
-#else
-#define API
-#endif
-
-void API sparse_mult_vector_ld(double * r, 
-	const int * Ap, 
-	const int * Ai, 
-	const double * Ax,
-	const double * x, 
-	int n);
-
-void API sparse_mult_vector_lf(float * r, 
-	const int * Ap, 
-	const int * Ai, 
-	const float * Ax,
-	const float * x, 
-	int n);
 }
 
 void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)

@@ -35,11 +35,35 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef WIN32
-#define API __stdcall
-#else
-#define API
-#endif
+#include "linal_cuda.h"
+
+static void vector_splay (int n, int threads_min, int threads_max, 
+	int grid_width, int *ctas, 
+	int *elems_per_cta, int * threads_per_cta)
+{
+	if (n < threads_min) {
+		*ctas              = 1;
+		*elems_per_cta     = n;
+		*threads_per_cta   = threads_min;
+	} else if (n < (grid_width * threads_min)) {
+		*ctas              = ((n + threads_min - 1) / threads_min);
+		*threads_per_cta   = threads_min;
+		*elems_per_cta     = *threads_per_cta;
+	} else if (n < (grid_width * threads_max)) {
+		int grp;
+		*ctas              = grid_width;
+		grp                = ((n + threads_min - 1) / threads_min);
+		*threads_per_cta   = (((grp + grid_width -1) / grid_width) * threads_min);
+		*elems_per_cta     = *threads_per_cta;
+	} else {
+		int grp;
+		*ctas              = grid_width;
+		*threads_per_cta   = threads_max;
+		grp                = ((n + threads_min - 1) / threads_min);
+		grp                = ((grp + grid_width - 1) / grid_width);
+		*elems_per_cta     = grp * threads_min;
+	}
+}
 
 __global__ void _sparse_mult_vector_ld(double * r, 
 	const int * Ap, 
@@ -69,7 +93,9 @@ __host__ void API sparse_mult_vector_ld(double * r,
 	const double * x, 
 	int n)
 {
-	_sparse_mult_vector_ld <<< 4, 4 >>> (r, Ap, Ai, Ax, x, n);
+	int ctas, threads, elems;
+	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
+	_sparse_mult_vector_ld <<< ctas, threads >>> (r, Ap, Ai, Ax, x, n);
 }
 
 __global__ void _sparse_mult_vector_lf(float * r, 
@@ -80,8 +106,11 @@ __global__ void _sparse_mult_vector_lf(float * r,
 	int n)
 {
 	int j;
+	int tid     = threadIdx.x;
+	int threads = gridDim.x  * blockDim.x;
+	int start   = blockDim.x * blockIdx.x;
 
-	for (j = 0; j < n; ++j) {
+	for (j = start + tid; j < n; j += threads) {
 		const float *p = &Ax[Ap[j]];
 		int i0;
 		r[j] = 0;
@@ -100,5 +129,7 @@ __host__ void API sparse_mult_vector_lf(float * r,
 	const float * x, 
 	int n)
 {
-	_sparse_mult_vector_lf <<< 4, 4 >>> (r, Ap, Ai, Ax, x, n);
+	int ctas, threads, elems;
+	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
+	_sparse_mult_vector_lf <<< ctas, threads >>> (r, Ap, Ai, Ax, x, n);
 }

@@ -35,8 +35,12 @@ public:
 	pointer allocate (size_type size,
 	                  const void * hint = 0)
 	{
-		pointer ret;
-		cublasAlloc((int)size, sizeof(T), (void**)&ret);
+		pointer ret = 0;
+		if (cublasAlloc((int)size, sizeof(T), (void**)&ret) != CUBLAS_STATUS_SUCCESS)
+		{
+			return 0;
+		}
+
 		cudaMemset(ret, 0, size * sizeof(T));
 		return ret;
 	}

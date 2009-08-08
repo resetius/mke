@@ -44,11 +44,12 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
 
 namespace phelm {
 
 /**
- * @defgroup la Linear Algebra functions.
+ * @defgroup la Linear Algebra functions and Classes.
  * @{
  */
 
@@ -303,6 +304,43 @@ void vec_copy_from_host(int * b, const int * a, int n);
 void vec_copy_from_device(double * b, const double * a, int n);
 void vec_copy_from_device(float * b, const float * a, int n);
 void vec_copy_from_device(int * b, const int * a, int n);
+
+template < typename T, typename Alloc >
+class Vector {
+	size_t size_;
+	T * data_;
+	Alloc alloc_;
+
+public:
+	Vector(): size_(0), data_(0) {}
+	Vector(size_t size): size_(size), data_(0) 
+	{
+		data_ = alloc_.allocate(size_);
+	}
+
+	~Vector() {
+		if (data_) {
+			alloc_.deallocate(data_, size_);
+		}
+	}
+
+	void resize(int size) {
+		if (size > size_) {
+			T * p = alloc_.allocate(size);
+			if (data_) {
+				vec_copy(p, data_, size);
+				alloc_.deallocate(data_, size_);
+			}
+			data_ = p;
+			size_ = size;
+		}
+	}
+
+	T & operator [] (int i) {
+		assert(i < size_);
+		return data_[i];
+	}
+};
 
 int check_device_supports_double();
 

@@ -14,14 +14,14 @@ template < typename T >
 void test_gmres()
 {
 	int i, j = 0;
-	int n  = 300000;
+	int n  = 3000;
 	int nz = n + n - 1 + n - 1;
 
-	vector < int, phelm_allocator < T > > cAp((n + 1));
-	vector < int, phelm_allocator < T > > cAi(nz);
-	vector < T, phelm_allocator < T > > cAx(nz);
-	vector < T, phelm_allocator < T > > cb(n);
-	vector < T, phelm_allocator < T > > cx(n);
+	Vector < int, phelm_allocator < int > > cAp((n + 1));
+	Vector < int, phelm_allocator < int > > cAi(nz);
+	Vector < T, phelm_allocator < T > > cAx(nz);
+	Vector < T, phelm_allocator < T > > cb(n);
+	Vector < T, phelm_allocator < T > > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
@@ -105,11 +105,19 @@ void test_matvect()
 	int n  = 5000000;
 	int nz = n + n - 1 + n - 1;
 
-	vector < int, phelm_allocator < T > > cAp((n + 1));
-	vector < int, phelm_allocator < T > > cAi(nz);
-	vector < T, phelm_allocator < T > > cAx(nz);
-	vector < T, phelm_allocator < T > > cb(n);
-	vector < T, phelm_allocator < T > > cx(n);
+	phelm_allocator < int > int_alloc;
+	phelm_allocator < T   > T_alloc;
+	int * cAp = int_alloc.allocate(n + 1);
+	int * cAi = int_alloc.allocate(nz);
+	T * cAx   = T_alloc.allocate(nz);
+	T * cb    = T_alloc.allocate(n);
+	T * cx    = T_alloc.allocate(n);
+
+//	vector < int, phelm_allocator < int > > cAp((n + 1));
+//	vector < int, phelm_allocator < int > > cAi(nz);
+//	vector < T, phelm_allocator < T > > cAx(nz);
+//	vector < T, phelm_allocator < T > > cb(n);
+//	vector < T, phelm_allocator < T > > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
@@ -192,16 +200,18 @@ int main(int argc, char * argv[])
 	int has_double = check_device_supports_double();
 	fprintf(stderr, "has double: %d\n", has_double);
 
+	Timer t;
 	if (has_double) {
-		test_gmres < float > ();
-		test_gmres < double > ();
+//		test_gmres < float > ();
+//		test_gmres < double > ();
 
-		test_matvect < float > ();
-		test_matvect < double > ();
+//		test_matvect < float > ();
+//		test_matvect < double > ();
 	} else {
 		test_gmres < float > ();
-		test_matvect < float > ();
+//		test_matvect < float > ();
 	}
+	fprintf(stderr, "elapsed: %lf\n", t.elapsed());
 
 	phelm_shutdown();
 	return 0;
