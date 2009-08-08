@@ -49,6 +49,7 @@ double nr2(double * a, double * b, int n)
 	return sqrt(sum);
 }
 
+template < typename T >
 void test_invert(Mesh & mesh)
 {
 	int sz = (int)mesh.ps.size();
@@ -65,7 +66,7 @@ void test_invert(Mesh & mesh)
 	proj_bnd(&B[0], mesh, bnd);
 
 	Timer t;
-	Laplace l(mesh);
+	Laplace < T > l(mesh);
 	fprintf(stderr, "l -> %lf\n", t.elapsed());
 	l.solve(&Ans[0], &F[0], &B[0]);
 	{
@@ -81,19 +82,26 @@ void test_invert(Mesh & mesh)
 		dist(&Ans[0], &rans[0], mesh));
 }
 
+template < typename T > 
 void test_laplace(Mesh & mesh)
 {
+	typedef Array < T, Allocator < T > > vector;
 	int sz = (int)mesh.ps.size();
 	int rs = (int)mesh.inner.size();
 	int os = (int)mesh.outer.size();
+	FlatNorm < T > nr(mesh);
 
-	vec U(sz);
-	vec LU(sz);
-	vec LU1(sz);
-	vec B1(os);
-	vec B2(os);
-	vec P(rs);
-	vec P1(rs);
+	std::vector < T > U(sz);
+	std::vector < T > LU(sz);
+	std::vector < T > LU1(sz);
+	std::vector < T > B1(os);
+	std::vector < T > B2(os);
+
+	vector cU(sz);
+	vector cLU(sz);
+	vector cLU1(sz);
+	vector cB1(os);
+	vector cB2(os);
 
 	fprintf(stderr, "prepare ... \n");
 
@@ -104,11 +112,11 @@ void test_laplace(Mesh & mesh)
 
 	fprintf(stderr, "start ... \n");
 
-	Laplace l(mesh);
-	l.calc1(&LU1[0], &U[0], &B1[0]);
-	//l.calc1(&LU1[0], &U[0], &B2[0]);
+	Laplace < T > l(mesh);
+	l.calc1(&cLU1[0], &cU[0], &cB1[0]);
 
-	fprintf(stdout, "L2: laplace err=%.2le\n", dist(&LU[0], &LU1[0], mesh));
+	fprintf(stdout, "L2: laplace err=%.2le\n", 
+		nr.dist(&LU[0], &LU1[0]));
 	{
 		FILE * f = fopen("lu_real.txt", "w");
 		print_inner_function (f, &LU[0], mesh);
@@ -118,7 +126,7 @@ void test_laplace(Mesh & mesh)
 		fclose(f);
 
 		f = fopen("lu_diff.txt", "w");
-		vec tmp(LU.size());
+		vector tmp(LU.size());
 		vec_diff(&tmp[0], &LU[0], &LU1[0], (int)LU.size());
 		print_inner_function (f, &tmp[0], mesh);
 		fclose(f);
@@ -129,7 +137,7 @@ void test_laplace(Mesh & mesh)
 //	vector_print(&U[0], U.size());
 //	vector_print(&LU[0], LU.size());
 	
-	fprintf(stdout, "L3: laplace err=%.2le\n", dist(&U[0], &LU[0], mesh));
+	fprintf(stdout, "L3: laplace err=%.2le\n", nr.dist(&U[0], &LU[0]));
 }
 
 //#include <omp.h>
@@ -159,8 +167,10 @@ int main(int argc, char *argv[])
 	//getchar();
 
 	phelm_init();
-	test_laplace(mesh);
+	
+	test_laplace < float > (mesh);
+	//test_laplace < double > (mesh);
+	
 	phelm_shutdown();
 	return 0;
 }
-

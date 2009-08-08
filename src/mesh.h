@@ -378,6 +378,8 @@ void print_function(const char * fname, double * ans, const Mesh & m,
  */
 void print_inner_function(FILE * to, double * ans, const Mesh & m, 
 					x_t x = 0, x_t y = 0, x_t z = 0);
+void print_inner_function(FILE * to, float * ans, const Mesh & m, 
+					x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
  * Print the inner part of a mesh function to file.
@@ -441,8 +443,15 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
  * @param mat - matrix
  * @return (u, v)
  */
-double fast_scalar(const double * u, const double * v,
-				   const Mesh & m, Matrix & mat);
+template < typename T, typename Matrix >
+T fast_scalar(const T * u, const T * v,
+              const Mesh & m, Matrix & A)
+{
+	int sz = (int)m.ps.size();
+	Array < T, Allocator < T > > tmp(sz);
+	A.mult_vector(&tmp[0], v);
+	return vec_scalar2(u, &tmp[0], sz);
+}
 
 /**
  * Fast mesh norm calculator.
@@ -452,7 +461,11 @@ double fast_scalar(const double * u, const double * v,
  * @param mat - matrix
  * @return ||u||
  */
-double fast_norm(const double * u, const Mesh & m, Matrix & mat);
+template < typename T, typename Matrix >
+T fast_norm(const T * u, const Mesh & m, Matrix & A)
+{
+	return sqrt(fast_scalar(u, u, m, A));
+}
 
 /**
  * Fast mesh distance calculator.
@@ -463,8 +476,15 @@ double fast_norm(const double * u, const Mesh & m, Matrix & mat);
  * @param mat - matrix
  * @return distance between u and v
  */
-double fast_dist(const double * u, const double * v,
-				 const Mesh & m, Matrix & mat);
+template < typename T, typename Matrix >
+T fast_dist(const T * u, const T * v,
+            const Mesh & m, Matrix & A)
+{
+	int sz  = (int)m.ps.size(); // размерность
+	Array < T , Allocator < T > > diff(sz);
+	vec_diff(&diff[0], u, v, sz);
+	return fast_norm(&diff[0], m, A);
+}
 
 /** @} */ /* scalar */
 
@@ -499,6 +519,7 @@ typedef double (* f_xyt_t)(double x, double y, double t);
  * @param m - mesh
  */
 void p2u(double * u, const double * p, const double * bnd, const Mesh & m);
+void p2u(float * u, const float * p, const float * bnd, const Mesh & m);
 
 /**
  * Remove boundary conditions from u.
@@ -507,22 +528,27 @@ void p2u(double * u, const double * p, const double * bnd, const Mesh & m);
  * @param m - mesh
  */
 void u2p(double * p, const double * u, const Mesh & m);
+void u2p(float * p, const float * u, const Mesh & m);
 
 /**
  * Project function f(x,y) to the mesh.
+ * Note for phelm_cu: this functions works with host memory.
  * @param F - (output) the value of f(x,y) on mesh points
  * @param mesh - the mesh
  * @param f - function f(x, y)
  */
 void proj(double * F, const Mesh & mesh, f_xy_t f);
+void proj(float * F, const Mesh & mesh, f_xy_t f);
 
 /**
  * Project function f(x,y) to the boundary of the mesh.
+ * Note for phelm_cu: this functions works with host memory.
  * @param F - (output) the value of f(x,y) on boundary points
  * @param m - the mesh
  * @param f - function f(x, y)
  */
 void proj_bnd(double * F, const Mesh & m, f_xy_t f);
+void proj_bnd(float * F, const Mesh & m, f_xy_t f);
 
 /**
  * Project vector F1 to the boundary of the mesh.
@@ -531,6 +557,7 @@ void proj_bnd(double * F, const Mesh & m, f_xy_t f);
  * @param F1 - mesh vector 
  */
 void proj_bnd(double * F, const double * F1, const Mesh & m);
+void proj_bnd(float * F, const float * F1, const Mesh & m);
 
 /**
  * Set the boundary value of vector F.

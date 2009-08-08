@@ -113,7 +113,7 @@ namespace phelm {
  * @param user_data - user data
  * @param transpose - generate transposed matrix ?
  */
-template < typename Functor, typename Data >
+template < typename Matrix, typename Functor, typename Data >
 void generate_matrix(Matrix & A, const Mesh & m, 
 					 Functor integrate_cb, 
 					 Data user_data, 
@@ -164,7 +164,7 @@ void generate_matrix(Matrix & A, const Mesh & m,
  * @param user_data - user data
  * @param transpose - generate transposed matrix ?
  */
-template < typename Functor, typename Data >
+template < typename Matrix, typename Functor, typename Data >
 void generate_full_matrix(Matrix & A, const Mesh & m, 
 						  Functor integrate_cb, 
 						  Data user_data,
@@ -308,7 +308,7 @@ void generate_full_right_part(double * b, const Mesh & m,
  * @param user_data - user data
  * @param transpose - generate transposed matrix?
  */
-template < typename Functor, typename Data >
+template < typename Matrix, typename Functor, typename Data >
 void generate_boundary_matrix(Matrix & A, const Mesh & m, 
 							  Functor right_part_cb, 
 							  Data user_data,

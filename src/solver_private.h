@@ -43,12 +43,12 @@ void SparseMatrix < T > ::mult_vector(T * out, const T * in)
 	if (Ax_.empty()) {
 		make_sparse();
 	}
-	Sparse A;
+	Sparse_t < T > A;
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 
-	sparse_mult_vector_l(out, &A, in, n_);
+	MatMultiplier < Sparse_t < T > > :: mult_vector_l(out, &A, in, n_);
 }
 
 template < typename T >
@@ -198,5 +198,6 @@ void UmfPackMatrix < T > ::solve(T * x, const T * b)
 			&base::Ax_[0], x, b, Numeric_, Control_, Info_);
 	assert(status == UMFPACK_OK);
 }
+
 #endif
 

@@ -12,6 +12,7 @@ set(SOURCE
 	baroclin.h  
 	barvortex.h  
 	jacobian.h  
+	laplace_private.h
 	laplace.h)
 
 add_library(phelm_aux 

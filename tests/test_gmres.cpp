@@ -15,6 +15,7 @@ void test_gmres()
 {
 	int i, j = 0;
 	int n  = 300000;
+//	int n  = 30;
 	int nz = n + n - 1 + n - 1;
 
 	Array < int, Allocator < int > > cAp((n + 1));
@@ -26,6 +27,7 @@ void test_gmres()
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
 	vector < T > Ax(nz);
+	vector < T > x(n);
 	vector < T > b(n);
 
 	Sparse_t < T > A;
@@ -95,6 +97,9 @@ void test_gmres()
 	for (int k = 0; k < 10; ++k) {
 		gmres(&cx[0], &A, &cb[0], 
 			MatMultiplier < Sparse_t < T > > :: mult_vector_l, n, 10, 100);
+
+//		vec_copy_from_device(&x[0], &cx[0], n);
+//		vec_print(&x[0], n);		
 	}
 }
 
@@ -188,6 +193,35 @@ void test_matvect()
 	}
 }
 
+template < typename T >
+void test_sum()
+{
+	T s = 0.0;
+	int n = 10000;
+	Array < T, Allocator < T > > ca(n);
+	Array < T, Allocator < T > > cb(n);
+	Array < T, Allocator < T > > cr(n);
+
+	Array < T, std::allocator < T > > a(n);
+	Array < T, std::allocator < T > > b(n);
+	Array < T, std::allocator < T > > r(n);
+
+	for (int i = 0; i < n; ++i) {
+		a[i] = (T)1.5;
+		b[i] = (T)2.5;
+	}
+
+	vec_copy_from_host(&ca[0], &a[0], n);
+	vec_copy_from_host(&cb[0], &b[0], n);
+
+	vec_sum2(&cr[0], &ca[0], &cb[0], -1.0, n);
+	s = vec_scalar2(&ca[0], &cb[0], n);
+
+	vec_copy_from_device(&r[0], &cr[0], n);
+	fprintf(stderr, "%lf\n", (double)s);
+	//vec_print(&r[0], n);
+}
+
 int main(int argc, char * argv[])
 {
 	try {
@@ -198,14 +232,16 @@ int main(int argc, char * argv[])
 
 		Timer t;
 		if (has_double) {
+			//test_sum < float > ();
 			test_gmres < float > ();
-			//		test_gmres < double > ();
+			//test_gmres < double > ();
 
-			//		test_matvect < float > ();
-			//		test_matvect < double > ();
+			//test_matvect < float > ();
+			//test_matvect < double > ();
 		} else {
+			//test_sum < float > ();
 			test_gmres < float > ();
-			//		test_matvect < float > ();
+			//test_matvect < float > ();
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());
 

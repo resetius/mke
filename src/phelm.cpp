@@ -211,7 +211,8 @@ void Mesh::info()
 	fprintf(stderr, "triangles: %lu\n", tr.size());
 }
 
-void print_inner_function(FILE * to, double * ans, const Mesh & m, 
+template < typename T >
+void print_inner_function_(FILE * to, T * ans, const Mesh & m, 
 					x_t x, x_t y, x_t z)
 {
 	fprintf(to, "# points %lu\n", m.inner.size());
@@ -219,7 +220,7 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 		int p = m.inner[i];
 		double u = m.ps[p].x();
 		double v = m.ps[p].y();
-		double f = ans[p];
+		double f = (double)ans[p];
 
 		if (x) {
 			fprintf(to, "%.16lf ", x(u, v));
@@ -259,6 +260,18 @@ void print_inner_function(FILE * to, double * ans, const Mesh & m,
 		}
 	}
 	fprintf(to, "# end \n");
+}
+
+void print_inner_function(FILE * to, double * ans, const Mesh & m, 
+					x_t x, x_t y, x_t z)
+{
+	print_inner_function_(to, ans, m, x, y, z);
+}
+
+void print_inner_function(FILE * to, float * ans, const Mesh & m, 
+					x_t x, x_t y, x_t z)
+{
+	print_inner_function_(to, ans, m, x, y, z);
 }
 
 void print_inner_function(const char * to, double * ans, const Mesh & m, 
@@ -321,33 +334,9 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 	}
 }
 
-void solve(double * Ans, const double * bnd, double * b, Matrix & A, const Mesh & m)
-{
-	int rs  = (int)m.inner.size();     // размерность
-	vec x(rs);      // ответ
-
-	solve2(&x[0], b, A, m);
-	p2u(Ans, &x[0], bnd, m);
-}
-
-void solve2(double * Ans, double * b, Matrix & A, const Mesh & m)
-{
-	int sz  = (int)m.ps.size();
-	int rs  = (int)m.inner.size();     // размерность
-	vec x(rs);      // ответ
-
-#ifdef _DEBUG
-	Timer t;
-	fprintf(stderr, "solve %dx%d: \n", rs, rs);
-#endif
-	A.solve(Ans, &b[0]);
-#ifdef _DEBUG
-	fprintf(stderr, "solve: %lf \n", t.elapsed());
-#endif
-}
-
 /* добавляем краевые условия */
-void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
+template < typename T >
+void p2u_(T * u, const T * p, const T * bnd, const Mesh & m)
 {
 	int sz  = (int)m.ps.size();
 
@@ -367,14 +356,35 @@ void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
 	}
 }
 
+void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
+{
+	p2u_(u, p, bnd, m);
+}
+
+void p2u(float * u, const float * p, const float * bnd, const Mesh & m)
+{
+	p2u_(u, p, bnd, m);
+}
+
 /* убираем краевые условия */
-void u2p(double * p, const double * u, const Mesh & m)
+template < typename T >
+void u2p_(T * p, const T * u, const Mesh & m)
 {
 	int j = 0;
 	int rs = (int)m.inner.size();
 	for (int i = 0; i < rs; ++i) {
 		p[j++] = u[m.inner[i]];
 	}
+}
+
+void u2p(double * p, const double * u, const Mesh & m)
+{
+	u2p_(p, u, m);
+}
+
+void u2p(float * p, const float * u, const Mesh & m)
+{
+	u2p_(p, u, m);
 }
 
 void set_bnd(double *u, const double * bnd, const Mesh & m)
@@ -403,50 +413,61 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tria
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
 }
 
-double fast_scalar(const double * u, const double * v, const Mesh & m, Matrix & A)
-{
-	int sz = (int)m.ps.size();
-	vec tmp(sz);
-	A.mult_vector(&tmp[0], v);
-	return vec_scalar2(u, &tmp[0], sz);
-}
-
-double fast_norm(const double * u, const Mesh & m, Matrix & A)
-{
-	return sqrt(fast_scalar(u, u, m, A));
-}
-
-double fast_dist(const double * u, const double * v, const Mesh & m, Matrix & A)
-{
-	int sz  = (int)m.ps.size(); // размерность
-	vec diff(sz);
-	vec_diff(&diff[0], u, v, sz);
-	return fast_norm(&diff[0], m, A);
-}
-
-void proj(double * F, const Mesh & mesh, f_xy_t f)
+template < typename T >
+void proj_(T * F, const Mesh & mesh, f_xy_t f)
 {
 	int sz = (int)mesh.ps.size();
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
 		const Point & p = mesh.ps[i].p[0];
-		F[i] = f(p.x, p.y);
+		F[i] = (T)f(p.x, p.y);
 	}
 }
 
-void proj_bnd(double * F, const Mesh & m, f_xy_t f)
+void proj(double * F, const Mesh & mesh, f_xy_t f)
+{
+	proj_(F, mesh, f);
+}
+
+void proj(float * F, const Mesh & mesh, f_xy_t f)
+{
+	proj_(F, mesh, f);
+}
+
+template < typename T >
+void proj_bnd_(T * F, const Mesh & m, f_xy_t f)
 {
 	int sz = (int)m.outer.size();
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0].p[0];
-		F[i] = f(p.x, p.y);
+		F[i] = (T)f(p.x, p.y);
 	}
 }
 
+void proj_bnd(double * F, const Mesh & m, f_xy_t f)
+{
+	proj_bnd_(F, m, f);
+}
+
+void proj_bnd(float * F, const Mesh & m, f_xy_t f)
+{
+	proj_bnd_(F, m, f);
+}
+
 void proj_bnd(double * F, const double * F1, const Mesh & m)
+{
+	int sz = (int)m.outer.size();
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i) {
+		int p0 = m.outer[i];
+		F[i] = F1[p0];
+	}
+}
+
+void proj_bnd(float * F, const float * F1, const Mesh & m)
 {
 	int sz = (int)m.outer.size();
 #pragma omp parallel for

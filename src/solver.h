@@ -163,6 +163,85 @@ public:
 	void solve(T * x, const T * b);
 };
 
+template <>
+class UmfPackMatrix < float >: public SparseMatrix < float >
+{
+	int n_;
+	double Control_ [UMFPACK_CONTROL];
+	double Info_ [UMFPACK_INFO];
+	void *Symbolic_, *Numeric_ ;
+
+	typedef SparseMatrix < float > base;
+
+	std::vector < double > Ax_;
+
+public:
+	typedef float data_type;
+
+	UmfPackMatrix(int n): SparseMatrix < float >(n), Symbolic_(0), Numeric_(0) 
+	{
+		umfpack_di_defaults(Control_);
+	}
+
+	~UmfPackMatrix()
+	{
+		umfpack_di_free_symbolic (&Symbolic_);
+		umfpack_di_free_numeric (&Numeric_);
+	}
+
+	/**
+	* Solve equation Ax = b.
+	* That function uses UMFPACK
+	* @param x - answer
+	* @param b - right part
+	*/
+	void solve(float * x, const float * b)
+	{
+		if (base::Ax_.empty()) {
+			base::make_sparse();
+
+			Ax_.resize(base::Ax_.size());
+
+			for (int i = 0; i < (int)Ap_.size(); ++i)
+			{
+				Ax_[i] = (float)base::Ax_[i];
+			}
+		}
+
+		int status;
+
+		if (Symbolic_ == 0) {
+			status = umfpack_di_symbolic (base::n_, base::n_, 
+				&base::Ap_[0], &base::Ai_[0], &Ax_[0], 
+				&Symbolic_, Control_, Info_);
+			assert(status == UMFPACK_OK);
+		}
+
+		if (Numeric_ == 0) {
+			status = umfpack_di_numeric (&base::Ap_[0], &base::Ai_[0], 
+				&Ax_[0], 
+				Symbolic_, &Numeric_, Control_, Info_) ;
+			assert(status == UMFPACK_OK);
+		}
+
+		std::vector < double > x1(base::n_);
+		std::vector < double > b1(base::n_);
+
+		for (int i = 0; i < base::n_; ++i)
+		{
+			b1[i] = (double)b[i];
+		}
+
+		status = umfpack_di_solve (UMFPACK_At, &base::Ap_[0], &base::Ai_[0], 
+			&Ax_[0], &x1[0], &b1[0], Numeric_, Control_, Info_);
+		assert(status == UMFPACK_OK);
+
+		for (int i = 0; i < base::n_; ++i)
+		{
+			x[i] = (float)x1[i];
+		}
+	}
+};
 #endif
 
 /**
@@ -209,8 +288,10 @@ public:
 };
 
 #if defined(UMFPACK) && !defined(GPGPU)
+#define Matrix_t UmfPackMatrix
 typedef UmfPackMatrix < double > Matrix;
 #else
+#define Matrix_t SparseMatrix
 typedef SparseMatrix < double > Matrix;
 #endif
 
@@ -228,8 +309,16 @@ struct Mesh;
  * @param A - the matrix of the system
  * @param m - mesh
  */
-void solve(double * answer, const double * bnd,
-		   double * rp, Matrix & A, const Mesh & m);
+template < typename T, typename Matrix >
+void solve(T * answer, const T * bnd,
+		   T * rp, Matrix & A, const Mesh & m)
+{
+	int sz  = (int)m.ps.size();
+	int rs  = (int)m.inner.size();     // размерность
+	Array < T, Allocator < T > > x(rs);      // ответ
+	solve2(&x[0], rp, A, m);
+	p2u(answer, &x[0], bnd, m);
+}
 
 /**
  * Solve the system with A matrix (Ax=rp).
@@ -241,7 +330,13 @@ void solve(double * answer, const double * bnd,
  * @param A the matrix of the system
  * @param m the mesh
  */
-void solve2(double * answer, double * rp, Matrix & A, const Mesh & m);
+template < typename T, typename Matrix >
+void solve2(T * answer, T * rp, Matrix & A, const Mesh & m)
+{
+	int sz  = (int)m.ps.size();
+	int rs  = (int)m.inner.size();     // размерность
+	A.solve(answer, &rp[0]);
+}
 
 /** @} */ /* solver */
 

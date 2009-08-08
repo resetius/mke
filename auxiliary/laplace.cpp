@@ -69,8 +69,8 @@ laplace_right_part_cb( const Polynom & phi_i,
                        const Triangle & trk, /* номер треугольника */
                        const Mesh & m,
                        int point_i,
-		       int point_j,
-			   int, int,
+                       int point_j,
+                       int, int,
                        laplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
@@ -90,7 +90,9 @@ laplace_right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
-static double
+namespace Laplace_Private {
+
+double
 laplace_bnd1_cb( const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
@@ -103,7 +105,7 @@ laplace_bnd1_cb( const Polynom & phi_i,
 	return integrate(phi_i * phi_j, trk, m.ps);
 }
 
-static double
+double
 laplace_bnd2_cb( const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
@@ -116,54 +118,30 @@ laplace_bnd2_cb( const Polynom & phi_i,
 	return -laplace(phi_i, phi_j, trk, m.ps);
 }
 
-static double 
+double id_cb(const Polynom & phi_i,
+		const Polynom & phi_j,
+		const Triangle & trk,
+		const Mesh & m,
+		int point_i, int point_j,
+		int, int,
+		void *)
+{
+	return integrate(phi_i * phi_j, trk, m.ps);
+}
+
+double 
 laplace_integrate_cb( const Polynom & phi_i,
                       const Polynom & phi_j, 
                       const Triangle & trk, /* номер треугольника */
                       const Mesh & m,
                       int point_i,
-		      int point_j,
-			  int, int,
+                      int point_j,
+                      int, int,
                       void * user_data)
 {
 	return laplace(phi_i, phi_j, trk, m.ps);
 }
 
-void Laplace::solve(double * Ans, const double * F, const double * bnd)
-{
-	//пока используем первый порядок
-	int sz  = (int)m_.ps.size();
-	int ntr = (int)m_.tr.size();
-	int rs  = (int)m_.inner.size();     //размерность
-
-	vec b(rs);      // правая часть
-	vec x(rs);      // ответ
-
-	Timer full;
-
-#if 0
-	laplace_right_part_cb_data d;
-	d.F   = F;
-	d.bnd = bnd;
-	generate_right_part(&b[0], m_, (right_part_cb_t)(laplace_right_part_cb), (void*)&d);
-#endif
-
-#if 1
-	u2p(&x[0], F, m_);
-	idt_.mult_vector(&b[0], &x[0]);
-	if (bnd) {
-		bnd2_.mult_vector(&x[0], bnd);
-		vec_sum(&b[0], &b[0], &x[0], (int)x.size());
-	}
-
-//	vector < double > tmp(m_.outer.size());
-//	proj_bnd(&tmp[0], F, m_);
-//	bnd1_.mult_vector(&x[0], &tmp[0]);
-//	vec_sum(&b[0], &b[0], &x[0], x.size());
-#endif	
-
-	phelm::solve(Ans, bnd, &b[0], laplace_, m_);
-	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
 static double f(double u, double x, double y, double t, double mu, double sigma)
@@ -233,17 +211,6 @@ chafe_right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
-static double id_cb(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int point_i, int point_j,
-		int, int,
-		void *)
-{
-	return integrate(phi_i * phi_j, trk, m.ps);
-}
-
 static double lp_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
@@ -271,84 +238,6 @@ static double lp_rp(const Polynom & phi_i,
 	//}
 #endif
 	return b;
-}
-
-Laplace::Laplace(const Mesh & m): m_(m), 
-	idt_((int)m.inner.size()), laplace_((int)m.inner.size()),
-//	fidt_(m.ps.size()), flaplace_(m.ps.size()),
-	bnd1_((int)m.inner.size()), bnd2_((int)m.inner.size()), 
-	bnd3_((int)m.inner.size())
-{
-	generate_matrix(idt_, m, id_cb, (void*)0);
-	generate_matrix(laplace_, m, laplace_integrate_cb, (void*)0);
-//	generate_full_matrix(fidt_, m, id_cb, (void*)0);
-//	generate_full_matrix(flaplace_, m, laplace_integrate_cb, (void*)0);
-	generate_boundary_matrix(bnd1_, m_, laplace_bnd1_cb, (void*)0);
-	generate_boundary_matrix(bnd2_, m_, laplace_bnd2_cb, (void*)0);
-	generate_boundary_matrix(bnd3_, m_, laplace_integrate_cb, (void*)0);
-}
-
-void Laplace::calc2(double * Ans, const double * F)
-{
-	int rs = (int)m_.inner.size();
-	int os = (int)m_.outer.size();
-	int sz = (int)m_.ps.size();
-
-#if 1
-	vec in(rs);
-	vec out(rs);
-	vec tmp(os);
-	u2p(&in[0], F, m_);
-	proj_bnd(&tmp[0], F, m_);
-	laplace_.mult_vector(&out[0], &in[0]);
-	bnd3_.mult_vector(&in[0], &tmp[0]);
-	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
-	idt_.solve(Ans, &out[0]);
-#endif
-
-#if 0
-	vector < double > in(sz);
-	vector < double > out(sz);
-	vector < double > tmp(sz);
-
-	//flaplace_.mult_vector(&in[0], &F[0]);
-	laplace_right_part_cb_data data;
-	data.F = &F[0];
-	generate_full_right_part(&in[0], m_, (right_part_cb_t)lp_rp, &data);
-	fidt_.solve(&out[0], &in[0]);
-	u2p(Ans, &out[0], m_);
-#endif
-}
-
-/*
- * Оператор Лапласа на границе не определен, поэтому вставляйте сюда
- * границу только если вы знаете, что делаете!
- *
- * Если этот оператор Лапласа входит в праву часть уравнения, то
- * напишите 0 вместо границы.
- */
-void Laplace::calc1(double * Ans, const double * F, const double * bnd)
-{
-#if 0
-	vector < double > p1(m_.inner.size());
-
-	//calc2(&p1[0], F);
-
-	vector < double > rp(m_.inner.size());
-
-	laplace_right_part_cb_data d;
-	d.F = F;
-	d.bnd = 0;//bnd;
-	generate_right_part(&rp[0], m_, (right_part_cb_t)lp_rp, &d);
-	idt_.solve(&p1[0], &rp[0]);
-
-	p2u(Ans, &p1[0], bnd, m_);
-#endif
-#if 1
-	vec out(m_.inner.size());
-	calc2(&out[0], F);
-	p2u(Ans, &out[0], bnd, m_);
-#endif
 }
 
 Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)

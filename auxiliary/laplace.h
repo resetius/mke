@@ -109,6 +109,60 @@ public:
 };
 
 /**
+ * A fast flat surface norm calculator.
+ */
+template < typename T >
+class FlatNorm {
+public:
+	typedef phelm::Matrix_t < T > Matrix;
+
+	const Mesh & m_; ///< mesh
+	Matrix NORM_;    ///< for fast norm calculation
+
+	/**
+	 * Constructor.
+	 * @param m - mesh
+	 */
+	FlatNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
+	{
+		phelm::generate_full_matrix(NORM_, m_, 
+			phelm::sphere_scalar_cb, (void*)0);
+	}
+
+	/**
+	 * Distance between two vectors.
+	 * @param u - input vector
+	 * @param v - input vector
+	 * @return distance between u and v
+	 */
+	T dist(const T * u, const T * v)
+	{
+		return phelm::fast_dist(u, v, m_, NORM_);
+	}
+
+	/**
+	 * Norm of vector.
+	 * @param u - input vector
+	 * @return norm of v
+	 */
+	T norm(const T * u)
+	{
+		return phelm::fast_norm(u, m_, NORM_);
+	}
+
+	/**
+	 * Inner product of two vectors.
+	 * @param u - input vector
+	 * @param v - input vector
+	 * @return inner product of u and v
+	 */
+	T scalar(const T * u, const T * v)
+	{
+		return phelm::fast_scalar(u, v, m_, NORM_);
+	}
+};
+
+/**
  * Spherical Laplace operator.
  \f[
   \Delta \psi(\varphi, \lambda)= \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
@@ -225,7 +279,10 @@ public:
 /**
  * Laplace operator on a flat domain
  */
+template < typename T >
 class Laplace {
+	typedef phelm::Matrix_t < T > Matrix;
+	typedef phelm::Array < T, phelm::Allocator < T > > Array;
 	Matrix idt_;      // inner
 	Matrix laplace_;  // inner
 
@@ -253,7 +310,7 @@ public:
 	 * @param F - vector F
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1(double * Ans, const double * F, const double * bnd);
+	void calc1(T * Ans, const T * F, const T * bnd);
 
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
@@ -261,7 +318,7 @@ public:
 	 * @param Ans - the answer (the value of Laplace operator in the inner points)
 	 * @param F - vector F
 	 */
-	void calc2(double * Ans, const double * F);
+	void calc2(T * Ans, const T * F);
 
 	/**
 	 * Solve Laplace equation.
@@ -273,7 +330,7 @@ public:
 	 * @param F - right part
 	 * @param bnd - boundary condition
 	 */
-	void solve(double * Ans, const double * F, const double * bnd);
+	void solve(T * Ans, const T * F, const T * bnd);
 };
 
 /**
@@ -284,7 +341,7 @@ public:
 class Chafe {
 private:
 	const Mesh & m_;
-	Laplace laplace_; /* Лапласиан */
+	Laplace < double > laplace_; /* Лапласиан */
 	Matrix A_;        /* Матрица левой части */
 
 public:
@@ -314,6 +371,8 @@ public:
 	void solve(double * Ans, const double * X0,
 						const double * bnd, double t);
 };
+
+#include "laplace_private.h"
 
 /** @} */
 
