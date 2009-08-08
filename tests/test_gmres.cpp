@@ -106,19 +106,11 @@ void test_matvect()
 //	int n  = 500;
 	int nz = n + n - 1 + n - 1;
 
-	phelm_allocator < int > int_alloc;
-	phelm_allocator < T   > T_alloc;
-	int * cAp = int_alloc.allocate(n + 1);
-	int * cAi = int_alloc.allocate(nz);
-	T * cAx   = T_alloc.allocate(nz);
-	T * cb    = T_alloc.allocate(n);
-	T * cx    = T_alloc.allocate(n);
-
-//	vector < int, phelm_allocator < int > > cAp((n + 1));
-//	vector < int, phelm_allocator < int > > cAi(nz);
-//	vector < T, phelm_allocator < T > > cAx(nz);
-//	vector < T, phelm_allocator < T > > cb(n);
-//	vector < T, phelm_allocator < T > > cx(n);
+	Array < int, Allocator < int > > cAp((n + 1));
+	Array < int, Allocator < int > > cAi(nz);
+	Array < T, Allocator < T > > cAx(nz);
+	Array < T, Allocator < T > > cb(n);
+	Array < T, Allocator < T > > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);

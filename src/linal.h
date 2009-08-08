@@ -45,6 +45,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #ifdef GPGPU
 #include <cuda_runtime_api.h>
