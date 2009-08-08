@@ -52,18 +52,29 @@ double nr2(double * a, double * b, int n)
 template < typename T >
 void test_invert(Mesh & mesh)
 {
+	typedef Array < T, Allocator < T > > vector;
+
 	int sz = (int)mesh.ps.size();
 	int rs = (int)mesh.inner.size();
 	int os = (int)mesh.outer.size();
 
-	vec F(sz);
-	vec B(os);
-	vec Ans(sz);
-	vec rans(sz);
+	std::vector < T > F(sz);
+	std::vector < T > B(os);
+	std::vector < T > Ans(sz);
+	std::vector < T > rans(sz);
+
+	vector cF(sz);
+	vector cB(os);
+	vector cAns(sz);
+	vector crans(sz);
 
 	proj(&F[0], mesh, rp);
 	proj(&rans[0], mesh, ans);
 	proj_bnd(&B[0], mesh, bnd);
+
+	vec_copy_from_host(&cF[0], &F[0], sz);
+	vec_copy_from_host(&crans[0], &rans[0], sz);
+	vec_copy_from_host(&cB[0], &B[0], os);
 
 	Timer t;
 	Laplace < T > l(mesh);
@@ -110,10 +121,17 @@ void test_laplace(Mesh & mesh)
 	proj_bnd(&B1[0], mesh, rp);
 	proj_bnd(&B2[0], mesh, ans);
 
+	vec_copy_from_host(&cU[0], &U[0], sz);
+	vec_copy_from_host(&cLU[0], &LU[0], sz);
+	vec_copy_from_host(&cB1[0], &B1[0], os);
+	vec_copy_from_host(&cB2[0], &B2[0], os);
+
 	fprintf(stderr, "start ... \n");
 
 	Laplace < T > l(mesh);
 	l.calc1(&cLU1[0], &cU[0], &cB1[0]);
+
+	vec_copy_from_device(&LU1[0], &cLU1[0], sz);
 
 	fprintf(stdout, "L2: laplace err=%.2le\n", 
 		nr.dist(&LU[0], &LU1[0]));
@@ -127,12 +145,13 @@ void test_laplace(Mesh & mesh)
 
 		f = fopen("lu_diff.txt", "w");
 		vector tmp(LU.size());
-		vec_diff(&tmp[0], &LU[0], &LU1[0], (int)LU.size());
+		vec_diff(&tmp[0], &cLU[0], &cLU1[0], sz);
 		print_inner_function (f, &tmp[0], mesh);
 		fclose(f);
 	}
 
-	l.solve(&LU[0], &LU1[0], &B2[0]);
+	l.solve(&cLU[0], &cLU1[0], &cB2[0]);
+	vec_copy_from_device(&LU[0], &cLU[0], sz);
 	
 //	vector_print(&U[0], U.size());
 //	vector_print(&LU[0], LU.size());
@@ -163,11 +182,13 @@ int main(int argc, char *argv[])
 	//omp_set_num_threads(nprocs);
 
 	mesh.info();
-	//test_invert(mesh);
-	//getchar();
+
 
 	phelm_init();
-	
+
+	//test_invert < float > (mesh);
+	//getchar();
+
 	test_laplace < float > (mesh);
 	//test_laplace < double > (mesh);
 	
