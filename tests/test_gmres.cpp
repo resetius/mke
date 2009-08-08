@@ -16,17 +16,17 @@ void test_gmres()
 	int i, j = 0;
 	int n  = 300000;
 	int nz = n + n - 1 + n - 1;
+
 	vector < int, phelm_allocator < T > > cAp((n + 1));
 	vector < int, phelm_allocator < T > > cAi(nz);
 	vector < T, phelm_allocator < T > > cAx(nz);
+	vector < T, phelm_allocator < T > > cb(n);
+	vector < T, phelm_allocator < T > > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
 	vector < T > Ax(nz);
 	vector < T > b(n);
-
-	vector < T, phelm_allocator < T > > cb(n);
-	vector < T, phelm_allocator < T > > cx(n);
 
 	Sparse_t < T > A;
 
@@ -104,12 +104,19 @@ void test_matvect()
 	int i, j = 0;
 	int n  = 5000000;
 	int nz = n + n - 1 + n - 1;
+
+	vector < int, phelm_allocator < T > > cAp((n + 1));
+	vector < int, phelm_allocator < T > > cAi(nz);
+	vector < T, phelm_allocator < T > > cAx(nz);
+	vector < T, phelm_allocator < T > > cb(n);
+	vector < T, phelm_allocator < T > > cx(n);
+
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
-	vector < T, phelm_allocator < T > > Ax(nz);
-	vector < T, phelm_allocator < T > > b(n);
-	vector < T, phelm_allocator < T > > x(n);
-	Sparse A;
+	vector < T > Ax(nz);
+	vector < T > b(n);
+	vector < T > x(n);
+	Sparse_t < T > A;
 
 	/**
 	 * 2 1 0 .... 0
@@ -164,9 +171,14 @@ void test_matvect()
 		b[i] = 1;
 	}
 
-	A.Ax = &Ax[0];
-	A.Ap = &Ap[0];
-	A.Ai = &Ai[0];
+	vec_copy_from_host(&cAp[0], &Ap[0], (int)Ap.size());
+	vec_copy_from_host(&cAi[0], &Ai[0], (int)Ai.size());
+	vec_copy_from_host(&cAx[0], &Ax[0], (int)Ax.size());
+	vec_copy_from_host(&cb[0], &b[0], (int)b.size());
+
+	A.Ax = &cAx[0];
+	A.Ap = &cAp[0];
+	A.Ai = &cAi[0];
 
 	for (int k = 0; k < 1000; ++k) {
 		sparse_mult_vector_l(&x[0], &A, &b[0], n);
@@ -183,10 +195,14 @@ int main(int argc, char * argv[])
 	if (has_double) {
 		test_gmres < float > ();
 		test_gmres < double > ();
+
+		test_matvect < float > ();
+		test_matvect < double > ();
 	} else {
 		test_gmres < float > ();
+		test_matvect < float > ();
 	}
-	//test_matvect();
+
 	phelm_shutdown();
 	return 0;
 }

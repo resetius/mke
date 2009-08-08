@@ -251,6 +251,34 @@ float vec_scalar2(const float * a, const float * b, int n)
 	return vec_scalar2_(a, b, n);
 }
 
+template < typename T, typename Sparse >
+void sparse_mult_vector_l_(T * r, const Sparse * A, const T * x, int n)
+{
+	int j;
+
+#pragma omp parallel for
+	for (j = 0; j < n; ++j) {
+		T *p = &A->Ax[A->Ap[j]];
+		int i0;
+		r[j] = 0;
+
+		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
+			int i = A->Ai[i0];
+			r[j] += *p * x[i];
+		}
+	}
+}
+
+void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)
+{
+	sparse_mult_vector_l_(r, A, x, n);
+}
+
+void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x, int n)
+{
+	sparse_mult_vector_l_(r, A, x, n);
+}
+
 int check_device_supports_double()
 {
 	return 1;

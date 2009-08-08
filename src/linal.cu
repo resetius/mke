@@ -42,9 +42,21 @@ __global__ void _sparse_mult_vector_ld(double * r,
 	const double * x, 
 	int n)
 {
+	int j;
+
+	for (j = 0; j < n; ++j) {
+		const double *p = &Ax[Ap[j]];
+		int i0;
+		r[j] = 0;
+
+		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+			int i = Ai[i0];
+			r[j] += *p * x[i];
+		}
+	}
 }
 
-void sparse_mult_vector_ld(double * r, 
+__host__ void __stdcall sparse_mult_vector_ld(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
@@ -61,9 +73,21 @@ __global__ void _sparse_mult_vector_lf(float * r,
 	const float * x, 
 	int n)
 {
+	int j;
+
+	for (j = 0; j < n; ++j) {
+		const float *p = &Ax[Ap[j]];
+		int i0;
+		r[j] = 0;
+
+		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+			int i = Ai[i0];
+			r[j] += *p * x[i];
+		}
+	}
 }
 
-void sparse_mult_vector_lf(float * r, 
+__host__ void __stdcall sparse_mult_vector_lf(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,

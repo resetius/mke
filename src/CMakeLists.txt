@@ -31,7 +31,6 @@ cuda_add_library(phelm_cu
 	linal_cuda.cpp 
 	linal.cu
 	)
-
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)
 
