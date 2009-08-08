@@ -45,7 +45,6 @@
 
 #include <vector>
 
-#include "linal.h"
 #ifdef GPGPU
 #include "alloc_cu.h"
 #endif
@@ -76,12 +75,6 @@ struct Allocator: public cuda_allocator < T >
 	Allocator (const Allocator&) throw() {};
 };
 #endif
-
-/**
- * @ingroup misc
- * array.
- */
-typedef Array < double, Allocator < double > > vec;
 
 }
 

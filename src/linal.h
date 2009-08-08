@@ -51,6 +51,8 @@
 #include <cuda_runtime_api.h>
 #endif
 
+#include "base.h"
+
 namespace phelm {
 
 /**
@@ -373,6 +375,26 @@ public:
 		return data_[i];
 	}
 };
+
+template < typename T  >
+struct ArrayHost: public Array < T, std::allocator < T > > 
+{
+	ArrayHost(): Array < T, std::allocator < T > > () {}
+	ArrayHost(size_t size): Array < T, std::allocator < T > > (size) {}
+};
+
+template < typename T  >
+struct ArrayDevice: public Array < T, Allocator < T > > 
+{
+	ArrayDevice(): Array < T,  Allocator < T > > () {}
+	ArrayDevice(size_t size): Array < T,  Allocator < T > > (size) {}
+};
+
+/**
+ * @ingroup misc
+ * array.
+ */
+typedef Array < double, Allocator < double > > vec;
 
 int check_device_supports_double();
 

@@ -144,9 +144,13 @@ void test_laplace(Mesh & mesh)
 		fclose(f);
 
 		f = fopen("lu_diff.txt", "w");
-		vector tmp(LU.size());
-		vec_diff(&tmp[0], &cLU[0], &cLU1[0], sz);
-		print_inner_function (f, &tmp[0], mesh);
+		vector tmp1(sz);
+		std::vector < T > tmp2(sz);
+
+		vec_diff(&tmp1[0], &cLU[0], &cLU1[0], sz);
+		vec_copy_from_device(&tmp2[0], &tmp1[0], sz);
+
+		print_inner_function (f, &tmp2[0], mesh);
 		fclose(f);
 	}
 
