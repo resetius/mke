@@ -34,7 +34,6 @@ cuda_add_library(phelm_cu
 	linal_cuda.cpp 
 	linal_cuda.h
 	proj_cuda.cpp
-	proj_cuda.h
 	alloc_cu.h
 	linal.cu
 	phelm.cu

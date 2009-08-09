@@ -54,6 +54,20 @@ VERSION("$Id$");
 
 namespace phelm {
 
+void sparse_mult_vector_ld(double * r, 
+	const int * Ap, 
+	const int * Ai, 
+	const double * Ax,
+	const double * x, 
+	int n);
+
+void sparse_mult_vector_lf(float * r, 
+	const int * Ap, 
+	const int * Ai, 
+	const float * Ax,
+	const float * x, 
+	int n);
+
 double vec_norm2(const double * v, int n)
 {
 	return cublasDnrm2(n, v, 1);

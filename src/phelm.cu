@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,9 @@
  */
 
 #include "linal_cuda.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 namespace phelm {
 
@@ -82,20 +85,79 @@ __global__ void p2u_(T * u, const T * p, const T * bnd, const int * p2io,
 	}
 }
 
-__host__ void p2u(double * p, const double * u, const double * bnd,
+__host__ void p2u(double * u, const double * p, const double * bnd,
 	const int * p2io, const int * ps_flags, int sz)
 {
 	int ctas, threads, elems;
 	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
-	p2u_ <<< ctas, threads >>> (p, u, bnd, p2io, ps_flags, sz);
+	p2u_ <<< ctas, threads >>> (u, p, bnd, p2io, ps_flags, sz);
 }
 
-__host__ void p2u(float * p, const float * u, const float * bnd,
+__host__ void p2u(float * u, const float * p, const float * bnd,
 	const int * p2io, const int * ps_flags, int sz)
 {
 	int ctas, threads, elems;
 	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
-	p2u_ <<< ctas, threads >>> (p, u, bnd, p2io, ps_flags, sz);
+	p2u_ <<< ctas, threads >>> (u, p, bnd, p2io, ps_flags, sz);
+}
+
+template < typename T >
+__global__ void proj_bnd_(T * F, const T * F1, 
+	const int * outer, int os)
+{
+	int i  = blockDim.x * blockIdx.x + threadIdx.x;
+	if (i < os) {
+		int p0 = outer[i];
+		F[i] = F1[p0];
+	}
+}
+
+__host__ void proj_bnd(double * F, const double * F1, 
+	const int * outer, int os)
+{
+	int ctas, threads, elems;
+	vector_splay (os, 32, 128, 80, &ctas, &elems, &threads);
+	proj_bnd_ <<< ctas, threads >>> (F, F1, outer, os);
+}
+
+__host__ void proj_bnd(float * F, const float * F1, 
+	const int * outer, int os)
+{
+	int ctas, threads, elems;
+	vector_splay (os, 32, 128, 80, &ctas, &elems, &threads);
+	proj_bnd_ <<< ctas, threads >>> (F, F1, outer, os);
+}
+
+template < typename T >
+__global__ void set_bnd_(T * u, const T * bnd, 
+	const int * p2io, const int * ps_flags, int sz)
+{
+	int i  = blockDim.x * blockIdx.x + threadIdx.x;
+	if (i < sz) {
+		if (ps_flags[i] == 1) {
+			if (bnd) {
+				u[i] = bnd[p2io[i]];
+			} else {
+				u[i] = 0;
+			}
+		}
+	}
+}
+
+__host__ void set_bnd(double * u, const double * bnd, 
+	const int * p2io, const int * ps_flags, int sz)
+{
+	int ctas, threads, elems;
+	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
+	set_bnd_ <<< ctas, threads >>> (u, bnd, p2io, ps_flags, sz);
+}
+
+__host__ void set_bnd(float * u, const float * bnd, 
+	const int * p2io, const int * ps_flags, int sz)
+{
+	int ctas, threads, elems;
+	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
+	set_bnd_ <<< ctas, threads >>> (u, bnd, p2io, ps_flags, sz);
 }
 
 }

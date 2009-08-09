@@ -4,7 +4,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,29 +38,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef WIN32
-#define API __stdcall
-#else
-#define API
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-void API sparse_mult_vector_ld(double * r, 
-	const int * Ap, 
-	const int * Ai, 
-	const double * Ax,
-	const double * x, 
-	int n);
-
-void API sparse_mult_vector_lf(float * r, 
-	const int * Ap, 
-	const int * Ai, 
-	const float * Ax,
-	const float * x, 
-	int n);
 
 void vector_splay (int n, int threads_min, int threads_max, 
 	int grid_width, int *ctas, 

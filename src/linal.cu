@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,9 @@
  */
 
 #include "linal_cuda.h"
+#include "ver.h"
+
+VERSION("$Id$");
 
 void vector_splay (int n, int threads_min, int threads_max, 
 	int grid_width, int *ctas, 
@@ -65,6 +68,8 @@ void vector_splay (int n, int threads_min, int threads_max,
 	}
 }
 
+namespace phelm {
+
 template < typename T >
 __global__ void sparse_mult_vector_l_(T * r, 
 	const int * Ap, 
@@ -88,7 +93,7 @@ __global__ void sparse_mult_vector_l_(T * r,
 	}
 }
 
-__host__ void API sparse_mult_vector_ld(double * r, 
+__host__ void sparse_mult_vector_ld(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
@@ -100,7 +105,7 @@ __host__ void API sparse_mult_vector_ld(double * r,
 	sparse_mult_vector_l_ <<< ctas, threads >>> (r, Ap, Ai, Ax, x, n);
 }
 
-__host__ void API sparse_mult_vector_lf(float * r, 
+__host__ void sparse_mult_vector_lf(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
@@ -111,8 +116,6 @@ __host__ void API sparse_mult_vector_lf(float * r,
 	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
 	sparse_mult_vector_l_ <<< ctas, threads >>> (r, Ap, Ai, Ax, x, n);
 }
-
-namespace phelm {
 
 /* r = k1 * a + k2 * b */
 template < typename T >
