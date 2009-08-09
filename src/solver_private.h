@@ -122,11 +122,12 @@ void SparseMatrix < T > ::make_sparse()
 	}
 	Ax_.resize(nz);
 	Ai_.resize(nz);
-	Ap_[0] = 0;
 
 	std::vector < T > Ax(nz);
 	std::vector < int > Ai(nz);
 	std::vector < int > Ap(Ap_.size());
+
+	Ap[0] = 0;
 
 	for (uint i = 0; i < A_.size(); ++i)
 	{

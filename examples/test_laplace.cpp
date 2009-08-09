@@ -134,7 +134,7 @@ void test_laplace(Mesh & mesh)
 	vec_copy_from_device(&LU1[0], &cLU1[0], sz);
 
 	fprintf(stdout, "L2: laplace err=%.2le\n", 
-		nr.dist(&LU[0], &LU1[0]));
+		nr.dist(&cLU[0], &cLU1[0]));
 	{
 		FILE * f = fopen("lu_real.txt", "w");
 		print_inner_function (f, &LU[0], mesh);
@@ -160,7 +160,7 @@ void test_laplace(Mesh & mesh)
 //	vector_print(&U[0], U.size());
 //	vector_print(&LU[0], LU.size());
 	
-	fprintf(stdout, "L3: laplace err=%.2le\n", nr.dist(&U[0], &LU[0]));
+	fprintf(stdout, "L3: laplace err=%.2le\n", nr.dist(&cU[0], &cLU[0]));
 }
 
 //#include <omp.h>
@@ -190,12 +190,17 @@ int main(int argc, char *argv[])
 
 	phelm_init();
 
-	//test_invert < float > (mesh);
-	//getchar();
+	Timer t;
+	try {
+		//test_invert < float > (mesh);
+		test_laplace < float > (mesh);
+		//test_laplace < double > (mesh);
+	} catch (const std::exception & e) {
+		fprintf(stderr, "exception: %s\n", e.what());
+	}
 
-	test_laplace < float > (mesh);
-	//test_laplace < double > (mesh);
-	
+	fprintf(stderr, "elapsed: %lf\n", t.elapsed());
+
 	phelm_shutdown();
 	return 0;
 }
