@@ -101,6 +101,7 @@ void test_laplace(Mesh & mesh)
 	int rs = (int)mesh.inner.size();
 	int os = (int)mesh.outer.size();
 	FlatNorm < T > nr(mesh);
+	Timer t;
 
 	std::vector < T > U(sz);
 	std::vector < T > LU(sz);
@@ -129,7 +130,10 @@ void test_laplace(Mesh & mesh)
 	fprintf(stderr, "start ... \n");
 
 	Laplace < T > l(mesh);
+
+	t.restart();
 	l.calc1(&cLU1[0], &cU[0], &cB1[0]);
+	fprintf(stderr, "calc1 time: %lf\n", t.elapsed());
 
 	vec_copy_from_device(&LU1[0], &cLU1[0], sz);
 
@@ -154,7 +158,10 @@ void test_laplace(Mesh & mesh)
 		fclose(f);
 	}
 
+	t.restart();
 	l.solve(&cLU[0], &cLU1[0], &cB2[0]);
+	fprintf(stderr, "solve time: %lf\n", t.elapsed());
+
 	vec_copy_from_device(&LU[0], &cLU[0], sz);
 	
 //	vector_print(&U[0], U.size());

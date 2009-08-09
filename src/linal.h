@@ -354,7 +354,7 @@ public:
 		if (size > size_) {
 			T * p = alloc_.allocate(size);
 			if (data_) {
-				vec_copy(p, data_, size);
+				vec_copy(p, data_, (int)size);
 				alloc_.deallocate(data_, size_);
 			}
 			data_ = p;
