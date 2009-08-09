@@ -57,6 +57,7 @@ void test_invert(Mesh & mesh)
 	int sz = (int)mesh.ps.size();
 	int rs = (int)mesh.inner.size();
 	int os = (int)mesh.outer.size();
+	FlatNorm < T > nr(mesh);
 
 	std::vector < T > F(sz);
 	std::vector < T > B(os);
@@ -79,7 +80,10 @@ void test_invert(Mesh & mesh)
 	Timer t;
 	Laplace < T > l(mesh);
 	fprintf(stderr, "l -> %lf\n", t.elapsed());
-	l.solve(&Ans[0], &F[0], &B[0]);
+	l.solve(&cAns[0], &cF[0], &cB[0]);
+	
+	vec_copy_from_device(&Ans[0], &cAns[0], sz);
+
 	{
 		FILE * f = fopen("lu_1_real.txt", "w");
 		print_function(f, &rans[0], mesh);
@@ -90,7 +94,7 @@ void test_invert(Mesh & mesh)
 	}
 
 	fprintf(stdout, "L1: invert  err=%.2le\n", 
-		dist(&Ans[0], &rans[0], mesh));
+		nr.dist(&cAns[0], &crans[0]));
 }
 
 template < typename T > 
@@ -199,7 +203,7 @@ int main(int argc, char *argv[])
 
 	Timer t;
 	try {
-		//test_invert < float > (mesh);
+		test_invert < float > (mesh);
 		test_laplace < float > (mesh);
 		//test_laplace < double > (mesh);
 	} catch (const std::exception & e) {

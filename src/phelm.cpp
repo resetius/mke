@@ -299,14 +299,15 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
 	}
 }
 
-void print_function(FILE * to, double * ans, const Mesh & m, 
-					x_t x, x_t y, x_t z)
+template < typename T >
+void print_function_(FILE * to, T * ans, const Mesh & m, 
+                    x_t x, x_t y, x_t z)
 {
 	fprintf(to, "# points %lu\n", m.ps.size());
 	for (uint i = 0; i < m.ps.size(); ++i) {
 		double u = m.ps[i].x();
 		double v = m.ps[i].y();
-		double f = ans[i];
+		double f = (double)ans[i];
 
 		if (x) {
 			fprintf(to, "%.16lf ", x(u, v));
@@ -337,6 +338,18 @@ void print_function(FILE * to, double * ans, const Mesh & m,
 			m.tr[i].p[2] + 1);
 	}
 	fprintf(to, "# end \n");
+}
+
+void print_function(FILE * to, double * ans, const Mesh & m,
+		x_t x, x_t y, x_t z)
+{
+	print_function_(to, ans, m, x, y, z);
+}
+
+void print_function(FILE * to, float * ans, const Mesh & m,
+		x_t x, x_t y, x_t z)
+{
+	print_function_(to, ans, m, x, y, z);
 }
 
 void print_function(const char * fname, double * ans, const Mesh & m, 
