@@ -201,6 +201,21 @@ void Mesh::prepare()
 	for (it = b; it != e; ++it) {
 		it->prepare(ps);
 	}
+
+	inner_size = inner.size();
+	outer_size = outer.size();
+	size = ps.size();
+
+#ifdef GPGPU
+	d.inner.resize(inner_size);
+	d.outer.resize(outer_size);
+	d.p2io.resize(size);
+	d.ps_flags.resize(size);
+	vec_copy_from_host(&d.inner[0],    &inner[0], inner_size);
+	vec_copy_from_host(&d.outer[0],    &outer[0], outer_size);
+	vec_copy_from_host(&d.p2io[0],     &p2io[0],  size);
+	vec_copy_from_host(&d.ps_flags[0], &ps_flags[0],  size);
+#endif
 }
 
 void Mesh::info()
@@ -334,73 +349,6 @@ void print_function(const char * fname, double * ans, const Mesh & m,
 	}
 }
 
-/* добавляем краевые условия */
-template < typename T >
-void p2u_(T * u, const T * p, const T * bnd, const Mesh & m)
-{
-	int sz  = (int)m.ps.size();
-
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		if (m.ps_flags[i] == 1) {
-			//внешняя
-			if (bnd) {
-				u[i] = bnd[m.p2io[i]];
-			} else {
-				u[i] = 0;
-			}
-		} else {
-			//внутренняя
-			u[i] = p[m.p2io[i]];
-		}
-	}
-}
-
-void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
-{
-	p2u_(u, p, bnd, m);
-}
-
-void p2u(float * u, const float * p, const float * bnd, const Mesh & m)
-{
-	p2u_(u, p, bnd, m);
-}
-
-/* убираем краевые условия */
-template < typename T >
-void u2p_(T * p, const T * u, const Mesh & m)
-{
-	int j = 0;
-	int rs = (int)m.inner.size();
-	for (int i = 0; i < rs; ++i) {
-		p[j++] = u[m.inner[i]];
-	}
-}
-
-void u2p(double * p, const double * u, const Mesh & m)
-{
-	u2p_(p, u, m);
-}
-
-void u2p(float * p, const float * u, const Mesh & m)
-{
-	u2p_(p, u, m);
-}
-
-void set_bnd(double *u, const double * bnd, const Mesh & m)
-{
-	int sz  = (int)m.ps.size();
-	for (int i = 0; i < sz; ++i) {
-		if (m.ps_flags[i] == 1) {
-			if (bnd) {
-				u[i] = bnd[m.p2io[i]];
-			} else {
-				u[i] = 0;
-			}
-		}
-	}
-}
-
 double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
 						 const Mesh & m, int, int, int, int, void * )
 {
@@ -411,91 +359,6 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j, const Tria
 						const Mesh & m, int, int, int, int, void * user_data)
 {
 	return integrate_cos(phi_i * phi_j, trk, m.ps);
-}
-
-template < typename T >
-void proj_(T * F, const Mesh & mesh, f_xy_t f)
-{
-	int sz = (int)mesh.ps.size();
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i)
-	{
-		const Point & p = mesh.ps[i].p[0];
-		F[i] = (T)f(p.x, p.y);
-	}
-}
-
-void proj(double * F, const Mesh & mesh, f_xy_t f)
-{
-	proj_(F, mesh, f);
-}
-
-void proj(float * F, const Mesh & mesh, f_xy_t f)
-{
-	proj_(F, mesh, f);
-}
-
-template < typename T >
-void proj_bnd_(T * F, const Mesh & m, f_xy_t f)
-{
-	int sz = (int)m.outer.size();
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		int p0 = m.outer[i];
-		const Point & p = m.ps[p0].p[0];
-		F[i] = (T)f(p.x, p.y);
-	}
-}
-
-void proj_bnd(double * F, const Mesh & m, f_xy_t f)
-{
-	proj_bnd_(F, m, f);
-}
-
-void proj_bnd(float * F, const Mesh & m, f_xy_t f)
-{
-	proj_bnd_(F, m, f);
-}
-
-void proj_bnd(double * F, const double * F1, const Mesh & m)
-{
-	int sz = (int)m.outer.size();
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		int p0 = m.outer[i];
-		F[i] = F1[p0];
-	}
-}
-
-void proj_bnd(float * F, const float * F1, const Mesh & m)
-{
-	int sz = (int)m.outer.size();
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		int p0 = m.outer[i];
-		F[i] = F1[p0];
-	}
-}
-
-void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
-{
-	int sz = (int)mesh.ps.size();
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i)
-	{
-		F[i] = f(mesh.ps[i].x(), mesh.ps[i].y(), t);
-	}
-}
-
-void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
-{
-	int sz = (int)m.outer.size();
-#pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		int p0 = m.outer[i];
-		const Point & p = m.ps[p0].p[0];
-		F[i] = f(p.x, p.y, t);
-	}
 }
 
 }

@@ -24,7 +24,8 @@ set(SOURCE
 
 add_library(phelm 
 	${SOURCE}
-	linal.cpp 
+	linal.cpp
+	proj.cpp
 	)
 
 if (CUDA_FOUND)
@@ -32,8 +33,11 @@ cuda_add_library(phelm_cu
 	${SOURCE}
 	linal_cuda.cpp 
 	linal_cuda.h
+	proj_cuda.cpp
+	proj_cuda.h
 	alloc_cu.h
 	linal.cu
+	phelm.cu
 	)
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)

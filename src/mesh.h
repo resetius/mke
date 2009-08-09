@@ -309,6 +309,19 @@ struct Mesh {
 	 */
 	std::vector < int > p2io;
 
+	int inner_size;
+	int outer_size;
+	int size;
+
+	struct Device {
+		ArrayDevice < int > inner;
+		ArrayDevice < int > outer;
+		ArrayDevice < int > p2io;
+		ArrayDevice < int > ps_flags;
+	};
+
+	Device d;
+
 	/**
 	 * Load mesh from file.
 	 * @param f - file
@@ -513,6 +526,7 @@ typedef double (* f_xyt_t)(double x, double y, double t);
 
 /**
  * Add boundary conditions to p.
+ * Note for phelm_cu: this functions works with device memory.
  * @param p - the value of u on the inner mesh points
  * @param u - (output) mesh function
  * @param bnd - the value of u on the boundary mesh points
@@ -523,6 +537,7 @@ void p2u(float * u, const float * p, const float * bnd, const Mesh & m);
 
 /**
  * Remove boundary conditions from u.
+ * Note for phelm_cu: this functions works with device memory.
  * @param p - (output) the value of u on the inner mesh points
  * @param u - mesh function
  * @param m - mesh
@@ -551,7 +566,30 @@ void proj_bnd(double * F, const Mesh & m, f_xy_t f);
 void proj_bnd(float * F, const Mesh & m, f_xy_t f);
 
 /**
+ * Project function f(x,y,t) to the mesh.
+ * Note for phelm_cu: this functions works with host memory.
+ * @param F - (output) the value of f(x,y) on mesh points
+ * @param mesh - the mesh
+ * @param f - function f(x, y)
+ * @param t - time
+ */
+void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
+void proj(float * F, const Mesh & mesh, f_xyt_t f, double t);
+
+/**
+ * Project function f(x,y,t) to the boundary of the mesh.
+ * Note for phelm_cu: this functions works with host memory.
+ * @param F - (output) the value of f(x,y) on boundary points
+ * @param m - the mesh
+ * @param f - function f(x, y)
+ * @param t - time
+ */
+void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
+void proj_bnd(float * F, const Mesh & m, f_xyt_t f, double t);
+
+/**
  * Project vector F1 to the boundary of the mesh.
+ * Note for phelm_cu: this functions works with device memory.
  * @param F  - (output) the value of F1 on boundary points
  * @param m  - the mesh
  * @param F1 - mesh vector 
@@ -561,29 +599,13 @@ void proj_bnd(float * F, const float * F1, const Mesh & m);
 
 /**
  * Set the boundary value of vector F.
+ * Note for phelm_cu: this functions works with device memory.
  * @param F - (input/output) mesh vector
  * @param bnd - boundary value
  * @param m - mesh  
  */
 void set_bnd(double * F, const double * bnd, const Mesh & m);
-
-/**
- * Project function f(x,y,t) to the mesh.
- * @param F - (output) the value of f(x,y) on mesh points
- * @param mesh - the mesh
- * @param f - function f(x, y)
- * @param t - time
- */
-void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
-
-/**
- * Project function f(x,y,t) to the boundary of the mesh.
- * @param F - (output) the value of f(x,y) on boundary points
- * @param m - the mesh
- * @param f - function f(x, y)
- * @param t - time
- */
-void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
+void set_bnd(double * F, const float * bnd, const Mesh & m);
 
 /** @} */ /* proj */
 

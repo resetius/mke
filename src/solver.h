@@ -208,7 +208,7 @@ public:
 			}
 		}
 
-		int status;
+		int status = 0;
 
 		if (Symbolic_ == 0) {
 			status = umfpack_di_symbolic (base::n_, base::n_, 

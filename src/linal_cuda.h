@@ -62,6 +62,10 @@ void API sparse_mult_vector_lf(float * r,
 	const float * x, 
 	int n);
 
+void vector_splay (int n, int threads_min, int threads_max, 
+	int grid_width, int *ctas, 
+	int *elems_per_cta, int * threads_per_cta);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
