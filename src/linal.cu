@@ -112,9 +112,10 @@ __host__ void sparse_mult_vector_lf(float * r,
 	const float * x, 
 	int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	sparse_mult_vector_l_ <<< ctas, threads >>> (r, Ap, Ai, Ax, x, n);
+	int blocks, threads, elems;
+	//vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
+	threads = 512; blocks  = n / threads + ((n % threads) == 0?0:1);
+	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, n);
 }
 
 /* r = k1 * a + k2 * b */

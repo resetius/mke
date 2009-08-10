@@ -121,6 +121,7 @@ template < typename T >
 bool test_matvect()
 {
 	int i, j = 0;
+//	int n  = 320000;
 	int n  = 500000;
 //	int n  = 500;
 	int nz = n + n - 1 + n - 1;
@@ -288,9 +289,9 @@ int main(int argc, char * argv[])
 			fprintf(stderr, "test_matvect < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 		} else {
-			t.restart(); result &= test_sum < float > ();
+//			t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_gmres < float > ();
+//			t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);

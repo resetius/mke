@@ -115,6 +115,18 @@ void phelm_init()
 	} else {
 		fprintf(stderr, "library initialized\n");
 	}
+
+	int device;
+	struct cudaDeviceProp prop;
+	cudaGetDevice(&device);
+	cudaGetDeviceProperties(&prop, device);
+	fprintf(stderr, "name: %s\n", prop.name);
+	fprintf(stderr, "version: %d.%d\n", prop.major, prop.minor);
+	fprintf(stderr, "totalGlobalMem: %lu\n", prop.totalGlobalMem);
+
+	fprintf(stderr, "maxthreads: %d\n", prop.maxThreadsPerBlock);
+	fprintf(stderr, "maxthreadsdim: %d %d %d\n", prop.maxThreadsDim[0], prop.maxThreadsDim[1], prop.maxThreadsDim[2]);
+	fprintf(stderr, "maxgridsize: %d %d %d\n", prop.maxGridSize[0], prop.maxGridSize[1], prop.maxGridSize[2]);
 }
 
 void phelm_shutdown()
@@ -123,3 +135,4 @@ void phelm_shutdown()
 }
 
 } /* namespace phelm */
+
