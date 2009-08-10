@@ -45,8 +45,9 @@ namespace phelm {
 template < typename T >
 __global__ void u2p_(T * p, const T * u, const int * inner, int rs)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i  = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < rs) {
+	for (;i < rs; i += threads) {
 		p[i] = u[inner[i]];
 	}
 }
@@ -69,8 +70,9 @@ template < typename T >
 __global__ void p2u_(T * u, const T * p, const T * bnd, const int * p2io, 
 	const int * ps_flags, int sz)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i  = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < sz) {
+	for (;i < sz; i += threads) {
 		if (ps_flags[i] == 1) {
 			//внешн€€
 			if (bnd) {
@@ -105,8 +107,9 @@ template < typename T >
 __global__ void proj_bnd_(T * F, const T * F1, 
 	const int * outer, int os)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i  = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < os) {
+	for (;i < os; i += threads) {
 		int p0 = outer[i];
 		F[i] = F1[p0];
 	}
@@ -132,8 +135,9 @@ template < typename T >
 __global__ void set_bnd_(T * u, const T * bnd, 
 	const int * p2io, const int * ps_flags, int sz)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i  = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < sz) {
+	for (;i < sz; i += threads) {
 		if (ps_flags[i] == 1) {
 			if (bnd) {
 				u[i] = bnd[p2io[i]];
@@ -161,3 +165,4 @@ __host__ void set_bnd(float * u, const float * bnd,
 }
 
 }
+

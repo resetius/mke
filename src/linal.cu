@@ -78,10 +78,16 @@ __global__ void sparse_mult_vector_l_(T * r,
 	const T * x, 
 	int n)
 {
-	//int threads = gridDim.x  * blockDim.x;
-	int j       = blockDim.x * blockIdx.x + threadIdx.x;
+	int threads = gridDim.x  * blockDim.x;
+	//int j       = blockDim.x * blockIdx.x + threadIdx.x;
 
-	if (j < n) {
+	int j;
+	//int num_per_block  = n / gridDim.x + (n % gridDim.x > 0);
+	//int num   = num_per_block / blockDim.x + (num_per_block % blockDim.x > 0);
+	int start = blockDim.x * blockIdx.x + threadIdx.x;
+	//int fin   = start + num;
+
+	for (j = start; j < n; j += threads) {
 		const T *p = &Ax[Ap[j]];
 		int i0;
 		r[j] = 0;
@@ -113,8 +119,9 @@ __host__ void sparse_mult_vector_lf(float * r,
 	int n)
 {
 	int blocks, threads, elems;
-	//vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
-	threads = 512; blocks  = n / threads + ((n % threads) == 0?0:1);
+	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
+	//threads = 4; blocks  = 4;//n / threads + ((n % threads) == 0?0:1);
+	//fprintf(stderr, "%d, %d: %d\n", n, blocks, threads);
 	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, n);
 }
 
@@ -122,8 +129,9 @@ __host__ void sparse_mult_vector_lf(float * r,
 template < typename T >
 __global__ void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < n) {
+	for (;i < n; i += threads) {
 		r[i] = k1 * a[i] + k2 * b[i];
 	}
 }
@@ -146,8 +154,9 @@ __host__ void vec_sum1(double * r, const double * a, const double *b, double k1,
 template < typename T >
 __global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < n) {
+	for (;i < n; i += threads) {
 		r[i] = a[i] + k2 * b[i];
 	}
 }
@@ -170,8 +179,9 @@ __host__ void vec_sum2(double * r, const double * a, const double *b, double k2,
 template < typename T >
 __global__ void vec_sum_(T * r, const T * a, const T * b, int n)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;;
-	if (i < n) {
+	for (;i < n; i += threads) {
 		r[i] = a[i] + b[i];
 	}
 }
@@ -194,8 +204,9 @@ __host__ void vec_sum(double * r, const double * a, const double *b, int n)
 template < typename T >
 __global__ void vec_mult_(T * r, const T * a, const T * b, int n)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;;
-	if (i < n) {
+	for (;i < n; i += threads) {
 		r[i] = a[i] * b[i];
 	}
 }
@@ -218,8 +229,9 @@ __host__ void vec_mult(double * r, const double * a, const double *b, int n)
 template < typename T >
 __global__ void vec_diff_(T * r, const T * a, const T *b, int n)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < n) {
+	for (;i < n; i += threads) {
 		r[i] = a[i] - b[i];
 	}
 }
@@ -242,8 +254,9 @@ __host__ void vec_diff(double * r, const double * a, const double *b,  int n)
 template < typename T >
 __global__ void vec_mult_scalar_(T * r, const T * b, T k, int n)
 {
+	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
-	if (i < n) {
+	for (;i < n; i += threads) {
 		r[i] = k * b[i];
 	}
 }
@@ -263,3 +276,4 @@ __host__ void vec_mult_scalar(double * r, const double * b, double k, int n)
 }
 
 }
+
