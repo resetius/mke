@@ -441,7 +441,7 @@ __host__ T vec_scalar2_(const T * a, const T * b, int n)
 		threads = (N < 128) ? N : 128;
 		blocks  = (N + threads - 1) / threads;
 		
-		reduce5 <<< blocks, threads, smemsize >>> (v2, v2, n);
+		reduce <<< blocks, threads, smemsize >>> (v2, v2, n);
 		N = N / threads;
 	}
 
