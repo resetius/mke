@@ -416,15 +416,30 @@ reduce (T *g_idata, T *g_odata, unsigned int n)
 	if (tid == 0) g_odata[blockIdx.x] = sdata[0];
 }
 
+unsigned int nextPow2( unsigned int x ) 
+{
+	--x;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return ++x;
+}
+
 template < typename T >
 __host__ T vec_scalar2_(const T * a, const T * b, int n)
 {
 	int threads = 128;
 	int blocks  = (n + threads - 1) / threads;
 
+	int maxThreads = 128;
+	int maxBlocks  = blocks;
+
 	T * v1;
 	T * v2;
-	T answer;
+	T * final;
+	T answer = (T)0.0;;
 
 	cudaMalloc((void**)&v1, n * sizeof(T));
 	cudaMalloc((void**)&v2, n * sizeof(T));
@@ -435,20 +450,29 @@ __host__ T vec_scalar2_(const T * a, const T * b, int n)
 
 	reduce <<< blocks, threads, smemsize >>> (v1, v2, n);
 
-	int N = n / 2;
+	int N = blocks;
+	int final_threshold = 1000;
 
-	while (N / threads > 1) {
-		threads = (N < 128) ? N : 128;
-		blocks  = (N + threads - 1) / threads;
-		
-		reduce <<< blocks, threads, smemsize >>> (v2, v2, n);
-		N = N / threads;
+	while (N > final_threshold) {
+        threads = (N < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
+        blocks  = (N + (threads * 2 - 1)) / (threads * 2);
+		blocks  = min(maxBlocks, blocks);
+
+		reduce <<< blocks, threads, smemsize >>> (v2, v2, N);
+
+		N = (N + (threads*2-1)) / (threads*2);
 	}
 
-	cudaMemcpy(&answer, v2, sizeof(T), cudaMemcpyDeviceToHost);
+	final = (T*)malloc(N * sizeof(T));
+	cudaMemcpy(final, v2, N * sizeof(T), cudaMemcpyDeviceToHost);
+	for (int i = 0; i < N; ++i) 
+	{
+		answer += final[i];
+	}
 
 	cudaFree(v1);
 	cudaFree(v2);
+	free(final);
 	return answer;
 }
 
