@@ -195,7 +195,7 @@ template < typename T, typename Mat, typename Ax_t >
 void gmres(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, int n, int k_dim, int max_it)
 {
-	T tol = (sizeof(T)) >= 8 ? 1e-10 : 1e-6f;
+	T tol = (sizeof(T)) >= 8 ? 1e-12 : 1e-6f;
 	T bn  = vec_norm2(b, n);
 	int i;
 
