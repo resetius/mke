@@ -10,8 +10,18 @@
 using namespace phelm;
 using namespace std;
 
+bool cmp(double a, double b)
+{
+	return (fabs(a - b) < 1e-15);
+}
+
+bool cmp(float a, float b)
+{
+	return (fabsf(a - b) < 1e-6f);
+}
+
 template < typename T >
-void test_gmres()
+bool test_gmres()
 {
 	int i, j = 0;
 	int n  = 300000;
@@ -101,13 +111,17 @@ void test_gmres()
 //		vec_copy_from_device(&x[0], &cx[0], n);
 //		vec_print(&x[0], n);		
 	}
+//	vec_copy_from_device(&x[0], &cx[0], n);
+//	vec_print(&x[0], n);
+
+	return true;
 }
 
 template < typename T >
-void test_matvect()
+bool test_matvect()
 {
 	int i, j = 0;
-	int n  = 5000000;
+	int n  = 500000;
 //	int n  = 500;
 	int nz = n + n - 1 + n - 1;
 
@@ -191,10 +205,26 @@ void test_matvect()
 //		vec_copy_from_device(&x[0], &cx[0], n);
 //		vec_print(&x[0], n);
 	}
+
+	vec_copy_from_device(&x[0], &cx[0], n);
+
+	if (!cmp(x[0], (T)3) || !cmp(x[n - 1], (T)3)) {
+		fprintf(stderr, "fail on edge: x[0]=%lf != 3, x[n - 1]=%lf != 3\n", 
+				(double)x[0], (double)x[n - 1]);
+		return false;
+	}
+
+	for (int i = 1; i < n - 1; ++i) {
+		if (!cmp(x[i], (T)4)) {
+			fprintf(stderr, " x[i]=%lf != 4 \n", (double)x[i]);
+			return false;
+		}
+	}
+	return true;
 }
 
 template < typename T >
-void test_sum()
+bool test_sum()
 {
 	T s = 0.0;
 	int n = 10000;
@@ -220,10 +250,19 @@ void test_sum()
 	vec_copy_from_device(&r[0], &cr[0], n);
 	fprintf(stderr, "%lf\n", (double)s);
 	//vec_print(&r[0], n);
+	
+	for (int i = 0; i < n; ++i) {
+		if (!cmp(r[i], (T)-1)) {
+			fprintf(stderr, " r[i]=%lf != -1\n", (double)r[i]);
+			return false;
+		}
+	}
+	return true;
 }
 
 int main(int argc, char * argv[])
 {
+	bool result = true;
 	try {
 		phelm_init();
 
@@ -232,16 +271,29 @@ int main(int argc, char * argv[])
 
 		Timer t;
 		if (has_double) {
-			//test_sum < float > ();
-			test_gmres < float > ();
-			//test_gmres < double > ();
+			fprintf(stderr, "testing double:\n");
 
-			//test_matvect < float > ();
-			//test_matvect < double > ();
+			t.restart(); result &= test_sum < float > ();
+			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_gmres < float > ();
+			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_matvect < float > ();
+			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
+
+			t.restart(); result &= test_sum < double > ();
+			fprintf(stderr, "test_sum < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_gmres < double > ();
+			fprintf(stderr, "test_gmres < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_matvect < double > ();
+			fprintf(stderr, "test_matvect < double > (): %lf, %d\n", t.elapsed(), (int)result);
+
 		} else {
-			//test_sum < float > ();
-			test_gmres < float > ();
-			//test_matvect < float > ();
+			t.restart(); result &= test_sum < float > ();
+			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_gmres < float > ();
+			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_matvect < float > ();
+			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());
 
@@ -249,5 +301,6 @@ int main(int argc, char * argv[])
 	} catch (const std::exception & e) {
 		fprintf(stderr, "exception: %s\n", e.what());
 	}
-	return 0;
+	return (int)(!result);
 }
+
