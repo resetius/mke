@@ -142,6 +142,16 @@ void mat_print(const double * A, int n)
 	mat_print_(A, n);
 }
 
+double vec_norm2(const double * v, int n)
+{
+	return sqrt(vec_scalar2(v, v, n));
+}
+
+float vec_norm2(const float * v, int n)
+{
+	return sqrtf(vec_scalar2(v, v, n));
+}
+
 template < typename T >
 void vec_print_(const T * A, int n)
 {

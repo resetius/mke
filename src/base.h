@@ -55,6 +55,7 @@ namespace phelm {
 
 void phelm_init();
 void phelm_shutdown();
+void phelm_sync();
 
 /**
  * @ingroup misc

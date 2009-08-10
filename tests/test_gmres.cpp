@@ -201,10 +201,9 @@ bool test_matvect()
 	A.Ap = &cAp[0];
 	A.Ai = &cAi[0];
 
+	Timer t;
 	for (int k = 0; k < 1000; ++k) {
 		sparse_mult_vector_l(&cx[0], &A, &cb[0], n);
-//		vec_copy_from_device(&x[0], &cx[0], n);
-//		vec_print(&x[0], n);
 	}
 
 	vec_copy_from_device(&x[0], &cx[0], n);

@@ -64,15 +64,15 @@ template < typename T, typename Mat, typename Ax_t >
 T algorithm6_9(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, T eps, int n, int k)
 {
-	Array < T, Allocator < T > > q;        // -> device
-	Array < T, Allocator < T > > r(n);     /* b - Ax */ // -> device
-	Array < T, Allocator < T > > ax(n);    // -> device
+	ArrayDevice < T > q;        // -> device
+	ArrayDevice < T > r(n);     /* b - Ax */ // -> device
+	ArrayDevice < T > ax(n);    // -> device
 
-	std::vector < T > h;
-	std::vector < T > gamma;
+	ArrayHost < T > h;
+	ArrayHost < T > gamma;
 
-	std::vector < T > s;
-	std::vector < T > c;
+	ArrayHost < T > s;
+	ArrayHost < T > c;
 
 	T gamma_0;
 	T beta;
@@ -162,7 +162,7 @@ done:
 	ret = gamma[j + 1];
 
 	{
-		std::vector < T > y(hz);  // -> host
+		ArrayHost < T > y(hz);  // -> host
 		for (i = j; i >= 0; --i) {
 			T sum = 0.0;
 			for (k = i + 1; k <= j; ++k) {
@@ -209,13 +209,11 @@ void gmres(T * x, const Mat * A, const T * b,
 
 	for (i = 0; i < max_it; ++i)
 	{
-		double t1 = get_full_time();
+		Timer t;
 		T e  = algorithm6_9(x, A, b, Ax, tol * bn, n, k_dim);
-		double t2 = get_full_time();
-		//double xn = vec_norm2(x, n);
 		e /= bn;
 		fprintf(stderr, "  gmres: iters = %d, eps = %le, t = %lf\n", i, e, 
-			(t2 - t1) / 100.0);
+			t.elapsed() / 100.0);
 		if (e < tol) {
 			return;
 		}

@@ -182,28 +182,6 @@ void vec_diff(float * r, const float * a, const float * b, int n)
 }
 
 template < typename T >
-T vec_norm2_(const T * v, int n)
-{
-	T s = (T) 0.0;
-	int i;
-#pragma omp parallel for reduction(+:s)
-	for (i = 0; i < n; ++i) {
-		s = s + v[i] * v[i];
-	}
-	return sqrt(s);
-}
-
-double vec_norm2(const double * v, int n)
-{
-	return vec_norm2_(v, n);
-}
-
-float vec_norm2(const float * v, int n)
-{
-	return vec_norm2_(v, n);
-}
-
-template < typename T >
 T vec_scalar2_(const T * a, const T * b, int n)
 {
 	T s = (T)0.0;
@@ -233,13 +211,15 @@ void sparse_mult_vector_l_(T * r, const Sparse * A, const T * x, int n)
 #pragma omp parallel for
 	for (j = 0; j < n; ++j) {
 		T *p = &A->Ax[A->Ap[j]];
+		T rj = (T)0.0;
 		int i0;
-		r[j] = 0;
 
 		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
 			int i = A->Ai[i0];
-			r[j] += *p * x[i];
+			rj += *p * x[i];
 		}
+
+		r[j] = rj;
 	}
 }
 
@@ -263,6 +243,10 @@ void phelm_init()
 }
 
 void phelm_shutdown()
+{
+}
+
+void phelm_sync()
 {
 }
 

@@ -68,16 +68,6 @@ void sparse_mult_vector(float * r,
 	const float * x, 
 	int n);
 
-double vec_norm2(const double * v, int n)
-{
-	return cublasDnrm2(n, v, 1);
-}
-
-float vec_norm2(const float * v, int n)
-{
-	return cublasSnrm2(n, v, 1);
-}
-
 double vec_scalar2(const double * a, const double * b, int n)
 {
 	return cublasDdot(n, a, 1, b, 1);
@@ -132,6 +122,11 @@ void phelm_init()
 void phelm_shutdown()
 {
 	cublasShutdown();
+}
+
+void phelm_sync()
+{
+	cudaThreadSynchronize();
 }
 
 } /* namespace phelm */

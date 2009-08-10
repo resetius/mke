@@ -40,6 +40,90 @@
 
 VERSION("$Id$");
 
+// This is the un-specialized struct.  Note that we prevent instantiation of this 
+// struct by putting an undefined symbol in the function body so it won't compile.
+template <typename T>
+struct SharedMemory
+{
+    // Ensure that we won't compile any un-specialized types
+    __device__ T* getPointer() {
+        extern __device__ void error(void);
+        error();
+        return NULL;
+    }
+};
+
+// Following are the specializations for the following types.
+// int, uint, char, uchar, short, ushort, long, ulong, bool, float, and double
+// One could also specialize it for user-defined types.
+
+template <>
+struct SharedMemory <int>
+{
+    __device__ int* getPointer() { extern __shared__ int s_int[]; return s_int; }    
+};
+
+template <>
+struct SharedMemory <unsigned int>
+{
+    __device__ unsigned int* getPointer() { extern __shared__ unsigned int s_uint[]; return s_uint; }    
+};
+
+template <>
+struct SharedMemory <char>
+{
+    __device__ char* getPointer() { extern __shared__ char s_char[]; return s_char; }    
+};
+
+template <>
+struct SharedMemory <unsigned char>
+{
+    __device__ unsigned char* getPointer() { extern __shared__ unsigned char s_uchar[]; return s_uchar; }    
+};
+
+template <>
+struct SharedMemory <short>
+{
+    __device__ short* getPointer() { extern __shared__ short s_short[]; return s_short; }    
+};
+
+template <>
+struct SharedMemory <unsigned short>
+{
+    __device__ unsigned short* getPointer() { extern __shared__ unsigned short s_ushort[]; return s_ushort; }    
+};
+
+template <>
+struct SharedMemory <long>
+{
+    __device__ long* getPointer() { extern __shared__ long s_long[]; return s_long; }    
+};
+
+template <>
+struct SharedMemory <unsigned long>
+{
+    __device__ unsigned long* getPointer() { extern __shared__ unsigned long s_ulong[]; return s_ulong; }    
+};
+
+template <>
+struct SharedMemory <bool>
+{
+    __device__ bool* getPointer() { extern __shared__ bool s_bool[]; return s_bool; }    
+};
+
+template <>
+struct SharedMemory <float>
+{
+    __device__ float* getPointer() { extern __shared__ float s_float[]; return s_float; }    
+};
+
+template <>
+struct SharedMemory <double>
+{
+    __device__ double* getPointer() { extern __shared__ double s_double[]; return s_double; }    
+};
+
+
 void vector_splay (int n, int threads_min, int threads_max, 
 	int grid_width, int *blocks, 
 	int *elems_per_block, int * threads_per_block)
@@ -84,13 +168,15 @@ __global__ void sparse_mult_vector_l_(T * r,
 
 	for (j = start; j < n; j += threads) {
 		const T *p = &Ax[Ap[j]];
+		T rj = (T)0.0;
 		int i0;
-		r[j] = 0;
 
 		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
 			int i = Ai[i0];
-			r[j] += *p * x[i];
+			rj   += *p * x[i];
 		}
+
+		r[j] = rj;
 	}
 }
 
@@ -255,5 +341,127 @@ __host__ void vec_mult_scalar(double * r, const double * b, double k, int n)
 	SPLAY(n);
 	vec_mult_scalar_ <<< blocks, threads >>> (r, b, k, n);
 }
+
+/*
+template < typename T >
+__global__ void reduction_(T * out, unsigned N, unsigned BlockStride)
+{
+	unsigned int i      = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int Stride = 2 * BlockStride;
+	unsigned int j      = blockDim.x;
+	while (j > 0)
+	{
+		if (Stride * i< N)
+			out[Stride*i] += out[Stride*i+ (Stride>>1)];
+		Stride <<= 1;
+		j >>= 1;
+		__syncthreads();
+	}
+}
+*/
+
+#ifdef __DEVICE_EMULATION__
+#define EMUSYNC __syncthreads()
+#else
+#define EMUSYNC
+#endif
+
+template <class T>
+__global__ void
+reduce (T *g_idata, T *g_odata, unsigned int n)
+{
+#if 0
+    // load shared mem
+    unsigned int tid = threadIdx.x;
+    unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
+    
+    sdata[tid] = (i < n) ? g_idata[i] : 0;
+    
+    __syncthreads();
+
+    // do reduction in shared mem
+	for (unsigned int s=blockDim.x/2; s>0; s>>=1) {
+	if (tid < s) {
+		sdata[tid] += sdata[tid + s];
+	}
+	__syncthreads();
+	}
+
+    // write result for this block to global mem
+    if (tid == 0) g_odata[blockIdx.x] = sdata[0];
+#endif
+
+	SharedMemory < T > shmem;
+	T * sdata = shmem.getPointer();
+
+	unsigned int tid = threadIdx.x;
+	int blockSize = blockDim.x;
+	unsigned int i = blockIdx.x*(blockSize*2) + tid;
+	unsigned int gridSize = blockSize*2*gridDim.x;
+	sdata[tid] = 0;
+	
+	while (i < n) { sdata[tid] += g_idata[i] + g_idata[i+blockSize]; i += gridSize; }
+	__syncthreads();
+	if (blockSize >= 512) { if (tid < 256) { sdata[tid] += sdata[tid + 256]; } __syncthreads(); }
+	if (blockSize >= 256) { if (tid < 128) { sdata[tid] += sdata[tid + 128]; } __syncthreads(); }
+	if (blockSize >= 128) { if (tid < 64) { sdata[tid] += sdata[tid + 64]; } __syncthreads(); }
+	if (tid < 32) {
+		if (blockSize >= 64) sdata[tid] += sdata[tid + 32];
+		if (blockSize >= 32) sdata[tid] += sdata[tid + 16];
+		if (blockSize >= 16) sdata[tid] += sdata[tid + 8];
+		if (blockSize >= 8) sdata[tid] += sdata[tid + 4];
+		if (blockSize >= 4) sdata[tid] += sdata[tid + 2];
+		if (blockSize >= 2) sdata[tid] += sdata[tid + 1];
+	}
+	if (tid == 0) g_odata[blockIdx.x] = sdata[0];
+}
+
+template < typename T >
+__host__ T vec_scalar2_(const T * a, const T * b, int n)
+{
+	int threads = 128;
+	int blocks  = (n + threads - 1) / threads;
+
+	T * v1;
+	T * v2;
+	T answer;
+
+	cudaMalloc((void**)&v1, n * sizeof(T));
+	cudaMalloc((void**)&v2, n * sizeof(T));
+
+	vec_mult(v1, a, b, n);
+
+	int smemsize = threads * sizeof(float);
+
+	reduce <<< blocks, threads, smemsize >>> (v1, v2, n);
+
+	int N = n / 2;
+
+	while (N / threads > 1) {
+		threads = (N < 128) ? N : 128;
+		blocks  = (N + threads - 1) / threads;
+		
+		reduce5 <<< blocks, threads, smemsize >>> (v2, v2, n);
+		N = N / threads;
+	}
+
+	cudaMemcpy(&answer, v2, sizeof(T), cudaMemcpyDeviceToHost);
+
+	cudaFree(v1);
+	cudaFree(v2);
+	return answer;
+}
+
+/*
+__host__ double vec_scalar2(const double * a, const double * b, int n)
+{
+	return vec_scalar2_(a, b, n);
+}
+
+__host__ float vec_scalar2(const float * a, const float * b, int n)
+{
+	return vec_scalar2_(a, b, n);
+}
+*/
 
 }
