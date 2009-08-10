@@ -54,14 +54,14 @@ VERSION("$Id$");
 
 namespace phelm {
 
-void sparse_mult_vector_ld(double * r, 
+void sparse_mult_vector(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
 	const double * x, 
 	int n);
 
-void sparse_mult_vector_lf(float * r, 
+void sparse_mult_vector(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
@@ -90,12 +90,12 @@ float vec_scalar2(const float * a, const float * b, int n)
 
 void sparse_mult_vector_l(double * r, const Sparse * A, const double * x, int n)
 {
-	sparse_mult_vector_ld(r, A->Ap, A->Ai, A->Ax, x, n);
+	sparse_mult_vector(r, A->Ap, A->Ai, A->Ax, x, n);
 }
 
 void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x, int n)
 {
-	sparse_mult_vector_lf(r, A->Ap, A->Ai, A->Ax, x, n);
+	sparse_mult_vector(r, A->Ap, A->Ai, A->Ax, x, n);
 }
 
 int check_device_supports_double()

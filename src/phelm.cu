@@ -54,16 +54,14 @@ __global__ void u2p_(T * p, const T * u, const int * inner, int rs)
 
 __host__ void u2p(double * p, const double * u, const int * inner, int rs)
 {
-	int ctas, threads, elems;
-	vector_splay (rs, 32, 128, 80, &ctas, &elems, &threads);
-	u2p_ <<< ctas, threads >>> (p, u, inner, rs);
+	SPLAY(rs);
+	u2p_ <<< blocks, threads >>> (p, u, inner, rs);
 }
 
 __host__ void u2p(float * p, const float * u, const int * inner, int rs)
 {
-	int ctas, threads, elems;
-	vector_splay (rs, 32, 128, 80, &ctas, &elems, &threads);
-	u2p_ <<< ctas, threads >>> (p, u, inner, rs);
+	SPLAY(rs);
+	u2p_ <<< blocks, threads >>> (p, u, inner, rs);
 }
 
 template < typename T >
@@ -90,17 +88,15 @@ __global__ void p2u_(T * u, const T * p, const T * bnd, const int * p2io,
 __host__ void p2u(double * u, const double * p, const double * bnd,
 	const int * p2io, const int * ps_flags, int sz)
 {
-	int ctas, threads, elems;
-	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
-	p2u_ <<< ctas, threads >>> (u, p, bnd, p2io, ps_flags, sz);
+	SPLAY(sz);
+	p2u_ <<< blocks, threads >>> (u, p, bnd, p2io, ps_flags, sz);
 }
 
 __host__ void p2u(float * u, const float * p, const float * bnd,
 	const int * p2io, const int * ps_flags, int sz)
 {
-	int ctas, threads, elems;
-	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
-	p2u_ <<< ctas, threads >>> (u, p, bnd, p2io, ps_flags, sz);
+	SPLAY(sz);
+	p2u_ <<< blocks, threads >>> (u, p, bnd, p2io, ps_flags, sz);
 }
 
 template < typename T >
@@ -118,17 +114,15 @@ __global__ void proj_bnd_(T * F, const T * F1,
 __host__ void proj_bnd(double * F, const double * F1, 
 	const int * outer, int os)
 {
-	int ctas, threads, elems;
-	vector_splay (os, 32, 128, 80, &ctas, &elems, &threads);
-	proj_bnd_ <<< ctas, threads >>> (F, F1, outer, os);
+	SPLAY(os);
+	proj_bnd_ <<< blocks, threads >>> (F, F1, outer, os);
 }
 
 __host__ void proj_bnd(float * F, const float * F1, 
 	const int * outer, int os)
 {
-	int ctas, threads, elems;
-	vector_splay (os, 32, 128, 80, &ctas, &elems, &threads);
-	proj_bnd_ <<< ctas, threads >>> (F, F1, outer, os);
+	SPLAY(os);
+	proj_bnd_ <<< blocks, threads >>> (F, F1, outer, os);
 }
 
 template < typename T >
@@ -151,18 +145,15 @@ __global__ void set_bnd_(T * u, const T * bnd,
 __host__ void set_bnd(double * u, const double * bnd, 
 	const int * p2io, const int * ps_flags, int sz)
 {
-	int ctas, threads, elems;
-	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
-	set_bnd_ <<< ctas, threads >>> (u, bnd, p2io, ps_flags, sz);
+	SPLAY(sz);
+	set_bnd_ <<< blocks, threads >>> (u, bnd, p2io, ps_flags, sz);
 }
 
 __host__ void set_bnd(float * u, const float * bnd, 
 	const int * p2io, const int * ps_flags, int sz)
 {
-	int ctas, threads, elems;
-	vector_splay (sz, 32, 128, 80, &ctas, &elems, &threads);
-	set_bnd_ <<< ctas, threads >>> (u, bnd, p2io, ps_flags, sz);
+	SPLAY(sz);
+	set_bnd_ <<< blocks, threads >>> (u, bnd, p2io, ps_flags, sz);
 }
 
 }
-

@@ -41,30 +41,30 @@
 VERSION("$Id$");
 
 void vector_splay (int n, int threads_min, int threads_max, 
-	int grid_width, int *ctas, 
-	int *elems_per_cta, int * threads_per_cta)
+	int grid_width, int *blocks, 
+	int *elems_per_block, int * threads_per_block)
 {
 	if (n < threads_min) {
-		*ctas              = 1;
-		*elems_per_cta     = n;
-		*threads_per_cta   = threads_min;
+		*blocks            = 1;
+		*elems_per_block   = n;
+		*threads_per_block = threads_min;
 	} else if (n < (grid_width * threads_min)) {
-		*ctas              = ((n + threads_min - 1) / threads_min);
-		*threads_per_cta   = threads_min;
-		*elems_per_cta     = *threads_per_cta;
+		*blocks            = ((n + threads_min - 1) / threads_min);
+		*threads_per_block = threads_min;
+		*elems_per_block   = *threads_per_block;
 	} else if (n < (grid_width * threads_max)) {
 		int grp;
-		*ctas              = grid_width;
+		*blocks            = grid_width;
 		grp                = ((n + threads_min - 1) / threads_min);
-		*threads_per_cta   = (((grp + grid_width -1) / grid_width) * threads_min);
-		*elems_per_cta     = *threads_per_cta;
+		*threads_per_block = (((grp + grid_width -1) / grid_width) * threads_min);
+		*elems_per_block   = *threads_per_block;
 	} else {
 		int grp;
-		*ctas              = grid_width;
-		*threads_per_cta   = threads_max;
+		*blocks            = grid_width;
+		*threads_per_block = threads_max;
 		grp                = ((n + threads_min - 1) / threads_min);
 		grp                = ((grp + grid_width - 1) / grid_width);
-		*elems_per_cta     = grp * threads_min;
+		*elems_per_block   = grp * threads_min;
 	}
 }
 
@@ -79,13 +79,8 @@ __global__ void sparse_mult_vector_l_(T * r,
 	int n)
 {
 	int threads = gridDim.x  * blockDim.x;
-	//int j       = blockDim.x * blockIdx.x + threadIdx.x;
-
 	int j;
-	//int num_per_block  = n / gridDim.x + (n % gridDim.x > 0);
-	//int num   = num_per_block / blockDim.x + (num_per_block % blockDim.x > 0);
 	int start = blockDim.x * blockIdx.x + threadIdx.x;
-	//int fin   = start + num;
 
 	for (j = start; j < n; j += threads) {
 		const T *p = &Ax[Ap[j]];
@@ -99,29 +94,25 @@ __global__ void sparse_mult_vector_l_(T * r,
 	}
 }
 
-__host__ void sparse_mult_vector_ld(double * r, 
+__host__ void sparse_mult_vector(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
 	const double * x, 
 	int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	sparse_mult_vector_l_ <<< ctas, threads >>> (r, Ap, Ai, Ax, x, n);
+	SPLAY(n);
+	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, n);
 }
 
-__host__ void sparse_mult_vector_lf(float * r, 
+__host__ void sparse_mult_vector(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
 	const float * x, 
 	int n)
 {
-	int blocks, threads, elems;
-	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
-	//threads = 4; blocks  = 4;//n / threads + ((n % threads) == 0?0:1);
-	//fprintf(stderr, "%d, %d: %d\n", n, blocks, threads);
+	SPLAY(n);
 	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, n);
 }
 
@@ -138,16 +129,14 @@ __global__ void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
 
 __host__ void vec_sum1(float * r, const float * a, const float *b, float k1, float k2, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_sum1_ <<< ctas, threads >>> (r, a, b, k1, k2, n);
+	SPLAY(n);
+	vec_sum1_ <<< blocks, threads >>> (r, a, b, k1, k2, n);
 }
 
 __host__ void vec_sum1(double * r, const double * a, const double *b, double k1, double k2, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_sum1_ <<< ctas, threads >>> (r, a, b, k1, k2, n);
+	SPLAY(n);
+	vec_sum1_ <<< blocks, threads >>> (r, a, b, k1, k2, n);
 }
 
 /* r = a + k2 * b */
@@ -163,16 +152,15 @@ __global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
 
 __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_sum2_ <<< ctas, threads >>> (r, a, b, k2, n);
+	int blocks, threads, elems;
+	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
+	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, n);
 }
 
 __host__ void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_sum2_ <<< ctas, threads >>> (r, a, b, k2, n);
+	SPLAY(n);
+	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, n);
 }
 
 /* r = a + b */
@@ -188,16 +176,15 @@ __global__ void vec_sum_(T * r, const T * a, const T * b, int n)
 
 __host__ void vec_sum(float * r, const float * a, const float *b, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_sum_ <<< ctas, threads >>> (r, a, b, n);
+	SPLAY(n);
+	vec_sum_ <<< blocks, threads >>> (r, a, b, n);
 }
 
 __host__ void vec_sum(double * r, const double * a, const double *b, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_sum_ <<< ctas, threads >>> (r, a, b, n);
+	int blocks, threads, elems;
+	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
+	vec_sum_ <<< blocks, threads >>> (r, a, b, n);
 }
 
 /* r = a * b */
@@ -205,7 +192,7 @@ template < typename T >
 __global__ void vec_mult_(T * r, const T * a, const T * b, int n)
 {
 	int threads = gridDim.x  * blockDim.x;
-	int i = blockDim.x * blockIdx.x + threadIdx.x;;
+	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	for (;i < n; i += threads) {
 		r[i] = a[i] * b[i];
 	}
@@ -213,16 +200,14 @@ __global__ void vec_mult_(T * r, const T * a, const T * b, int n)
 
 __host__ void vec_mult(float * r, const float * a, const float *b, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_mult_ <<< ctas, threads >>> (r, a, b, n);
+	SPLAY(n);
+	vec_mult_ <<< blocks, threads >>> (r, a, b, n);
 }
 
 __host__ void vec_mult(double * r, const double * a, const double *b, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_mult_ <<< ctas, threads >>> (r, a, b, n);
+	SPLAY(n);
+	vec_mult_ <<< blocks, threads >>> (r, a, b, n);
 }
 
 /* r = a - b*/
@@ -238,16 +223,14 @@ __global__ void vec_diff_(T * r, const T * a, const T *b, int n)
 
 __host__ void vec_diff(float * r, const float * a, const float *b, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_diff_ <<< ctas, threads >>> (r, a, b, n);
+	SPLAY(n);
+	vec_diff_ <<< blocks, threads >>> (r, a, b, n);
 }
 
 __host__ void vec_diff(double * r, const double * a, const double *b,  int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_diff_ <<< ctas, threads >>> (r, a, b, n);
+	SPLAY(n);
+	vec_diff_ <<< blocks, threads >>> (r, a, b, n);
 }
 
 /* r = b * k*/
@@ -263,17 +246,14 @@ __global__ void vec_mult_scalar_(T * r, const T * b, T k, int n)
 
 __host__ void vec_mult_scalar(float * r, const float * b, float k, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_mult_scalar_ <<< ctas, threads >>> (r, b, k, n);
+	SPLAY(n);
+	vec_mult_scalar_ <<< blocks, threads >>> (r, b, k, n);
 }
 
 __host__ void vec_mult_scalar(double * r, const double * b, double k, int n)
 {
-	int ctas, threads, elems;
-	vector_splay (n, 32, 128, 80, &ctas, &elems, &threads);
-	vec_mult_scalar_ <<< ctas, threads >>> (r, b, k, n);
+	SPLAY(n);
+	vec_mult_scalar_ <<< blocks, threads >>> (r, b, k, n);
 }
 
 }
-

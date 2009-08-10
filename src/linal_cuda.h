@@ -42,9 +42,20 @@
 extern "C" {
 #endif
 
+#define MIN_THREADS_PER_BLOCK 32
+#define MAX_THREADS_PER_BLOCK 128
+#define MAX_BLOCKS 128
+
+#define SPLAY(n) \
+	int blocks; \
+	int threads; \
+	int elems; \
+	vector_splay ((n), MIN_THREADS_PER_BLOCK, MAX_THREADS_PER_BLOCK, \
+		MAX_BLOCKS, &blocks, &elems, &threads);
+
 void vector_splay (int n, int threads_min, int threads_max, 
-	int grid_width, int *ctas, 
-	int *elems_per_cta, int * threads_per_cta);
+	int grid_width, int *blocks, 
+	int *elems_per_block, int * threads_per_block);
 
 #ifdef __cplusplus
 } /* extern "C" */
