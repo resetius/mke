@@ -16,7 +16,7 @@ target_link_libraries(test_laplace phelm phelm_aux ${UMFPACK})
 target_link_libraries(test_system_laplace phelm phelm_aux ${UMFPACK})
 target_link_libraries(test_slaplace phelm_aux phelm ${UMFPACK})
 target_link_libraries(test_schafe phelm_aux phelm ${UMFPACK})
-target_link_libraries(test_barvortex phelm phelm_aux ${UMFPACK})
+target_link_libraries(test_barvortex phelm_aux phelm ${UMFPACK})
 target_link_libraries(test_baroclin phelm_aux phelm ${UMFPACK})
 target_link_libraries(test_chafe phelm_aux phelm ${UMFPACK})
 
