@@ -72,17 +72,12 @@ void vector_splay (int n, int threads_min, int threads_max,
 	}
 }
 
-texture < float > texX;
-texture < float > texAx;
-texture < int > texAp;
-texture < int > texAi;
-
-texture < float > texA;
-texture < float > texB;
-
 register_texture(float, texX1);
 register_texture(float, texAX);
 register_texture(int, texAP);
+
+register_texture(float, texA);
+register_texture(float, texB);
 
 namespace phelm {
 
@@ -140,7 +135,6 @@ __host__ void sparse_mult_vector(float * r,
 	SPLAY(n);
 
 	bool useTexture;
-	int mx = MAX_1DBUF_SIZE;
 
 	useTexture = ((n + 1 < MAX_1DBUF_SIZE) && (nz < MAX_1DBUF_SIZE));
 
@@ -188,41 +182,52 @@ __host__ void vec_sum1(double * r, const double * a, const double *b, double k1,
 }
 
 /* r = a + k2 * b */
-template < typename T >
-__global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, 
-	size_t off_a, size_t off_b, int n)
+template < typename T, typename AR, typename BR >
+__global__ void vec_sum2_(T * r, AR a, BR b, T k2, int n)
 {
 	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	for (;i < n; i += threads) {
-		r[i] = tex1Dfetch(texA, off_a + i) + k2 * tex1Dfetch(texB, off_b + i);//a[i] + k2 * b[i];
+		r[i] = a.get(i) + k2 * b.get(i);//a[i] + k2 * b[i];
 	}
 }
 
 __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int n)
 {
-	int blocks, threads, elems;
-	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
-	size_t a_off, b_off;
+	SPLAY(n);
 
-	if (cudaBindTexture (&a_off,  texA, a, n * sizeof(float)) != cudaSuccess) {
-		exit(1);
+	bool useTexture;
+
+	useTexture = (n < MAX_1DBUF_SIZE);
+
+	if ((n < 10000) ||
+		((!(((uintptr_t) a) % WORD_ALIGN)) && 
+		(!(((uintptr_t) b) % WORD_ALIGN)))) 
+	{
+		useTexture = false;
 	}
 
-	if (cudaBindTexture (&b_off,  texB, b, n * sizeof(float)) != cudaSuccess) {
-		exit(1);
+	if (useTexture) {
+		get_reader(texA) AR(a, n);
+		get_reader(texB) BR(b, n);
+
+		vec_sum2_ <<< blocks, threads >>> (r, AR, BR, k2, n);
+	} else {
+		simple_reader < float > AR(a);
+		simple_reader < float > BR(b);
+
+		vec_sum2_ <<< blocks, threads >>> (r, AR, BR, k2, n);
 	}
-
-	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, a_off/sizeof(float), b_off/sizeof(float), n);
-
-	cudaUnbindTexture(texA);
-	cudaUnbindTexture(texB);
 }
 
 __host__ void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
 {
 	SPLAY(n);
-	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, 1, 1, n);
+
+	simple_reader < double > AR(a);
+	simple_reader < double > BR(b);
+
+	vec_sum2_ <<< blocks, threads >>> (r, AR, BR, k2, n);
 }
 
 /* r = a + b */
