@@ -65,10 +65,8 @@
 				exit(1); \
 			} \
 		} \
-		struct reader { \
-			__device__ type get (const type * p, size_t off, size_t i) \
-				{ return tex1Dfetch(tex_##name, off + i); } \
-		}; \
+		__device__ type get (size_t i) \
+			{ return tex1Dfetch(tex_##name, off + i); } \
 	};
 
 #define get_reader(name) \
@@ -80,10 +78,7 @@ struct simple_reader
 	const T * ptr;
 	size_t off;
 	simple_reader(const T * p): ptr(p), off(0) {}
-	simple_reader() {}
-	struct reader {
-		__device__ T get(const T * p, size_t off, size_t i) { return p[i]; }
-	};
+	__device__ T get(size_t i) { return ptr[i]; }
 };
 
 #endif /* TEXTURE_H */

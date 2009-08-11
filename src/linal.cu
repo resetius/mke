@@ -36,93 +36,10 @@
  */
 
 #include "linal_cuda.h"
+#include "shmem.h"
 #include "ver.h"
 
 VERSION("$Id$");
-
-// This is the un-specialized struct.  Note that we prevent instantiation of this 
-// struct by putting an undefined symbol in the function body so it won't compile.
-template <typename T>
-struct SharedMemory
-{
-    // Ensure that we won't compile any un-specialized types
-    __device__ T* getPointer() {
-        extern __device__ void error(void);
-        error();
-        return NULL;
-    }
-};
-
-// Following are the specializations for the following types.
-// int, uint, char, uchar, short, ushort, long, ulong, bool, float, and double
-// One could also specialize it for user-defined types.
-
-template <>
-struct SharedMemory <int>
-{
-    __device__ int* getPointer() { extern __shared__ int s_int[]; return s_int; }    
-};
-
-template <>
-struct SharedMemory <unsigned int>
-{
-    __device__ unsigned int* getPointer() { extern __shared__ unsigned int s_uint[]; return s_uint; }    
-};
-
-template <>
-struct SharedMemory <char>
-{
-    __device__ char* getPointer() { extern __shared__ char s_char[]; return s_char; }    
-};
-
-template <>
-struct SharedMemory <unsigned char>
-{
-    __device__ unsigned char* getPointer() { extern __shared__ unsigned char s_uchar[]; return s_uchar; }    
-};
-
-template <>
-struct SharedMemory <short>
-{
-    __device__ short* getPointer() { extern __shared__ short s_short[]; return s_short; }    
-};
-
-template <>
-struct SharedMemory <unsigned short>
-{
-    __device__ unsigned short* getPointer() { extern __shared__ unsigned short s_ushort[]; return s_ushort; }    
-};
-
-template <>
-struct SharedMemory <long>
-{
-    __device__ long* getPointer() { extern __shared__ long s_long[]; return s_long; }    
-};
-
-template <>
-struct SharedMemory <unsigned long>
-{
-    __device__ unsigned long* getPointer() { extern __shared__ unsigned long s_ulong[]; return s_ulong; }    
-};
-
-template <>
-struct SharedMemory <bool>
-{
-    __device__ bool* getPointer() { extern __shared__ bool s_bool[]; return s_bool; }    
-};
-
-template <>
-struct SharedMemory <float>
-{
-    __device__ float* getPointer() { extern __shared__ float s_float[]; return s_float; }    
-};
-
-template <>
-struct SharedMemory <double>
-{
-    __device__ double* getPointer() { extern __shared__ double s_double[]; return s_double; }    
-};
-
 
 void vector_splay (int n, int threads_min, int threads_max, 
 	int grid_width, int *blocks, 
@@ -168,10 +85,10 @@ __global__ void sparse_mult_vector_l_(T * r,
 	const int * Ai, 
 	const T * Ax,
 	const T * x, 
-	int off_x,
-	int off_ap,
-	int off_ai,
-	int off_ax,
+	size_t off_x,
+	size_t off_ap,
+	size_t off_ai,
+	size_t off_ax,
 	int n)
 {
 	int threads = gridDim.x  * blockDim.x;
@@ -274,7 +191,8 @@ __host__ void vec_sum1(double * r, const double * a, const double *b, double k1,
 
 /* r = a + k2 * b */
 template < typename T >
-__global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, int off_a, int off_b, int n)
+__global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, 
+	size_t off_a, size_t off_b, int n)
 {
 	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
