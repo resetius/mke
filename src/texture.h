@@ -81,4 +81,9 @@ struct simple_reader
 	__device__ T get(size_t i) { return ptr[i]; }
 };
 
+#define WORD_ALIGN     (64)   /* alignment for 32-bit word */
+#define LONG_ALIGN     (128)  /* alignment for 64-bit long */
+#define _1DBUF_ALIGN   (256)  /* alignment for 1D buffer */
+#define MAX_1DBUF_SIZE ((1<<27)-_1DBUF_ALIGN)
+
 #endif /* TEXTURE_H */

@@ -35,8 +35,11 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdio.h>
+
 #include "linal_cuda.h"
 #include "shmem.h"
+#include "texture.h"
 #include "ver.h"
 
 VERSION("$Id$");
@@ -77,37 +80,33 @@ texture < int > texAi;
 texture < float > texA;
 texture < float > texB;
 
+register_texture(float, texX1);
+register_texture(float, texAX);
+register_texture(int, texAP);
+
 namespace phelm {
 
-template < typename T >
+template < typename T, typename APR, typename XR, typename AXR >
 __global__ void sparse_mult_vector_l_(T * r, 
-	const int * Ap, 
+	APR Ap, 
 	const int * Ai, 
-	const T * Ax,
-	const T * x, 
-	size_t off_x,
-	size_t off_ap,
-	size_t off_ai,
-	size_t off_ax,
+	AXR Ax,
+	XR x, 
 	int n)
 {
 	int threads = gridDim.x  * blockDim.x;
-	int j;
+	int i, i0, to, j;
 	int start = blockDim.x * blockIdx.x + threadIdx.x;
 
 	for (j = start; j < n; j += threads) {
-		int i0 = tex1Dfetch(texAp, off_ap + j);
-		int to = tex1Dfetch(texAp, off_ap + j + 1);
-		
-		//const T *p = &Ax[i0];
+		i0 = Ap.get(j);    
+		to = Ap.get(j + 1);
+
 		T rj = (T)0.0;
 
-		//for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
-		for (; i0 < to; ++i0/*, ++p*/) {
-			int i = Ai[i0];
-			//int i = tex1Dfetch(texAi, off_ai + i0);
-			//rj   += *p * tex1Dfetch(texX, off_x + i);//x[i];
-			rj   += tex1Dfetch(texAx, off_ax + i0) * tex1Dfetch(texX, off_x + i);
+		for (; i0 < to; ++i0) {
+			i   = Ai[i0];
+			rj += Ax.get(i0) * x.get(i);
 		}
 
 		r[j] = rj;
@@ -123,7 +122,11 @@ __host__ void sparse_mult_vector(double * r,
 	int nz)
 {
 	SPLAY(n);
-	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, 1, 1, 1, 1, n);
+	simple_reader < double > XR(x);
+	simple_reader < double > AXR(Ax);
+	simple_reader < int > APR(Ap);
+
+	sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, Ai, AXR, XR, n);
 }
 
 __host__ void sparse_mult_vector(float * r, 
@@ -136,34 +139,29 @@ __host__ void sparse_mult_vector(float * r,
 {
 	SPLAY(n);
 
-	size_t x_off;
-	size_t Ap_off;
-	size_t Ai_off;
-	size_t Ax_off;
+	bool useTexture;
+	int mx = MAX_1DBUF_SIZE;
 
-	if (cudaBindTexture (&x_off,  texX, x, n * sizeof(float)) != cudaSuccess) {
-		exit(1);
-	}
-	if (cudaBindTexture (&Ax_off,  texAx, Ax, nz * sizeof(float)) != cudaSuccess) {
-		exit(1);
-	}
-	if (cudaBindTexture (&Ap_off, texAp, Ap, (n + 1) * sizeof(int)) != cudaSuccess) {
-		exit(1);
-	}
-	if (cudaBindTexture (&Ai_off, texAi, Ai, n * sizeof(int)) != cudaSuccess) {
-		exit(1);
+	useTexture = ((n + 1 < MAX_1DBUF_SIZE) && (nz < MAX_1DBUF_SIZE));
+
+	if (n < 1000) /* experimental bound */
+	{
+		useTexture = false;
 	}
 
-	Ax_off /= sizeof(float);
-	x_off /= sizeof(float);
-	Ap_off /= sizeof(int);
-	Ai_off /= sizeof(int);
+	if (useTexture) {
+		get_reader(texX1) XR(x, n);
+		get_reader(texAX) AXR(Ax, nz);
+		get_reader(texAP) APR(Ap, n + 1);
 
-	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, x_off, Ap_off, Ai_off, Ax_off, n);
-	cudaUnbindTexture (texX);
-	cudaUnbindTexture (texAx);
-	cudaUnbindTexture (texAp);
-	cudaUnbindTexture (texAi);
+		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, Ai, AXR, XR, n);
+	} else {
+		simple_reader < float > XR(x);
+		simple_reader < float > AXR(Ax);
+		simple_reader < int > APR(Ap);
+
+		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, Ai, AXR, XR, n);
+	}
 }
 
 /* r = k1 * a + k2 * b */
