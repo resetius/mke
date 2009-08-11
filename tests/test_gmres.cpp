@@ -103,6 +103,8 @@ bool test_gmres()
 	A.Ax = &cAx[0];
 	A.Ap = &cAp[0];
 	A.Ai = &cAi[0];
+	A.n  = n;
+	A.nz = nz;
 
 	for (int k = 0; k < 10; ++k) {
 		gmres(&cx[0], &A, &cb[0], 

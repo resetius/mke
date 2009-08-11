@@ -183,19 +183,19 @@ end:
 /**
  * Solve equation Ax=b.
  *
- * @param x - right part
+ * @param x - answer
  * @param A - matrix
  * @param b - right part
  * @param Ax - callback that calculates y=Ax
  * @param n  - dimension of system
  * @param k_dim  - Krylov dimension
- * @param max_it - maximum numner of iterations
+ * @param max_it - maximum number of iterations
  */
 template < typename T, typename Mat, typename Ax_t >
 void gmres(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, int n, int k_dim, int max_it)
 {
-	T tol = (sizeof(T)) >= 8 ? 1e-12 : 1e-5f;
+	T tol = (sizeof(T) >= 8) ? 1e-12 : 1e-5f;
 	T bn  = vec_norm2(b, n);
 	int i;
 

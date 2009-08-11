@@ -35,6 +35,8 @@ cuda_add_library(phelm_cu
 	linal_cuda.h
 	proj_cuda.cpp
 	alloc_cu.h
+	shmem.h
+	texture.h
 	linal.cu
 	phelm.cu
 	)

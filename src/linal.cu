@@ -152,12 +152,15 @@ void vector_splay (int n, int threads_min, int threads_max,
 	}
 }
 
-namespace phelm {
-
 texture < float > texX;
 texture < float > texAx;
 texture < int > texAp;
 texture < int > texAi;
+
+texture < float > texA;
+texture < float > texB;
+
+namespace phelm {
 
 template < typename T >
 __global__ void sparse_mult_vector_l_(T * r, 
@@ -268,10 +271,6 @@ __host__ void vec_sum1(double * r, const double * a, const double *b, double k1,
 	SPLAY(n);
 	vec_sum1_ <<< blocks, threads >>> (r, a, b, k1, k2, n);
 }
-
-texture < float > texA;
-texture < float > texB;
-
 
 /* r = a + k2 * b */
 template < typename T >
