@@ -121,16 +121,16 @@ template < typename T >
 bool test_matvect()
 {
 	int i, j = 0;
-//	int n  = 320000;
-	int n  = 500000;
+	int n  = 320000;
+//	int n  = 500000;
 //	int n  = 500;
 	int nz = n + n - 1 + n - 1;
 
-	Array < int, Allocator < int > > cAp((n + 1));
-	Array < int, Allocator < int > > cAi(nz);
-	Array < T, Allocator < T > > cAx(nz);
-	Array < T, Allocator < T > > cb(n);
-	Array < T, Allocator < T > > cx(n);
+	ArrayDevice < int > cAp((n + 1));
+	ArrayDevice < int > cAi(nz);
+	ArrayDevice < T > cAx(nz);
+	ArrayDevice < T > cb(n);
+	ArrayDevice < T > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
@@ -200,10 +200,12 @@ bool test_matvect()
 	A.Ax = &cAx[0];
 	A.Ap = &cAp[0];
 	A.Ai = &cAi[0];
+	A.n  = n;
+	A.nz = nz;
 
 	Timer t;
 	for (int k = 0; k < 1000; ++k) {
-		sparse_mult_vector_l(&cx[0], &A, &cb[0], n);
+		sparse_mult_vector_l(&cx[0], &A, &cb[0]);
 	}
 
 	vec_copy_from_device(&x[0], &cx[0], n);

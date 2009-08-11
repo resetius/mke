@@ -47,6 +47,8 @@ void SparseMatrix < T > ::mult_vector(T * out, const T * in)
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
+	A.n  = n_;
+	A.nz = (int)Ax_.size();
 
 	MatMultiplier < Sparse_t < T > > :: mult_vector_l(out, &A, in, n_);
 }
@@ -80,7 +82,10 @@ void SparseMatrix < T > ::print()
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
-	sparse_print(&A, n_, stderr);
+	A.n  = n_;
+	A.nz = (int)Ax_.size();
+
+	sparse_print(&A, stderr);
 
 	// diag:
 	{

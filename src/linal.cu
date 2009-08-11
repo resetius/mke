@@ -154,12 +154,21 @@ void vector_splay (int n, int threads_min, int threads_max,
 
 namespace phelm {
 
+texture < float > texX;
+texture < float > texAx;
+texture < int > texAp;
+texture < int > texAi;
+
 template < typename T >
 __global__ void sparse_mult_vector_l_(T * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const T * Ax,
 	const T * x, 
+	int off_x,
+	int off_ap,
+	int off_ai,
+	int off_ax,
 	int n)
 {
 	int threads = gridDim.x  * blockDim.x;
@@ -167,13 +176,18 @@ __global__ void sparse_mult_vector_l_(T * r,
 	int start = blockDim.x * blockIdx.x + threadIdx.x;
 
 	for (j = start; j < n; j += threads) {
-		const T *p = &Ax[Ap[j]];
+		int i0 = tex1Dfetch(texAp, off_ap + j);
+		int to = tex1Dfetch(texAp, off_ap + j + 1);
+		
+		//const T *p = &Ax[i0];
 		T rj = (T)0.0;
-		int i0;
 
-		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+		//for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+		for (; i0 < to; ++i0/*, ++p*/) {
 			int i = Ai[i0];
-			rj   += *p * x[i];
+			//int i = tex1Dfetch(texAi, off_ai + i0);
+			//rj   += *p * tex1Dfetch(texX, off_x + i);//x[i];
+			rj   += tex1Dfetch(texAx, off_ax + i0) * tex1Dfetch(texX, off_x + i);
 		}
 
 		r[j] = rj;
@@ -185,10 +199,11 @@ __host__ void sparse_mult_vector(double * r,
 	const int * Ai, 
 	const double * Ax,
 	const double * x, 
-	int n)
+	int n,
+	int nz)
 {
 	SPLAY(n);
-	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, n);
+	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, 1, 1, 1, 1, n);
 }
 
 __host__ void sparse_mult_vector(float * r, 
@@ -196,10 +211,39 @@ __host__ void sparse_mult_vector(float * r,
 	const int * Ai, 
 	const float * Ax,
 	const float * x, 
-	int n)
+	int n,
+	int nz)
 {
 	SPLAY(n);
-	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, n);
+
+	size_t x_off;
+	size_t Ap_off;
+	size_t Ai_off;
+	size_t Ax_off;
+
+	if (cudaBindTexture (&x_off,  texX, x, n * sizeof(float)) != cudaSuccess) {
+		exit(1);
+	}
+	if (cudaBindTexture (&Ax_off,  texAx, Ax, nz * sizeof(float)) != cudaSuccess) {
+		exit(1);
+	}
+	if (cudaBindTexture (&Ap_off, texAp, Ap, (n + 1) * sizeof(int)) != cudaSuccess) {
+		exit(1);
+	}
+	if (cudaBindTexture (&Ai_off, texAi, Ai, n * sizeof(int)) != cudaSuccess) {
+		exit(1);
+	}
+
+	Ax_off /= sizeof(float);
+	x_off /= sizeof(float);
+	Ap_off /= sizeof(int);
+	Ai_off /= sizeof(int);
+
+	sparse_mult_vector_l_ <<< blocks, threads >>> (r, Ap, Ai, Ax, x, x_off, Ap_off, Ai_off, Ax_off, n);
+	cudaUnbindTexture (texX);
+	cudaUnbindTexture (texAx);
+	cudaUnbindTexture (texAp);
+	cudaUnbindTexture (texAi);
 }
 
 /* r = k1 * a + k2 * b */
@@ -225,14 +269,18 @@ __host__ void vec_sum1(double * r, const double * a, const double *b, double k1,
 	vec_sum1_ <<< blocks, threads >>> (r, a, b, k1, k2, n);
 }
 
+texture < float > texA;
+texture < float > texB;
+
+
 /* r = a + k2 * b */
 template < typename T >
-__global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, int n)
+__global__ void vec_sum2_(T * r, const T * a, const T *b, T k2, int off_a, int off_b, int n)
 {
 	int threads = gridDim.x  * blockDim.x;
 	int i = blockDim.x * blockIdx.x + threadIdx.x;
 	for (;i < n; i += threads) {
-		r[i] = a[i] + k2 * b[i];
+		r[i] = tex1Dfetch(texA, off_a + i) + k2 * tex1Dfetch(texB, off_b + i);//a[i] + k2 * b[i];
 	}
 }
 
@@ -240,13 +288,26 @@ __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int
 {
 	int blocks, threads, elems;
 	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
-	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, n);
+	size_t a_off, b_off;
+
+	if (cudaBindTexture (&a_off,  texA, a, n * sizeof(float)) != cudaSuccess) {
+		exit(1);
+	}
+
+	if (cudaBindTexture (&b_off,  texB, b, n * sizeof(float)) != cudaSuccess) {
+		exit(1);
+	}
+
+	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, a_off/sizeof(float), b_off/sizeof(float), n);
+
+	cudaUnbindTexture(texA);
+	cudaUnbindTexture(texB);
 }
 
 __host__ void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
 {
 	SPLAY(n);
-	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, n);
+	vec_sum2_ <<< blocks, threads >>> (r, a, b, k2, 1, 1, n);
 }
 
 /* r = a + b */

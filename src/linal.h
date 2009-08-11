@@ -134,6 +134,8 @@ struct Sparse_t {
 	int * Ap;    ///< the number of elements in columns or rows
 	int * Ai;    ///< column or row indices
 	data_type * Ax; ///< holds nonzero matrix entires
+	int n;       ///< the number of rows and columns
+	int nz;      ///< the number of non-null elements
 };
 
 typedef Sparse_t < double > Sparse;
@@ -147,25 +149,20 @@ typedef Sparse_t < float > Sparsef;
  * @param x - intput vector
  * @param n - the size of vector and matrix
  */
-void sparse_mult_vector_l(double * r, const Sparse * A,
-						  const double * x, int n);
+void sparse_mult_vector_l(double * r, const Sparse * A, const double * x);
 
-void sparse_mult_vector_l(float * r, const Sparsef * A,
-						  const float * x, int n);
+void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x);
 
 /**
  * If matrix is stored by columns then right multiply by vector: r = A x
  * If matrix is stored by rows then left multiply by vector: r = x A
  * @param r - output vector
  * @param A - sparse matrix
- * @param x - intput vector
- * @param n - the size of vector and matrix
+ * @param x - input vector
  */
-void sparse_mult_vector_r(double * r, const Sparse * A,
-						  const double * x, int n);
+void sparse_mult_vector_r(double * r, const Sparse * A, const double * x);
 
-void sparse_mult_vector_r(float * r, const Sparsef * A,
-						  const float * x, int n);
+void sparse_mult_vector_r(float * r, const Sparsef * A, const float * x);
 
 template < typename Sparse >
 struct MatMultiplier 
@@ -173,15 +170,15 @@ struct MatMultiplier
 	typedef typename Sparse::data_type data_type;
 
 	static void mult_vector_l(data_type * r, const Sparse * A,
-		const data_type * x, int n)
+		const data_type * x, int)
 	{
-		sparse_mult_vector_l(r, A, x, n);
+		sparse_mult_vector_l(r, A, x);
 	}
 
 	static void mult_vector_r(data_type * r, const Sparse * A,
-		const data_type * x, int n)
+		const data_type * x, int)
 	{
-		sparse_mult_vector_r(r, A, x, n);
+		sparse_mult_vector_r(r, A, x);
 	}
 };
 
@@ -191,9 +188,9 @@ struct MatMultiplier
  * @param n - dimension of sparse matrix
  * @param f - output file
  */
-void sparse_print(const Sparse * A, int n, FILE * f);
+void sparse_print(const Sparse * A, FILE * f);
 
-void sparse_print(const Sparsef * A, int n, FILE * f);
+void sparse_print(const Sparsef * A, FILE * f);
 
 /**
  * Linear combination of two vectors.

@@ -42,7 +42,7 @@ public:
 			return 0;
 		}
 
-		cudaMemset(ret, 0, size * sizeof(T));
+		//cudaMemset(ret, 0, size * sizeof(T));
 		return ret;
 	}
 
