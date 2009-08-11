@@ -172,6 +172,8 @@ void SparseMatrix < T > ::solve(T * x, const T * b)
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
+	A.n  = n_;
+	A.nz = (int)Ax_.size();
 
 	gmres(&x[0], &A, &b[0], MatMultiplier < Sparse_t < T > > :: mult_vector_l, n_, 100, 1000);
 }

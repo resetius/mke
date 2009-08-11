@@ -136,6 +136,8 @@ struct Sparse_t {
 	data_type * Ax; ///< holds nonzero matrix entires
 	int n;       ///< the number of rows and columns
 	int nz;      ///< the number of non-null elements
+
+	Sparse_t(): Ap(0), Ai(0), Ax(0), n(0), nz(0) {}
 };
 
 typedef Sparse_t < double > Sparse;
@@ -172,12 +174,14 @@ struct MatMultiplier
 	static void mult_vector_l(data_type * r, const Sparse * A,
 		const data_type * x, int)
 	{
+		assert(A->n); assert(A->nz);
 		sparse_mult_vector_l(r, A, x);
 	}
 
 	static void mult_vector_r(data_type * r, const Sparse * A,
 		const data_type * x, int)
 	{
+		assert(A->n); assert(A->nz);
 		sparse_mult_vector_r(r, A, x);
 	}
 };
