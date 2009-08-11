@@ -75,16 +75,17 @@ void vector_splay (int n, int threads_min, int threads_max,
 register_texture(float, texX1);
 register_texture(float, texAX);
 register_texture(int, texAP);
+register_texture(int, texAI);
 
 register_texture(float, texA);
 register_texture(float, texB);
 
 namespace phelm {
 
-template < typename T, typename APR, typename XR, typename AXR >
+template < typename T, typename APR, typename AIR, typename XR, typename AXR >
 __global__ void sparse_mult_vector_l_(T * r, 
 	APR Ap, 
-	const int * Ai, 
+	AIR Ai, 
 	AXR Ax,
 	XR x, 
 	int n)
@@ -100,7 +101,7 @@ __global__ void sparse_mult_vector_l_(T * r,
 		T rj = (T)0.0;
 
 		for (; i0 < to; ++i0) {
-			i   = Ai[i0];
+			i   = Ai.get(i0);
 			rj += Ax.get(i0) * x.get(i);
 		}
 
@@ -119,9 +120,10 @@ __host__ void sparse_mult_vector(double * r,
 	SPLAY(n);
 	simple_reader < double > XR(x);
 	simple_reader < double > AXR(Ax);
+	simple_reader < int > AIR(Ap);
 	simple_reader < int > APR(Ap);
 
-	sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, Ai, AXR, XR, n);
+	sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 }
 
 __host__ void sparse_mult_vector(float * r, 
@@ -146,15 +148,18 @@ __host__ void sparse_mult_vector(float * r,
 	if (useTexture) {
 		get_reader(texX1) XR(x, n);
 		get_reader(texAX) AXR(Ax, nz);
+		//get_reader(texAI) AIR(Ai, n);
+		simple_reader < int > AIR(Ai);
 		get_reader(texAP) APR(Ap, n + 1);
 
-		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, Ai, AXR, XR, n);
+		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 	} else {
 		simple_reader < float > XR(x);
 		simple_reader < float > AXR(Ax);
+		simple_reader < int > AIR(Ai);
 		simple_reader < int > APR(Ap);
 
-		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, Ai, AXR, XR, n);
+		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 	}
 }
 
