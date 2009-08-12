@@ -185,7 +185,7 @@ template < typename T >
 bool test_matvect()
 {
 	int i, j = 0;
-	int n  = 3200;
+	int n  = 320000;
 //	int n  = 500000;
 //	int n  = 500;
 	int nz = n + n - 1 + n - 1;
@@ -262,9 +262,9 @@ bool test_matvect()
     for (int i = 0; i < n; i++)
         ell1.cols = std::max(ell1.cols, Ap[i+1] - Ap[i]); 
 
-	ell1.stride = 32 * ((ell1.n + 32 - 1) / 32);
 	ell1.n = n;
 	ell1.nz = nz;
+	ell1.stride = 32 * ((ell1.n + 32 - 1) / 32);
 
 	ArrayHost < int > ell_Ai(ell1.cols * ell1.stride);
 	ArrayHost < T >   ell_Ax(ell1.cols * ell1.stride);
@@ -305,11 +305,11 @@ bool test_matvect()
 	Timer t;
 	for (int k = 0; k < 1000; ++k) {
 		//sparse_mult_vector_l(&cx[0], &A, &cb[0]);
-		//sparse_mult_vector_ell(&cx[0], &cell_Ai[0], &cell_Ax[0], &cb[0], n, nz, ell1.cols, ell1.stride);
-		ell_mult_(&x[0], &ell_Ai[0], &ell_Ax[0], &b[0], n, ell1.cols, ell1.stride);
+		sparse_mult_vector_ell(&cx[0], &cell_Ai[0], &cell_Ax[0], &cb[0], n, nz, ell1.cols, ell1.stride);
+		//ell_mult_(&x[0], &ell_Ai[0], &ell_Ax[0], &b[0], n, ell1.cols, ell1.stride);
 	}
 
-	//vec_copy_from_device(&x[0], &cx[0], n);
+	vec_copy_from_device(&x[0], &cx[0], n);
 
 	if (!cmp(x[0], (T)3) || !cmp(x[n - 1], (T)3)) {
 		fprintf(stderr, "fail on edge: x[0]=%lf != 3, x[n - 1]=%lf != 3\n", 

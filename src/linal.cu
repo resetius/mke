@@ -166,6 +166,45 @@ __host__ void sparse_mult_vector(float * r,
 	}
 }
 
+template < typename T, typename AIR, typename AXR, typename XR >
+__global__ void ell_mult(
+			   T * r, 
+			   AIR Ai, 
+			   AXR Ax,
+			   XR x, 
+			   int n,
+			   int cols, 
+			   int stride)
+{
+	int row = blockDim.x * blockIdx.x + threadIdx.x;
+	if (row < n) {
+		T sum = 0;
+
+		for (int i0 = 0; i0 < cols; i0++){
+			const T A_ij = Ax.get(stride * i0 + row);
+
+			if (A_ij != 0) {
+				const int col = Ai.get(stride * i0 + row);
+				sum += A_ij * x.get(col);
+			}
+		}
+	    r[row] = sum;
+	}
+}
+
+__host__ void 
+sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax, 
+	const float * x, int n, int nz, int cols, int stride)
+{
+	SPLAY2(n);
+
+	texture_reader(texX1) XR(x, n);
+	texture_reader(texAX) AXR(Ax, cols * stride);
+	texture_reader(texAI) AIR(Ai, cols * stride);
+	
+	ell_mult<<<blocks, threads>>>(r, AIR, AXR, XR, n, cols, stride);
+}
+
 /* r = k1 * a + k2 * b */
 template < typename T >
 __global__ void vec_sum1_(T * r, const T * a, const T *b, T k1, T k2, int n)
