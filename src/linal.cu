@@ -150,11 +150,11 @@ __host__ void sparse_mult_vector(float * r,
 	}
 
 	if (useTexture) {
-		get_reader(texX1) XR(x, n);
-		get_reader(texAX) AXR(Ax, nz);
-		//get_reader(texAI) AIR(Ai, n);
+		texture_reader(texX1) XR(x, n);
+		texture_reader(texAX) AXR(Ax, nz);
+		//texture_reader(texAI) AIR(Ai, n);
 		simple_reader < int > AIR(Ai);
-		get_reader(texAP) APR(Ap, n + 1);
+		texture_reader(texAP) APR(Ap, n + 1);
 
 		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 	} else {
@@ -217,8 +217,8 @@ __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int
 	}
 
 	if (useTexture) {
-		get_reader(texA) AR(a, n);
-		get_reader(texB) BR(b, n);
+		texture_reader(texA) AR(a, n);
+		texture_reader(texB) BR(b, n);
 
 		vec_sum2_ <<< blocks, threads >>> (r, AR, BR, k2, n);
 	} else {

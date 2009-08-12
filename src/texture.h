@@ -69,7 +69,7 @@
 			{ return tex1Dfetch(tex_##name, off + i); } \
 	};
 
-#define get_reader(name) \
+#define texture_reader(name) \
 	reader_tex_##name
 
 template < typename T >
