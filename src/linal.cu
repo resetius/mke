@@ -152,8 +152,7 @@ __host__ void sparse_mult_vector(float * r,
 	if (useTexture) {
 		texture_reader(texX1) XR(x, n);
 		texture_reader(texAX) AXR(Ax, nz);
-		//texture_reader(texAI) AIR(Ai, n);
-		simple_reader < int > AIR(Ai);
+		texture_reader(texAI) AIR(Ai, nz);
 		texture_reader(texAP) APR(Ap, n + 1);
 
 		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
