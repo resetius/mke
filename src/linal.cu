@@ -37,6 +37,10 @@
 
 #include <stdio.h>
 
+#ifndef WIN32
+#include <stdint.h>
+#endif
+
 #include "linal_cuda.h"
 #include "shmem.h"
 #include "texture.h"
