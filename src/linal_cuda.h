@@ -53,9 +53,19 @@ extern "C" {
 	vector_splay ((n), MIN_THREADS_PER_BLOCK, MAX_THREADS_PER_BLOCK, \
 		MAX_BLOCKS, &blocks, &elems, &threads);
 
+#define SPLAY2(n) \
+	static const int threads = 256; \
+	int blocks               = ((n) + threads - 1) / threads; \
+
 void vector_splay (int n, int threads_min, int threads_max, 
 	int grid_width, int *blocks, 
 	int *elems_per_block, int * threads_per_block);
+
+#ifdef __DEVICE_EMULATION__
+#define EMUSYNC __syncthreads()
+#else
+#define EMUSYNC 
+#endif
 
 #ifdef __cplusplus
 } /* extern "C" */

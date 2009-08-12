@@ -143,6 +143,18 @@ struct Sparse_t {
 typedef Sparse_t < double > Sparse;
 typedef Sparse_t < float > Sparsef;
 
+template < typename T >
+struct SparseELL {
+	typedef T data_type;
+	int * Ai;
+	data_type * Ax;
+
+	int stride;
+	int cols;
+	int n;
+	int nz;
+};
+
 /**
  * If matrix is stored by columns then left multiply by vector: r = x A
  * If matrix is stored by rows then right multiply by vector: r = A x

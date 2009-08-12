@@ -20,6 +20,57 @@ bool cmp(float a, float b)
 	return (fabsf(a - b) < 1e-6f);
 }
 
+// убрать поддержку хранения матриц по столбцам!
+// в солвере хранится по строкам, считать, что все матрицы 
+// хранятся по строкам
+// соответственно Ai->Aj чтоб было общепринято
+
+template < typename T >
+void csr2ell(SparseELL < T > & ell, Sparse_t < T > & csr)
+{
+	ell.nz     = csr.nz;
+	ell.n      = csr.n;
+
+	memset(ell.Ai, 0, ell.cols * ell.stride * sizeof(int));
+	memset(ell.Ax, 0, ell.cols * ell.stride * sizeof(T));
+
+	for (int j = 0; j < csr.n; ++j) {
+		int i0;
+		int i = 0;
+
+		for (i0 = csr.Ap[j]; i0 < csr.Ap[j + 1]; ++i0, ++i) {
+			ell.Ai[ell.stride * i + j] = csr.Ai[i0];
+			ell.Ax[ell.stride * i + j] = csr.Ax[i0];
+		}
+	}
+}
+
+template < typename T >
+void ell_mult_(
+			   T * r, 
+			   int * Ai, 
+			   T * Ax,
+			   T * x, 
+			   int n,
+			   int cols, 
+			   int stride)
+{
+	for (int row = 0; row < n; ++row) {
+		T sum = 0;
+
+		for (int i0 = 0; i0 < cols; i0++){
+			const T A_ij = Ax[stride * i0 + row];
+
+			if (A_ij != 0) {
+				const int col = Ai[stride * i0 + row];
+				sum += A_ij * x[col];
+			}
+		}
+	    r[row] = sum;
+	}
+}
+
+
 template < typename T >
 bool test_gmres()
 {
@@ -119,11 +170,22 @@ bool test_gmres()
 	return true;
 }
 
+namespace phelm {
+void sparse_mult_vector_ell(float * r, 
+	const int * Ai, 
+	const float * Ax,
+	const float * x, 
+	int n,
+	int nz,
+	int cols,
+	int stride);
+};
+
 template < typename T >
 bool test_matvect()
 {
 	int i, j = 0;
-	int n  = 320000;
+	int n  = 3200;
 //	int n  = 500000;
 //	int n  = 500;
 	int nz = n + n - 1 + n - 1;
@@ -194,10 +256,45 @@ bool test_matvect()
 		b[i] = 1;
 	}
 
+	SparseELL < T > ell1;
+	ell1.cols   = 0;
+
+    for (int i = 0; i < n; i++)
+        ell1.cols = std::max(ell1.cols, Ap[i+1] - Ap[i]); 
+
+	ell1.stride = 32 * ((ell1.n + 32 - 1) / 32);
+	ell1.n = n;
+	ell1.nz = nz;
+
+	ArrayHost < int > ell_Ai(ell1.cols * ell1.stride);
+	ArrayHost < T >   ell_Ax(ell1.cols * ell1.stride);
+
+	ArrayDevice < int > cell_Ai(ell1.cols * ell1.stride);
+	ArrayDevice < T >   cell_Ax(ell1.cols * ell1.stride);
+
+	{
+		Sparse_t < T >    A1;
+
+		A1.Ax = &Ax[0];
+		A1.Ap = &Ap[0];
+		A1.Ai = &Ai[0];
+
+		A1.n  = n;
+		A1.nz = nz;
+
+		ell1.Ax = &ell_Ax[0];
+		ell1.Ai = &ell_Ai[0];
+
+		csr2ell(ell1, A1);
+	}
+
 	vec_copy_from_host(&cAp[0], &Ap[0], (int)Ap.size());
 	vec_copy_from_host(&cAi[0], &Ai[0], (int)Ai.size());
 	vec_copy_from_host(&cAx[0], &Ax[0], (int)Ax.size());
 	vec_copy_from_host(&cb[0], &b[0], (int)b.size());
+
+	vec_copy_from_host(&cell_Ai[0], &ell_Ai[0], (int)ell_Ai.size());
+	vec_copy_from_host(&cell_Ax[0], &ell_Ax[0], (int)ell_Ax.size());
 
 	A.Ax = &cAx[0];
 	A.Ap = &cAp[0];
@@ -207,10 +304,12 @@ bool test_matvect()
 
 	Timer t;
 	for (int k = 0; k < 1000; ++k) {
-		sparse_mult_vector_l(&cx[0], &A, &cb[0]);
+		//sparse_mult_vector_l(&cx[0], &A, &cb[0]);
+		//sparse_mult_vector_ell(&cx[0], &cell_Ai[0], &cell_Ax[0], &cb[0], n, nz, ell1.cols, ell1.stride);
+		ell_mult_(&x[0], &ell_Ai[0], &ell_Ax[0], &b[0], n, ell1.cols, ell1.stride);
 	}
 
-	vec_copy_from_device(&x[0], &cx[0], n);
+	//vec_copy_from_device(&x[0], &cx[0], n);
 
 	if (!cmp(x[0], (T)3) || !cmp(x[n - 1], (T)3)) {
 		fprintf(stderr, "fail on edge: x[0]=%lf != 3, x[n - 1]=%lf != 3\n", 
@@ -277,24 +376,24 @@ int main(int argc, char * argv[])
 		if (has_double) {
 			fprintf(stderr, "testing double:\n");
 
-			t.restart(); result &= test_sum < float > ();
+//			t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_gmres < float > ();
+//			t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
 
-			t.restart(); result &= test_sum < double > ();
+//			t.restart(); result &= test_sum < double > ();
 			fprintf(stderr, "test_sum < double > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_gmres < double > ();
+//			t.restart(); result &= test_gmres < double > ();
 			fprintf(stderr, "test_gmres < double > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_matvect < double > ();
+//			t.restart(); result &= test_matvect < double > ();
 			fprintf(stderr, "test_matvect < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 		} else {
-			t.restart(); result &= test_sum < float > ();
+//			t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_gmres < float > ();
+//			t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
