@@ -307,6 +307,7 @@ bool test_sum()
 {
 	T s = 0.0;
 	int n = 10000;
+	bool ret = true;
 	Array < T, Allocator < T > > ca(n);
 	Array < T, Allocator < T > > cb(n);
 	Array < T, Allocator < T > > cr(n);
@@ -325,6 +326,9 @@ bool test_sum()
 
 	vec_sum2(&cr[0], &ca[0], &cb[0], -1.0, n);
 	s = vec_scalar2(&ca[0], &cb[0], n);
+	if (!cmp(s, 37500)) {
+		ret = false;
+	}
 
 	vec_copy_from_device(&r[0], &cr[0], n);
 	fprintf(stderr, "%lf\n", (double)s);
@@ -336,7 +340,7 @@ bool test_sum()
 			return false;
 		}
 	}
-	return true;
+	return ret;
 }
 
 int main(int argc, char * argv[])
@@ -367,11 +371,11 @@ int main(int argc, char * argv[])
 			fprintf(stderr, "test_matvect < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 		} else {
-//			t.restart(); result &= test_sum < float > ();
+			t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-//			t.restart(); result &= test_gmres < float > ();
+			t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_matvect < float > ();
+//			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());

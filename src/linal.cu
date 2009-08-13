@@ -254,19 +254,19 @@ __global__ void vec_sum2_(T * r, AR a, BR b, T k2, int n)
 
 __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int n)
 {
-	SPLAY(n);
+	SPLAY2(n);
 
 	bool useTexture;
 
 	useTexture = (n < MAX_1DBUF_SIZE);
-
+/*
 	if ((n < 10000) ||
 		((!(((uintptr_t) a) % WORD_ALIGN)) && 
 		(!(((uintptr_t) b) % WORD_ALIGN)))) 
 	{
 		useTexture = false;
 	}
-
+*/
 	if (useTexture) {
 		texture_reader(texA) AR(a, n);
 		texture_reader(texB) BR(b, n);
@@ -282,7 +282,7 @@ __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int
 
 __host__ void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
 {
-	SPLAY(n);
+	SPLAY2(n);
 
 	simple_reader < double > AR(a);
 	simple_reader < double > BR(b);
@@ -373,13 +373,13 @@ __global__ void vec_mult_scalar_(T * r, const T * b, T k, int n)
 
 __host__ void vec_mult_scalar(float * r, const float * b, float k, int n)
 {
-	SPLAY(n);
+	SPLAY2(n);
 	vec_mult_scalar_ <<< blocks, threads >>> (r, b, k, n);
 }
 
 __host__ void vec_mult_scalar(double * r, const double * b, double k, int n)
 {
-	SPLAY(n);
+	SPLAY2(n);
 	vec_mult_scalar_ <<< blocks, threads >>> (r, b, k, n);
 }
 
@@ -407,9 +407,9 @@ __global__ void reduction_(T * out, unsigned N, unsigned BlockStride)
 #define EMUSYNC
 #endif
 
-template <class T>
+template <typename T, typename VR>
 __global__ void
-reduce (T *g_idata, T *g_odata, unsigned int n)
+reduce (VR v, T *g_odata, unsigned int n)
 {
 #if 0
     // load shared mem
@@ -422,10 +422,10 @@ reduce (T *g_idata, T *g_odata, unsigned int n)
 
     // do reduction in shared mem
 	for (unsigned int s=blockDim.x/2; s>0; s>>=1) {
-	if (tid < s) {
-		sdata[tid] += sdata[tid + s];
-	}
-	__syncthreads();
+		if (tid < s) {
+			sdata[tid] += sdata[tid + s];
+		}
+		__syncthreads();
 	}
 
     // write result for this block to global mem
@@ -441,7 +441,43 @@ reduce (T *g_idata, T *g_odata, unsigned int n)
 	unsigned int gridSize = blockSize*2*gridDim.x;
 	sdata[tid] = 0;
 	
-	while (i < n) { sdata[tid] += g_idata[i] + g_idata[i+blockSize]; i += gridSize; }
+	while (i < n) { 
+		sdata[tid] += v.get(i) + v.get(i+blockSize); i += gridSize; 
+	}
+
+	__syncthreads();
+	if (blockSize >= 512) { if (tid < 256) { sdata[tid] += sdata[tid + 256]; } __syncthreads(); }
+	if (blockSize >= 256) { if (tid < 128) { sdata[tid] += sdata[tid + 128]; } __syncthreads(); }
+	if (blockSize >= 128) { if (tid < 64) { sdata[tid] += sdata[tid + 64]; } __syncthreads(); }
+	if (tid < 32) {
+		if (blockSize >= 64) sdata[tid] += sdata[tid + 32];
+		if (blockSize >= 32) sdata[tid] += sdata[tid + 16];
+		if (blockSize >= 16) sdata[tid] += sdata[tid + 8];
+		if (blockSize >= 8) sdata[tid] += sdata[tid + 4];
+		if (blockSize >= 4) sdata[tid] += sdata[tid + 2];
+		if (blockSize >= 2) sdata[tid] += sdata[tid + 1];
+	}
+	if (tid == 0) g_odata[blockIdx.x] = sdata[0];
+}
+
+template <typename T, typename AR, typename BR>
+__global__ void
+reduce1 (T *g_odata, AR a, BR b, unsigned int n)
+{
+	SharedMemory < T > shmem;
+	T * sdata = shmem.getPointer();
+
+	unsigned int tid = threadIdx.x;
+	int blockSize = blockDim.x;
+	unsigned int i = blockIdx.x*(blockSize*2) + tid;
+	unsigned int gridSize = blockSize*2*gridDim.x;
+	sdata[tid] = 0;
+	
+	while (i < n) { 
+		sdata[tid] += a.get(i)*b.get(i) + a.get(i+blockSize)*b.get(i+blockSize);
+		i += gridSize; 
+	}
+
 	__syncthreads();
 	if (blockSize >= 512) { if (tid < 256) { sdata[tid] += sdata[tid + 256]; } __syncthreads(); }
 	if (blockSize >= 256) { if (tid < 128) { sdata[tid] += sdata[tid + 128]; } __syncthreads(); }
@@ -468,52 +504,63 @@ unsigned int nextPow2( unsigned int x )
 	return ++x;
 }
 
+#include <malloc.h>
+
 template < typename T >
 __host__ T vec_scalar2_(const T * a, const T * b, int n)
 {
-	int threads = 128;
-	int blocks  = (n + threads - 1) / threads;
+	int threads = 256;
+	int blocks  = 32;//(n + threads - 1) / threads;
 
 	int maxThreads = 128;
 	int maxBlocks  = blocks;
+	
+	texture_reader(texA) AR(a, n);
+	texture_reader(texB) BR(b, n);
 
-	T * v1;
+//	T * v1;
 	T * v2;
-	T * final;
+//	T * final;
 	T answer = (T)0.0;;
 
-	cudaMalloc((void**)&v1, n * sizeof(T));
-	cudaMalloc((void**)&v2, n * sizeof(T));
+	//cudaMalloc((void**)&v1, n * sizeof(T));
+	cudaMalloc((void**)&v2, blocks * sizeof(T));
 
-	vec_mult(v1, a, b, n);
+	///vec_mult(v1, a, b, n);
 
 	int smemsize = threads * sizeof(float);
 
-	reduce <<< blocks, threads, smemsize >>> (v1, v2, n);
+	//reduce <<< blocks, threads, smemsize >>> (v1, v2, n);
+	reduce1 <<< blocks, threads, smemsize >>> (v2, AR, BR, n);
 
 	int N = blocks;
-	int final_threshold = 1000;
+	int final_threshold = 1;
+	
+	texture_reader(texAX) VR(v2, blocks);
 
 	while (N > final_threshold) {
         threads = (N < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
         blocks  = (N + (threads * 2 - 1)) / (threads * 2);
 		blocks  = min(maxBlocks, blocks);
 
-		reduce <<< blocks, threads, smemsize >>> (v2, v2, N);
+		reduce <<< blocks, threads, smemsize >>> (VR, v2, N);
 
 		N = (N + (threads*2-1)) / (threads*2);
 	}
 
-	final = (T*)malloc(N * sizeof(T));
-	cudaMemcpy(final, v2, N * sizeof(T), cudaMemcpyDeviceToHost);
-	for (int i = 0; i < N; ++i) 
-	{
-		answer += final[i];
-	}
+	//final = (T*)malloc(N * sizeof(T));
+	//final = (T*)_alloca(N * sizeof(T));
+	//cudaMemcpy(final, v2, N * sizeof(T), cudaMemcpyDeviceToHost);
+	//for (int i = 0; i < N; ++i) 
+	//{
+	//	answer += final[i];
+	//}
+	
+	cudaMemcpy(&answer, v2, N * sizeof(T), cudaMemcpyDeviceToHost);
 
-	cudaFree(v1);
+	//cudaFree(v1);
 	cudaFree(v2);
-	free(final);
+	//free(final);
 	return answer;
 }
 
@@ -522,11 +569,11 @@ __host__ double vec_scalar2(const double * a, const double * b, int n)
 {
 	return vec_scalar2_(a, b, n);
 }
+*/
 
 __host__ float vec_scalar2(const float * a, const float * b, int n)
 {
 	return vec_scalar2_(a, b, n);
 }
-*/
 
 }
