@@ -179,6 +179,7 @@ void test_laplace(Mesh & mesh)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
+	phelm_init();
 
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
@@ -198,9 +199,6 @@ int main(int argc, char *argv[])
 
 	mesh.info();
 
-
-	phelm_init();
-
 	Timer t;
 	try {
 		test_invert < float > (mesh);
@@ -215,3 +213,4 @@ int main(int argc, char *argv[])
 	phelm_shutdown();
 	return 0;
 }
+

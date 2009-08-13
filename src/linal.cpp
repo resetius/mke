@@ -245,7 +245,7 @@ void ell_mult_vector_(
 				sum += A_ij * x[col];
 			}
 		}
-	    r[row] = sum;
+		r[row] = sum;
 	}
 }
 

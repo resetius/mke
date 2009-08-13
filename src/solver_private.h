@@ -44,14 +44,33 @@ void SparseMatrix < T > ::mult_vector(T * out, const T * in)
 		make_sparse();
 	}
 
-	SparseCSR < T > A;
-	A.Ap = &Ap_[0];
-	A.Ax = &Ax_[0];
-	A.Ai = &Ai_[0];
-	A.n  = n_;
-	A.nz = (int)Ax_.size();
+	switch (format_) {
+	case CSR:
+	{
+		SparseCSR < T > A;
+		A.Ap = &Ap_[0];
+		A.Ax = &Ax_[0];
+		A.Ai = &Ai_[0];
+		A.n  = n_;
+		A.nz = (int)Ax_.size();
 
-	sparse_mult_vector_r(out, A, in);
+		sparse_mult_vector_r(out, A, in);
+	}
+	break;
+	case ELL:
+	{
+		SparseELL < T > A;
+		A.Ax = &Ax_[0];
+		A.Ai = &Ai_[0];
+		A.n  = n_;
+		A.nz = (int)Ax_.size();
+		A.cols = cols_;
+		A.stride = stride_;
+
+		sparse_mult_vector_r(out, A, in);
+	}
+	break;
+	}
 }
 
 template < typename T >
@@ -165,6 +184,46 @@ void SparseMatrix < T > ::make_sparse_csr()
 template < typename T >
 void SparseMatrix < T > ::make_sparse_ell()
 {
+	int nz = 0; // non-null elements
+	for (uint i = 0; i < A_.size(); ++i) {
+		nz += (int)A_[i].size();
+	}
+	cols_ = 0;
+	for (uint i = 0; i < A_.size(); ++i) {
+		cols_ = std::max(cols_, (int)A_[i].size());
+	}
+	stride_ = 32 * ((n_ + 32 - 1) / 32);
+
+	Ax_.resize(cols_ * stride_);
+	Ai_.resize(cols_ * stride_);
+
+	std::vector < T > Ax(cols_ * stride_);
+	std::vector < int > Ai(cols_ * stride_);
+
+	for (uint i = 0; i < A_.size(); ++i)
+	{
+		int idx = 0;
+		for (typename row_t::iterator it = A_[i].begin();
+				it != A_[i].end(); ++it)
+		{
+			Ax[idx * stride_ + i] = it->second;
+			Ai[idx * stride_ + i] = it->first;
+			idx++;
+		}
+
+		{
+			row_t t;
+			A_[i].swap(t);
+		}
+	}
+
+	{
+		sparse_t t;
+		A_.swap(t);
+	}
+
+	vec_copy_from_host(&Ax_[0], &Ax[0], cols_ * stride_);
+	vec_copy_from_host(&Ai_[0], &Ai[0], cols_ * stride_);
 }
 
 template < typename T >
@@ -188,14 +247,32 @@ void SparseMatrix < T > ::solve(T * x, const T * b)
 		make_sparse();
 	}
 
-	SparseCSR < T > A;
-	A.Ap = &Ap_[0];
-	A.Ax = &Ax_[0];
-	A.Ai = &Ai_[0];
-	A.n  = n_;
-	A.nz = (int)Ax_.size();
+	switch (format_) {
+	case CSR:
+	{
+		SparseCSR < T > A;
+		A.Ap = &Ap_[0];
+		A.Ax = &Ax_[0];
+		A.Ai = &Ai_[0];
+		A.n  = n_;
+		A.nz = (int)Ax_.size();
 
-	gmres(&x[0], &A, &b[0], csr_mult_vector < T >, n_, 100, 1000);
+		gmres(&x[0], &A, &b[0], csr_mult_vector < T >, n_, 100, 1000);
+	}
+	break;
+	case ELL:
+	{
+		SparseELL < T > A;
+		A.Ax = &Ax_[0];
+		A.Ai = &Ai_[0];
+		A.n  = n_;
+		A.nz = (int)Ax_.size();
+		A.stride = stride_;
+		A.cols  = cols_;
+
+		gmres(&x[0], &A, &b[0], ell_mult_vector < T >, n_, 100, 1000);
+	}
+	}
 }
 
 #ifdef UMFPACK

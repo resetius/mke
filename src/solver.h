@@ -109,7 +109,7 @@ protected:
 public:
 	typedef T data_type;
 
-	SparseMatrix(int n): n_(n), format_(CSR), Ap_(n + 1), A_(n) {}
+	SparseMatrix(int n): n_(n), format_(ELL), Ap_(n + 1), A_(n) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
