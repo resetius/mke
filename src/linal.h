@@ -119,17 +119,14 @@ void mat_mult_vector(float * r, const float * A, const float * x, int n);
 
 /**
  * Sparse Matrix structure.
- * UMFPACK format.
- * The matrix can be stored by rows or by columns.
+ * CSR format.
+ * The matrix is stored by rows.
  *
- * If matrix is stored by rows then  Ap[i+1]-Ap[i] is the number of nonzero entries in row i, 
+ * Ap[i+1]-Ap[i] is the number of nonzero entries in row i, 
  * Ai contains indices of nonzero entries of row.
- *
- * If matrix is stored by columns then  Ap[i+1]-Ap[i] is the number of nonzero entries in column i, 
- * Ai contains indices of nonzero entries of column.
  */
 template < typename T >
-struct Sparse_t {
+struct SparseCSR {
 	typedef T data_type;
 	int * Ap;    ///< the number of elements in columns or rows
 	int * Ai;    ///< column or row indices
@@ -137,11 +134,8 @@ struct Sparse_t {
 	int n;       ///< the number of rows and columns
 	int nz;      ///< the number of non-null elements
 
-	Sparse_t(): Ap(0), Ai(0), Ax(0), n(0), nz(0) {}
+	SparseCSR(): Ap(0), Ai(0), Ax(0), n(0), nz(0) {}
 };
-
-typedef Sparse_t < double > Sparse;
-typedef Sparse_t < float > Sparsef;
 
 template < typename T >
 struct SparseELL {
@@ -153,50 +147,29 @@ struct SparseELL {
 	int cols;
 	int n;
 	int nz;
+
+	SparseELL(): Ai(0), Ax(0), stride(0), cols(0), n(0), nz(0) {} 
 };
 
 /**
- * If matrix is stored by columns then left multiply by vector: r = x A
- * If matrix is stored by rows then right multiply by vector: r = A x
+ * CSR matrix multiplication: r = A x
  * @param r - output vector
- * @param A - sparse matrix
- * @param x - intput vector
+ * @param A - sparse matrix (CSR format)
+ * @param x - input vector
  * @param n - the size of vector and matrix
  */
-void sparse_mult_vector_l(double * r, const Sparse * A, const double * x);
+void sparse_mult_vector_r(double * r, const SparseCSR < double > & A, const double * x);
+void sparse_mult_vector_r(float * r, const SparseCSR < float > & A, const float * x);
 
-void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x);
+void sparse_mult_vector_r(double * r, const SparseELL < double > & A, const double * x);
+void sparse_mult_vector_r(float * r, const SparseELL < float > & A, const float * x);
 
-/**
- * If matrix is stored by columns then right multiply by vector: r = A x
- * If matrix is stored by rows then left multiply by vector: r = x A
- * @param r - output vector
- * @param A - sparse matrix
- * @param x - input vector
- */
-void sparse_mult_vector_r(double * r, const Sparse * A, const double * x);
-
-void sparse_mult_vector_r(float * r, const Sparsef * A, const float * x);
-
-template < typename Sparse >
-struct MatMultiplier 
+/* TODO: remove this */
+template < typename T >
+void csr_mult_vector(T * r, const SparseCSR < T > * A, const T * x, int n)
 {
-	typedef typename Sparse::data_type data_type;
-
-	static void mult_vector_l(data_type * r, const Sparse * A,
-		const data_type * x, int)
-	{
-		assert(A->n); assert(A->nz);
-		sparse_mult_vector_l(r, A, x);
-	}
-
-	static void mult_vector_r(data_type * r, const Sparse * A,
-		const data_type * x, int)
-	{
-		assert(A->n); assert(A->nz);
-		sparse_mult_vector_r(r, A, x);
-	}
-};
+	sparse_mult_vector_r(r, *A, x);
+}
 
 /**
  * Print sparse matrix to file.
@@ -204,9 +177,8 @@ struct MatMultiplier
  * @param n - dimension of sparse matrix
  * @param f - output file
  */
-void sparse_print(const Sparse * A, FILE * f);
-
-void sparse_print(const Sparsef * A, FILE * f);
+void sparse_print(const SparseCSR < double > & A, FILE * f);
+void sparse_print(const SparseCSR < float > & A, FILE * f);
 
 /**
  * Linear combination of two vectors.

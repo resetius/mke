@@ -26,7 +26,7 @@ bool cmp(float a, float b)
 // соответственно Ai->Aj чтоб было общепринято
 
 template < typename T >
-void csr2ell(SparseELL < T > & ell, Sparse_t < T > & csr)
+void csr2ell(SparseELL < T > & ell, SparseCSR < T > & csr)
 {
 	ell.nz     = csr.nz;
 	ell.n      = csr.n;
@@ -44,32 +44,6 @@ void csr2ell(SparseELL < T > & ell, Sparse_t < T > & csr)
 		}
 	}
 }
-
-template < typename T >
-void ell_mult_(
-			   T * r, 
-			   int * Ai, 
-			   T * Ax,
-			   T * x, 
-			   int n,
-			   int cols, 
-			   int stride)
-{
-	for (int row = 0; row < n; ++row) {
-		T sum = 0;
-
-		for (int i0 = 0; i0 < cols; i0++){
-			const T A_ij = Ax[stride * i0 + row];
-
-			if (A_ij != 0) {
-				const int col = Ai[stride * i0 + row];
-				sum += A_ij * x[col];
-			}
-		}
-	    r[row] = sum;
-	}
-}
-
 
 template < typename T >
 bool test_gmres()
@@ -91,7 +65,7 @@ bool test_gmres()
 	vector < T > x(n);
 	vector < T > b(n);
 
-	Sparse_t < T > A;
+	SparseCSR < T > A;
 
 	/**
 	 * -4  1  0  ....  0
@@ -159,7 +133,7 @@ bool test_gmres()
 
 	for (int k = 0; k < 10; ++k) {
 		gmres(&cx[0], &A, &cb[0], 
-			MatMultiplier < Sparse_t < T > > :: mult_vector_l, n, 10, 100);
+			  csr_mult_vector < T >, n, 10, 100);
 
 //		vec_copy_from_device(&x[0], &cx[0], n);
 //		vec_print(&x[0], n);		
@@ -201,7 +175,7 @@ bool test_matvect()
 	vector < T > Ax(nz);
 	vector < T > b(n);
 	vector < T > x(n);
-	Sparse_t < T > A;
+	SparseCSR < T > A;
 
 	/**
 	 * 2 1 0 .... 0
@@ -273,7 +247,7 @@ bool test_matvect()
 	ArrayDevice < T >   cell_Ax(ell1.cols * ell1.stride);
 
 	{
-		Sparse_t < T >    A1;
+		SparseCSR < T >    A1;
 
 		A1.Ax = &Ax[0];
 		A1.Ap = &Ap[0];
@@ -302,11 +276,13 @@ bool test_matvect()
 	A.n  = n;
 	A.nz = nz;
 
+	ell1.Ax = &cell_Ax[0];
+	ell1.Ai = &cell_Ai[0];
+
 	Timer t;
 	for (int k = 0; k < 1000; ++k) {
-		//sparse_mult_vector_l(&cx[0], &A, &cb[0]);
-		sparse_mult_vector_ell(&cx[0], &cell_Ai[0], &cell_Ax[0], &cb[0], n, nz, ell1.cols, ell1.stride);
-		//ell_mult_(&x[0], &ell_Ai[0], &ell_Ax[0], &b[0], n, ell1.cols, ell1.stride);
+		//sparse_mult_vector_r(&cx[0], A, &cb[0]);
+		sparse_mult_vector_r(&cx[0], ell1, &cb[0]);
 	}
 
 	vec_copy_from_device(&x[0], &cx[0], n);

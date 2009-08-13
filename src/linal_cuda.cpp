@@ -54,19 +54,27 @@ VERSION("$Id$");
 
 namespace phelm {
 
-void sparse_mult_vector(double * r, 
+void sparse_mult_vector_csr(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
 	const double * x, 
 	int n, int nz);
 
-void sparse_mult_vector(float * r, 
+void sparse_mult_vector_csr(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
 	const float * x, 
 	int n, int nz);
+
+void 
+sparse_mult_vector_ell(double * r, const int * Ai, const double * Ax, 
+					   const double * x, int n, int nz, int cols, int stride);
+
+void
+sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax, 
+					   const float * x, int n, int nz, int cols, int stride);
 
 double vec_scalar2(const double * a, const double * b, int n)
 {
@@ -78,14 +86,24 @@ float vec_scalar2(const float * a, const float * b, int n)
 	return cublasSdot(n, a, 1, b, 1);
 }
 
-void sparse_mult_vector_l(double * r, const Sparse * A, const double * x)
+void sparse_mult_vector_r(double * r, const SparseCSR < double > & A, const double * x)
 {
-	sparse_mult_vector(r, A->Ap, A->Ai, A->Ax, x, A->n, A->nz);
+	sparse_mult_vector_csr(r, A.Ap, A.Ai, A.Ax, x, A.n, A.nz);
 }
 
-void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x)
+void sparse_mult_vector_r(float * r, const SparseCSR < float > & A, const float * x)
 {
-	sparse_mult_vector(r, A->Ap, A->Ai, A->Ax, x, A->n, A->nz);
+	sparse_mult_vector_csr(r, A.Ap, A.Ai, A.Ax, x, A.n, A.nz);
+}
+
+void sparse_mult_vector_r(double * r, const SparseELL < double > & A, const double * x)
+{
+	sparse_mult_vector_ell(r, A.Ai, A.Ax, x, A.n, A.nz, A.cols, A.stride);
+}
+
+void sparse_mult_vector_r(float * r, const SparseELL < float > & A, const float * x)
+{
+	sparse_mult_vector_ell(r, A.Ai, A.Ax, x, A.n, A.nz, A.cols, A.stride);
 }
 
 int check_device_supports_double()

@@ -43,14 +43,15 @@ void SparseMatrix < T > ::mult_vector(T * out, const T * in)
 	if (Ax_.empty()) {
 		make_sparse();
 	}
-	Sparse_t < T > A;
+
+	SparseCSR < T > A;
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 	A.n  = n_;
 	A.nz = (int)Ax_.size();
 
-	MatMultiplier < Sparse_t < T > > :: mult_vector_l(out, &A, in, n_);
+	sparse_mult_vector_r(out, A, in);
 }
 
 template < typename T >
@@ -78,14 +79,14 @@ void SparseMatrix < T > ::print()
 		make_sparse();
 	}
 
-	Sparse A;
+	SparseCSR < T > A;
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 	A.n  = n_;
 	A.nz = (int)Ax_.size();
 
-	sparse_print(&A, stderr);
+	sparse_print(A, stderr);
 
 	// diag:
 	{
@@ -168,14 +169,14 @@ void SparseMatrix < T > ::solve(T * x, const T * b)
 		make_sparse();
 	}
 
-	Sparse_t < T > A;
+	SparseCSR < T > A;
 	A.Ap = &Ap_[0];
 	A.Ax = &Ax_[0];
 	A.Ai = &Ai_[0];
 	A.n  = n_;
 	A.nz = (int)Ax_.size();
 
-	gmres(&x[0], &A, &b[0], MatMultiplier < Sparse_t < T > > :: mult_vector_l, n_, 100, 1000);
+	gmres(&x[0], &A, &b[0], csr_mult_vector < T >, n_, 100, 1000);
 }
 
 #ifdef UMFPACK

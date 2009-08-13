@@ -87,7 +87,7 @@ register_texture(float, texB);
 namespace phelm {
 
 template < typename T, typename APR, typename AIR, typename XR, typename AXR >
-__global__ void sparse_mult_vector_l_(T * r, 
+__global__ void sparse_mult_vector_csr_(T * r, 
 	APR Ap, 
 	AIR Ai, 
 	AXR Ax,
@@ -113,7 +113,7 @@ __global__ void sparse_mult_vector_l_(T * r,
 	}
 }
 
-__host__ void sparse_mult_vector(double * r, 
+__host__ void sparse_mult_vector_csr(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
@@ -127,10 +127,10 @@ __host__ void sparse_mult_vector(double * r,
 	simple_reader < int > AIR(Ap);
 	simple_reader < int > APR(Ap);
 
-	sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
+	sparse_mult_vector_csr_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 }
 
-__host__ void sparse_mult_vector(float * r, 
+__host__ void sparse_mult_vector_csr(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
@@ -155,14 +155,14 @@ __host__ void sparse_mult_vector(float * r,
 		texture_reader(texAI) AIR(Ai, nz);
 		texture_reader(texAP) APR(Ap, n + 1);
 
-		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
+		sparse_mult_vector_csr_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 	} else {
 		simple_reader < float > XR(x);
 		simple_reader < float > AXR(Ax);
 		simple_reader < int > AIR(Ai);
 		simple_reader < int > APR(Ap);
 
-		sparse_mult_vector_l_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
+		sparse_mult_vector_csr_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 	}
 }
 
@@ -201,6 +201,19 @@ sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax,
 	texture_reader(texX1) XR(x, n);
 	texture_reader(texAX) AXR(Ax, cols * stride);
 	texture_reader(texAI) AIR(Ai, cols * stride);
+	
+	ell_mult<<<blocks, threads>>>(r, AIR, AXR, XR, n, cols, stride);
+}
+
+__host__ void 
+sparse_mult_vector_ell(double * r, const int * Ai, const double * Ax, 
+	const double * x, int n, int nz, int cols, int stride)
+{
+	SPLAY2(n);
+
+	simple_reader < double > XR(x);
+	simple_reader < double > AXR(Ax);
+	simple_reader < int > AIR(Ai);
 	
 	ell_mult<<<blocks, threads>>>(r, AIR, AXR, XR, n, cols, stride);
 }

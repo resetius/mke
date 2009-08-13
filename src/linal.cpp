@@ -203,19 +203,19 @@ float vec_scalar2(const float * a, const float * b, int n)
 	return vec_scalar2_(a, b, n);
 }
 
-template < typename T, typename Sparse >
-void sparse_mult_vector_l_(T * r, const Sparse * A, const T * x)
+template < typename T >
+void csr_mult_vector_(T * r, const SparseCSR < T > & A, const T * x)
 {
 	int j;
 
 #pragma omp parallel for
-	for (j = 0; j < A->n; ++j) {
-		T *p = &A->Ax[A->Ap[j]];
+	for (j = 0; j < A.n; ++j) {
+		T *p = &A.Ax[A.Ap[j]];
 		T rj = (T)0.0;
 		int i0;
 
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			int i = A->Ai[i0];
+		for (i0 = A.Ap[j]; i0 < A.Ap[j + 1]; ++i0, ++p) {
+			int i = A.Ai[i0];
 			rj += *p * x[i];
 		}
 
@@ -223,14 +223,50 @@ void sparse_mult_vector_l_(T * r, const Sparse * A, const T * x)
 	}
 }
 
-void sparse_mult_vector_l(double * r, const Sparse * A, const double * x)
+template < typename T >
+void ell_mult_vector_(
+			   T * r, 
+			   const int * Ai, 
+			   const T * Ax,
+			   const T * x, 
+			   int n,
+			   int cols, 
+			   int stride)
 {
-	sparse_mult_vector_l_(r, A, x);
+#pragma omp parallel for
+	for (int row = 0; row < n; ++row) {
+		T sum = 0;
+
+		for (int i0 = 0; i0 < cols; i0++){
+			const T A_ij = Ax[stride * i0 + row];
+
+			if (A_ij != 0) {
+				const int col = Ai[stride * i0 + row];
+				sum += A_ij * x[col];
+			}
+		}
+	    r[row] = sum;
+	}
 }
 
-void sparse_mult_vector_l(float * r, const Sparsef * A, const float * x)
+void sparse_mult_vector_r(double * r, const SparseCSR < double > & A, const double * x)
 {
-	sparse_mult_vector_l_(r, A, x);
+	csr_mult_vector_(r, A, x);
+}
+
+void sparse_mult_vector_r(float * r, const SparseCSR < float > & A, const float * x)
+{
+	csr_mult_vector_(r, A, x);
+}
+
+void sparse_mult_vector_r(double * r, const SparseELL < double > & A, const double * x)
+{
+	ell_mult_vector_(r, A.Ai, A.Ax, x, A.n, A.cols, A.stride);
+}
+
+void sparse_mult_vector_r(float * r, const SparseELL < float > & A, const float * x)
+{
+	ell_mult_vector_(r, A.Ai, A.Ax, x, A.n, A.cols, A.stride);
 }
 
 int check_device_supports_double()

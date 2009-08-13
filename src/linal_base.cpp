@@ -193,41 +193,16 @@ void mat_mult_vector(float * r, const float * A, const float * x, int n)
 	mat_mult_vector_(r, A, x, n);
 }
 
-template < typename T, typename Sparse >
-void sparse_mult_vector_r_(T * r, const Sparse * A, const T * x)
+template < typename T >
+void csr_print_(const SparseCSR < T > & A, FILE * f)
 {
-	int i0, i, j;
-	const T * p = A->Ax;
-
-	memset(r, 0, A->n * sizeof(T));
-	for (j = 0; j < A->n; ++j) {
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			i = A->Ai[i0];
-			r[i] += *p * x[j];
-		}
-	}
-}
-
-void sparse_mult_vector_r(double * r, const Sparse * A, const double * x)
-{
-	sparse_mult_vector_r_(r, A, x);
-}
-
-void sparse_mult_vector_r(float * r, const Sparsef * A, const float * x)
-{
-	sparse_mult_vector_r_(r, A, x);
-}
-
-template < typename Sparse >
-void sparse_print_(const Sparse * A, FILE * f)
-{
-	int n = A->n;
+	int n = A.n;
 	int i, i0, j, k, i_old;
-	const typename Sparse::data_type * p = A->Ax;
+	const T * p = A.Ax;
 	for (j = 0; j < n; ++j) {
 		i_old = -1;
-		for (i0 = A->Ap[j]; i0 < A->Ap[j + 1]; ++i0, ++p) {
-			i = A->Ai[i0];
+		for (i0 = A.Ap[j]; i0 < A.Ap[j + 1]; ++i0, ++p) {
+			i = A.Ai[i0];
 			for (k = i_old; k < i - 1; ++k) {
 				fprintf(f, "%8.3lf ", 0.0);
 			}
@@ -242,14 +217,14 @@ void sparse_print_(const Sparse * A, FILE * f)
 	}
 }
 
-void sparse_print(const Sparse * A, FILE * f)
+void sparse_print(const SparseCSR < double > & A, FILE * f)
 {
-	sparse_print_ (A, f);
+	csr_print_ (A, f);
 }
 
-void sparse_print(const Sparsef * A, FILE * f)
+void sparse_print(const SparseCSR < float > & A, FILE * f)
 {
-	sparse_print_ (A, f);
+	csr_print_ (A, f);
 }
 
 } /* namespace */
