@@ -194,7 +194,7 @@ __global__ void ell_mult(
 
 __host__ void 
 sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax, 
-	const float * x, int n, int nz, int cols, int stride)
+	const float * x, int n, int cols, int stride)
 {
 	SPLAY2(n);
 
@@ -207,7 +207,7 @@ sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax,
 
 __host__ void 
 sparse_mult_vector_ell(double * r, const int * Ai, const double * Ax, 
-	const double * x, int n, int nz, int cols, int stride)
+	const double * x, int n, int cols, int stride)
 {
 	SPLAY2(n);
 

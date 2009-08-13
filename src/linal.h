@@ -171,6 +171,13 @@ void csr_mult_vector(T * r, const SparseCSR < T > * A, const T * x, int n)
 	sparse_mult_vector_r(r, *A, x);
 }
 
+/* TODO: remove this */
+template < typename T >
+void ell_mult_vector(T * r, const SparseELL < T > * A, const T * x, int n)
+{
+	sparse_mult_vector_r(r, *A, x);
+}
+
 /**
  * Print sparse matrix to file.
  * @param A - input sparse matrix

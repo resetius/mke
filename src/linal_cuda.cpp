@@ -70,11 +70,11 @@ void sparse_mult_vector_csr(float * r,
 
 void 
 sparse_mult_vector_ell(double * r, const int * Ai, const double * Ax, 
-					   const double * x, int n, int nz, int cols, int stride);
+					   const double * x, int n, int cols, int stride);
 
 void
 sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax, 
-					   const float * x, int n, int nz, int cols, int stride);
+					   const float * x, int n, int cols, int stride);
 
 double vec_scalar2(const double * a, const double * b, int n)
 {
@@ -98,12 +98,12 @@ void sparse_mult_vector_r(float * r, const SparseCSR < float > & A, const float 
 
 void sparse_mult_vector_r(double * r, const SparseELL < double > & A, const double * x)
 {
-	sparse_mult_vector_ell(r, A.Ai, A.Ax, x, A.n, A.nz, A.cols, A.stride);
+	sparse_mult_vector_ell(r, A.Ai, A.Ax, x, A.n, A.cols, A.stride);
 }
 
 void sparse_mult_vector_r(float * r, const SparseELL < float > & A, const float * x)
 {
-	sparse_mult_vector_ell(r, A.Ai, A.Ax, x, A.n, A.nz, A.cols, A.stride);
+	sparse_mult_vector_ell(r, A.Ai, A.Ax, x, A.n, A.cols, A.stride);
 }
 
 int check_device_supports_double()

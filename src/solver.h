@@ -79,23 +79,37 @@ class SparseMatrix {
 protected:
 	int n_;
 
+	enum {
+		CSR = 1,
+		ELL = 2,
+	};
+	int format_;
+
 	// разреженная матрица
 	// формат хранения как в MatLab и UMFPACK
-	Array < int, Allocator < int > > Ap_; // количества ненулевых в столбцах
-	Array < int, Allocator < int > > Ai_; // индексы (номер строки) ненулевых элементов
-	Array < T, Allocator < T >  > Ax_;    // ненулевые элементы матрицы
+	// CSR or ELL format
+	// for CSR only Ai and Ax are used !
+	ArrayDevice < int > Ap_; // количества ненулевых в столбцах
+	ArrayDevice < int > Ai_; // индексы (номер строки) ненулевых элементов
+	ArrayDevice < T >   Ax_;    // ненулевые элементы матрицы
 
-	//column_number -> row_number -> value
-	typedef std::map < int , T > column_t;
-	typedef std::vector < column_t > sparse_t;
+	// for ELL format
+	int cols_;
+	int stride_;
+
+	typedef std::map < int , T > row_t;
+	// column number -> row_number -> value
+	typedef std::vector < row_t > sparse_t;
 	sparse_t A_;
 
+	void make_sparse_csr();
+	void make_sparse_ell();
 	void make_sparse();
 
 public:
 	typedef T data_type;
 
-	SparseMatrix(int n): n_(n), Ap_(n + 1), A_(n) {}
+	SparseMatrix(int n): n_(n), format_(CSR), Ap_(n + 1), A_(n) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
@@ -145,6 +159,7 @@ public:
 
 	UmfPackMatrix(int n): SparseMatrix < T >(n), Symbolic_(0), Numeric_(0) 
 	{
+		base::format_ = base::CSR;
 		umfpack_di_defaults(Control_);
 	}
 
@@ -180,6 +195,7 @@ public:
 
 	UmfPackMatrix(int n): SparseMatrix < float >(n), Symbolic_(0), Numeric_(0) 
 	{
+		base::format_ = base::CSR;
 		umfpack_di_defaults(Control_);
 	}
 

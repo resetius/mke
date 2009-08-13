@@ -119,7 +119,7 @@ void SparseMatrix < T > ::add(int i, int j, T a)
 }
 
 template < typename T >
-void SparseMatrix < T > ::make_sparse()
+void SparseMatrix < T > ::make_sparse_csr()
 {
 	int nz = 0; // non-null elements
 	int idx = 0;
@@ -138,7 +138,7 @@ void SparseMatrix < T > ::make_sparse()
 	for (uint i = 0; i < A_.size(); ++i)
 	{
 		Ap[i + 1] = Ap[i] + (int)A_[i].size();
-		for (typename column_t::iterator it = A_[i].begin();
+		for (typename row_t::iterator it = A_[i].begin();
 				it != A_[i].end(); ++it)
 		{
 			Ax[idx] = it->second;
@@ -147,7 +147,7 @@ void SparseMatrix < T > ::make_sparse()
 		}
 
 		{
-			column_t t;
+			row_t t;
 			A_[i].swap(t);
 		}
 	}
@@ -160,6 +160,25 @@ void SparseMatrix < T > ::make_sparse()
 	vec_copy_from_host(&Ax_[0], &Ax[0], nz);
 	vec_copy_from_host(&Ai_[0], &Ai[0], nz);
 	vec_copy_from_host(&Ap_[0], &Ap[0], n_ + 1);
+}
+
+template < typename T >
+void SparseMatrix < T > ::make_sparse_ell()
+{
+}
+
+template < typename T >
+void SparseMatrix < T > ::make_sparse()
+{
+	switch (format_) {
+	case CSR:
+		make_sparse_csr();
+		break;
+	case ELL:
+	default:
+		make_sparse_ell();
+		break;
+	}
 }
 
 template < typename T >
