@@ -505,6 +505,9 @@ unsigned int nextPow2( unsigned int x )
 }
 
 #include <malloc.h>
+#ifdef WIN32
+#define alloca _alloca
+#endif
 
 template < typename T >
 __host__ T vec_scalar2_(const T * a, const T * b, int n)
@@ -547,7 +550,7 @@ __host__ T vec_scalar2_(const T * a, const T * b, int n)
 
 	
 	if (final_threshold > 1) {
-		T * final = (T*)_alloca(N * sizeof(T));
+		T * final = (T*)alloca(N * sizeof(T));
 		cudaMemcpy(final, v2, N * sizeof(T), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < N; ++i) 
 		{
