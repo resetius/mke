@@ -46,7 +46,7 @@
 #include <vector>
 
 #ifdef GPGPU
-#include "alloc_cu.h"
+#include "gpu/alloc_cu.h"
 #endif
 
 typedef unsigned int uint;

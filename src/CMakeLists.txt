@@ -1,6 +1,8 @@
 project(core CXX C)
 
 include_directories(/usr/include/suitesparse/)
+include_directories(.)
+
 set(LIBRARY_OUTPUT_PATH "../lib")
 
 set(SOURCE 
@@ -14,8 +16,8 @@ set(SOURCE
 	base.h
 	linal.h
 	generators.h
-	private.h
-	solver_private.h
+	impl/generators_impl.h
+	impl/solver_impl.h
 	gmres.h
 	polynom.h
 	solver.h
@@ -31,14 +33,14 @@ add_library(phelm
 if (CUDA_FOUND)
 cuda_add_library(phelm_cu
 	${SOURCE}
-	linal_cuda.cpp 
-	linal_cuda.h
-	proj_cuda.cpp
-	alloc_cu.h
-	shmem.h
-	texture.h
-	linal.cu
-	phelm.cu
+	gpu/linal_cuda.cpp 
+	gpu/linal_cuda.h
+	gpu/proj_cuda.cpp
+	gpu/alloc_cu.h
+	gpu/shmem.h
+	gpu/texture.h
+	gpu/linal.cu
+	gpu/phelm.cu
 	)
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)

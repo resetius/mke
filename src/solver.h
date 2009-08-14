@@ -354,7 +354,7 @@ void solve2(T * answer, T * rp, Matrix & A, const Mesh & m)
 
 /** @} */ /* solver */
 
-#include "solver_private.h"
+#include "impl/solver_impl.h"
 
 }
 
