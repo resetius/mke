@@ -45,6 +45,7 @@
 #include "shmem.h"
 #include "texture.h"
 #include "ver.h"
+#include "reduction.h"
 
 VERSION("$Id$");
 
@@ -407,92 +408,6 @@ __global__ void reduction_(T * out, unsigned N, unsigned BlockStride)
 #define EMUSYNC
 #endif
 
-template <typename T, typename VR>
-__global__ void
-reduce (VR v, T *g_odata, unsigned int n)
-{
-#if 0
-    // load shared mem
-    unsigned int tid = threadIdx.x;
-    unsigned int i = blockIdx.x*blockDim.x + threadIdx.x;
-    
-    sdata[tid] = (i < n) ? g_idata[i] : 0;
-    
-    __syncthreads();
-
-    // do reduction in shared mem
-	for (unsigned int s=blockDim.x/2; s>0; s>>=1) {
-		if (tid < s) {
-			sdata[tid] += sdata[tid + s];
-		}
-		__syncthreads();
-	}
-
-    // write result for this block to global mem
-    if (tid == 0) g_odata[blockIdx.x] = sdata[0];
-#endif
-
-	SharedMemory < T > shmem;
-	T * sdata = shmem.getPointer();
-
-	unsigned int tid = threadIdx.x;
-	int blockSize = blockDim.x;
-	unsigned int i = blockIdx.x*(blockSize*2) + tid;
-	unsigned int gridSize = blockSize*2*gridDim.x;
-	sdata[tid] = 0;
-	
-	while (i < n) { 
-		sdata[tid] += v.get(i) + v.get(i+blockSize); i += gridSize; 
-	}
-
-	__syncthreads();
-	if (blockSize >= 512) { if (tid < 256) { sdata[tid] += sdata[tid + 256]; } __syncthreads(); }
-	if (blockSize >= 256) { if (tid < 128) { sdata[tid] += sdata[tid + 128]; } __syncthreads(); }
-	if (blockSize >= 128) { if (tid < 64) { sdata[tid] += sdata[tid + 64]; } __syncthreads(); }
-	if (tid < 32) {
-		if (blockSize >= 64) sdata[tid] += sdata[tid + 32];
-		if (blockSize >= 32) sdata[tid] += sdata[tid + 16];
-		if (blockSize >= 16) sdata[tid] += sdata[tid + 8];
-		if (blockSize >= 8) sdata[tid] += sdata[tid + 4];
-		if (blockSize >= 4) sdata[tid] += sdata[tid + 2];
-		if (blockSize >= 2) sdata[tid] += sdata[tid + 1];
-	}
-	if (tid == 0) g_odata[blockIdx.x] = sdata[0];
-}
-
-template <typename T, typename AR, typename BR>
-__global__ void
-reduce1 (T *g_odata, AR a, BR b, unsigned int n)
-{
-	SharedMemory < T > shmem;
-	T * sdata = shmem.getPointer();
-
-	unsigned int tid = threadIdx.x;
-	int blockSize = blockDim.x;
-	unsigned int i = blockIdx.x*(blockSize*2) + tid;
-	unsigned int gridSize = blockSize*2*gridDim.x;
-	sdata[tid] = 0;
-	
-	while (i < n) { 
-		sdata[tid] += a.get(i)*b.get(i) + a.get(i+blockSize)*b.get(i+blockSize);
-		i += gridSize; 
-	}
-
-	__syncthreads();
-	if (blockSize >= 512) { if (tid < 256) { sdata[tid] += sdata[tid + 256]; } __syncthreads(); }
-	if (blockSize >= 256) { if (tid < 128) { sdata[tid] += sdata[tid + 128]; } __syncthreads(); }
-	if (blockSize >= 128) { if (tid < 64) { sdata[tid] += sdata[tid + 64]; } __syncthreads(); }
-	if (tid < 32) {
-		if (blockSize >= 64) sdata[tid] += sdata[tid + 32];
-		if (blockSize >= 32) sdata[tid] += sdata[tid + 16];
-		if (blockSize >= 16) sdata[tid] += sdata[tid + 8];
-		if (blockSize >= 8) sdata[tid] += sdata[tid + 4];
-		if (blockSize >= 4) sdata[tid] += sdata[tid + 2];
-		if (blockSize >= 2) sdata[tid] += sdata[tid + 1];
-	}
-	if (tid == 0) g_odata[blockIdx.x] = sdata[0];
-}
-
 unsigned int nextPow2( unsigned int x ) 
 {
 	--x;
@@ -509,46 +424,63 @@ unsigned int nextPow2( unsigned int x )
 #define alloca _alloca
 #endif
 
+template < typename T, typename AR, typename BR >
+struct Multiplier
+{
+	AR a_;
+	BR b_;
+
+	Multiplier(AR a, BR b): a_(a), b_(b) {}
+	__device__ T get(int i) { 
+		return a_.get(i) * b_.get(i);
+	}
+};
+
 template < typename T >
 __host__ T vec_scalar2_(const T * a, const T * b, int n)
 {
-	int threads = 512;
-	int blocks  = 64;//(n + threads - 1) / threads;
+	int maxThreads = 512;
+	int maxBlocks  = 128;
 
-	int maxThreads = 128;
-	int maxBlocks  = blocks;
-	
+	//int threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
+	//int blocks  = (n + (threads * 2 - 1)) / (threads * 2);
+	//blocks  = min(maxBlocks, blocks);
+	int threads = maxThreads;
+	int blocks  = maxBlocks;
+
 	T * v2 = 0;
 	T answer = (T)0.0;;
 
 	cudaMalloc((void**)&v2, blocks * sizeof(T));
 
-	int smemsize = threads * sizeof(float);
-
 	{
 		texture_reader(texA) AR(a, n);
 		texture_reader(texB) BR(b, n);
+		Multiplier < T, texture_reader(texA), texture_reader(texB) > m(AR, BR);
 
-		reduce1 <<< blocks, threads, smemsize >>> (v2, AR, BR, n);
+		//simple_reader < T > AR(a);
+		//simple_reader < T > BR(b);
+		//Multiplier < T, simple_reader < T >, simple_reader < T > > m(AR, BR);
+
+		reduce6 (threads, blocks, m, v2, n);
 	}
 
 	int N = blocks;
 	int final_threshold = 1;
 
 	while (N > final_threshold) {
-        threads = (N < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
-        blocks  = (N + (threads * 2 - 1)) / (threads * 2);
-		blocks  = min(maxBlocks, blocks);
+		threads = (N < maxThreads*2) ? nextPow2((N + 1)/ 2) : maxThreads;
+		blocks  = (N + (threads * 2 - 1)) / (threads * 2);
 
 		{
 			texture_reader(texAX) VR(v2, blocks);
-			reduce <<< blocks, threads, smemsize >>> (VR, v2, N);
+			//simple_reader < T > VR(v2);
+			reduce5(threads, blocks, VR, v2, N);
 		}
 
 		N = (N + (threads*2-1)) / (threads*2);
 	}
 
-	
 	if (final_threshold > 1) {
 		T * final = (T*)alloca(N * sizeof(T));
 		cudaMemcpy(final, v2, N * sizeof(T), cudaMemcpyDeviceToHost);
