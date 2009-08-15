@@ -202,9 +202,9 @@ void Mesh::prepare()
 		it->prepare(ps);
 	}
 
-	inner_size = inner.size();
-	outer_size = outer.size();
-	size = ps.size();
+	inner_size = (int)inner.size();
+	outer_size = (int)outer.size();
+	size       = (int)ps.size();
 
 #ifdef GPGPU
 	d.inner.resize(inner_size);

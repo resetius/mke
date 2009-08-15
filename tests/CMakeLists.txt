@@ -47,11 +47,18 @@ if (CUDA_FOUND)
 	cuda_add_cublas_to_target(test_gmres_cu)
 	set_target_properties(test_gmres_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 
+	cuda_add_executable(test_gpu_reduction test_gpu_reduction.cpp)
+	target_link_libraries(test_gpu_reduction phelm_cu)
+	cuda_add_cublas_to_target(test_gpu_reduction)
+	set_target_properties(test_gpu_reduction PROPERTIES COMPILE_FLAGS "-DGPGPU")
+
 	if (OPENMP_FOUND)
 		set_target_properties(test_gmres_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+		set_target_properties(test_gpu_reduction PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 	endif (OPENMP_FOUND)
 
 	add_test(test_gmres_cu ${EXECUTABLE_OUTPUT_PATH}/test_gmres_cu)
+	add_test(test_gpu_reduction ${EXECUTABLE_OUTPUT_PATH}/test_gpu_reduction)
 	add_test(test_laplace_cu ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} test_laplace_cu)
 endif (CUDA_FOUND)
 
