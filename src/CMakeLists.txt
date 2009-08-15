@@ -41,6 +41,7 @@ cuda_add_library(phelm_cu
 	gpu/texture.h
 	gpu/linal.cu
 	gpu/phelm.cu
+	gpu/reduction.h
 	)
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)
