@@ -56,6 +56,9 @@
 
 namespace phelm {
 
+void gmres_vec_sum2(double * x, const double * q, const double * y, int j, int hz, int n);
+void gmres_vec_sum2(float * x, const float * q, const float * y, int j, int hz, int n);
+
 /**
  * Demmel Algorithm  6.9 p 303
  */
@@ -174,6 +177,7 @@ done:
 		for (i = 0; i <= j; ++i) {
 			vec_sum2(&x[0], &x[0], &q[i * n], y[i], n);
 		}
+//		gmres_vec_sum2(&x[0], &q[0], &y[0], j, hz, n);
 	}
 
 end:
@@ -195,7 +199,7 @@ template < typename T, typename Mat, typename Ax_t >
 void gmres(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, int n, int k_dim, int max_it)
 {
-	T tol = (sizeof(T) >= 8) ? 1e-12 : 1e-5f;
+	T tol = (sizeof(T) >= 8) ? 1e-12 : 1e-4f;
 	T bn  = vec_norm2(b, n);
 	int i;
 
