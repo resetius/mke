@@ -142,26 +142,17 @@ laplace_integrate_cb( const Polynom & phi_i,
 	return laplace(phi_i, phi_j, trk, m.ps);
 }
 
-}
+} /* namespace */
 
-static double f(double u, double x, double y, double t, double mu, double sigma)
-{
-	// for test
-	// f(u) = \du/\dt -mu \Delta u + \sigma u
-	double lapl = exp(t) * (2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x);
-	double uu = exp(t) * x * (x - 1) * y * (y - 1);
-	return uu - mu * lapl + sigma * uu;
-//	return u - mu * lapl + sigma * u;
-//	return -u * u * u;
-}
+namespace Chafe_Private {
 
-static double 
+double 
 chafe_integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk, 
-                     const Mesh & m, int point_i, int point_j,
-					 int, int,
-		     const Chafe * d)
+                    const Polynom & phi_j, 
+                    const Triangle & trk, 
+                    const Mesh & m, int point_i, int point_j,
+                    int, int,
+                    const ChafeConfig * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -178,38 +169,7 @@ chafe_integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
-struct chafe_right_part_cb_data
-{
-	const double * F;
-	const double * bnd;
-	const Chafe * d;
-};
-
-double 
-chafe_right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-					  int i, int j,
-                      chafe_right_part_cb_data * d)
-{
-	const double * F = d->F;
-	double b = 0.0;
-
-//	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
-
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
-		const double * bnd = d->bnd;
-		b += - bnd[j0] * chafe_integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
-	} 
-	else {
-		b += F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
-	}
-	return b;
-}
+} /* namespace Chafe_Private */
 
 static double lp_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
@@ -239,59 +199,3 @@ static double lp_rp(const Polynom & phi_i,
 #endif
 	return b;
 }
-
-Chafe::Chafe(const Mesh & m, double tau, double sigma, double mu)
-	: m_(m), laplace_(m), A_((int)m.inner.size()), 
-	tau_(tau), mu_(mu), sigma_(sigma)
-{
-	/* Матрица левой части */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, chafe_integrate_cb, this);
-}
-
-/* \frac{du}{dt} = \mu \Delta u - \sigma u + f (u) */
-void Chafe::solve(double * Ans, const double * X0,
-						const double * bnd, double t)
-{
-	int rs  = (int)m_.inner.size();
-	int sz  = (int)m_.ps.size();
-	vec u(rs);
-	vec p(sz);
-	vec delta_u(rs);
-	vec rp(rs);
-
-	// генерируем правую часть
-	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
-
-	u2p(&u[0], X0, m_);
-	laplace_.calc2(&delta_u[0], X0);
-
-	// u/dt + mu \Delta u / 2
-	vec_sum1(&delta_u[0], &u[0], &delta_u[0], 1.0 / tau_, mu_ * 0.5, rs);
-
-	// u/dt + mu \Delta u / 2 - \sigma u / 2
-	vec_sum1(&delta_u[0], &delta_u[0], &u[0], 1.0, -sigma_ * 0.5, rs);
-
-	// TODO: тут надо сделать метод простой итерации
-	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
-#pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
-		int point = m_.inner[i];
-		double x  = m_.ps[point].x();
-		double y  = m_.ps[point].y();
-
-		u[i] = delta_u[i] + f(u[i], x, y, t, mu_, sigma_);
-	}
-
-	// правую часть на границе не знаем !
-	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
-	chafe_right_part_cb_data data2;
-	data2.F   = &p[0];
-	data2.bnd = bnd;
-	data2.d   = this;
-	generate_right_part(&rp[0], m_, 
-		chafe_right_part_cb, &data2);
-
-	phelm::solve(Ans, bnd, &rp[0], A_, m_);
-}
-

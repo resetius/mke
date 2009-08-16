@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
 	Timer t;
 	try {
-		test_invert < float > (mesh);
+		//test_invert < float > (mesh);
 		test_laplace < float > (mesh);
 		//test_laplace < double > (mesh);
 	} catch (const std::exception & e) {

@@ -56,45 +56,39 @@ static double z(double u, double v)
 	return sin(u);
 }
 
-int main(int argc, char *argv[])
+template < typename T >
+void calc_schafe(Mesh & mesh)
 {
-	Mesh mesh;
 	int i, steps = 10000;
 	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = +70;
 
-	if (argc > 1) {
-		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
-		if (!f) {
-			usage(argv[0]);
-		}
-		if (!mesh.load(f)) {
-			usage(argv[0]);
-		}
-		fclose(f);
-	} else {
-		usage(argv[0]);
-	}
 
 	int sz = (int)mesh.ps.size();
 	int rs = (int)mesh.inner.size();
 
-	vector < double > U(sz);
-	vector < double > B(mesh.outer.size());
-	vector < double > Ans(sz);
-	vector < double > P(rs);
+	ArrayHost < T > U(sz);
+	ArrayHost < T > B(mesh.outer.size());
+	ArrayHost < T > Ans(sz);
+	ArrayHost < T > P(rs);
+
+	ArrayDevice < T > U(sz);
+	ArrayDevice < T > B(mesh.outer.size());
+	ArrayDevice < T > Ans(sz);
+	ArrayDevice < T > P(rs);
 
 	proj(&U[0], mesh, ans, 0.0);
 
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
 
-	SphereChafe schafe(mesh, tau, sigma, mu);
+	SphereChafe < T > schafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
 		proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
-		schafe.solve(&U[0], &U[0], &B[0], tau * (i));
+		vec_copy_from_host(&cB[0], &B[0], (int)B.size());
+		schafe.solve(&cU[0], &cU[0], &cB[0], tau * (i));
 
 		// check
 		{
@@ -117,6 +111,27 @@ int main(int argc, char *argv[])
 //		print_function(stdout, &Ans[0], mesh, x, y, z);
 //		fflush(stdout);
 	}
+
+}
+
+int main(int argc, char *argv[])
+{
+	Mesh mesh;
+
+	if (argc > 1) {
+		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
+		if (!f) {
+			usage(argv[0]);
+		}
+		if (!mesh.load(f)) {
+			usage(argv[0]);
+		}
+		fclose(f);
+	} else {
+		usage(argv[0]);
+	}
+
+	calc_schafe < float > (mesh);
 
 	return 0;
 }

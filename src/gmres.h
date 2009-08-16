@@ -67,15 +67,19 @@ template < typename T, typename Mat, typename Ax_t >
 T algorithm6_9(T * x, const Mat * A, const T * b, 
 			 Ax_t Ax, T eps, int n, int k)
 {
-	ArrayDevice < T > q;        // -> device
-	ArrayDevice < T > r(n);     /* b - Ax */ // -> device
-	ArrayDevice < T > ax(n);    // -> device
+	ArrayDevice < T > q;
+	ArrayDevice < T > r(n);  /* b - Ax */
+	ArrayDevice < T > ax(n);
+
+	//ArrayDevice < T > ht;
 
 	ArrayHost < T > h;
 	ArrayHost < T > gamma;
 
 	ArrayHost < T > s;
 	ArrayHost < T > c;
+
+//	Timer t;
 
 	T gamma_0;
 	T beta;
@@ -97,66 +101,65 @@ T algorithm6_9(T * x, const Mat * A, const T * b,
 		goto end;
 	}
 
-	h.resize(hz * hz);    // -> host
-	q.resize(hz * n);     // -> device
-	vec_mult_scalar(&q[0], &r[0], (T)1.0 / gamma_0, n); 
-	gamma.resize(hz);     // -> host
+	h.resize(hz * hz);
+//	ht.resize(hz);
 
-	s.resize(hz);         // -> host
-	c.resize(hz);         // -> host
+	q.resize(hz * n);
+	vec_mult_scalar(&q[0], &r[0], (T)1.0 / gamma_0, n); 
+	gamma.resize(hz);
+
+	s.resize(hz);
+	c.resize(hz);
 
 	gamma[0] = gamma_0;
 
 	for (j = 0; j < k; ++j) {
-		T nr1, nr2;
+		T * h1 = &h[j * hz];
 
+//		t.restart();
 		Ax(&ax[0], A, &q[j * n], n);
-		nr1 = vec_norm2(&ax[0], n);
+//		fprintf(stderr, "section1: %lf\n", t.elapsed()); t.restart();
 
 		for (i = 0; i <= j; ++i) {
-			h[i * hz + j] = vec_scalar2(&q[i * n], &ax[0], n); //-> j x j
-			//ax = ax - h[i * hz + j] * q[i * n];
-			vec_sum2(&ax[0], &ax[0], &q[i * n], -h[i * hz + j], n);
+			h1[i] = vec_scalar2(&q[i * n], &ax[0], n); //-> j x j
+			vec_sum2(&ax[0], &ax[0], &q[i * n], -h1[i], n);
 		}
-		
-		// h -> (j + 1) x j
-		h[(j + 1) * hz + j] = vec_norm2(&ax[0], n);
 
-		// loss of orthogonality detected
-		// C. T. Kelley: Iterative Methods for Linear and Nonlinear Equations, SIAM, ISBN 0-89871-352-8
-		nr2 = (T)0.001 * h[(j + 1) * hz + j] + nr1;
-		if (fabs(nr2  - nr1) < eps) {
-			/*fprintf(stderr, "reortho!\n");*/
-			for (i = 0; i <= j; ++i) {
-				T hr = vec_scalar2(&q[i * n], &ax[0], n);
-				h[i * hz + j] += hr;
-				vec_sum2(&ax[0], &ax[0], &q[i * n], -hr, n);
-			}
-			h[(j + 1) * hz + j] = vec_norm2(&ax[0], n);
-		}
+//		fprintf(stderr, "section2: %lf\n", t.elapsed()); t.restart();
+
+		// h -> (j + 1) x j
+		h1[(j + 1)] = vec_norm2(&ax[0], n);
 
 		// rotate
 		for (i = 0; i <= j - 1; ++i) {
-			T x = h[i * hz + j];
-			T y = h[(i + 1) * hz + j];
+			T x = h1[i];
+			T y = h1[(i + 1)];
 
-			h[i * hz + j]       = x * c[i + 1] + y * s[i + 1];
-			h[(i + 1) * hz + j] = x * s[i + 1] - y * c[i + 1];
+			h1[i]     = x * c[i + 1] + y * s[i + 1];
+			h1[i + 1] = x * s[i + 1] - y * c[i + 1];
 		}
 
-		beta = sqrt(h[j * hz + j] * h[j * hz + j] + h[(j + 1) * hz + j] * h[(j + 1) * hz + j]);
-		s[j + 1]      = h[(j + 1) * hz + j] / beta;
-		c[j + 1]      = h[j * hz + j] / beta;
-		h[j * hz + j] = beta;
+		beta = sqrt(
+				  h1[j]       * h1[j] 
+				+ h1[(j + 1)] * h1[(j + 1)]);
+
+		s[j + 1] = h1[(j + 1)] / beta;
+		c[j + 1] = h1[j] / beta;
+		h1[j]    = beta;
 
 		gamma[j + 1] = s[j + 1] * gamma[j];
 		gamma[j]     = c[j + 1] * gamma[j];
 
+//		fprintf(stderr, "section3: %lf\n", t.elapsed()); t.restart();
+
 		if (gamma[j + 1]  > eps) {
-			vec_mult_scalar(&q[(j + 1) * n], &ax[0], (T)1.0 / h[(j + 1) * hz + j], n);
+			vec_mult_scalar(&q[(j + 1) * n], &ax[0], 
+				(T)1.0 / h1[j + 1], n);
 		} else {
 			goto done;
 		}
+
+//		fprintf(stderr, "section4: %lf\n", t.elapsed()); t.restart();
 	}
 
 	--j;
@@ -169,7 +172,7 @@ done:
 		for (i = j; i >= 0; --i) {
 			T sum = 0.0;
 			for (k = i + 1; k <= j; ++k) {
-				sum += h[i * hz + k] * y[k];
+				sum += h[k * hz + i] * y[k];
 			}
 			y[i] = (gamma[i] - sum) / h[i * hz + i];
 		}
@@ -179,6 +182,8 @@ done:
 		}
 //		gmres_vec_sum2(&x[0], &q[0], &y[0], j, hz, n);
 	}
+
+//	fprintf(stderr, "section5: %lf\n", t.elapsed()); t.restart();
 
 end:
 	return ret;

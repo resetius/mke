@@ -304,12 +304,23 @@ public:
 };
 
 #if defined(UMFPACK) && !defined(GPGPU)
-#define Matrix_t UmfPackMatrix
-typedef UmfPackMatrix < double > Matrix;
+template < typename T >
+class Matrix: public UmfPackMatrix < T >
+{
+public:
+	Matrix(int n): UmfPackMatrix < T >(n) {}
+};
 #else
-#define Matrix_t SparseMatrix
-typedef SparseMatrix < double > Matrix;
+template < typename T >
+class Matrix: public SparseMatrix < T > 
+{
+public:
+	Matrix(int n): SparseMatrix < T > (n) {}
+};
 #endif
+
+typedef Matrix < double > Matrixd;
+typedef Matrix < float > Matrixf;
 
 /**
  * Solve the system with A matrix (Ax=rp).

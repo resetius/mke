@@ -204,8 +204,8 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
  * @see generic_scalar_cb, sphere_scalar_cb
  * @param user_data - user data
  */
-template < typename Functor, typename Data >
-void generate_right_part(double * b, const Mesh & m, 
+template < typename T, typename Functor, typename Data >
+void generate_right_part(T * b, const Mesh & m, 
 						 Functor right_part_cb, 
 						 Data user_data)
 {
@@ -426,7 +426,7 @@ double scalar(const double * u, const double * v, const Mesh & m,
  * @see generic_scalar_cb, sphere_scalar_cb
  * @param user_data - user data that is passed to callback
  */
-template < typename Functor, typename Data >
+template < typename Matrix, typename Functor, typename Data >
 void generate_scalar_matrix(Matrix & mat, const Mesh & m, 
 							Functor cb, Data user_data)
 {

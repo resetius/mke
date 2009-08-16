@@ -371,11 +371,11 @@ int main(int argc, char * argv[])
 			fprintf(stderr, "test_matvect < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 		} else {
-			t.restart(); result &= test_sum < float > ();
+			//t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			t.restart(); result &= test_gmres < float > ();
+			//t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
-//			t.restart(); result &= test_matvect < float > ();
+			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());

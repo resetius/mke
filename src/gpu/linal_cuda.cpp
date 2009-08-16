@@ -80,12 +80,12 @@ double vec_scalar2(const double * a, const double * b, int n)
 {
 	return cublasDdot(n, a, 1, b, 1);
 }
-
-//float vec_scalar2(const float * a, const float * b, int n)
-//{
-//	return cublasSdot(n, a, 1, b, 1);
-//}
-
+/*
+float vec_scalar2(const float * a, const float * b, int n)
+{
+	return cublasSdot(n, a, 1, b, 1);
+}
+*/
 void sparse_mult_vector_r(double * r, const SparseCSR < double > & A, const double * x)
 {
 	sparse_mult_vector_csr(r, A.Ap, A.Ai, A.Ax, x, A.n, A.nz);

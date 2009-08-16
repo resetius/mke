@@ -1,4 +1,6 @@
 #include "linal_cuda.h"
+#include "reduction.h"
+#include "texture.h"
 
 namespace phelm {
 
@@ -35,5 +37,31 @@ __host__ void gmres_vec_sum2(double * x, const double * q, const double * y, int
 	gmres_vec_sum_ <<< blocks, threads >>> (x, q, y1, j, n);
 	cudaFree(y1);
 }
+
+/*
+__global__ void gmres_h_calc_()
+{
+	
+}
+*/
+
+/*
+__host__ void gmres_h_calc(float * ht, float * h, int hz, int n)
+{
+	int maxThreads = 256;
+	int maxBlocks  = 64;
+	int threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
+	int blocks  = (n + (threads * 2 - 1)) / (threads * 2);
+	blocks  = min(maxBlocks, blocks);
+
+	{
+		texture_reader(texA) AR(a, n);
+		texture_reader(texB) BR(b, n);
+		Multiplier < T, texture_reader(texA), texture_reader(texB) > m(AR, BR);
+
+		reduce6 (threads, blocks, m, v2, n);
+	}
+}
+*/
 
 }

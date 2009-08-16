@@ -65,13 +65,14 @@ namespace phelm_private_
 		}
 	}
 
-	inline void vec_add(double * b, int i, double a)
+	template < typename T >
+	void vec_add(T * b, int i, double a)
 	{
-		b[i] += a;
+		b[i] += (T) a;
 	}
 
-	template < typename Container >
-	void vec_add(double * b1, int i, const Container & c)
+	template < typename T, typename Container >
+	void vec_add(T * b1, int i, const Container & c)
 	{
 		typename Container::const_iterator b = c.begin();
 		typename Container::const_iterator e = c.end();
@@ -79,7 +80,7 @@ namespace phelm_private_
 
 		for (it = b; it != e; ++it)
 		{
-			b1[it->i] += it->a;
+			b1[it->i] += (T)it->a;
 		}
 	}
 };

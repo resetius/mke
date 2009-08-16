@@ -407,17 +407,6 @@ __global__ void reduction_(T * out, unsigned N, unsigned BlockStride)
 #define EMUSYNC
 #endif
 
-unsigned int nextPow2( unsigned int x ) 
-{
-	--x;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	return ++x;
-}
-
 #include <malloc.h>
 #ifdef WIN32
 #define alloca _alloca

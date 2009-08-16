@@ -149,7 +149,8 @@ double vec_norm2(const double * v, int n)
 
 float vec_norm2(const float * v, int n)
 {
-	return sqrtf(vec_scalar2(v, v, n));
+	float f = vec_scalar2(v, v, n);
+	return sqrtf(f);
 }
 
 template < typename T >

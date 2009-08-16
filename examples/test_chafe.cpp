@@ -40,13 +40,66 @@ double nr2(double * a, double * b, int n)
 	return sqrt(sum);
 }
 
-int main(int argc, char *argv[])
+template < typename T >
+void chafe_calc(Mesh & mesh)
 {
-	Mesh mesh;
+	int sz = (int)mesh.ps.size();
+	int os = (int)mesh.outer.size();
+	int rs = (int)mesh.outer.size();
+
 	int i, steps = 10000;
 	double tau   = 0.001; //r5 => h = 0.03
 	double mu    = 1.0;
 	double sigma = -70;
+
+	FlatNorm < T > nr(mesh);
+
+	ArrayHost < T > U(sz);
+	ArrayHost < T > B(os);
+	ArrayHost < T > Ans(sz);
+	ArrayHost < T > P(rs);
+
+	ArrayDevice < T > cU(sz);
+	ArrayDevice < T > cB(os);
+	ArrayDevice < T > cAns(sz);
+	ArrayDevice < T > cP(rs);
+
+	proj(&U[0], mesh, ans, 0.0);
+	vec_copy_from_host(&cU[0], &U[0], sz);
+
+//	print_function(stdout, &U[0], mesh, x, y, z);
+//	fflush(stdout);
+
+	Chafe < T > chafe(mesh, tau, sigma, mu);
+
+	for (i = 0; i < steps; ++i) {
+		proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
+		vec_copy_from_host(&cB[0], &B[0], os);
+		chafe.solve(&cU[0], &cU[0], &cB[0],  tau * (i));
+
+		// check
+		{
+			proj(&Ans[0], mesh, ans, tau * (i + 1));
+			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
+				nr.dist(&U[0], &Ans[0]));
+//			vector_print(&U[0], U.size());
+//			vector_print(&Ans[0], U.size());
+
+			//u2p(&P[0], &U[0], mesh);
+			//vector_print(&P[0], P.size());
+			//u2p(&P[0], &Ans[0], mesh);
+			//vector_print(&P[0], P.size());
+		}
+
+//		print_function(stdout, &F[0], mesh, x, y, z);
+//		print_function(stdout, &Ans[0], mesh, x, y, z);
+//		fflush(stdout);
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	Mesh mesh;
 
 	if (argc > 1) {
 		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
@@ -61,44 +114,7 @@ int main(int argc, char *argv[])
 		usage(argv[0]);
 	}
 
-	int sz = (int)mesh.ps.size();
-	int os = (int)mesh.outer.size();
-	int rs = (int)mesh.outer.size();
-
-	vector < double > U(sz);
-	vector < double > B(os);
-	vector < double > Ans(sz);
-	vector < double > P(rs);
-
-	proj(&U[0], mesh, ans, 0.0);
-
-//	print_function(stdout, &U[0], mesh, x, y, z);
-//	fflush(stdout);
-
-	Chafe chafe(mesh, tau, sigma, mu);
-
-	for (i = 0; i < steps; ++i) {
-		proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
-		chafe.solve(&U[0], &U[0], &B[0],  tau * (i));
-
-		// check
-		{
-			proj(&Ans[0], mesh, ans, tau * (i + 1));
-			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
-				dist(&U[0], &Ans[0], mesh));
-//			vector_print(&U[0], U.size());
-//			vector_print(&Ans[0], U.size());
-
-			//u2p(&P[0], &U[0], mesh);
-			//vector_print(&P[0], P.size());
-			//u2p(&P[0], &Ans[0], mesh);
-			//vector_print(&P[0], P.size());
-		}
-
-//		print_function(stdout, &F[0], mesh, x, y, z);
-//		print_function(stdout, &Ans[0], mesh, x, y, z);
-//		fflush(stdout);
-	}
+	chafe_calc < float > (mesh);
 
 	return 0;
 }

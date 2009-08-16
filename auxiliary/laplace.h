@@ -61,8 +61,10 @@ using phelm::Polynom;
 /**
  * A fast spherical norm calculator.
  */
+template < typename T >
 class SphereNorm {
 public:
+	typedef phelm::Matrix < T > Matrix;
 	const Mesh & m_; ///< mesh
 	Matrix NORM_;    ///< for fast norm calculation
 
@@ -81,7 +83,7 @@ public:
 	 * @param v - input vector
 	 * @return distance between u and v
 	 */
-	double dist(const double * u, const double * v)
+	T dist(const T * u, const T * v)
 	{
 		return phelm::fast_dist(u, v, m_, NORM_);
 	}
@@ -91,7 +93,7 @@ public:
 	 * @param u - input vector
 	 * @return norm of v
 	 */
-	double norm(const double * u)
+	T norm(const T * u)
 	{
 		return phelm::fast_norm(u, m_, NORM_);
 	}
@@ -102,7 +104,7 @@ public:
 	 * @param v - input vector
 	 * @return inner product of u and v
 	 */
-	double scalar(const double * u, const double * v)
+	T scalar(const T * u, const T * v)
 	{
 		return phelm::fast_scalar(u, v, m_, NORM_);
 	}
@@ -114,7 +116,7 @@ public:
 template < typename T >
 class FlatNorm {
 public:
-	typedef phelm::Matrix_t < T > Matrix;
+	typedef phelm::Matrix < T > Matrix;
 
 	const Mesh & m_; ///< mesh
 	Matrix NORM_;    ///< for fast norm calculation
@@ -169,8 +171,10 @@ public:
   \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi
  \f]
  */
+template < typename T > 
 class SphereLaplace {
 public:
+	typedef phelm::Matrix < T > Matrix;
 	Matrix idt_;
 	Matrix laplace_;
 	Matrix bnd1_; // L^-1
@@ -192,7 +196,7 @@ public:
 	 * @param F -vector F
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1(double * Ans, const double * F, const double * bnd);
+	void calc1(T * Ans, const T * F, const T * bnd);
 
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
@@ -200,7 +204,7 @@ public:
 	 * @param Ans - the answer (the value of Laplace operator in the inner points)
 	 * @param F -vector F
 	 */
-	void calc2(double * Ans, const double * F);
+	void calc2(T * Ans, const T * F);
 
 /**
  * Solve Laplace equation.
@@ -212,7 +216,7 @@ public:
  * @param F - right part
  * @param bnd - boundary condition
  */
-	void solve(double * Ans, const double * F, const double * bnd);
+	void solve(T * Ans, const T * F, const T * bnd);
 };
 
 /**
@@ -237,21 +241,35 @@ double slaplace(const Polynom & phi_i, const Polynom & phi_j,
 double laplace(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps);
 
+
+/**
+ * Chafe-Infante equation on sphere.
+ * Configuration.
+ */
+struct SphereChafeConfig
+{
+	double tau_;   ///<time step
+	double mu_;    ///<\f$\mu\f$
+	double sigma_; ///<\f$\sigma\f$
+
+	SphereChafeConfig(double tau, double sigma, double mu): 
+		tau_(tau), mu_(mu), sigma_(sigma)
+	{
+	}
+};
+
 /**
  * Chafe-Infante equation on sphere.
  * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
  * \f$\Delta\f$ is Laplace operator on a sphere. @see SphereLaplace
  */
-class SphereChafe {
+template < typename T >
+class SphereChafe: public SphereChafeConfig {
 private:
+	typedef phelm::Matrix < T > Matrix;
 	const Mesh & m_;
-	SphereLaplace laplace_; /* Лапласиан */
+	SphereLaplace < T > laplace_; /* Лапласиан */
 	Matrix  A_;             /* Матрица левой части */
-
-public:
-	double tau_;   ///<time step
-	double mu_;    ///<\f$\mu\f$
-	double sigma_; ///<\f$\sigma\f$
 
 public:
 	/**
@@ -272,8 +290,8 @@ public:
  * @param bnd - boundary condition
  * @param t - time
  */
-	void solve(double * Ans, const double * X0,
-						const double * bnd, double t);
+	void solve(T * Ans, const T * X0,
+						const T * bnd, double t);
 };
 
 /**
@@ -281,8 +299,9 @@ public:
  */
 template < typename T >
 class Laplace {
-	typedef phelm::Matrix_t < T > Matrix;
-	typedef phelm::Array < T, phelm::Allocator < T > > Array;
+	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::ArrayDevice < T > Array;
+
 	Matrix idt_;      // inner
 	Matrix laplace_;  // inner
 
@@ -335,19 +354,29 @@ public:
 
 /**
  * Chafe-Infante equation on flat domain.
- * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
- * \f$Delta\f$ is Laplace. @see Laplace
+ * Configuration.
  */
-class Chafe {
-private:
-	const Mesh & m_;
-	Laplace < double > laplace_; /* Лапласиан */
-	Matrix A_;        /* Матрица левой части */
-
-public:
+struct ChafeConfig {
 	double tau_;   ///<time step
 	double mu_;    ///<\f$\mu\f$
 	double sigma_; ///<\f$\sigma\f$
+
+	ChafeConfig(double tau, double sigma, double mu):
+		tau_(tau), mu_(mu), sigma_(sigma) {}
+};
+
+/**
+ * Chafe-Infante equation on flat domain.
+ * \f$ \frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$, where
+ * \f$Delta\f$ is Laplace. @see Laplace
+ */
+template < typename T >
+class Chafe: public ChafeConfig {
+private:
+	typedef phelm::Matrix < T > Matrix;
+	const Mesh & m_;
+	Laplace < T > laplace_; /* Лапласиан */
+	Matrix A_;        /* Матрица левой части */
 
 public:
 	/**
@@ -368,11 +397,12 @@ public:
 	 * @param bnd - boundary condition
 	 * @param t - time
 	 */
-	void solve(double * Ans, const double * X0,
-						const double * bnd, double t);
+	void solve(T * Ans, const T * X0,
+						const T * bnd, double t);
 };
 
-#include "laplace_private.h"
+#include "impl/laplace_impl.h"
+#include "impl/sphere_laplace_impl.h"
 
 /** @} */
 

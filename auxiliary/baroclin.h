@@ -75,7 +75,9 @@
  * Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
-class Baroclin: public SphereNorm {
+class Baroclin: public SphereNorm < double > {
+	typedef phelm::Matrix < double > Matrix;
+
 public:
 	/**
 	 * Function of right part.
@@ -101,7 +103,7 @@ public:
 
 private:
 	const Mesh & m_;
-	SphereLaplace l_;
+	SphereLaplace < double > l_;
 	SphereJacobian j_;
 	Matrix A_;
 	Matrix Ab_;   // for backward
