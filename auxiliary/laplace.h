@@ -175,6 +175,8 @@ template < typename T >
 class SphereLaplace {
 public:
 	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::ArrayDevice < T > ArrayDevice;
+	typedef phelm::ArrayHost < T > ArrayHost;
 	Matrix idt_;
 	Matrix laplace_;
 	Matrix bnd1_; // L^-1
@@ -267,6 +269,8 @@ template < typename T >
 class SphereChafe: public SphereChafeConfig {
 private:
 	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::ArrayDevice < T > ArrayDevice;
+	typedef phelm::ArrayHost < T > ArrayHost;
 	const Mesh & m_;
 	SphereLaplace < T > laplace_; /* Лапласиан */
 	Matrix  A_;             /* Матрица левой части */
@@ -374,6 +378,8 @@ template < typename T >
 class Chafe: public ChafeConfig {
 private:
 	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::ArrayDevice < T > ArrayDevice;
+	typedef phelm::ArrayHost < T > ArrayHost;
 	const Mesh & m_;
 	Laplace < T > laplace_; /* Лапласиан */
 	Matrix A_;        /* Матрица левой части */

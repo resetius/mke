@@ -101,7 +101,7 @@ integrate_backward_cb( const Polynom & phi_i,
 
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 		double sigma, double mu)
-		 : SphereNorm(m), m_(m), l_(m), j_(m), 
+		 : SphereNorm<double>(m), m_(m), l_(m), j_(m), 
 		 A_((int)m.inner.size()),
 		 bnd_((int)m.inner.size()),
 		 Ab_((int)m.inner.size()),

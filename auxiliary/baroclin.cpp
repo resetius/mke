@@ -70,7 +70,7 @@ Baroclin::Baroclin(const Mesh & m, rp_t f, rp_t g,
 				   coriolis_t coriolis,
          double tau, double sigma, double mu, 
 		 double sigma1, double mu1, double alpha)
-	: SphereNorm(m), m_(m), l_(m), j_(m), 
+	: SphereNorm<double>(m), m_(m), l_(m), j_(m), 
 	A_(4 * (int)m.inner.size()), 
 	Ab_(4 * (int)m.inner.size()), 
 	tau_(tau), sigma_(sigma), mu_(mu),

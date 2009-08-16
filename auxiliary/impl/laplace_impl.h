@@ -285,13 +285,13 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 {
 	int rs  = (int)m_.inner.size();
 	int sz  = (int)m_.ps.size();
-	ArrayDevice < T > u(rs);
-	ArrayDevice < T > p(sz);
-	ArrayHost   < T > hp(sz);
-	ArrayDevice < T > delta_u(rs);
+	ArrayDevice u(rs);
+	ArrayDevice p(sz);
+	ArrayHost   hp(sz);
+	ArrayDevice delta_u(rs);
 
-	ArrayHost   < T > rp(rs);
-	ArrayDevice < T > crp(rs);
+	ArrayHost   rp(rs);
+	ArrayDevice crp(rs);
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)

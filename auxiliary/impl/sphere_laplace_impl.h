@@ -52,8 +52,8 @@ void SphereLaplace < T >::solve(T * Ans,
 	int ntr = (int)m_.tr.size();
 	int rs  = (int)m_.inner.size();     //размерность
 
-	ArrayDevice < T > b(rs);      // правая часть
-	ArrayDevice < T > x(rs);      // ответ
+	ArrayDevice  b(rs);      // правая часть
+	ArrayDevice  x(rs);      // ответ
 
 	Timer full;
 #if 0
@@ -109,9 +109,9 @@ void SphereLaplace < T > ::calc2(T * Ans, const T * F)
 #endif
 	int rs = (int)m_.inner.size();
 	int os = (int)m_.outer.size();
-	ArrayDevice < T > in(rs);
-	ArrayDevice < T > out(rs);
-	ArrayDevice < T > tmp(os);
+	ArrayDevice in(rs);
+	ArrayDevice out(rs);
+	ArrayDevice tmp(os);
 	u2p(&in[0], F, m_);
 	proj_bnd(&tmp[0], F, m_);
 	laplace_.mult_vector(&out[0], &in[0]);
@@ -123,7 +123,7 @@ void SphereLaplace < T > ::calc2(T * Ans, const T * F)
 template < typename T >
 void SphereLaplace < T > ::calc1(T * Ans, const T * F, const T * bnd)
 {
-	ArrayDevice < T > p1(m_.inner.size());
+	ArrayDevice p1(m_.inner.size());
 
 	calc2(&p1[0], F);
 #if 0
@@ -208,13 +208,13 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 {
 	int rs  = (int)m_.inner.size();
 	int sz  = (int)m_.ps.size();
-	ArrayDevice < T > u(rs);
-	ArrayDevice < T > p(sz);
-	ArrayHost   < T > hp(sz);
-	ArrayDevice < T > delta_u(rs);
+	ArrayDevice u(rs);
+	ArrayDevice p(sz);
+	ArrayHost   hp(sz);
+	ArrayDevice delta_u(rs);
 
-	ArrayDevice < T > rp(rs);
-	ArrayDevice < T > crp(rs);
+	ArrayDevice rp(rs);
+	ArrayDevice crp(rs);
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
