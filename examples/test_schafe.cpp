@@ -73,10 +73,12 @@ void calc_schafe(Mesh & mesh)
 	ArrayHost < T > Ans(sz);
 	ArrayHost < T > P(rs);
 
-	ArrayDevice < T > U(sz);
-	ArrayDevice < T > B(mesh.outer.size());
-	ArrayDevice < T > Ans(sz);
-	ArrayDevice < T > P(rs);
+	ArrayDevice < T > cU(sz);
+	ArrayDevice < T > cB(mesh.outer.size());
+	ArrayDevice < T > cAns(sz);
+	ArrayDevice < T > cP(rs);
+
+	SphereNorm < T > nr(mesh);
 
 	proj(&U[0], mesh, ans, 0.0);
 
@@ -94,7 +96,7 @@ void calc_schafe(Mesh & mesh)
 		{
 			proj(&Ans[0], mesh, ans, tau * (i + 1));
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
-				dist(&U[0], &Ans[0], mesh, sphere_scalar_cb, (void*)0));
+				(double)nr.dist(&cU[0], &cAns[0]));
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 

@@ -330,9 +330,9 @@ void test_laplace_LT (const Mesh & m)
 
 	//srand(time(0));
 	srand(0);
-	SphereLaplace l (m);
+	SphereLaplace < double > l (m);
 	SphereJacobian j(m);
-	SphereNorm     s(m);
+	SphereNorm  < double >   s(m);
 
 	vector < double > u  (sz);
 	vector < double > v  (sz);

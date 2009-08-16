@@ -418,25 +418,47 @@ void proj_bnd(float * F, const Mesh & m, f_xy_t f)
 	proj_bnd_(F, m, f);
 }
 
-void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
+template < typename T >
+void proj_(T * F, const Mesh & mesh, f_xyt_t f, double t)
 {
 	int sz = (int)mesh.ps.size();
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
-		F[i] = f(mesh.ps[i].x(), mesh.ps[i].y(), t);
+		F[i] = (T) f(mesh.ps[i].x(), mesh.ps[i].y(), t);
 	}
 }
 
-void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
+void proj(double * F, const Mesh & mesh, f_xyt_t f, double t)
+{
+	proj_(F, mesh, f, t);
+}
+
+void proj(float * F, const Mesh & mesh, f_xyt_t f, double t)
+{
+	proj_(F, mesh, f, t);
+}
+
+template < typename T >
+void proj_bnd_(T * F, const Mesh & m, f_xyt_t f, double t)
 {
 	int sz = (int)m.outer.size();
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
 		int p0 = m.outer[i];
 		const Point & p = m.ps[p0].p[0];
-		F[i] = f(p.x, p.y, t);
+		F[i] = (T) f(p.x, p.y, t);
 	}
+}
+
+void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t)
+{
+	proj_bnd_(F, m, f, t);
+}
+
+void proj_bnd(float * F, const Mesh & m, f_xyt_t f, double t)
+{
+	proj_bnd_(F, m, f, t);
 }
 
 }
