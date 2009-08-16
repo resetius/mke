@@ -19,6 +19,7 @@ set(SOURCE
 	impl/generators_impl.h
 	impl/solver_impl.h
 	gmres.h
+	gmres.cpp
 	polynom.h
 	solver.h
 	util.h)
@@ -42,6 +43,7 @@ cuda_add_library(phelm_cu
 	gpu/linal.cu
 	gpu/phelm.cu
 	gpu/reduction.h
+	gpu/gmres.cu
 	)
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)
