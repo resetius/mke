@@ -81,6 +81,7 @@ void calc_schafe(Mesh & mesh)
 	SphereNorm < T > nr(mesh);
 
 	proj(&U[0], mesh, ans, 0.0);
+	vec_copy_from_host(&cU[0],    &U[0], sz);
 
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
@@ -95,6 +96,7 @@ void calc_schafe(Mesh & mesh)
 		// check
 		{
 			proj(&Ans[0], mesh, ans, tau * (i + 1));
+			vec_copy_from_host(&cAns[0], &Ans[0], (int)Ans.size());
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
 				(double)nr.dist(&cU[0], &cAns[0]));
 //			vector_print(&U[0], U.size());
@@ -107,6 +109,7 @@ void calc_schafe(Mesh & mesh)
 		}
 
 		fprintf(stderr, "OUTPUT !!! \n");
+		vec_copy_from_device(&cU[0], &U[0], (int)U.size());
 		print_function(stdout, &U[0], mesh, x, y, z);
 
 //		print_function(stdout, &F[0], mesh, x, y, z);

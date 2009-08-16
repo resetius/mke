@@ -80,8 +80,9 @@ void chafe_calc(Mesh & mesh)
 		// check
 		{
 			proj(&Ans[0], mesh, ans, tau * (i + 1));
+			vec_copy_from_host(&cAns[0], &Ans[0], sz);
 			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
-				nr.dist(&U[0], &Ans[0]));
+				nr.dist(&cU[0], &cAns[0]));
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 

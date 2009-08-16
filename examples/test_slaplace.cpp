@@ -171,10 +171,10 @@ void test_laplace(const Mesh & mesh)
 	proj_bnd(&B1[0], mesh, rp);
 	proj_bnd(&B2[0], mesh, ans);
 
-	vec_copy_from_device(&cU[0], &U[0], sz);
-	vec_copy_from_device(&cLU[0], &LU[0], sz);
-	vec_copy_from_device(&cB1[0], &B1[0], (int)B1.size());
-	vec_copy_from_device(&cB2[0], &B2[0], (int)B2.size());
+	vec_copy_from_host(&cU[0], &U[0], sz);
+	vec_copy_from_host(&cLU[0], &LU[0], sz);
+	vec_copy_from_host(&cB1[0], &B1[0], (int)B1.size());
+	vec_copy_from_host(&cB2[0], &B2[0], (int)B2.size());
 
 	SphereLaplace < T > l(mesh);
 	l.calc1(&cLU1[0], &cU[0], &cB1[0]);
