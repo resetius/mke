@@ -52,6 +52,16 @@
 VERSION("$Id$");
 
 namespace phelm {
+
+void set_num_threads(int threads)
+{
+#ifdef _OPENMP
+	if (threads) {
+		omp_set_num_threads(threads);
+	}
+#endif
+}
+
 /**
  * Gauss
  * Copyright (c) 2009 Andrey Kornev, Andrey Ivanchikov, Alexey Ozeritsky

@@ -37,15 +37,15 @@ function run_test(path, tp)
 	os.execute(exe2 .. " --coord local --iter 3 > ss3.txt")
 	os.execute(exe2 .. " --coord local --iter 4 > ss4.txt")
 	os.execute(exe2 .. " --coord local --iter 5 > ss5.txt")
-	local e11, e21, e31 = read_errors(io.popen(exe1 .. " ss3.txt", "r"))
-	local e12, e22, e32 = read_errors(io.popen(exe1 .. " ss4.txt", "r"))
+	local e11, e21, e31 = read_errors(io.popen(exe1 .. " -f ss3.txt -d", "r"))
+	local e12, e22, e32 = read_errors(io.popen(exe1 .. " -f ss4.txt -d", "r"))
 	local k = e11 / e12
 	print ("e11 / e12 =", k)
 	if (k < 3.3) then
 		print ("e11 / e12 < 3.3")
 		os.exit(-1)
 	end
-	local e13, e23, e33 = read_errors(io.popen(exe1 .. " ss5.txt", "r"))
+	local e13, e23, e33 = read_errors(io.popen(exe1 .. " -f ss5.txt -d", "r"))
 	local k = e12 / e13
 	print ("e12 / e13 =", k)
 	if (k < 3.3) then

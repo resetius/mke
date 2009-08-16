@@ -39,15 +39,15 @@ function run_test()
 	os.execute(exe2 .. " 0 0 1 1 3 > r3.txt")
 	os.execute(exe2 .. " 0 0 1 1 4 > r4.txt")
 	os.execute(exe2 .. " 0 0 1 1 5 > r5.txt")
-	local e11, e21, e31 = read_errors(io.popen(exe1 .. " r3.txt", "r"))
-	local e12, e22, e32 = read_errors(io.popen(exe1 .. " r4.txt", "r"))
+	local e11, e21, e31 = read_errors(io.popen(exe1 .. " -f r3.txt -d", "r"))
+	local e12, e22, e32 = read_errors(io.popen(exe1 .. " -f r4.txt -d", "r"))
 	local k = e11 / e12
 	print ("e11 / e12 =", k)
 	if (k < 3.5) then
 		print ("e11 / e12 < 3.5")
 		os.exit(-1)
 	end
-	local e13, e23, e33 = read_errors(io.popen(exe1 .. " r5.txt", "r"))
+	local e13, e23, e33 = read_errors(io.popen(exe1 .. " -f r5.txt -d", "r"))
 	local k = e12 / e13
 	print ("e12 / e13 =", k)
 	if (k < 3.5) then

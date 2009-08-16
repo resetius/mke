@@ -36,8 +36,14 @@ if (CUDA_FOUND)
 	cuda_add_cublas_to_target(test_laplace_cu)
 	set_target_properties(test_laplace_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 
+	cuda_add_executable(test_slaplace_cu test_slaplace.cpp)
+	target_link_libraries(test_slaplace_cu phelm_cu phelm_aux_cu ${UMFPACK})
+	cuda_add_cublas_to_target(test_slaplace_cu)
+	set_target_properties(test_slaplace_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
+
 	if (OPENMP_FOUND)
 		set_target_properties(test_laplace_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+		set_target_properties(test_slaplace_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 	endif (OPENMP_FOUND)
 endif (CUDA_FOUND)
 

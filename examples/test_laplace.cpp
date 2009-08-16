@@ -17,7 +17,7 @@ using namespace phelm;
 
 void usage(const char * name)
 {
-	fprintf(stderr, "usage: %s [mesh.txt|-]\n", name);
+	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
 	exit(1);
 }
 
@@ -174,36 +174,59 @@ void test_laplace(Mesh & mesh)
 	fprintf(stdout, "L3: laplace err=%.2le\n", nr.dist(&cU[0], &cLU[0]));
 }
 
-//#include <omp.h>
-
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
 	phelm_init();
+	bool use_double = false;
 
-	if (argc > 1) {
-		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
-		if (!f) {
+	for (int i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "--h"))
+		{
 			usage(argv[0]);
+		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "--f")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			FILE * f = (strcmp(argv[i + 1], "-") == 0) ? stdin : fopen(argv[i + 1], "rb");
+
+			if (!f) {
+				usage(argv[0]);
+			}
+			if (!mesh.load(f)) {
+				usage(argv[0]);
+			}
+
+			fclose(f);
+		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "--t")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			int threads = atoi(argv[i + 1]);
+			set_num_threads(threads);
+		} else if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "--d")) {
+			use_double = true;
 		}
-		if (!mesh.load(f)) {
-			usage(argv[0]);
-		}
-		fclose(f);
-	} else {
-		usage(argv[0]);
 	}
-
-	//int nprocs = 1;
-	//omp_set_num_threads(nprocs);
 
 	mesh.info();
 
 	Timer t;
 	try {
-		//test_invert < float > (mesh);
-		test_laplace < float > (mesh);
-		//test_laplace < double > (mesh);
+		if (check_device_supports_double() && use_double)
+		{
+			fprintf(stderr, "using double\n");
+			test_invert < double > (mesh);
+			test_laplace < double > (mesh);
+		}
+		else
+		{
+			fprintf(stderr, "using float\n");
+			test_invert < float > (mesh);
+			test_laplace < float > (mesh);
+		}
 	} catch (const std::exception & e) {
 		fprintf(stderr, "exception: %s\n", e.what());
 	}
