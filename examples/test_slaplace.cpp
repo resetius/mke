@@ -201,10 +201,10 @@ int main(int argc, char *argv[])
 	bool use_double = false;
 
 	for (int i = 0; i < argc; ++i) {
-		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "--h"))
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
 		{
 			usage(argv[0]);
-		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "--f")) {
+		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "-f")) {
 			if (i == argc - 1) {
 				usage(argv[0]);
 			}
@@ -219,14 +219,14 @@ int main(int argc, char *argv[])
 			}
 
 			fclose(f);
-		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "--t")) {
+		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
 			if (i == argc - 1) {
 				usage(argv[0]);
 			}
 
 			int threads = atoi(argv[i + 1]);
 			set_num_threads(threads);
-		} else if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "--d")) {
+		} else if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "-d")) {
 			use_double = true;
 		}
 	}
