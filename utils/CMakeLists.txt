@@ -2,7 +2,7 @@ project(utils CXX C)
 
 if (NOT WIN32 AND BISON_FOUND)
 	include_directories(/usr/include/netcdf-3)
-	find_library(NETCDF HINTS /usr/lib /usr/lib64)
+	find_library(NETCDF netcdf HINTS /usr/lib /usr/lib64)
 	if (NETCDF)
 		set (BUILD_NETCDF 1)
 	endif (NETCDF)
