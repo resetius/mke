@@ -260,14 +260,14 @@ __host__ void vec_sum2(float * r, const float * a, const float *b, float k2, int
 	bool useTexture;
 
 	useTexture = (n < MAX_1DBUF_SIZE);
-/*
+
 	if ((n < 10000) ||
 		((!(((uintptr_t) a) % WORD_ALIGN)) && 
 		(!(((uintptr_t) b) % WORD_ALIGN)))) 
 	{
 		useTexture = false;
 	}
-*/
+
 	if (useTexture) {
 		texture_reader(texA) AR(a, n);
 		texture_reader(texB) BR(b, n);
@@ -310,8 +310,7 @@ __host__ void vec_sum(float * r, const float * a, const float *b, int n)
 
 __host__ void vec_sum(double * r, const double * a, const double *b, int n)
 {
-	int blocks, threads, elems;
-	vector_splay (n, 32, 128, 80, &blocks, &elems, &threads);
+	SPLAY(n);
 	vec_sum_ <<< blocks, threads >>> (r, a, b, n);
 }
 
@@ -439,14 +438,15 @@ struct Multiplier
 template < typename T >
 __host__ T vec_scalar2_(const T * a, const T * b, int n)
 {
-	int maxThreads = 512;
-	int maxBlocks  = 128;
+	int maxThreads = 256;
+	int maxBlocks  = 64;
 
-	//int threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
-	//int blocks  = (n + (threads * 2 - 1)) / (threads * 2);
-	//blocks  = min(maxBlocks, blocks);
-	int threads = maxThreads;
-	int blocks  = maxBlocks;
+	//int threads = maxThreads;
+	//int blocks  = maxBlocks;
+
+	int threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
+	int blocks  = (n + (threads * 2 - 1)) / (threads * 2);
+	blocks  = min(maxBlocks, blocks);
 
 	T * v2 = 0;
 	T answer = (T)0.0;;
@@ -468,15 +468,14 @@ __host__ T vec_scalar2_(const T * a, const T * b, int n)
 	int N = blocks;
 	int final_threshold = 1;
 
+	texture_reader(texAX) VR(v2, blocks);
+	//simple_reader < T > VR(v2);
+
 	while (N > final_threshold) {
 		threads = (N < maxThreads*2) ? nextPow2((N + 1)/ 2) : maxThreads;
 		blocks  = (N + (threads * 2 - 1)) / (threads * 2);
 
-		{
-			texture_reader(texAX) VR(v2, blocks);
-			//simple_reader < T > VR(v2);
-			reduce5(threads, blocks, VR, v2, N);
-		}
+		reduce5(threads, blocks, VR, v2, N);
 
 		N = (N + (threads*2-1)) / (threads*2);
 	}
