@@ -48,9 +48,9 @@
 
 #include <vector>
 
-#include "laplace.h"
-#include "solver.h"
+#include "slaplace.h"
 #include "jacobian.h"
+#include "norm.h"
 
 /**
  * @ingroup aux

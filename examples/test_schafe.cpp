@@ -8,9 +8,9 @@
 
 #include <vector>
 
-#include "phelm.h"
 #include "util.h"
-#include "laplace.h"
+#include "schafe.h"
+#include "norm.h"
 
 using namespace std;
 using namespace phelm;

@@ -3,7 +3,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ namespace Laplace_Private
 double 
 laplace_integrate_cb( const Polynom & phi_i,
                       const Polynom & phi_j, 
-                      const Triangle & trk, /* номер треугольника */
+                      const Triangle & trk, /* РЅРѕРјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° */
                       const Mesh & m,
                       int point_i,
                       int point_j,
@@ -81,13 +81,13 @@ laplace_integrate_cb( const Polynom & phi_i,
 template < typename T >
 void Laplace < T >::solve(T * Ans, const T * F, const T * bnd)
 {
-	//пока используем первый порядок
+	//РїРѕРєР° РёСЃРїРѕР»СЊР·СѓРµРј РїРµСЂРІС‹Р№ РїРѕСЂСЏРґРѕРє
 	int sz  = (int)m_.ps.size();
 	int ntr = (int)m_.tr.size();
-	int rs  = (int)m_.inner.size();     //размерность
+	int rs  = (int)m_.inner.size();     //СЂР°Р·РјРµСЂРЅРѕСЃС‚СЊ
 
-	Array b(rs);      // правая часть
-	Array x(rs);      // ответ
+	Array b(rs);      // РїСЂР°РІР°СЏ С‡Р°СЃС‚СЊ
+	Array x(rs);      // РѕС‚РІРµС‚
 
 	Timer full;
 
@@ -179,11 +179,11 @@ void Laplace < T > ::calc2(T * Ans, const T * F)
 }
 
 /*
- * Оператор Лапласа на границе не определен, поэтому вставляйте сюда
- * границу только если вы знаете, что делаете!
+ * РћРїРµСЂР°С‚РѕСЂ Р›Р°РїР»Р°СЃР° РЅР° РіСЂР°РЅРёС†Рµ РЅРµ РѕРїСЂРµРґРµР»РµРЅ, РїРѕСЌС‚РѕРјСѓ РІСЃС‚Р°РІР»СЏР№С‚Рµ СЃСЋРґР°
+ * РіСЂР°РЅРёС†Сѓ С‚РѕР»СЊРєРѕ РµСЃР»Рё РІС‹ Р·РЅР°РµС‚Рµ, С‡С‚Рѕ РґРµР»Р°РµС‚Рµ!
  *
- * Если этот оператор Лапласа входит в праву часть уравнения, то
- * напишите 0 вместо границы.
+ * Р•СЃР»Рё СЌС‚РѕС‚ РѕРїРµСЂР°С‚РѕСЂ Р›Р°РїР»Р°СЃР° РІС…РѕРґРёС‚ РІ РїСЂР°РІСѓ С‡Р°СЃС‚СЊ СѓСЂР°РІРЅРµРЅРёСЏ, С‚Рѕ
+ * РЅР°РїРёС€РёС‚Рµ 0 РІРјРµСЃС‚Рѕ РіСЂР°РЅРёС†С‹.
  */
 template < typename T >
 void Laplace < T > ::calc1(T * Ans, const T * F, const T * bnd)
@@ -208,129 +208,6 @@ void Laplace < T > ::calc1(T * Ans, const T * F, const T * bnd)
 	calc2(&out[0], F);
 	p2u(Ans, &out[0], bnd, m_);
 #endif
-}
-
-namespace Chafe_Private {
-
-static double f(/*double u,*/ double x, double y, double t, double mu, double sigma)
-{
-	// for test
-	// f(u) = \du/\dt -mu \Delta u + \sigma u
-	double lapl = exp(t) * (2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x);
-	double uu = exp(t) * x * (x - 1) * y * (y - 1);
-	return uu - mu * lapl + sigma * uu;
-//	return u - mu * lapl + sigma * u;
-//	return -u * u * u;
-}
-
-double 
-chafe_integrate_cb( const Polynom & phi_i,
-                    const Polynom & phi_j, 
-                    const Triangle & trk, 
-                    const Mesh & m, int point_i, int point_j,
-                    int, int,
-                    const ChafeConfig * d);
-
-template < typename T >
-struct chafe_right_part_cb_data
-{
-	const T * F;
-	const T * bnd;
-	const ChafeConfig * d;
-};
-
-template < typename T >
-double 
-chafe_right_part_cb(  const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-					  int i, int j,
-                      chafe_right_part_cb_data < T > * d)
-{
-	const T * F = d->F;
-	double b = 0.0;
-
-//	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
-
-	if (m.ps_flags[point_j] == 1) { // на границе
-		int j0         = m.p2io[point_j]; //номер внешней точки
-		const T  * bnd = d->bnd;
-		b += - (double)bnd[j0] * chafe_integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
-	} 
-	else {
-		b += (double)F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
-	}
-	return b;
-}
-
-};
-
-template < typename T >
-Chafe < T > ::Chafe(const Mesh & m, double tau, double sigma, double mu)
-	: ChafeConfig(tau, sigma, mu),
-	m_(m), laplace_(m), A_((int)m.inner.size())
-{
-	/* Матрица левой части */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, Chafe_Private::chafe_integrate_cb, this);
-}
-
-/* \frac{du}{dt} = \mu \Delta u - \sigma u + f (u) */
-template < typename T >
-void Chafe < T > ::solve(T * Ans, const T * X0,
-						const T * bnd, double t)
-{
-	int rs  = (int)m_.inner.size();
-	int sz  = (int)m_.ps.size();
-	ArrayDevice u(rs);
-	ArrayDevice p(sz);
-	ArrayHost   hp(sz);
-	ArrayDevice delta_u(rs);
-
-	ArrayHost   rp(rs);
-	ArrayDevice crp(rs);
-
-	// генерируем правую часть
-	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
-
-	u2p(&u[0], X0, m_);
-	laplace_.calc2(&delta_u[0], X0);
-
-	// u/dt + mu \Delta u / 2
-	vec_sum1(&delta_u[0], &u[0], &delta_u[0], (T)(1.0 / tau_), (T)(mu_ * 0.5), rs);
-
-	// u/dt + mu \Delta u / 2 - \sigma u / 2
-	vec_sum1(&delta_u[0], &delta_u[0], &u[0], (T)1.0, (T)(-sigma_ * 0.5), rs);
-
-	// TODO: тут надо сделать метод простой итерации
-	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
-#pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
-		int point = m_.inner[i];
-		double x  = m_.ps[point].x();
-		double y  = m_.ps[point].y();
-
-		rp[i] = (T)Chafe_Private::f(/*u[i],*/ x, y, t, mu_, sigma_);
-	}
-	vec_copy_from_host(&crp[0], &rp[0], rs);
-	vec_sum(&u[0], &delta_u[0], &crp[0], rs);
-
-	// правую часть на границе не знаем !
-	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
-	vec_copy_from_device(&hp[0], &p[0], sz);
-
-	Chafe_Private::chafe_right_part_cb_data < T > data2;
-	data2.F   = &hp[0];
-	data2.bnd = bnd;
-	data2.d   = this;
-	generate_right_part(&rp[0], m_, 
-		Chafe_Private::chafe_right_part_cb < T >, &data2);
-
-	vec_copy_from_host(&crp[0], &rp[0], rs);
-	phelm::solve(Ans, bnd, &crp[0], A_, m_);
 }
 
 #endif /* LAPL_PRIVATE_H */

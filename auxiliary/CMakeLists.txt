@@ -3,18 +3,34 @@ project(auxiliary CXX C)
 include_directories(/usr/include/suitesparse/ ../src)
 set(LIBRARY_OUTPUT_PATH "../lib")
 
-set(SOURCE 
-	baroclin.cpp  
-	barvortex.cpp  
-	jacobian.cpp  
-	laplace.cpp  
-	sphere_laplace.cpp
+set(SOURCE
+	norm.h        # Norm and dot-product helpers
+
+	baroclin.cpp  # The two-dimensional baroclinic atmosphere equations  on a sphere
 	baroclin.h  
+
+	barvortex.cpp # The Barotropic vorticity equation on a sphere
 	barvortex.h  
+
+	jacobian.cpp  # Spheric Jacobian
 	jacobian.h  
+
+	laplace.cpp   # Flat Laplace equations
+	laplace.h
 	impl/laplace_impl.h
-	impl/sphere_laplace_impl.h
-	laplace.h)
+
+	slaplace.cpp  # Spheric Laplace equations 
+	slaplace.h
+	impl/slaplace_impl.h
+
+	chafe.cpp     # Flat Chafe-Infante equation
+	chafe.h
+	impl/chafe_impl.h
+
+	schafe.cpp    # Spheric Chafe-Infante equation
+	schafe.h
+	impl/schafe_impl.h
+	)
 
 add_library(phelm_aux 
 	${SOURCE}

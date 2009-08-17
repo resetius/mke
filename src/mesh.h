@@ -45,6 +45,9 @@
  * @version $Revision$
  */
 
+#include "polynom.h"
+#include "linal.h"
+
 /**
  * @namespace phelm
  *
