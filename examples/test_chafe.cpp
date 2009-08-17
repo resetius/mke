@@ -141,6 +141,8 @@ int main(int argc, char *argv[])
 	mesh.info();
 
 	phelm_init();
+
+	Timer t;
 	try {
 		if (check_device_supports_double() && use_double)
 		{
@@ -155,6 +157,7 @@ int main(int argc, char *argv[])
 	} catch (const std::exception & e) {
 		fprintf(stderr, "exception: %s\n", e.what());
 	}
+	fprintf(stderr, "elapsed: %lf\n", t.elapsed());
 
 	phelm_shutdown();
 
