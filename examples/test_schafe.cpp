@@ -17,7 +17,7 @@ using namespace phelm;
 
 void usage(const char * name)
 {
-	fprintf(stderr, "usage: %s [mesh.txt|-]\n", name);
+	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
 	exit(1);
 }
 
@@ -122,21 +122,58 @@ void calc_schafe(Mesh & mesh)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
+	bool use_double = false;
 
-	if (argc > 1) {
-		FILE * f = (strcmp(argv[1], "-") == 0) ? stdin : fopen(argv[1], "rb");
-		if (!f) {
+	for (int i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
+		{
 			usage(argv[0]);
+		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "-f")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			FILE * f = (strcmp(argv[i + 1], "-") == 0) ? stdin : fopen(argv[i + 1], "rb");
+
+			if (!f) {
+				usage(argv[0]);
+			}
+			if (!mesh.load(f)) {
+				usage(argv[0]);
+			}
+
+			fclose(f);
+		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			int threads = atoi(argv[i + 1]);
+			set_num_threads(threads);
+		} else if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "-d")) {
+			use_double = true;
 		}
-		if (!mesh.load(f)) {
-			usage(argv[0]);
-		}
-		fclose(f);
-	} else {
-		usage(argv[0]);
 	}
 
-	calc_schafe < float > (mesh);
+	mesh.info();
+
+	phelm_init();
+	try {
+		if (check_device_supports_double() && use_double)
+		{
+			fprintf(stderr, "using double\n");
+			calc_schafe < float > (mesh);
+		}
+		else
+		{
+			fprintf(stderr, "using float\n");
+			calc_schafe < float > (mesh);
+		}
+	} catch (const std::exception & e) {
+		fprintf(stderr, "exception: %s\n", e.what());
+	}
+
+	phelm_shutdown();
 
 	return 0;
 }

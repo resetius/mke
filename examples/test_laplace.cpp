@@ -177,7 +177,6 @@ void test_laplace(Mesh & mesh)
 int main(int argc, char *argv[])
 {
 	Mesh mesh;
-	phelm_init();
 	bool use_double = false;
 
 	for (int i = 0; i < argc; ++i) {
@@ -212,6 +211,8 @@ int main(int argc, char *argv[])
 	}
 
 	mesh.info();
+
+	phelm_init();
 
 	Timer t;
 	try {

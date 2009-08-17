@@ -116,7 +116,7 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 	ArrayHost   hp(sz);
 	ArrayDevice delta_u(rs);
 
-	ArrayDevice rp(rs);
+	ArrayHost   rp(rs);
 	ArrayDevice crp(rs);
 
 	// ãåíåðèðóåì ïðàâóþ ÷àñòü
@@ -148,7 +148,7 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 	vec_copy_from_device(&hp[0], &p[0], sz);
 
 	SphereChafe_Private::schafe_right_part_cb_data < T > data2;
-	data2.F   = &p[0];
+	data2.F   = &hp[0];
 	data2.bnd = bnd;
 	data2.d   = this;
 	generate_right_part(&rp[0], m_, 
@@ -159,5 +159,5 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 //	laplace_.print();
 
 	vec_copy_from_host(&crp[0], &rp[0], rs);
-	phelm::solve(Ans, bnd, &rp[0], A_, m_);
+	phelm::solve(Ans, bnd, &crp[0], A_, m_);
 }
