@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,8 @@ schafe_right_part_cb( const Polynom & phi_i,
 	const T * F = d->F;
 	double b;
 
-	if (m.ps_flags[point_j] == 1) { // íà ãðàíèöå
-		int j0       = m.p2io[point_j]; //íîìåð âíåøíåé òî÷êè
+	if (m.ps_flags[point_j] == 1) { // на границе
+		int j0       = m.p2io[point_j];  //номер внешней точки
 		const T * bnd = d->bnd;
 		b = - (double)bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
 			trk, m, point_i, point_j, i, j, d->d);
@@ -96,8 +96,8 @@ template < typename T >
 SphereChafe < T > ::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
 	: SphereChafeConfig(tau, sigma, mu), m_(m), laplace_(m), A_((int)m.inner.size())
 {
-	/* Ìàòðèöà ëåâîé ÷àñòè */
-	/* îïåðàòîð(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	/* Матрица левой части */
+	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 
 	generate_matrix(A_, m_, SphereChafe_Private::schafe_integrate_cb, this);
 }
@@ -110,6 +110,7 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 						const T * bnd, double t)
 {
 	int rs  = (int)m_.inner.size();
+	int os = (int)m_.outer.size();
 	int sz  = (int)m_.ps.size();
 	ArrayDevice u(rs);
 	ArrayDevice p(sz);
@@ -118,8 +119,11 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 
 	ArrayHost   rp(rs);
 	ArrayDevice crp(rs);
+	ArrayHost   hbnd(os); //TODO: remove
+	if (bnd)
+		vec_copy_from_device(&hbnd[0], &bnd[0], os);
 
-	// ãåíåðèðóåì ïðàâóþ ÷àñòü
+	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
 	u2p(&u[0], X0, m_);
@@ -143,13 +147,14 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 	vec_copy_from_host(&crp[0], &rp[0], rs);
 	vec_sum(&u[0], &delta_u[0], &crp[0], rs);
 
-	// ïðàâóþ ÷àñòü íà ãðàíèöå íå çíàåì !!!
+	// правую часть на границе не знаем !
 	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	vec_copy_from_device(&hp[0], &p[0], sz);
 
+	// TODO: убрать это !
 	SphereChafe_Private::schafe_right_part_cb_data < T > data2;
 	data2.F   = &hp[0];
-	data2.bnd = bnd;
+	data2.bnd = (bnd) ? &hbnd[0] : 0;
 	data2.d   = this;
 	generate_right_part(&rp[0], m_, 
 		SphereChafe_Private::schafe_right_part_cb < T >, &data2);

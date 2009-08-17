@@ -59,7 +59,7 @@ static double z(double u, double v)
 template < typename T >
 void calc_schafe(Mesh & mesh)
 {
-	int i, steps = 10000;
+	int i, steps = 100;
 	double tau   = 0.01;
 	double mu    = 1.0;
 	double sigma = +70;
@@ -108,9 +108,9 @@ void calc_schafe(Mesh & mesh)
 			//vector_print(&P[0], P.size());
 		}
 
-		fprintf(stderr, "OUTPUT !!! \n");
-		vec_copy_from_device(&cU[0], &U[0], (int)U.size());
-		print_function(stdout, &U[0], mesh, x, y, z);
+//		fprintf(stderr, "OUTPUT !!! \n");
+//		vec_copy_from_device(&cU[0], &U[0], (int)U.size());
+//		print_function(stdout, &U[0], mesh, x, y, z);
 
 //		print_function(stdout, &F[0], mesh, x, y, z);
 //		print_function(stdout, &Ans[0], mesh, x, y, z);
@@ -153,6 +153,10 @@ int main(int argc, char *argv[])
 		} else if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "-d")) {
 			use_double = true;
 		}
+	}
+
+	if (mesh.ps.empty()) {
+		usage(argv[0]);
 	}
 
 	mesh.info();

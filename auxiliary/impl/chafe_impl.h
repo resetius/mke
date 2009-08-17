@@ -109,6 +109,7 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 						const T * bnd, double t)
 {
 	int rs  = (int)m_.inner.size();
+	int os = (int)m_.outer.size();
 	int sz  = (int)m_.ps.size();
 	ArrayDevice u(rs);
 	ArrayDevice p(sz);
@@ -117,6 +118,9 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 
 	ArrayHost   rp(rs);
 	ArrayDevice crp(rs);
+	ArrayHost   hbnd(os); //TODO: remove
+	if (bnd)
+		vec_copy_from_device(&hbnd[0], &bnd[0], os);
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
@@ -147,6 +151,7 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	vec_copy_from_device(&hp[0], &p[0], sz);
 
+	// TODO: убрать это !
 	Chafe_Private::chafe_right_part_cb_data < T > data2;
 	data2.F   = &hp[0];
 	data2.bnd = bnd;

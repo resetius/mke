@@ -210,6 +210,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (mesh.ps.empty()) {
+		usage(argv[0]);
+	}
+
 	mesh.info();
 
 	phelm_init();

@@ -38,6 +38,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdexcept>
+
 #define register_texture(type, name) \
 	texture < type > tex_##name; \
 	struct reader_tex_##name \
@@ -52,8 +54,7 @@
 		void bind() \
 		{ \
 			if (cudaBindTexture(&off, tex_##name, ptr, size * sizeof(ptr[0])) != cudaSuccess) { \
-				fprintf(stderr, "cannot bind texture \n"); \
-				exit(1); \
+				throw std::runtime_error("cannot bind texture \n"); \
 			} \
 			off /= sizeof(ptr[0]); \
 		} \
@@ -61,8 +62,7 @@
 		{ \
 			if (cudaUnbindTexture(tex_##name) !=  cudaSuccess) \
 			{ \
-				fprintf(stderr, "cannot unbind texture \n"); \
-				exit(1); \
+				throw std::runtime_error("cannot unbind texture \n"); \
 			} \
 		} \
 		__device__ type get (size_t i) \
