@@ -75,6 +75,7 @@ private:
 	const Mesh & m_;
 	SphereLaplace < T > laplace_; /* Лапласиан */
 	Matrix  A_;             /* Матрица левой части */
+	Matrix bnd_;
 
 public:
 	/**
