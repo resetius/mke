@@ -148,7 +148,6 @@ public:
 template < typename T >
 class UmfPackMatrix: public SparseMatrix < T >
 {
-	int n_;
 	double Control_ [UMFPACK_CONTROL];
 	double Info_ [UMFPACK_INFO];
 	void *Symbolic_, *Numeric_ ;
@@ -181,7 +180,6 @@ public:
 template <>
 class UmfPackMatrix < float >: public SparseMatrix < float >
 {
-	int n_;
 	double Control_ [UMFPACK_CONTROL];
 	double Info_ [UMFPACK_INFO];
 	void *Symbolic_, *Numeric_ ;
@@ -215,10 +213,12 @@ public:
 	{
 		if (base::Ax_.empty()) {
 			base::make_sparse();
+		}
 
+		if (Ax_.empty()) {
 			Ax_.resize(base::Ax_.size());
 
-			for (int i = 0; i < (int)Ap_.size(); ++i)
+			for (int i = 0; i < (int)Ax_.size(); ++i)
 			{
 				Ax_[i] = (double)base::Ax_[i];
 			}
