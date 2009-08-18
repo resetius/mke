@@ -74,6 +74,7 @@ double laplace(const Polynom & phi_i, const Polynom & phi_j,
  */
 template < typename T >
 class Laplace {
+public:
 	typedef phelm::Matrix < T > Matrix;
 	typedef phelm::ArrayDevice < T > Array;
 

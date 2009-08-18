@@ -95,12 +95,13 @@ chafe_right_part_cb(  const Polynom & phi_i,
 
 template < typename T >
 Chafe < T > ::Chafe(const Mesh & m, double tau, double sigma, double mu)
-	: ChafeConfig(tau, sigma, mu),
-	m_(m), laplace_(m), A_((int)m.inner.size())
+	: ChafeConfig(tau, sigma, mu), m_(m), laplace_(m), 
+	A_((int)m.inner.size()), bnd_((int)m.inner.size())
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, Chafe_Private::chafe_integrate_cb, this);
+	generate_boundary_matrix(bnd_, m_, Chafe_Private::chafe_integrate_cb, this);
 }
 
 /* \frac{du}{dt} = \mu \Delta u - \sigma u + f (u) */
@@ -112,15 +113,22 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 	int os = (int)m_.outer.size();
 	int sz  = (int)m_.ps.size();
 	ArrayDevice u(rs);
-	ArrayDevice p(sz);
-	ArrayHost   hp(sz);
 	ArrayDevice delta_u(rs);
 
 	ArrayHost   rp(rs);
 	ArrayDevice crp(rs);
+
+#if 0
+	// генерируем правую часть по ходу
+	ArrayDevice p(sz);
+	ArrayHost   hp(sz);
 	ArrayHost   hbnd(os); //TODO: remove
 	if (bnd)
 		vec_copy_from_device(&hbnd[0], &bnd[0], os);
+#else
+	// используем предвычисленную правую часть
+	ArrayDevice tmp1(rs);
+#endif
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
@@ -147,6 +155,8 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 	vec_copy_from_host(&crp[0], &rp[0], rs);
 	vec_sum(&u[0], &delta_u[0], &crp[0], rs);
 
+#if 0
+	// генерируем правую часть по ходу
 	// правую часть на границе не знаем !
 	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
 	vec_copy_from_device(&hp[0], &p[0], sz);
@@ -160,5 +170,13 @@ void Chafe < T > ::solve(T * Ans, const T * X0,
 		Chafe_Private::chafe_right_part_cb < T >, &data2);
 
 	vec_copy_from_host(&crp[0], &rp[0], rs);
+#else
+	// используем предвычисленную правую часть
+	laplace_.idt_.mult_vector(&crp[0], &u[0]);
+	if (bnd) {
+		bnd_.mult_vector(&tmp1[0], bnd);
+		vec_sum(&crp[0], &crp[0], &tmp1[0], (int)rp.size());
+	}
+#endif
 	phelm::solve(Ans, bnd, &crp[0], A_, m_);
 }
