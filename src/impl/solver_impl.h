@@ -324,7 +324,7 @@ void SuperLUMatrix::solve(T * x, const T * b)
 		assert (info == 0);
 	}
 
-	dsgstrs(trans, L, U, perm_c, perm_r, &B, &stat, &info);
+	dgstrs(trans, L, U, perm_c, perm_r, &B, &stat, &info);
 	assert(info == 0);
 }
 #endif
