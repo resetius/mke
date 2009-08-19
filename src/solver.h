@@ -260,6 +260,37 @@ public:
 };
 #endif
 
+#ifdef SUPERLU
+#include "slu_ddefs.h"
+
+template < typename T >
+class SuperLUMatrix: public SparseMatrix < T >
+{
+	typedef SparseMatrix < T > base;
+	SuperMatrix A_, L_, U_, B_;
+
+public:
+	typedef T data_type;
+
+	SuperLUMatrix(int n): SparseMatrix < T >(n)
+	{
+		base::format_ = base::CSR;
+	}
+
+	~SuperLUMatrix()
+	{
+	}
+
+	/**
+	 * Solve equation Ax = b.
+	 * That function uses SuperLU
+	 * @param x - answer
+	 * @param b - right part
+	 */
+	void solve(T * x, const T * b);
+};
+#endif
+
 /**
  * Matrix class.
  */

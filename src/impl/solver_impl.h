@@ -306,3 +306,25 @@ void UmfPackMatrix < T > ::solve(T * x, const T * b)
 
 #endif
 
+#ifdef SUPERLU
+void SuperLUMatrix::solve(T * x, const T * b)
+{
+	if (base::Ax_.empty()) {
+		base::make_sparse();
+	}
+
+	{
+		dCreate_CompRow_Matrix(&A_, base::n_, base::n_, base::Ax_.size(),
+			&base::Ax_[0], &base::Ai_[0], &base::Ap_, SLU_NR, SLU_D, SLU_GE);
+		superlu_options_t options;
+		set_default_options(&options);
+		dsgstrf(&options, &A, 0, relax, panel_size, etree, NULL, 0, 
+			perm_c, perm_r, L, U, &stat, &info);
+
+		assert (info == 0);
+	}
+
+	dsgstrs(trans, L, U, perm_c, perm_r, &B, &stat, &info);
+	assert(info == 0);
+}
+#endif
