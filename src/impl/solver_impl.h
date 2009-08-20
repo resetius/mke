@@ -307,6 +307,131 @@ void UmfPackMatrix < T > ::solve(T * x, const T * b)
 #endif
 
 #ifdef SUPERLU
+
+template < typename T >
+struct SuperLu
+{
+	static void gstrf (superlu_options_t *options, SuperMatrix *A,
+		    int relax, int panel_size, int *etree, void *work, int lwork,
+			int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+			SuperLUStat_t *stat, int *info)
+	{
+		assert(0);
+	}
+
+	static void gstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
+        int *perm_c, int *perm_r, SuperMatrix *B,
+        SuperLUStat_t *stat, int *info)
+	{
+		assert(0);
+	}
+
+	static void
+	Create_CompCol_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       T *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Dtype_t dtype, Mtype_t mtype)
+	{
+		assert(0);
+	}
+
+	static void
+	Create_Dense_Matrix(SuperMatrix *X, int m, int n, T *x, int ldx,
+		    Stype_t stype, Dtype_t dtype, Mtype_t mtype)
+	{
+		assert(0);
+	}
+};
+
+extern "C" void
+sgstrf (superlu_options_t *options, SuperMatrix *A,
+        int relax, int panel_size, int *etree, void *work, int lwork,
+        int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+        SuperLUStat_t *stat, int *info);
+
+extern "C" void 
+sgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
+        int *perm_c, int *perm_r, SuperMatrix *B,
+        SuperLUStat_t *stat, int *info);
+
+extern "C" void
+sCreate_CompCol_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       float *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Dtype_t dtype, Mtype_t mtype);
+
+extern "C" void
+sCreate_Dense_Matrix(SuperMatrix *X, int m, int n, float *x, int ldx,
+		    Stype_t stype, Dtype_t dtype, Mtype_t mtype);
+
+template < >
+struct SuperLu < double >
+{
+	static void gstrf (superlu_options_t *options, SuperMatrix *A,
+		    int relax, int panel_size, int *etree, void *work, int lwork,
+			int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+			SuperLUStat_t *stat, int *info)
+	{
+		dgstrf(options, A, relax, panel_size, etree, work, lwork, perm_c, 
+			perm_r, L, U, stat, info);
+	}
+
+	static void gstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
+        int *perm_c, int *perm_r, SuperMatrix *B,
+        SuperLUStat_t *stat, int *info)
+	{
+		dgstrs(trans, L, U, perm_c, perm_r, B, stat, info);
+	}
+
+	static void
+	Create_CompCol_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       double *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Mtype_t mtype)
+	{
+		dCreate_CompCol_Matrix(A, m, n, nnz, nzval, rowind, colptr, stype, SLU_D, mtype);
+	}
+
+	static void
+	Create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,
+		    Stype_t stype, Mtype_t mtype)
+	{
+		dCreate_Dense_Matrix(X, m, n, x, ldx, stype, SLU_D, mtype);
+	}
+};
+
+template < >
+struct SuperLu < float >
+{
+	static void gstrf (superlu_options_t *options, SuperMatrix *A,
+		    int relax, int panel_size, int *etree, void *work, int lwork,
+			int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+			SuperLUStat_t *stat, int *info)
+	{
+		sgstrf(options, A, relax, panel_size, etree, work, lwork, perm_c, 
+			perm_r, L, U, stat, info);
+	}
+
+	static void gstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
+        int *perm_c, int *perm_r, SuperMatrix *B,
+        SuperLUStat_t *stat, int *info)
+	{
+		sgstrs(trans, L, U, perm_c, perm_r, B, stat, info);
+	}
+
+	static void
+	Create_CompCol_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       float *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Mtype_t mtype)
+	{
+		sCreate_CompCol_Matrix(A, m, n, nnz, nzval, rowind, colptr, stype, SLU_S, mtype);
+	}
+
+	static void
+	Create_Dense_Matrix(SuperMatrix *X, int m, int n, float *x, int ldx,
+		    Stype_t stype, Mtype_t mtype)
+	{
+		sCreate_Dense_Matrix(X, m, n, x, ldx, stype, SLU_S, mtype);
+	}
+};
+
 template < typename T >
 void SuperLUMatrix < T > ::solve(T * x, const T * b)
 {
@@ -324,9 +449,9 @@ void SuperLUMatrix < T > ::solve(T * x, const T * b)
 		int panel_size;
 		int relax;
 
-		dCreate_CompCol_Matrix(&A_, base::n_, base::n_, base::Ax_.size(),
+		SuperLu < T >::Create_CompCol_Matrix(&A_, (int)base::n_, (int)base::n_, (int)base::Ax_.size(),
 							   &base::Ax_[0], &base::Ai_[0], &base::Ap_[0],
-							   SLU_NC, SLU_D, SLU_GE);
+							   SLU_NC, SLU_GE);
 
 		//this->print();
 		//dPrint_CompCol_Matrix("A", &A_);
@@ -338,22 +463,22 @@ void SuperLUMatrix < T > ::solve(T * x, const T * b)
 		perm_r_.resize(base::n_);
 		etree_.resize(base::n_);
 
-		get_perm_c(0, &A_, &perm_c_[0]);
+		get_perm_c(3, &A_, &perm_c_[0]);
 		sp_preorder(&options, &A_, &perm_c_[0], &etree_[0], &AC_);
 
 		panel_size = sp_ienv(1);
 		relax      = sp_ienv(2);
 
-		dgstrf(&options, &AC_, relax, panel_size, &etree_[0], NULL, 0, 
+		SuperLu < T > ::gstrf(&options, &AC_, relax, panel_size, &etree_[0], NULL, 0, 
 			&perm_c_[0], &perm_r_[0], &L_, &U_, &stat, &info);
 
 		assert (info == 0);
 	}
 
 	memcpy(x, b, base::n_ * sizeof(T));
-	dCreate_Dense_Matrix(&B, base::n_, 1, x, base::n_, SLU_DN, SLU_D, SLU_GE);
+	SuperLu < T >::Create_Dense_Matrix(&B, base::n_, 1, x, base::n_, SLU_DN, SLU_GE);
 
-	dgstrs(TRANS, &L_, &U_, &perm_c_[0], &perm_r_[0], &B, &stat, &info);
+	SuperLu < T > ::gstrs(TRANS, &L_, &U_, &perm_c_[0], &perm_r_[0], &B, &stat, &info);
 	
 	assert(info == 0);
 

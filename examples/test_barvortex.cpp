@@ -219,11 +219,6 @@ double rp2(double x, double y, double t, double mu, double sigma)
 		ipow(cos(x),4)+147*mu*sin(y+t)*sin(x)*cos(x)-45*mu*sin(y+t)*x;
 }
 
-#ifdef WIN32
-#include <windows.h>
-#undef max
-#endif
-
 void test_barvortex_L (const Mesh & m)
 {
 	int sz = (int)m.ps.size();

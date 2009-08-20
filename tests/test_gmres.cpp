@@ -6,7 +6,6 @@
 
 #include "gmres.h"
 #include "util.h"
-#include "solver.h"
 
 using namespace phelm;
 using namespace std;
@@ -54,11 +53,11 @@ bool test_gmres()
 //	int n  = 30;
 	int nz = n + n - 1 + n - 1;
 
-	Array < int, Allocator < int > > cAp((n + 1));
-	Array < int, Allocator < int > > cAi(nz);
-	Array < T, Allocator < T > > cAx(nz);
-	Array < T, Allocator < T > > cb(n);
-	Array < T, Allocator < T > > cx(n);
+	ArrayDevice < int > cAp((n + 1));
+	ArrayDevice < int > cAi(nz);
+	ArrayDevice < T > cAx(nz);
+	ArrayDevice < T > cb(n);
+	ArrayDevice < T > cx(n);
 
 	vector < int > Ap((n + 1));
 	vector < int > Ai(nz);
@@ -302,19 +301,6 @@ bool test_matvect()
 		}
 	}
 
-	t.restart();
-	SuperLUMatrix < T > lu1(&Ap[0], &Ai[0], &Ax[0], n, nz);
-	for (int k = 0; k < 1000; ++k) {
-		lu1.solve(&x[0], &b[0]);
-	}
-	fprintf(stderr, "superlu solve: %lf\n", t.elapsed());
-	t.restart();
-	UmfPackMatrix < T > lu2(&Ap[0], &Ai[0], &Ax[0], n, nz);
-	for (int k = 0; k < 1000; ++k) {
-		lu2.solve(&x[0], &b[0]);
-	}
-	fprintf(stderr, "umfpack solve: %lf\n", t.elapsed());
-
 	return true;
 }
 
@@ -372,26 +358,26 @@ int main(int argc, char * argv[])
 		if (has_double) {
 			fprintf(stderr, "testing double:\n");
 
-//			t.restart(); result &= test_sum < float > ();
+			t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-//			t.restart(); result &= test_gmres < float > ();
+			t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
-//			t.restart(); result &= test_matvect < float > ();
+			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
 
-//			t.restart(); result &= test_sum < double > ();
+			t.restart(); result &= test_sum < double > ();
 			fprintf(stderr, "test_sum < double > (): %lf, %d\n", t.elapsed(), (int)result);
-//			t.restart(); result &= test_gmres < double > ();
+			t.restart(); result &= test_gmres < double > ();
 			fprintf(stderr, "test_gmres < double > (): %lf, %d\n", t.elapsed(), (int)result);
 			t.restart(); result &= test_matvect < double > ();
 			fprintf(stderr, "test_matvect < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 		} else {
-			//t.restart(); result &= test_sum < float > ();
+			t.restart(); result &= test_sum < float > ();
 			fprintf(stderr, "test_sum < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			//t.restart(); result &= test_gmres < float > ();
+			t.restart(); result &= test_gmres < float > ();
 			fprintf(stderr, "test_gmres < float > (): %lf, %d\n", t.elapsed(), (int)result);
-			//t.restart(); result &= test_matvect < float > ();
+			t.restart(); result &= test_matvect < float > ();
 			fprintf(stderr, "test_matvect < float > (): %lf, %d\n", t.elapsed(), (int)result);
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());
