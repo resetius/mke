@@ -368,12 +368,23 @@ public:
 };
 
 #if defined(UMFPACK) && !defined(GPGPU)
+/*
 template < typename T >
 class Matrix: public UmfPackMatrix < T >
 {
 public:
 	Matrix(int n): UmfPackMatrix < T >(n) {}
 };
+*/
+
+
+template < typename T >
+class Matrix: public SuperLUMatrix < T >
+{
+public:
+	Matrix(int n): SuperLUMatrix < T >(n) {}
+};
+
 #else
 template < typename T >
 class Matrix: public SparseMatrix < T > 

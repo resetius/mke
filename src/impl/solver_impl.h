@@ -473,6 +473,13 @@ void SuperLUMatrix < T > ::solve(T * x, const T * b)
 			&perm_c_[0], &perm_r_[0], &L_, &U_, &stat, &info);
 
 		assert (info == 0);
+
+		NCPformat *store;
+		store = (NCPformat *)L_.Store;
+		fprintf(stderr, "  nz: %d\n", (int)base::Ax_.size());
+		fprintf(stderr, "L nz: %d\n", store->nnz);
+		store = (NCPformat *)U_.Store;
+		fprintf(stderr, "U nz: %d\n", store->nnz);
 	}
 
 	memcpy(x, b, base::n_ * sizeof(T));

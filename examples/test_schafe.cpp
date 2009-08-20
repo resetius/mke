@@ -89,6 +89,8 @@ void calc_schafe(Mesh & mesh)
 	SphereChafe < T > schafe(mesh, tau, sigma, mu);
 
 	for (i = 0; i < steps; ++i) {
+		Timer t;
+
 		proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
 		vec_copy_from_host(&cB[0], &B[0], (int)B.size());
 		schafe.solve(&cU[0], &cU[0], &cB[0], tau * (i));
@@ -97,8 +99,8 @@ void calc_schafe(Mesh & mesh)
 		{
 			proj(&Ans[0], mesh, ans, tau * (i + 1));
 			vec_copy_from_host(&cAns[0], &Ans[0], (int)Ans.size());
-			fprintf(stderr, "time %lf/ norm %le\n", tau * (i + 1), 
-				(double)nr.dist(&cU[0], &cAns[0]));
+			fprintf(stderr, "time %lf/ norm %le: %lf\n", tau * (i + 1), 
+				(double)nr.dist(&cU[0], &cAns[0]), t.elapsed());
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
