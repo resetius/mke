@@ -2,7 +2,7 @@ project(phelm CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 include_directories(../src ../auxiliary)
-link_directories(../lib)
+link_directories(../lib /home/aozeritsky/source/SuperLU_4.0/lib)
 
 add_executable(test_polynom test_polynom.cpp)
 add_executable(test_integrate test_integrate.cpp)
@@ -12,7 +12,7 @@ add_executable(test_funcgen test_funcgen.cpp)
 
 target_link_libraries(test_polynom phelm phelm_aux ${UMFPACK})
 target_link_libraries(test_integrate phelm phelm_aux ${UMFPACK})
-target_link_libraries(test_gmres phelm phelm_aux)
+target_link_libraries(test_gmres phelm phelm_aux ${UMFPACK} superlu_4.0 blas)
 target_link_libraries(test_quadrature phelm phelm_aux ${MATH})
 target_link_libraries(test_funcgen phelm phelm_aux ${MATH} ${UMFPACK})
 

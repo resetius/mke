@@ -59,6 +59,10 @@
 #include <umfpack.h>
 #endif
 
+#ifdef SUPERLU
+#include <slu_ddefs.h>
+#endif
+
 #include "util.h"
 #include "gmres.h"
 
@@ -91,7 +95,7 @@ protected:
 	// for CSR only Ai and Ax are used !
 	ArrayDevice < int > Ap_; // количества ненулевых в столбцах
 	ArrayDevice < int > Ai_; // индексы (номер строки) ненулевых элементов
-	ArrayDevice < T >   Ax_;    // ненулевые элементы матрицы
+	ArrayDevice < T >   Ax_; // ненулевые элементы матрицы
 
 	// for ELL format
 	int cols_;
@@ -109,7 +113,17 @@ protected:
 public:
 	typedef T data_type;
 
-	SparseMatrix(int n): n_(n), format_(ELL), Ap_(n + 1), A_(n) {}
+	SparseMatrix(int n): n_(n), format_(ELL), Ap_(n + 1), A_(n)
+	{
+	}
+
+	SparseMatrix(const int * Ap, const int * Ai, const T * Ax, int n, int nz): n_(n), format_(CSR)
+	{
+		Ap_.resize(n + 1); Ai_.resize(nz); Ax_.resize(nz);
+		vec_copy(&Ap_[0], Ap, (n + 1));
+		vec_copy(&Ai_[0], Ai, nz);
+		vec_copy(&Ax_[0], Ax, nz);
+	}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
@@ -162,6 +176,12 @@ public:
 		umfpack_di_defaults(Control_);
 	}
 
+	UmfPackMatrix(const int * Ap, const int * Ai, const T * Ax, int n, int nz):
+		SparseMatrix < T >(Ap, Ai, Ax, n, nz), Symbolic_(0), Numeric_(0)
+	{
+		umfpack_di_defaults(Control_);
+	}
+
 	~UmfPackMatrix()
 	{
 		umfpack_di_free_symbolic (&Symbolic_);
@@ -194,6 +214,12 @@ public:
 	UmfPackMatrix(int n): SparseMatrix < float >(n), Symbolic_(0), Numeric_(0) 
 	{
 		base::format_ = base::CSR;
+		umfpack_di_defaults(Control_);
+	}
+
+	UmfPackMatrix(const int * Ap, const int * Ai, const float * Ax, int n, int nz):
+		SparseMatrix < float >(Ap, Ai, Ax, n, nz), Symbolic_(0), Numeric_(0)
+	{
 		umfpack_di_defaults(Control_);
 	}
 
@@ -261,13 +287,15 @@ public:
 #endif
 
 #ifdef SUPERLU
-#include "slu_ddefs.h"
-
 template < typename T >
 class SuperLUMatrix: public SparseMatrix < T >
 {
 	typedef SparseMatrix < T > base;
-	SuperMatrix A_, L_, U_, B_;
+	SuperMatrix A_, AC_, L_, U_, B_;
+
+	std::vector < int > perm_c_;
+	std::vector < int > perm_r_;
+	std::vector < int > etree_;
 
 public:
 	typedef T data_type;
@@ -275,6 +303,11 @@ public:
 	SuperLUMatrix(int n): SparseMatrix < T >(n)
 	{
 		base::format_ = base::CSR;
+	}
+
+	SuperLUMatrix(const int * Ap, const int * Ai, const T * Ax, int n, int nz):
+		SparseMatrix < T >(Ap, Ai, Ax, n, nz)
+	{
 	}
 
 	~SuperLUMatrix()

@@ -307,24 +307,57 @@ void UmfPackMatrix < T > ::solve(T * x, const T * b)
 #endif
 
 #ifdef SUPERLU
-void SuperLUMatrix::solve(T * x, const T * b)
+template < typename T >
+void SuperLUMatrix < T > ::solve(T * x, const T * b)
 {
 	if (base::Ax_.empty()) {
+		fprintf(stderr, "make sparse\n");
 		base::make_sparse();
 	}
 
-	{
-		dCreate_CompRow_Matrix(&A_, base::n_, base::n_, base::Ax_.size(),
-			&base::Ax_[0], &base::Ai_[0], &base::Ap_, SLU_NR, SLU_D, SLU_GE);
+	SuperMatrix B;
+	SuperLUStat_t stat;
+	StatInit(&stat);
+	int info;
+
+	if (perm_c_.empty()) {
+		int panel_size;
+		int relax;
+
+		dCreate_CompCol_Matrix(&A_, base::n_, base::n_, base::Ax_.size(),
+							   &base::Ax_[0], &base::Ai_[0], &base::Ap_[0],
+							   SLU_NC, SLU_D, SLU_GE);
+
+		//this->print();
+		//dPrint_CompCol_Matrix("A", &A_);
+
 		superlu_options_t options;
 		set_default_options(&options);
-		dsgstrf(&options, &A, 0, relax, panel_size, etree, NULL, 0, 
-			perm_c, perm_r, L, U, &stat, &info);
+
+		perm_c_.resize(base::n_);
+		perm_r_.resize(base::n_);
+		etree_.resize(base::n_);
+
+		get_perm_c(0, &A_, &perm_c_[0]);
+		sp_preorder(&options, &A_, &perm_c_[0], &etree_[0], &AC_);
+
+		panel_size = sp_ienv(1);
+		relax      = sp_ienv(2);
+
+		dgstrf(&options, &AC_, relax, panel_size, &etree_[0], NULL, 0, 
+			&perm_c_[0], &perm_r_[0], &L_, &U_, &stat, &info);
 
 		assert (info == 0);
 	}
 
-	dgstrs(trans, L, U, perm_c, perm_r, &B, &stat, &info);
+	memcpy(x, b, base::n_ * sizeof(T));
+	dCreate_Dense_Matrix(&B, base::n_, 1, x, base::n_, SLU_DN, SLU_D, SLU_GE);
+
+	dgstrs(TRANS, &L_, &U_, &perm_c_[0], &perm_r_[0], &B, &stat, &info);
+	
 	assert(info == 0);
+
+	Destroy_SuperMatrix_Store(&B);
+	StatFree(&stat);
 }
 #endif

@@ -18,6 +18,9 @@ endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
 #set(CUDA_SDK "/opt/cuda")
 
+add_definitions(-DSUPERLU)
+include_directories(/home/aozeritsky/source/SuperLU_4.0/SRC)
+
 add_subdirectory(contrib)
 add_subdirectory(src)
 add_subdirectory(auxiliary)
