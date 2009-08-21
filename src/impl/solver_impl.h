@@ -348,6 +348,18 @@ sgstrf (superlu_options_t *options, SuperMatrix *A,
         int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
         SuperLUStat_t *stat, int *info);
 
+extern "C" void
+psgstrf (superlu_options_t *options, SuperMatrix *A,
+        int relax, int panel_size, int *etree, void *work, int lwork,
+        int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+        SuperLUStat_t *stat, int *info);
+
+extern "C" void
+pdgstrf (superlu_options_t *options, SuperMatrix *A,
+        int relax, int panel_size, int *etree, void *work, int lwork,
+        int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
+        SuperLUStat_t *stat, int *info);
+
 extern "C" void 
 sgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
         int *perm_c, int *perm_r, SuperMatrix *B,
@@ -362,6 +374,14 @@ extern "C" void
 sCreate_Dense_Matrix(SuperMatrix *X, int m, int n, float *x, int ldx,
 		    Stype_t stype, Dtype_t dtype, Mtype_t mtype);
 
+#ifdef SUPERLU_MT
+#define MT_CALL(func) \
+	p##func
+#else
+#define MT_CALL(func) \
+	func
+#endif
+
 template < >
 struct SuperLu < double >
 {
@@ -370,7 +390,7 @@ struct SuperLu < double >
 			int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
 			SuperLUStat_t *stat, int *info)
 	{
-		dgstrf(options, A, relax, panel_size, etree, work, lwork, perm_c, 
+		MT_CALL(dgstrf)(options, A, relax, panel_size, etree, work, lwork, perm_c, 
 			perm_r, L, U, stat, info);
 	}
 
@@ -405,7 +425,7 @@ struct SuperLu < float >
 			int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
 			SuperLUStat_t *stat, int *info)
 	{
-		sgstrf(options, A, relax, panel_size, etree, work, lwork, perm_c, 
+		MT_CALL(sgstrf)(options, A, relax, panel_size, etree, work, lwork, perm_c, 
 			perm_r, L, U, stat, info);
 	}
 
