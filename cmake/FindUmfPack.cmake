@@ -30,13 +30,3 @@ if (UMFPACK)
 message(STATUS "UMFPACK library: ${UMFPACK}")
 endif (UMFPACK)
 
-if (NOT UMFPACK)
-	message(STATUS "UMFPACK not found, using GMRES")
-	add_definitions(-DGMRES)
-endif (NOT UMFPACK)
-
-if (FORCE_GMRES)
-	message(STATUS "using GMRES")
-	add_definitions(-DGMRES)
-endif (FORCE_GMRES)
-

@@ -1,5 +1,7 @@
 project(superlu)
 
+if (SUPERLU_SOURCE_FOUND)
+
 set(ALLAUX superlu_timer.c util.c memory.c get_perm_c.c mmd.c 
 	  sp_coletree.c sp_preorder.c sp_ienv.c relax_snode.c 
 	  heap_relax_snode.c colamd.c 
@@ -65,4 +67,6 @@ set(ZLUSRC
 	ilu_zpivotL.c zdiagonal.c)
 
 add_library(superlu ${ALLAUX} ${SLUSRC} ${DLUSRC} ${CLUSRC} ${ZLUSRC})
+
+endif (SUPERLU_SOURCE_FOUND)
 

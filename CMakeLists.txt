@@ -11,15 +11,11 @@ include(FindMath)
 include(FindFortran)
 include(FindSelfUmfPack)
 include(FindUmfPack)
+include(FindSelfSuperLU)
 include(FindCuda)
 include(CommonDefinitions)
 include(Bison)
 endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-
-#set(CUDA_SDK "/opt/cuda")
-
-add_definitions(-DSUPERLU)
-include_directories(./contrib/superlu)
 
 add_subdirectory(contrib)
 add_subdirectory(src)
@@ -27,3 +23,4 @@ add_subdirectory(auxiliary)
 add_subdirectory(utils)
 add_subdirectory(tests)
 add_subdirectory(examples)
+
