@@ -269,6 +269,56 @@ void build_test(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
+double x_ (double u, double v)
+{
+	return cos (u) * cos (v);
+}
+
+double y_ (double u, double v)
+{
+	return cos (u) * sin (v);
+}
+
+double z_ (double u, double v)
+{
+	return sin (u);
+}
+
+void build_test5(vector < Triangle > & r, vector < Vector > & p)
+{
+	double ploc[][2] = {
+		{-M_PI / 10, 0},
+		{ M_PI / 10, 0},
+		{ M_PI / 10, M_PI / 5},
+		{-M_PI / 10, M_PI / 5},
+	};
+
+	double points[][3] = {
+		{ x_(ploc[0][0], ploc[0][1]), y_(ploc[0][0], ploc[0][1]), z_(ploc[0][0], ploc[0][1]) },
+		{ x_(ploc[1][0], ploc[1][1]), y_(ploc[1][0], ploc[1][1]), z_(ploc[1][0], ploc[1][1]) },
+		{ x_(ploc[2][0], ploc[2][1]), y_(ploc[2][0], ploc[2][1]), z_(ploc[2][0], ploc[2][1]) },
+		{ x_(ploc[3][0], ploc[3][1]), y_(ploc[3][0], ploc[3][1]), z_(ploc[3][0], ploc[3][1]) },
+	};
+
+	int triangles[][3] = {
+		{0, 1, 2},
+		{0, 2, 3},
+	};
+
+	int v = 4;
+	int f = 2;
+	int i;
+
+	for (i = 0; i < f; ++i) {
+		Triangle t1(triangles[i][0], triangles[i][1], triangles[i][2]);
+		r.push_back(t1);
+	}
+
+	for (i = 0; i < v; ++i) {
+		p.push_back(points[i]);
+	}
+}
+
 bool ok1(Vector & v)
 {
 	if ((fabs(v.z - 1.0) < 1e-10) || (fabs(v.z + 1.0) < 1e-10)) {
@@ -292,7 +342,7 @@ void filter_mesh(vector < Triangle > & mesh,
 				 vector < int > & boundary,
 				 int type)
 {
-	if (type < 3) {
+	if (type < 3 || type == 5) {
 		return;
 	}
 
@@ -348,7 +398,7 @@ void divide(vector < Triangle > & mesh, vector < Vector > & points, bool save_z)
 {
 	vector < Triangle > new_mesh;
 	vector < Vector   > new_points;
-	
+
 	int old_size = (int)points.size();
 	vector < map < int, int > > already(old_size);
 
@@ -503,7 +553,7 @@ void print_mesh(const vector < Triangle > & mesh,
 		it != mesh.end(); ++it)
 	{
 		fprintf(stdout, "%d %d %d ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
-		if (1) {
+		if (type != 5) {
 			double x1, y1, z1, x2, y2, z2, x3, y3, z3;
 			double u1, v1, u2, v2, u3, v3;
 
@@ -555,7 +605,8 @@ void print_mesh(const vector < Triangle > & mesh,
 		fprintf(stdout, "\n");
 	}
 	
-	if (type == 1 || type == 2 || type == 0) {
+	if (type == 1 || type == 2 || type == 0 || type == 5) 
+	{
 		fprintf(stdout, "# boundary \n");
 		for (size_t i = 0; i < points.size(); ++i) {
 			double x = points[i].x;
@@ -569,17 +620,24 @@ void print_mesh(const vector < Triangle > & mesh,
 				fprintf(stdout, "%lu \n", i + 1);
 			}
 
-			if (type == 1 || type == 2)
-			if (fabs(points[i].z) < 1e-15) {
-				fprintf(stdout, "%lu \n", i + 1);
-			} else if (type == 2) {
-				// u <- 0,pi/4
-				// v <- 0,pi
-				if (fabs(u(x, y, z) - M_PI / 4.0) < 1e-15) {
+			if (type == 1 || type == 2) {
+				if (fabs(points[i].z) < 1e-15) {
 					fprintf(stdout, "%lu \n", i + 1);
-				} else if (fabs(v(x, y, z)) < 1e-15) {
-					fprintf(stdout, "%lu \n", i + 1);
-				} else if (fabs(v(x, y, z) - M_PI) < 1e-15) {
+				} else if (type == 2) {
+					// u <- 0,pi/4
+					// v <- 0,pi
+					if (fabs(u(x, y, z) - M_PI / 4.0) < 1e-15) {
+						fprintf(stdout, "%lu \n", i + 1);
+					} else if (fabs(v(x, y, z)) < 1e-15) {
+						fprintf(stdout, "%lu \n", i + 1);
+					} else if (fabs(v(x, y, z) - M_PI) < 1e-15) {
+						fprintf(stdout, "%lu \n", i + 1);
+					}
+				}
+			} else if (type == 5) {
+				if (fabs(u(x, y, z) - M_PI / 10) < 1e-14 || 
+					fabs(u(x, y, z) + M_PI / 10) < 1e-14)
+				{
 					fprintf(stdout, "%lu \n", i + 1);
 				}
 			}
@@ -638,11 +696,22 @@ int main(int argc, char * argv[])
 			} else if (!strcmp(argv[i + 1], "half")) {
 				type = 1;
 			} else if (!strcmp(argv[i + 1], "test")) {
+				// половинка полусферы с отрезанной крышкой у полюса
+				// две области
 				type = 2;
 			} else if (!strcmp(argv[i + 1], "test2")) {
+				// сфера с вырезанными маленькими кружочками у полюсов
+				// две области
 				type = 3;
 			} else if (!strcmp(argv[i + 1], "test3")) {
+				// сфера с вырезанной шапкой у одного из полюсов
+				// три области
 				type = 4;
+			} else if (!strcmp(argv[i + 1], "test4")) {
+				// квадрат на сфере
+				// lambda: [0,      pi/5 ]
+				// phi:    [-pi/10, pi/10]
+				type = 5;
 			} else {
 				usage(argv[0]);
 			}
@@ -689,12 +758,18 @@ int main(int argc, char * argv[])
 	case 4:
 		build_icosahedron(mesh, points);
 		break;
+	case 5:
+		build_test5(mesh, points);
+		break;
 	default:
 		assert(0);
 	}
 
-	normalize_mesh(mesh, points, type == 2);
-	iterate_mesh(mesh, points, iters, type == 2);
+	bool save_z = false;
+	if (type >= 2) save_z = true;
+
+	normalize_mesh(mesh, points, save_z);
+	iterate_mesh(mesh, points, iters, save_z);
 	filter_mesh(mesh, points, boundary, type);
 	print_mesh(mesh, points, boundary, type, local);
 	return 0;
