@@ -38,7 +38,7 @@
 #include <assert.h>
 
 template < typename T, template < class > class Alloc >
-void StoreCSR < T, Alloc > ::load(std::vector < row_t > & A)
+void StoreCSR < T, Alloc > ::load(const std::vector < row_t > & A)
 {
 	int idx = 0;
 	n_  = A.size();
@@ -49,7 +49,7 @@ void StoreCSR < T, Alloc > ::load(std::vector < row_t > & A)
 
 	Ax_.resize(nz_);
 	Ai_.resize(nz_);
-	Ap_.resize(n_);
+	Ap_.resize(n_ + 1);
 
 	std::vector < T >   Ax(nz_);
 	std::vector < int > Ai(nz_);
@@ -60,23 +60,13 @@ void StoreCSR < T, Alloc > ::load(std::vector < row_t > & A)
 	for (uint i = 0; i < A.size(); ++i)
 	{
 		Ap[i + 1] = Ap[i] + (int)A[i].size();
-		for (typename row_t::iterator it = A[i].begin();
+		for (typename row_t::const_iterator it = A[i].begin();
 				it != A[i].end(); ++it)
 		{
 			Ax[idx] = it->second;
 			Ai[idx] = it->first;
 			idx += 1;
 		}
-
-		{
-			row_t t;
-			A[i].swap(t);
-		}
-	}
-
-	{
-		sparse_t t;
-		A.swap(t);
 	}
 
 	vec_copy_from_host(&Ax_[0], &Ax[0], nz_);
@@ -91,7 +81,7 @@ void StoreCSR < T, Alloc > ::mult(T * r, const T * x) const
 }
 
 template < typename T, template < class > class Alloc >
-void StoreELL < T, Alloc > ::load(std::vector < row_t > & A)
+void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
 {
 	nz_ = 0; // non-null elements
 	n_  = A.size();
@@ -113,23 +103,13 @@ void StoreELL < T, Alloc > ::load(std::vector < row_t > & A)
 	for (uint i = 0; i < A.size(); ++i)
 	{
 		int idx = 0;
-		for (typename row_t::iterator it = A[i].begin();
+		for (typename row_t::const_iterator it = A[i].begin();
 				it != A[i].end(); ++it)
 		{
 			Ax[idx * stride_ + i] = it->second;
 			Ai[idx * stride_ + i] = it->first;
 			idx++;
 		}
-
-		{
-			row_t t;
-			A[i].swap(t);
-		}
-	}
-
-	{
-		sparse_t t;
-		A.swap(t);
 	}
 
 	vec_copy_from_host(&Ax_[0], &Ax[0], cols_ * stride_);

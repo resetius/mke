@@ -110,7 +110,7 @@ struct StoreCSR
 	/**
 	 * Fill CSR Matrix from unstructured data
 	 */
-	void load(sparse_t & unstruct);
+	void load(const sparse_t & unstruct);
 
 	void mult(T * r, const T * x) const;
 };
@@ -155,7 +155,7 @@ struct StoreELL
 	/**
 	 * Fill ELL Matrix from unstructured data
 	 */
-	void load(sparse_t & unstruct);
+	void load(const sparse_t & unstruct);
 
 	void mult(T * r, const T * x) const;
 };
