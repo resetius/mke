@@ -92,7 +92,7 @@ bool test_solver()
 	}
 
 	Timer t;
-
+#if 0
 	t.restart();
 	UmfPackMatrix < T > lu2(&Ap[0], &Ai[0], &Ax[0], n, nz);
 	for (int k = 0; k < 1000; ++k) {
@@ -111,6 +111,8 @@ bool test_solver()
 	T nr = vec_norm2(&y[0], (int)y.size());
 	fprintf(stderr, "%lf\n", (double)nr);
 	return check(nr);
+#endif
+	return false;
 }
 
 

@@ -131,7 +131,7 @@ struct StoreELL
 
 	StoreELL(int n, int nz, int cols): 
 		n_(n), nz_(nz), cols_(cols), stride_(32 * ((cols_ + 32 - 1) / 32)),
-		Ai(cols_ * stride_), Ax(cols_ * stride_)
+		Ai_(cols_ * stride_), Ax_(cols_ * stride_)
 	{
 	}
 
@@ -140,8 +140,8 @@ struct StoreELL
 		n_    = n;
 		nz_   = nz;
 		cols_ = cols;
-		Ai.resize(cols_ * stride_);
-		Ax.resize(cols_ * stride_);
+		Ai_.resize(cols_ * stride_);
+		Ax_.resize(cols_ * stride_);
 	}
 
 	bool empty() 
