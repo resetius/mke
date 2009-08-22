@@ -60,7 +60,7 @@ using phelm::Polynom;
 template < typename T > 
 class SphereLaplace {
 public:
-	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > ArrayDevice;
 	typedef phelm::ArrayHost < T > ArrayHost;
 	Matrix idt_;

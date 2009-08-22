@@ -37,50 +37,119 @@
 
 #include <assert.h>
 
-template < typename T >
-void SparseMatrix < T > ::mult_vector(T * out, const T * in)
+template < typename T, template < class > class Alloc >
+void StoreCSR < T, Alloc > ::load(std::vector < row_t > & A)
 {
-	if (Ax_.empty()) {
-		make_sparse();
+	int idx = 0;
+	n_  = A.size();
+	nz_ = 0; // non-null elements
+	for (uint i = 0; i < A.size(); ++i) {
+		nz_ += (int)A[i].size();
 	}
 
-	switch (format_) {
-	case CSR:
+	Ax_.resize(nz_);
+	Ai_.resize(nz_);
+	Ap_.resize(n_);
+
+	std::vector < T >   Ax(nz_);
+	std::vector < int > Ai(nz_);
+	std::vector < int > Ap(n_ + 1);
+
+	Ap[0] = 0;
+
+	for (uint i = 0; i < A.size(); ++i)
 	{
-		SparseCSR < T > A;
-		A.Ap = &Ap_[0];
-		A.Ax = &Ax_[0];
-		A.Ai = &Ai_[0];
-		A.n  = n_;
-		A.nz = (int)Ax_.size();
+		Ap[i + 1] = Ap[i] + (int)A[i].size();
+		for (typename row_t::iterator it = A[i].begin();
+				it != A[i].end(); ++it)
+		{
+			Ax[idx] = it->second;
+			Ai[idx] = it->first;
+			idx += 1;
+		}
 
-		sparse_mult_vector_r(out, A, in);
+		{
+			row_t t;
+			A[i].swap(t);
+		}
 	}
-	break;
-	case ELL:
+
 	{
-		SparseELL < T > A;
-		A.Ax = &Ax_[0];
-		A.Ai = &Ai_[0];
-		A.n  = n_;
-		A.nz = (int)Ax_.size();
-		A.cols = cols_;
-		A.stride = stride_;
+		sparse_t t;
+		A.swap(t);
+	}
 
-		sparse_mult_vector_r(out, A, in);
+	vec_copy_from_host(&Ax_[0], &Ax[0], nz_);
+	vec_copy_from_host(&Ai_[0], &Ai[0], nz_);
+	vec_copy_from_host(&Ap_[0], &Ap[0], n_ + 1);
+}
+
+template < typename T, template < class > class Alloc >
+void StoreCSR < T, Alloc > ::mult(T * r, const T * x) const
+{
+	sparse_mult_vector_r(r, &Ap_[0], &Ai_[0], &Ax_[0], x, n_, nz_);
+}
+
+template < typename T, template < class > class Alloc >
+void StoreELL < T, Alloc > ::load(std::vector < row_t > & A)
+{
+	nz_ = 0; // non-null elements
+	n_  = A.size();
+	for (uint i = 0; i < A.size(); ++i) {
+		nz_ += (int)A[i].size();
 	}
-	break;
+	cols_ = 0;
+	for (uint i = 0; i < A.size(); ++i) {
+		cols_ = std::max(cols_, (int)A[i].size());
 	}
+	stride_ = 32 * ((n_ + 32 - 1) / 32);
+
+	Ax_.resize(cols_ * stride_);
+	Ai_.resize(cols_ * stride_);
+
+	std::vector < T > Ax(cols_ * stride_);
+	std::vector < int > Ai(cols_ * stride_);
+
+	for (uint i = 0; i < A.size(); ++i)
+	{
+		int idx = 0;
+		for (typename row_t::iterator it = A[i].begin();
+				it != A[i].end(); ++it)
+		{
+			Ax[idx * stride_ + i] = it->second;
+			Ai[idx * stride_ + i] = it->first;
+			idx++;
+		}
+
+		{
+			row_t t;
+			A[i].swap(t);
+		}
+	}
+
+	{
+		sparse_t t;
+		A.swap(t);
+	}
+
+	vec_copy_from_host(&Ax_[0], &Ax[0], cols_ * stride_);
+	vec_copy_from_host(&Ai_[0], &Ai[0], cols_ * stride_);
+}
+
+template < typename T, template < class > class Alloc >
+void StoreELL < T, Alloc > ::mult(T * r, const T * x) const
+{
+	sparse_mult_vector_r(r, &Ai_[0], &Ax_[0], x, n_, cols_, stride_);
 }
 
 template < typename T >
-void SimpleMatrix < T > ::mult_vector(T * out, const T * in)
+void SimpleSolver < T > ::mult_vector(T * out, const T * in)
 {
 	matrix_mult_vector(out, &A_[0], in);
 }
 
 template < typename T >
-void SimpleMatrix < T > ::solve(T * x, const T * b)
+void SimpleSolver < T > ::solve(T * x, const T * b)
 {
 	Timer t;
 
@@ -92,219 +161,50 @@ void SimpleMatrix < T > ::solve(T * x, const T * b)
 }
 
 template < typename T >
-void SparseMatrix < T > ::print()
-{
-	if (Ax_.empty()) {
-		make_sparse();
-	}
-
-	SparseCSR < T > A;
-	A.Ap = &Ap_[0];
-	A.Ax = &Ax_[0];
-	A.Ai = &Ai_[0];
-	A.n  = n_;
-	A.nz = (int)Ax_.size();
-
-	sparse_print(A, stderr);
-
-	// diag:
-	{
-		int i, i0, j;
-		T * p = &Ax_[0];
-		fprintf(stderr, "diag:\n");
-		for (j = 0; j < n_; ++j) {
-			for (i0 = Ap_[j]; i0 < Ap_[j + 1]; ++i0, ++p) {
-				i = Ai_[i0];
-				if (i == j) {
-					fprintf(stderr, "%8.3le ", *p);
-				}
-			}
-		}
-		fprintf(stderr, "\n");
-	}
-}
-
-template < typename T >
-void SimpleMatrix < T > ::print()
+void SimpleSolver < T > ::print()
 {
 	print_matrix(&A_[0], n_);
 }
 
-template < typename T >
-void SparseMatrix < T > ::add(int i, int j, T a)
+template < typename T, typename MultStore, typename InvStore  >
+void SparseSolver < T, MultStore, InvStore > ::mult_vector(T * out, const T * in)
+{
+	if (store_.mult.empty()) {
+		store_.mult.load(A_);
+	}
+
+	store_.mult.mult(out, in);
+}
+
+template < typename T, typename MultStore, typename InvStore  >
+void SparseSolver < T, MultStore, InvStore > ::print()
+{
+	// implement !
+}
+
+template < typename T, typename MultStore, typename InvStore  >
+void SparseSolver < T, MultStore, InvStore > ::add(int i, int j, T a)
 {
 	// transposed !
 	A_[i][j] += a;
 }
 
-template < typename T >
-void SparseMatrix < T > ::make_sparse_csr()
+template < typename T, typename Invert >
+void SparseSolver__Ax(T * r, const Invert * invert, const T * x, int n)
 {
-	int nz = 0; // non-null elements
-	int idx = 0;
-	for (uint i = 0; i < A_.size(); ++i) {
-		nz += (int)A_[i].size();
-	}
-	Ax_.resize(nz);
-	Ai_.resize(nz);
-
-	std::vector < T > Ax(nz);
-	std::vector < int > Ai(nz);
-	std::vector < int > Ap(Ap_.size());
-
-	Ap[0] = 0;
-
-	for (uint i = 0; i < A_.size(); ++i)
-	{
-		Ap[i + 1] = Ap[i] + (int)A_[i].size();
-		for (typename row_t::iterator it = A_[i].begin();
-				it != A_[i].end(); ++it)
-		{
-			Ax[idx] = it->second;
-			Ai[idx] = it->first;
-			idx += 1;
-		}
-
-		{
-			row_t t;
-			A_[i].swap(t);
-		}
-	}
-
-	{
-		sparse_t t;
-		A_.swap(t);
-	}
-
-	vec_copy_from_host(&Ax_[0], &Ax[0], nz);
-	vec_copy_from_host(&Ai_[0], &Ai[0], nz);
-	vec_copy_from_host(&Ap_[0], &Ap[0], n_ + 1);
+	invert->mult(r, x);
 }
 
-template < typename T >
-void SparseMatrix < T > ::make_sparse_ell()
+template < typename T, typename MultStore, typename InvStore  >
+void SparseSolver < T, MultStore, InvStore > ::solve(T * x, const T * b)
 {
-	int nz = 0; // non-null elements
-	for (uint i = 0; i < A_.size(); ++i) {
-		nz += (int)A_[i].size();
-	}
-	cols_ = 0;
-	for (uint i = 0; i < A_.size(); ++i) {
-		cols_ = std::max(cols_, (int)A_[i].size());
-	}
-	stride_ = 32 * ((n_ + 32 - 1) / 32);
-
-	Ax_.resize(cols_ * stride_);
-	Ai_.resize(cols_ * stride_);
-
-	std::vector < T > Ax(cols_ * stride_);
-	std::vector < int > Ai(cols_ * stride_);
-
-	for (uint i = 0; i < A_.size(); ++i)
-	{
-		int idx = 0;
-		for (typename row_t::iterator it = A_[i].begin();
-				it != A_[i].end(); ++it)
-		{
-			Ax[idx * stride_ + i] = it->second;
-			Ai[idx * stride_ + i] = it->first;
-			idx++;
-		}
-
-		{
-			row_t t;
-			A_[i].swap(t);
-		}
+	if (store_.invert.empty()) {
+		store_.invert.load(A_);
 	}
 
-	{
-		sparse_t t;
-		A_.swap(t);
-	}
-
-	vec_copy_from_host(&Ax_[0], &Ax[0], cols_ * stride_);
-	vec_copy_from_host(&Ai_[0], &Ai[0], cols_ * stride_);
+	gmres(&x[0], &store_.invert, &b[0], SparseSolver__Ax < T, typename store_t::invert_t > , 
+		store_.invert.n_, 100, 1000);
 }
-
-template < typename T >
-void SparseMatrix < T > ::make_sparse()
-{
-	switch (format_) {
-	case CSR:
-		make_sparse_csr();
-		break;
-	case ELL:
-	default:
-		make_sparse_ell();
-		break;
-	}
-}
-
-template < typename T >
-void SparseMatrix < T > ::solve(T * x, const T * b)
-{
-	if (Ax_.empty()) {
-		make_sparse();
-	}
-
-	switch (format_) {
-	case CSR:
-	{
-		SparseCSR < T > A;
-		A.Ap = &Ap_[0];
-		A.Ax = &Ax_[0];
-		A.Ai = &Ai_[0];
-		A.n  = n_;
-		A.nz = (int)Ax_.size();
-
-		gmres(&x[0], &A, &b[0], csr_mult_vector < T >, n_, 100, 1000);
-	}
-	break;
-	case ELL:
-	{
-		SparseELL < T > A;
-		A.Ax = &Ax_[0];
-		A.Ai = &Ai_[0];
-		A.n  = n_;
-		A.nz = (int)Ax_.size();
-		A.stride = stride_;
-		A.cols  = cols_;
-
-		gmres(&x[0], &A, &b[0], ell_mult_vector < T >, n_, 100, 1000);
-	}
-	}
-}
-
-#ifdef UMFPACK
-template < typename T >
-void UmfPackMatrix < T > ::solve(T * x, const T * b)
-{
-	if (base::Ax_.empty()) {
-		base::make_sparse();
-	}
-
-	int status;
-
-	if (Symbolic_ == 0) {
-		status = umfpack_di_symbolic (base::n_, base::n_, 
-				&base::Ap_[0], &base::Ai_[0], &base::Ax_[0], 
-				&Symbolic_, Control_, Info_);
-		assert(status == UMFPACK_OK);
-	}
-
-	if (Numeric_ == 0) {
-		status = umfpack_di_numeric (&base::Ap_[0], &base::Ai_[0], 
-				&base::Ax_[0], 
-				Symbolic_, &Numeric_, Control_, Info_) ;
-		assert(status == UMFPACK_OK);
-	}
-
-	status = umfpack_di_solve (UMFPACK_At, &base::Ap_[0], &base::Ai_[0], 
-			&base::Ax_[0], x, b, Numeric_, Control_, Info_);
-	assert(status == UMFPACK_OK);
-}
-
-#endif
 
 #ifdef SUPERLU
 

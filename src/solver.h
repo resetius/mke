@@ -55,6 +55,8 @@
 #endif
 #endif
 
+#undef SUPERLU
+
 #ifdef UMFPACK
 #include <umfpack.h>
 #endif
@@ -75,54 +77,131 @@ namespace phelm {
  * @{
  */
 
-/**
- * Matrix class.
- */
-template < typename T >
-class SparseMatrix {
-protected:
+template < typename T, template < class > class Alloc = Allocator >
+struct StoreCSR
+{
+	typedef T data_type;
 	int n_;
+	int nz_;
+	Array < int, Alloc < int > > Ap_; // количества ненулевых в столбцах
+	Array < int, Alloc < int > > Ai_; // индексы (номер строки) ненулевых элементов
+	Array < T, Alloc < T > > Ax_;   // ненулевые элементы матрицы
 
-	enum {
-		CSR = 1,
-		ELL = 2,
-	};
-	int format_;
+	StoreCSR(): n_(0), nz_(0) {}
+	StoreCSR(int n, int nz): n_(n), nz_(nz), Ap_(n_ + 1), Ai_(nz_), Ax_(nz_) {}
 
-	// разреженная матрица
-	// формат хранения как в MatLab и UMFPACK
-	// CSR or ELL format
-	// for CSR only Ai and Ax are used !
-	ArrayDevice < int > Ap_; // количества ненулевых в столбцах
-	ArrayDevice < int > Ai_; // индексы (номер строки) ненулевых элементов
-	ArrayDevice < T >   Ax_; // ненулевые элементы матрицы
+	void resize(int n, int nz)
+	{
+		n_  = n;
+		nz_ = nz;
+		Ap_.resize(n_ + 1);
+		Ai_.resize(nz_);
+		Ax_.resize(nz_);
+	}
 
-	// for ELL format
+	bool empty() 
+	{
+		return n_ == 0;
+	}
+
+	typedef std::map < int , T > row_t;
+	typedef std::vector < row_t > sparse_t;
+
+	/**
+	 * Fill CSR Matrix from unstructured data
+	 */
+	void load(sparse_t & unstruct);
+
+	void mult(T * r, const T * x) const;
+};
+
+template < typename T, template < class > class Alloc = Allocator >
+struct StoreELL
+{
+	typedef T data_type;
+	int n_;
+	int nz_;
 	int cols_;
 	int stride_;
 
-	typedef std::map < int , T > row_t;
-	// column number -> row_number -> value
-	typedef std::vector < row_t > sparse_t;
-	sparse_t A_;
+	Array < int, Alloc < int > > Ai_;
+	Array < T, Alloc < T > > Ax_;
 
-	void make_sparse_csr();
-	void make_sparse_ell();
-	void make_sparse();
+	StoreELL(): n_(0), nz_(0), cols_(0), stride_(0) {}
+
+	StoreELL(int n, int nz, int cols): 
+		n_(n), nz_(nz), cols_(cols), stride_(32 * ((cols_ + 32 - 1) / 32)),
+		Ai(cols_ * stride_), Ax(cols_ * stride_)
+	{
+	}
+
+	void resize(int n, int nz, int cols)
+	{
+		n_    = n;
+		nz_   = nz;
+		cols_ = cols;
+		Ai.resize(cols_ * stride_);
+		Ax.resize(cols_ * stride_);
+	}
+
+	bool empty() 
+	{
+		return n_ == 0;
+	}
+
+	typedef std::map < int , T > row_t;
+	typedef std::vector < row_t > sparse_t;
+
+	/**
+	 * Fill ELL Matrix from unstructured data
+	 */
+	void load(sparse_t & unstruct);
+
+	void mult(T * r, const T * x) const;
+};
+
+template < typename Store1, typename Store2 >
+struct DoubleStore
+{
+	typedef Store1 mult_t;
+	typedef Store2 invert_t;
+
+	Store1 mult;
+	Store2 invert;
+};
+
+template < typename Store >
+struct DoubleStore < Store, Store >
+{
+	typedef Store mult_t;
+	typedef Store invert_t;
+
+	Store both;
+	Store & mult;
+	Store & invert;
+	DoubleStore (): mult(both), invert(both) {}
+};
+
+/**
+ * Solver class.
+ * В солвере может быть два контейнера с разными аллокаторами для обращения
+ * и для умножения.
+ */
+template < typename T, typename MultStore, typename InvStore = MultStore >
+class SparseSolver {
+protected:
+	typedef DoubleStore < MultStore, InvStore > store_t;
+	store_t store_;
+	typedef std::map < int , T > row_t;
+	typedef std::vector < row_t > sparse_t;
+
+	sparse_t A_;
 
 public:
 	typedef T data_type;
 
-	SparseMatrix(int n): n_(n), format_(ELL), Ap_(n + 1), A_(n)
+	SparseSolver(int n): A_(n)
 	{
-	}
-
-	SparseMatrix(const int * Ap, const int * Ai, const T * Ax, int n, int nz): n_(n), format_(CSR)
-	{
-		Ap_.resize(n + 1); Ai_.resize(nz); Ax_.resize(nz);
-		vec_copy(&Ap_[0], Ap, (n + 1));
-		vec_copy(&Ai_[0], Ai, nz);
-		vec_copy(&Ax_[0], Ax, nz);
 	}
 
 	/**
@@ -155,135 +234,8 @@ public:
 };
 
 #ifdef UMFPACK
-
-/**
- * Matrix class.
- */
-template < typename T >
-class UmfPackMatrix: public SparseMatrix < T >
-{
-	double Control_ [UMFPACK_CONTROL];
-	double Info_ [UMFPACK_INFO];
-	void *Symbolic_, *Numeric_ ;
-
-	typedef SparseMatrix < T > base;
-public:
-	typedef T data_type;
-
-	UmfPackMatrix(int n): SparseMatrix < T >(n), Symbolic_(0), Numeric_(0) 
-	{
-		base::format_ = base::CSR;
-		umfpack_di_defaults(Control_);
-	}
-
-	UmfPackMatrix(const int * Ap, const int * Ai, const T * Ax, int n, int nz):
-		SparseMatrix < T >(Ap, Ai, Ax, n, nz), Symbolic_(0), Numeric_(0)
-	{
-		umfpack_di_defaults(Control_);
-	}
-
-	~UmfPackMatrix()
-	{
-		umfpack_di_free_symbolic (&Symbolic_);
-		umfpack_di_free_numeric (&Numeric_);
-	}
-
-	/**
-	 * Solve equation Ax = b.
-	 * That function uses UMFPACK
-	 * @param x - answer
-	 * @param b - right part
-	 */
-	void solve(T * x, const T * b);
-};
-
-template <>
-class UmfPackMatrix < float >: public SparseMatrix < float >
-{
-	double Control_ [UMFPACK_CONTROL];
-	double Info_ [UMFPACK_INFO];
-	void *Symbolic_, *Numeric_ ;
-
-	typedef SparseMatrix < float > base;
-
-	std::vector < double > Ax_;
-
-public:
-	typedef float data_type;
-
-	UmfPackMatrix(int n): SparseMatrix < float >(n), Symbolic_(0), Numeric_(0) 
-	{
-		base::format_ = base::CSR;
-		umfpack_di_defaults(Control_);
-	}
-
-	UmfPackMatrix(const int * Ap, const int * Ai, const float * Ax, int n, int nz):
-		SparseMatrix < float >(Ap, Ai, Ax, n, nz), Symbolic_(0), Numeric_(0)
-	{
-		umfpack_di_defaults(Control_);
-	}
-
-	~UmfPackMatrix()
-	{
-		umfpack_di_free_symbolic (&Symbolic_);
-		umfpack_di_free_numeric (&Numeric_);
-	}
-
-	/**
-	* Solve equation Ax = b.
-	* That function uses UMFPACK
-	* @param x - answer
-	* @param b - right part
-	*/
-	void solve(float * x, const float * b)
-	{
-		if (base::Ax_.empty()) {
-			base::make_sparse();
-		}
-
-		if (Ax_.empty()) {
-			Ax_.resize(base::Ax_.size());
-
-			for (int i = 0; i < (int)Ax_.size(); ++i)
-			{
-				Ax_[i] = (double)base::Ax_[i];
-			}
-		}
-
-		int status = 0;
-
-		if (Symbolic_ == 0) {
-			status = umfpack_di_symbolic (base::n_, base::n_, 
-				&base::Ap_[0], &base::Ai_[0], &Ax_[0], 
-				&Symbolic_, Control_, Info_);
-			assert(status == UMFPACK_OK);
-		}
-
-		if (Numeric_ == 0) {
-			status = umfpack_di_numeric (&base::Ap_[0], &base::Ai_[0], 
-				&Ax_[0], 
-				Symbolic_, &Numeric_, Control_, Info_) ;
-			assert(status == UMFPACK_OK);
-		}
-
-		std::vector < double > x1(base::n_);
-		std::vector < double > b1(base::n_);
-
-		for (int i = 0; i < base::n_; ++i)
-		{
-			b1[i] = (double)b[i];
-		}
-
-		status = umfpack_di_solve (UMFPACK_At, &base::Ap_[0], &base::Ai_[0], 
-			&Ax_[0], &x1[0], &b1[0], Numeric_, Control_, Info_);
-		assert(status == UMFPACK_OK);
-
-		for (int i = 0; i < base::n_; ++i)
-		{
-			x[i] = (float)x1[i];
-		}
-	}
-};
+// implements UmfPackSolver
+#include "impl/solver_umfpack.h"
 #endif
 
 #ifdef SUPERLU
@@ -328,7 +280,7 @@ public:
  * Matrix class.
  */
 template < typename T >
-class SimpleMatrix
+class SimpleSolver
 {
 	int n_;
 	Array < T, Allocator < T > > A_;  // матрица
@@ -336,7 +288,7 @@ class SimpleMatrix
 public:
 	typedef T data_type;
 
-	SimpleMatrix(int n): n_(n), A_(n * n) {}
+	SimpleSolver(int n): n_(n), A_(n * n) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
@@ -368,34 +320,33 @@ public:
 };
 
 #if defined(UMFPACK) && !defined(GPGPU)
-/*
+
 template < typename T >
-class Matrix: public UmfPackMatrix < T >
+class Solver: public UmfPackMatrix < T, StoreELL < T , Allocator >  >
 {
+	typedef UmfPackMatrix < T, StoreELL < T , Allocator >  > base;
 public:
-	Matrix(int n): UmfPackMatrix < T >(n) {}
+	Solver(int n): base(n) {}
 };
-*/
 
-
+/*
 template < typename T >
 class Matrix: public SuperLUMatrix < T >
 {
 public:
 	Matrix(int n): SuperLUMatrix < T >(n) {}
 };
+*/
 
 #else
 template < typename T >
-class Matrix: public SparseMatrix < T > 
+class Solver: public SparseSolver < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > 
 {
+	typedef SparseSolver < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > >  base;
 public:
-	Matrix(int n): SparseMatrix < T > (n) {}
+	Solver(int n): base (n) {}
 };
 #endif
-
-typedef Matrix < double > Matrixd;
-typedef Matrix < float > Matrixf;
 
 /**
  * Solve the system with A matrix (Ax=rp).

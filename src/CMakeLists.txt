@@ -18,6 +18,7 @@ set(SOURCE
 	generators.h
 	impl/generators_impl.h
 	impl/solver_impl.h
+	impl/solver_umfpack.h
 	gmres.h
 	gmres.cpp
 	polynom.h

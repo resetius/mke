@@ -114,7 +114,7 @@ __global__ void sparse_mult_vector_csr_(T * r,
 	}
 }
 
-__host__ void sparse_mult_vector_csr(double * r, 
+__host__ void sparse_mult_vector_r(double * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const double * Ax,
@@ -131,7 +131,7 @@ __host__ void sparse_mult_vector_csr(double * r,
 	sparse_mult_vector_csr_ <<< blocks, threads >>> (r, APR, AIR, AXR, XR, n);
 }
 
-__host__ void sparse_mult_vector_csr(float * r, 
+__host__ void sparse_mult_vector_r(float * r, 
 	const int * Ap, 
 	const int * Ai, 
 	const float * Ax,
@@ -194,7 +194,7 @@ __global__ void ell_mult(
 }
 
 __host__ void 
-sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax, 
+sparse_mult_vector_r(float * r, const int * Ai, const float * Ax, 
 	const float * x, int n, int cols, int stride)
 {
 	SPLAY2(n);
@@ -207,7 +207,7 @@ sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax,
 }
 
 __host__ void 
-sparse_mult_vector_ell(double * r, const int * Ai, const double * Ax, 
+sparse_mult_vector_r(double * r, const int * Ai, const double * Ax, 
 	const double * x, int n, int cols, int stride)
 {
 	SPLAY2(n);

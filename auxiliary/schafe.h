@@ -69,7 +69,7 @@ struct SphereChafeConfig
 template < typename T >
 class SphereChafe: public SphereChafeConfig {
 private:
-	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > ArrayDevice;
 	typedef phelm::ArrayHost < T > ArrayHost;
 	const Mesh & m_;

@@ -118,65 +118,25 @@ void mat_mult_vector(double * r, const double * A, const double * x, int n);
 void mat_mult_vector(float * r, const float * A, const float * x, int n);
 
 /**
- * Sparse Matrix structure.
- * CSR format.
- * The matrix is stored by rows.
- *
- * Ap[i+1]-Ap[i] is the number of nonzero entries in row i, 
- * Ai contains indices of nonzero entries of row.
- */
-template < typename T >
-struct SparseCSR {
-	typedef T data_type;
-	int * Ap;    ///< the number of elements in columns or rows
-	int * Ai;    ///< column or row indices
-	data_type * Ax; ///< holds nonzero matrix entires
-	int n;       ///< the number of rows and columns
-	int nz;      ///< the number of non-null elements
-
-	SparseCSR(): Ap(0), Ai(0), Ax(0), n(0), nz(0) {}
-};
-
-template < typename T >
-struct SparseELL {
-	typedef T data_type;
-	int * Ai;
-	data_type * Ax;
-
-	int stride;
-	int cols;
-	int n;
-	int nz;
-
-	SparseELL(): Ai(0), Ax(0), stride(0), cols(0), n(0), nz(0) {} 
-};
-
-/**
  * CSR matrix multiplication: r = A x
  * @param r - output vector
- * @param A - sparse matrix (CSR format)
+ * @param Ap - 
+ * @param Ai - 
+ * @param Ax - 
  * @param x - input vector
  * @param n - the size of vector and matrix
  */
-void sparse_mult_vector_r(double * r, const SparseCSR < double > & A, const double * x);
-void sparse_mult_vector_r(float * r, const SparseCSR < float > & A, const float * x);
+void sparse_mult_vector_r(double * r, const int * Ap, const int * Ai, 
+						  const double * Ax, const double * x, int n, int nz);
+void sparse_mult_vector_r(float * r, const int * Ap, const int * Ai, 
+						  const float * Ax, const float * x, int n, int nz);
 
-void sparse_mult_vector_r(double * r, const SparseELL < double > & A, const double * x);
-void sparse_mult_vector_r(float * r, const SparseELL < float > & A, const float * x);
-
-/* TODO: remove this */
-template < typename T >
-void csr_mult_vector(T * r, const SparseCSR < T > * A, const T * x, int n)
-{
-	sparse_mult_vector_r(r, *A, x);
-}
-
-/* TODO: remove this */
-template < typename T >
-void ell_mult_vector(T * r, const SparseELL < T > * A, const T * x, int n)
-{
-	sparse_mult_vector_r(r, *A, x);
-}
+void sparse_mult_vector_r(double * r, const int * Ai, 
+						  const double * Ax, const double * x, 
+						  int n, int cols, int stride);
+void sparse_mult_vector_r(float * r, const int * Ai, 
+						  const float * Ax, const float * x, 
+						  int n, int cols, int stride);
 
 /**
  * Print sparse matrix to file.
@@ -184,8 +144,12 @@ void ell_mult_vector(T * r, const SparseELL < T > * A, const T * x, int n)
  * @param n - dimension of sparse matrix
  * @param f - output file
  */
-void sparse_print(const SparseCSR < double > & A, FILE * f);
-void sparse_print(const SparseCSR < float > & A, FILE * f);
+void sparse_print(const int * Ap, const int * Ai, 
+						  const double * Ax, int n, FILE * f);
+
+void sparse_print(const int * Ap, const int * Ai, 
+						  const float * Ax, int n, FILE * f);
+
 
 /**
  * Linear combination of two vectors.

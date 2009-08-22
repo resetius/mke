@@ -56,7 +56,7 @@ using phelm::Mesh;
 template < typename T >
 class SphereNorm {
 public:
-	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::Solver < T > Matrix;
 	const Mesh & m_; ///< mesh
 	Matrix NORM_;    ///< for fast norm calculation
 
@@ -108,7 +108,7 @@ public:
 template < typename T >
 class FlatNorm {
 public:
-	typedef phelm::Matrix < T > Matrix;
+	typedef phelm::Solver < T > Matrix;
 
 	const Mesh & m_; ///< mesh
 	Matrix NORM_;    ///< for fast norm calculation

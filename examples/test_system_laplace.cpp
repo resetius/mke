@@ -150,7 +150,7 @@ void test_invert(Mesh & m)
 	proj_bnd(&BU[0], m, u);
 	proj_bnd(&BV[0], m, v);
 
-	Matrix < double > A(2 * rs);
+	Solver < double > A(2 * rs);
 	vector < double > RP(2 * rs);
 	vector < double > Ans(2 * rs);
 

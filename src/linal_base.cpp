@@ -205,15 +205,15 @@ void mat_mult_vector(float * r, const float * A, const float * x, int n)
 }
 
 template < typename T >
-void csr_print_(const SparseCSR < T > & A, FILE * f)
+void csr_print_(const int * Ap, const int * Ai, 
+						  const T * Ax, int n, FILE * f)
 {
-	int n = A.n;
 	int i, i0, j, k, i_old;
-	const T * p = A.Ax;
+	const T * p = Ax;
 	for (j = 0; j < n; ++j) {
 		i_old = -1;
-		for (i0 = A.Ap[j]; i0 < A.Ap[j + 1]; ++i0, ++p) {
-			i = A.Ai[i0];
+		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+			i = Ai[i0];
 			for (k = i_old; k < i - 1; ++k) {
 				fprintf(f, "%8.3lf ", 0.0);
 			}
@@ -228,14 +228,16 @@ void csr_print_(const SparseCSR < T > & A, FILE * f)
 	}
 }
 
-void sparse_print(const SparseCSR < double > & A, FILE * f)
+void sparse_print(const int * Ap, const int * Ai, 
+						  const double * Ax, int n, FILE * f)
 {
-	csr_print_ (A, f);
+	csr_print_ (Ap, Ai, Ax, n, f);
 }
 
-void sparse_print(const SparseCSR < float > & A, FILE * f)
+void sparse_print(const int * Ap, const int * Ai, 
+						  const float * Ax, int n, FILE * f)
 {
-	csr_print_ (A, f);
+	csr_print_ (Ap, Ai, Ax, n, f);
 }
 
 } /* namespace */

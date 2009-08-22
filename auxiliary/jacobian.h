@@ -63,7 +63,7 @@ using phelm::Mesh;
  \f] 
  */
 class SphereJacobian {
-	typedef phelm::Matrix < double > Matrix;
+	typedef phelm::Solver < double > Matrix;
 	const Mesh & m_;
 	Matrix idt_;
 	Matrix diff1_;

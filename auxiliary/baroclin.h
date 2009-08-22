@@ -76,7 +76,7 @@
  * @see SphereJacobian, SphereLaplace
  */
 class Baroclin: public SphereNorm < double > {
-	typedef phelm::Matrix < double > Matrix;
+	typedef phelm::Solver < double > Matrix;
 
 public:
 	/**

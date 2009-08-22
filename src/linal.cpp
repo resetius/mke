@@ -204,23 +204,36 @@ float vec_scalar2(const float * a, const float * b, int n)
 }
 
 template < typename T >
-void csr_mult_vector_(T * r, const SparseCSR < T > & A, const T * x)
+void csr_mult_vector_(T * r, const int * Ap, const int * Ai, 
+						  const T * Ax, const T * x, int n)
 {
 	int j;
 
 #pragma omp parallel for
-	for (j = 0; j < A.n; ++j) {
-		T *p = &A.Ax[A.Ap[j]];
+	for (j = 0; j < n; ++j) {
+		const T *p = &Ax[Ap[j]];
 		T rj = (T)0.0;
 		int i0;
 
-		for (i0 = A.Ap[j]; i0 < A.Ap[j + 1]; ++i0, ++p) {
-			int i = A.Ai[i0];
+		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+			int i = Ai[i0];
 			rj += *p * x[i];
 		}
 
 		r[j] = rj;
 	}
+}
+
+void sparse_mult_vector_r(double * r, const int * Ap, const int * Ai, 
+						  const double * Ax, const double * x, int n, int nz)
+{
+	csr_mult_vector_(r, Ap, Ai, Ax, x, n);
+}
+
+void sparse_mult_vector_r(float * r, const int * Ap, const int * Ai, 
+						  const float * Ax, const float * x, int n, int nz)
+{
+	csr_mult_vector_(r, Ap, Ai, Ax, x, n);
 }
 
 template < typename T >
@@ -249,24 +262,18 @@ void ell_mult_vector_(
 	}
 }
 
-void sparse_mult_vector_r(double * r, const SparseCSR < double > & A, const double * x)
+void sparse_mult_vector_r(double * r, const int * Ai, 
+						  const double * Ax, const double * x, 
+						  int n, int cols, int stride)
 {
-	csr_mult_vector_(r, A, x);
+	ell_mult_vector_(r, Ai, Ax, x, n, cols, stride);
 }
 
-void sparse_mult_vector_r(float * r, const SparseCSR < float > & A, const float * x)
+void sparse_mult_vector_r(float * r, const int * Ai, 
+						  const float * Ax, const float * x, 
+						  int n, int cols, int stride)
 {
-	csr_mult_vector_(r, A, x);
-}
-
-void sparse_mult_vector_r(double * r, const SparseELL < double > & A, const double * x)
-{
-	ell_mult_vector_(r, A.Ai, A.Ax, x, A.n, A.cols, A.stride);
-}
-
-void sparse_mult_vector_r(float * r, const SparseELL < float > & A, const float * x)
-{
-	ell_mult_vector_(r, A.Ai, A.Ax, x, A.n, A.cols, A.stride);
+	ell_mult_vector_(r, Ai, Ax, x, n, cols, stride);
 }
 
 int check_device_supports_double()
