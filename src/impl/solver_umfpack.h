@@ -1,8 +1,11 @@
+
+#include <umfpack.h>
+
 /**
  * UMFPACK Solver class.
  */
 template < typename T, typename MultStore >
-class UmfPackMatrix: public SparseSolver < T, MultStore, StoreCSR < T, std::allocator > >
+class UmfPackSolver: public SparseSolver < T, MultStore, StoreCSR < T, std::allocator > >
 {
 	double Control_ [UMFPACK_CONTROL];
 	double Info_ [UMFPACK_INFO];
@@ -14,12 +17,12 @@ class UmfPackMatrix: public SparseSolver < T, MultStore, StoreCSR < T, std::allo
 public:
 	typedef T data_type;
 
-	UmfPackMatrix(int n): base(n), Symbolic_(0), Numeric_(0) 
+	UmfPackSolver(int n): base(n), Symbolic_(0), Numeric_(0) 
 	{
 		umfpack_di_defaults(Control_);
 	}
 
-	~UmfPackMatrix()
+	~UmfPackSolver()
 	{
 		umfpack_di_free_symbolic (&Symbolic_);
 		umfpack_di_free_numeric (&Numeric_);
@@ -64,7 +67,7 @@ public:
 };
 
 template < typename MultStore >
-class UmfPackMatrix < float, MultStore >: public SparseSolver < float, MultStore, StoreCSR < float, std::allocator > >
+class UmfPackSolver < float, MultStore >: public SparseSolver < float, MultStore, StoreCSR < float, std::allocator > >
 {
 	double Control_ [UMFPACK_CONTROL];
 	double Info_ [UMFPACK_INFO];
@@ -78,12 +81,12 @@ class UmfPackMatrix < float, MultStore >: public SparseSolver < float, MultStore
 public:
 	typedef float data_type;
 
-	UmfPackMatrix(int n): base(n), Symbolic_(0), Numeric_(0) 
+	UmfPackSolver(int n): base(n), Symbolic_(0), Numeric_(0) 
 	{
 		umfpack_di_defaults(Control_);
 	}
 
-	~UmfPackMatrix()
+	~UmfPackSolver()
 	{
 		umfpack_di_free_symbolic (&Symbolic_);
 		umfpack_di_free_numeric (&Numeric_);

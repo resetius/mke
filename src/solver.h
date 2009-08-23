@@ -55,16 +55,6 @@
 #endif
 #endif
 
-#undef SUPERLU
-
-#ifdef UMFPACK
-#include <umfpack.h>
-#endif
-
-#ifdef SUPERLU
-#include <slu_ddefs.h>
-#endif
-
 #include "util.h"
 #include "gmres.h"
 
@@ -239,41 +229,8 @@ public:
 #endif
 
 #ifdef SUPERLU
-template < typename T >
-class SuperLUMatrix: public SparseMatrix < T >
-{
-	typedef SparseMatrix < T > base;
-	SuperMatrix A_, AC_, L_, U_, B_;
-
-	std::vector < int > perm_c_;
-	std::vector < int > perm_r_;
-	std::vector < int > etree_;
-
-public:
-	typedef T data_type;
-
-	SuperLUMatrix(int n): SparseMatrix < T >(n)
-	{
-		base::format_ = base::CSR;
-	}
-
-	SuperLUMatrix(const int * Ap, const int * Ai, const T * Ax, int n, int nz):
-		SparseMatrix < T >(Ap, Ai, Ax, n, nz)
-	{
-	}
-
-	~SuperLUMatrix()
-	{
-	}
-
-	/**
-	 * Solve equation Ax = b.
-	 * That function uses SuperLU
-	 * @param x - answer
-	 * @param b - right part
-	 */
-	void solve(T * x, const T * b);
-};
+// implements SuperLUSolver
+#include "impl/solver_superlu.h"
 #endif
 
 /**
@@ -322,19 +279,19 @@ public:
 #if defined(UMFPACK) && !defined(GPGPU)
 
 template < typename T >
-class Solver: public UmfPackMatrix < T, StoreELL < T , Allocator >  >
+class Solver: public UmfPackSolver < T, StoreELL < T , Allocator >  >
 {
-	typedef UmfPackMatrix < T, StoreELL < T , Allocator >  > base;
+	typedef UmfPackSolver < T, StoreELL < T , Allocator >  > base;
 public:
 	Solver(int n): base(n) {}
 };
 
 /*
 template < typename T >
-class Matrix: public SuperLUMatrix < T >
+class Solver: public SuperLUSolver < T, StoreELL < T , Allocator >  >
 {
 public:
-	Matrix(int n): SuperLUMatrix < T >(n) {}
+	Solver(int n): SuperLUSolver < T >(n) {}
 };
 */
 

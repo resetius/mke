@@ -94,7 +94,7 @@ bool test_solver()
 	Timer t;
 #if 0
 	t.restart();
-	UmfPackMatrix < T > lu2(&Ap[0], &Ai[0], &Ax[0], n, nz);
+	UmfPackSolver < T > lu2(&Ap[0], &Ai[0], &Ax[0], n, nz);
 	for (int k = 0; k < 1000; ++k) {
 		lu2.solve(&x[0], &b[0]);
 	}

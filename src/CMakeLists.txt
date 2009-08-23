@@ -19,6 +19,7 @@ set(SOURCE
 	impl/generators_impl.h
 	impl/solver_impl.h
 	impl/solver_umfpack.h
+	impl/solver_superlu.h
 	gmres.h
 	gmres.cpp
 	polynom.h
