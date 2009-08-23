@@ -177,6 +177,28 @@ double coriolis (double phi, double lambda)
 	return l + h;
 }
 
+double dymnikov_196_coriolis(double phi, double lambda)
+{
+	double R    = 6371.3;
+	double beta = 2e-11;
+	double l0   = 9.3e-5;
+	return l0 + beta * R * (M_PI / 10 + phi);
+}
+
+double dymnikov_196_rp(double phi, double lambda, double t, double mu, double sigma)
+{
+	double R    = 6371.3;
+	double y    = R * (M_PI / 10 + phi);
+	double k    = 10.0;
+	double tau0 = 1.1;
+	double tau  = 1.0; //?
+	double rho  = 1000;
+	double L    = 4000;
+	double H    = 500;
+	double ans = -k * 2.0 * M_PI * tau0 / rho / L / H * sin(2 * tau * y / L);
+	return ans;
+}
+
 double an1 (double x, double y, double t)
 {
 	return x*sin(y+t)*ipow(cos(x),4);
@@ -500,6 +522,61 @@ void test_barvortex_L2 (const Mesh & m)
 	}
 }
 
+/**
+ * Тест из книги Дымникова.
+ * Устойчивость и предсказуемость крупномасштабных атмосферных процессов, Москва, 
+ * ИВМ РАН, 2007, 283с
+ *
+ * Все данные со страницы 196.
+ */
+void test_dymnikov_196(const Mesh & m)
+{
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
+
+	double tau = 0.0001;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double mu    = 1250;
+	double sigma = 5e-8; //1.6e-2;
+
+	BarVortex bv (m, dymnikov_196_rp, dymnikov_196_coriolis, tau, sigma, mu);
+
+	vector < double > u (sz);
+	vector < double > bnd (std::max (os, 1));
+
+	//proj (&u[0], m, an1, 0);
+	//proj (&u[0], m, u0);
+
+	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+#if 1
+		Timer tm;
+		bv.calc (&u[0], &u[0], &bnd[0], t);
+		if (i % 1 == 0) {
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+			         bv.norm (&u[0]), t, T, tm.elapsed());
+			// 3d print
+			//print_function (stdout, &u[0], m, x, y, z);
+			// flat print
+			// print_function (stdout, &u[0], m, 0, 0, 0);
+		}
+#endif
+
+		i += 1;
+		t += tau;
+	}
+}
+
 int main (int argc, char *argv[])
 {
 	Mesh mesh;
@@ -528,10 +605,11 @@ int main (int argc, char *argv[])
 	{
 		//test_jacobian(mesh);
 		//test_jacobian_T(mesh);
+		//test_barvortex(mesh);
 		//test_barvortex_L(mesh);
 		//test_barvortex_L2(mesh);
 		//test_barvortex_LT(mesh);
-		test_barvortex (mesh);
+		test_dymnikov_196 (mesh);
 		//test_laplace_LT(mesh);
 	}
 	return 0;

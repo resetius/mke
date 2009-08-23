@@ -29,6 +29,11 @@ sCreate_CompCol_Matrix(SuperMatrix *A, int m, int n, int nnz,
 		       Stype_t stype, Dtype_t dtype, Mtype_t mtype);
 
 extern "C" void
+sCreate_CompRow_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       float *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Dtype_t dtype, Mtype_t mtype);
+
+extern "C" void
 sCreate_Dense_Matrix(SuperMatrix *X, int m, int n, float *x, int ldx,
 		    Stype_t stype, Dtype_t dtype, Mtype_t mtype);
 
@@ -61,6 +66,14 @@ struct SuperLu
 
 	static void
 	Create_CompCol_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       T *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Dtype_t dtype, Mtype_t mtype)
+	{
+		assert(0);
+	}
+
+	static void
+	Create_CompRow_Matrix(SuperMatrix *A, int m, int n, int nnz, 
 		       T *nzval, int *rowind, int *colptr,
 		       Stype_t stype, Dtype_t dtype, Mtype_t mtype)
 	{
@@ -103,6 +116,14 @@ struct SuperLu < double >
 	}
 
 	static void
+	Create_CompRow_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       double *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Mtype_t mtype)
+	{
+		dCreate_CompRow_Matrix(A, m, n, nnz, nzval, rowind, colptr, stype, SLU_D, mtype);
+	}
+
+	static void
 	Create_Dense_Matrix(SuperMatrix *X, int m, int n, double *x, int ldx,
 		    Stype_t stype, Mtype_t mtype)
 	{
@@ -135,6 +156,14 @@ struct SuperLu < float >
 		       Stype_t stype, Mtype_t mtype)
 	{
 		sCreate_CompCol_Matrix(A, m, n, nnz, nzval, rowind, colptr, stype, SLU_S, mtype);
+	}
+
+	static void
+	Create_CompRow_Matrix(SuperMatrix *A, int m, int n, int nnz, 
+		       float *nzval, int *rowind, int *colptr,
+		       Stype_t stype, Mtype_t mtype)
+	{
+		sCreate_CompRow_Matrix(A, m, n, nnz, nzval, rowind, colptr, stype, SLU_S, mtype);
 	}
 
 	static void
@@ -197,7 +226,7 @@ void SuperLUSolver < T, MultStore > ::solve(T * x, const T * b)
 		int relax;
 
 		SuperLu < T >::Create_CompCol_Matrix(&A_, 
-			(int)invertn_, (int)invert.n_, (int)invert.Ax_.size(),
+			(int)invert.n_, (int)invert.n_, (int)invert.Ax_.size(),
 			&invert.Ax_[0], &invert.Ai_[0], &invert.Ap_[0],
 			SLU_NC, SLU_GE);
 
@@ -224,7 +253,7 @@ void SuperLUSolver < T, MultStore > ::solve(T * x, const T * b)
 
 		NCPformat *store;
 		store = (NCPformat *)L_.Store;
-		fprintf(stderr, "  nz: %d, n: %d\n", (int)invert.Ax_.size(), (int)invert.:n_);
+		fprintf(stderr, "  nz: %d, n: %d\n", (int)invert.Ax_.size(), (int)invert.n_);
 		fprintf(stderr, "        : %lf%%\n", (double)invert.Ax_.size() /(double)invert.n_ /(double)invert.n_ * 100.0);
 		fprintf(stderr, "L nz: %d: %lf%%\n", store->nnz, (double)store->nnz /(double)invert.n_ /(double)invert.n_ * 100.0);
 		store = (NCPformat *)U_.Store;

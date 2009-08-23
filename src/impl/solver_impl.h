@@ -165,7 +165,6 @@ void SparseSolver < T, MultStore, InvStore > ::print()
 template < typename T, typename MultStore, typename InvStore  >
 void SparseSolver < T, MultStore, InvStore > ::add(int i, int j, T a)
 {
-	// transposed !
 	A_[i][j] += a;
 }
 

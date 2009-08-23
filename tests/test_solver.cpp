@@ -13,7 +13,7 @@ using namespace std;
 
 bool check(float val)
 {
-	return fabs(val) < 1e-6;
+	return fabs(val) < 1e-5;
 }
 
 bool check(double val)
@@ -29,90 +29,112 @@ bool test_solver()
 //	int n  = 500000;
 //	int n  = 50000;
 //	int n = 20;
-	int nz = n + n - 1 + n - 1;
-
-	vector < int > Ap((n + 1));
-	vector < int > Ai(nz);
-	vector < T > Ax(nz);
-	vector < T > b(n);
-	vector < T > x(n);
-	vector < T > y(n);
 
 	/**
-	 * 2 1 0 .... 0
-	 * 1 2 1 .... 0
-	 * 0 1 2 1 .. 0
-	 * 0 0 1 2 .. 0
+	 * 4 2 0 .... 0
+	 * 1 4 2 .... 0
+	 * 0 1 4 2 .. 0
+	 * 0 0 1 4 .. 0
 	 * ............
-	 * ...... 1 2 1
-	 * .........1 2
+	 * ...... 1 4 2
+	 * .........1 4
 	 */
 
+	bool ret = true;
+
+	vector < T > b(n);
+	vector < T > x1(n);
+	vector < T > x2(n);
+	vector < T > x3(n);
+	vector < T > v(n);
+
 	/* матрицу записываем по строкам! */
-	Ap[0] = 0;
+	SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1(n);
+#ifdef UMFPACK
+	UmfPackSolver < T, StoreCSR < T , Allocator > > M2(n);
+#endif
+
+#ifdef SUPERLU
+	SuperLUSolver < T, StoreCSR < T , Allocator > > M3(n);
+#endif
+
 	for (i = 0; i < n; ++i) {
 		if (i == 0) {
-			/* 2 1 0 .... 0 */
-			Ap[i + 1] = Ap[i] + 2;
-
-			Ax[j    ] = 2;
-			Ax[j + 1] = 1;
-
-			Ai[j    ] = i;
-			Ai[j + 1] = i + 1;
-
-			j += 2;
+			/* 4 2 0 .... 0 */
+			M1.add(i, i,     4);
+			M1.add(i, i + 1, 2);
+#ifdef UMFPACK
+			M2.add(i, i,     4);
+			M2.add(i, i + 1, 2);
+#endif
+#ifdef SUPERLU
+			M3.add(i, i,     4);
+			M3.add(i, i + 1, 2);
+#endif
 		} else if (i < n - 1) {
-			/* 1 2 1 .... 0 */
-			Ap[i + 1] = Ap[i] + 3;
-
-			Ax[j    ] = 1;
-			Ax[j + 1] = 2;
-			Ax[j + 2] = 1;
-
-			Ai[j    ] = i - 1;
-			Ai[j + 1] = i;
-			Ai[j + 2] = i + 1;
-
-			j += 3;
+			/* 1 4 2 .... 0 */
+			M1.add(i, i - 1, 1);
+			M1.add(i, i,     4);
+			M1.add(i, i + 1, 2);
+#ifdef UMFPACK
+			M2.add(i, i - 1, 1);
+			M2.add(i, i,     4);
+			M2.add(i, i + 1, 2);
+#endif
+#ifdef SUPERLU
+			M3.add(i, i - 1, 1);
+			M3.add(i, i,     4);
+			M3.add(i, i + 1, 2);
+#endif
 		} else {
-			/* 0 .... 1 2 1 */
-			Ap[i + 1] = Ap[i] + 2;
-
-			Ax[j    ] = 2;
-			Ax[j + 1] = 1;
-
-			Ai[j    ] = i - 1;
-			Ai[j + 1] = i;
-
-			j += 2;
+			/* 0 .... 1 4 */
+			M1.add(i, i - 1, 1);
+			M1.add(i, i,     4);
+#ifdef UMFPACK
+			M2.add(i, i - 1, 1);
+			M2.add(i, i,     4);
+#endif
+#ifdef SUPERLU
+			M3.add(i, i - 1, 1);
+			M3.add(i, i,     4);
+#endif
 		}
 
 		b[i] = 1;
 	}
 
 	Timer t;
-#if 0
+
 	t.restart();
-	UmfPackSolver < T > lu2(&Ap[0], &Ai[0], &Ax[0], n, nz);
-	for (int k = 0; k < 1000; ++k) {
-		lu2.solve(&x[0], &b[0]);
+	for (int k = 0; k < 1; ++k) {
+		M1.solve(&x1[0], &b[0]);
+	}
+	fprintf(stderr, "gmres solve: %lf\n", t.elapsed());
+#ifdef UMFPACK
+	t.restart();
+	for (int k = 0; k < 1; ++k) {
+		M2.solve(&x2[0], &b[0]);
 	}
 	fprintf(stderr, "umfpack solve: %lf\n", t.elapsed());
-
+#endif
 	t.restart();
-	SuperLUMatrix < T > lu1(&Ap[0], &Ai[0], &Ax[0], n, nz);
-	for (int k = 0; k < 1000; ++k) {
-		lu1.solve(&y[0], &b[0]);
+	for (int k = 0; k < 1; ++k) {
+		M3.solve(&x3[0], &b[0]);
 	}
 	fprintf(stderr, "superlu solve: %lf\n", t.elapsed());
-
-	vec_diff(&y[0], &y[0], &x[0], (int)x.size());
-	T nr = vec_norm2(&y[0], (int)y.size());
-	fprintf(stderr, "%lf\n", (double)nr);
-	return check(nr);
+#if defined(UMFPACK) && defined(SUPERLU)
+	T nr;
+	vec_diff(&v[0], &x2[0], &x3[0], (int)x1.size());
+	nr = vec_norm2(&v[0], (int)x2.size());
+	fprintf(stderr, "%.16le\n", (double)nr);
+	ret &= check(nr);
 #endif
-	return false;
+	vec_diff(&v[0], &x1[0], &x2[0], (int)x1.size());
+	nr = vec_norm2(&v[0], (int)x2.size());
+	fprintf(stderr, "%.16le\n", (double)nr);
+//	ret &= check(nr);
+
+	return ret;
 }
 
 

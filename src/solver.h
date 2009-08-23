@@ -276,7 +276,18 @@ public:
 	void print();
 };
 
-#if defined(UMFPACK) && !defined(GPGPU)
+
+#if defined(SUPERLU) && !defined(GPGPU)
+
+template < typename T >
+class Solver: public SuperLUSolver < T, StoreELL < T , Allocator >  >
+{
+	typedef SuperLUSolver < T, StoreELL < T , Allocator >  > base;
+public:
+	Solver(int n): base(n) {}
+};
+
+#elif defined(UMFPACK) && !defined(GPGPU)
 
 template < typename T >
 class Solver: public UmfPackSolver < T, StoreELL < T , Allocator >  >
@@ -285,15 +296,6 @@ class Solver: public UmfPackSolver < T, StoreELL < T , Allocator >  >
 public:
 	Solver(int n): base(n) {}
 };
-
-/*
-template < typename T >
-class Solver: public SuperLUSolver < T, StoreELL < T , Allocator >  >
-{
-public:
-	Solver(int n): SuperLUSolver < T >(n) {}
-};
-*/
 
 #else
 template < typename T >

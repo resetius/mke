@@ -119,6 +119,9 @@ void SphereLaplace < T >::solve(T * Ans,
 #endif
 
 	phelm::solve(Ans, bnd, &b[0], laplace_, m_);
+
+//	vec_mult_scalar(Ans, Ans, (T)(6371.3 * 6371.3), rs); // mult R^2
+
 #ifdef _DEBUG
 	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 #endif
@@ -160,6 +163,8 @@ void SphereLaplace < T > ::calc2(T * Ans, const T * F)
 	bnd3_.mult_vector(&in[0], &tmp[0]);
 	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
 	idt_.solve(Ans, &out[0]);
+
+//	vec_mult_scalar(Ans, Ans, (T)(1.0 / 6371.3 / 6371.3), rs); // divide R^2
 }
 
 template < typename T >
