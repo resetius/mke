@@ -577,16 +577,21 @@ void test_dymnikov_196(const Mesh & m)
 	}
 }
 
+double kornev1_rp_(double phi, double lambda)
+{
+	double R     = 6.371e+6;
+	double omg   = 2.0 * M_PI/24./60./60.;
+	double T0    = 1./omg;
+	double k1    = T0/R/R;
+	double sigma = 1./20./24./60./60.;
+	double f     = -sigma*6*180./1.15*(2.*ipow(cos(phi),2)-1)*sin(phi);
+
+	return T0 * R * R * k1 * f;
+}
 
 double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
 {
-	double R    = 6.371e+3;
-	double omg  = 2.0 * M_PI/24./60./60.;
-	double T0    = 1./omg;
-	double k1    = T0/R/R;
-	double f = -sigma*6*180./1.15*(2.*ipow(cos(phi),2)-1)*sin(phi);
-
-	return T0 * R * R * k1 * f;
+	return kornev1_rp_(phi, lambda);
 }
 
 double kornev1_coriolis(double phi, double lambda)
@@ -595,12 +600,17 @@ double kornev1_coriolis(double phi, double lambda)
 	return 2 * omg * sin(phi) + 0.1 * 5000 * cos(2*lambda)*ipow(sin(2*phi),2);
 }
 
+double kornev1_u0(double phi, double lambda)
+{
+	return -6*180./1.15*(2.*ipow(cos(phi),2)-1)*sin(phi);
+}
+
 void test_kornev1(const Mesh & m)
 {
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.0001;
+	double tau = 0.25;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -610,7 +620,7 @@ void test_kornev1(const Mesh & m)
 
 	double sigma = 1./20./24./60./60.;
 	double mu    = sigma / 100.;
-	double R     = 6.371e+3;
+	double R     = 6.371e+6;
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
 	double k1    = 1.0;//T0/R/R;
@@ -624,10 +634,15 @@ void test_kornev1(const Mesh & m)
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
 
-	proj (&u[0], m, an1, 0);
-	//proj (&u[0], m, u0);
+	proj (&u[0], m, kornev1_u0);
 
-	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
+	{
+		vector < double > tmp(sz);
+		proj(&tmp[0], m, kornev1_rp_);
+
+		print_function("kornev1_rp.txt", &tmp[0], m, x, y, z);
+		print_function("kornev1_u0.txt", &u[0], m, x, y, z);
+	}
 
 	setbuf (stdout, 0);
 
