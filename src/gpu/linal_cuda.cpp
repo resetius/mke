@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: linal_cuda.cpp,v 8a841ed5b1e5 2009/08/24 14:07:14 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -50,7 +50,7 @@
 #include "linal_cuda.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION("$Id: linal_cuda.cpp,v 8a841ed5b1e5 2009/08/24 14:07:14 aozeritsky $");
 
 namespace phelm {
 

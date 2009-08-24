@@ -1,7 +1,7 @@
 #ifndef PHELM_BASE_H
 #define PHELM_BASE_H
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: base.h,v 429524446ae0 2009/08/14 09:54:36 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -40,7 +40,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision$
+ * @version $Revision: 429524446ae0 $
  */
 
 #include <vector>

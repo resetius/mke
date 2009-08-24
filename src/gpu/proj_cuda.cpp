@@ -38,7 +38,7 @@
 #include "phelm.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION("$Id: proj_cuda.cpp,v 429524446ae0 2009/08/14 09:54:36 aozeritsky $");
 
 namespace phelm {
 

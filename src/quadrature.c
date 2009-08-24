@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: quadrature.c,v a2da5c419ec2 2009/06/28 17:31:29 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -40,7 +40,7 @@
 
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION("$Id: quadrature.c,v a2da5c419ec2 2009/06/28 17:31:29 aozeritsky $");
 
 typedef double (*fx_t)(double x, void * data);
 

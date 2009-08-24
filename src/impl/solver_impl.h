@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: solver_impl.h,v 97faeca850f1 2009/08/23 18:45:33 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.

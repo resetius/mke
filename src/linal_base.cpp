@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: linal_base.cpp,v a12cc26a6b4b 2009/08/22 13:28:09 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -49,7 +49,7 @@
 #include "util.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION("$Id: linal_base.cpp,v a12cc26a6b4b 2009/08/22 13:28:09 aozeritsky $");
 
 namespace phelm {
 

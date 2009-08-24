@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: gmres.c,v 8a841ed5b1e5 2009/08/24 14:07:14 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (РђР»РµРєСЃРµР№ РћР·РµСЂРёС†РєРёР№)
  * All rights reserved.
@@ -43,7 +43,7 @@
 #include "gmres.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION("$Id: gmres.c,v 8a841ed5b1e5 2009/08/24 14:07:14 aozeritsky $");
 
 void vec_diff(double * r, const double * a, const double * b, int n);
 void vec_mult_scalar(double * a, const double * b, double k, int n);

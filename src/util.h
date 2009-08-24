@@ -1,7 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: util.h,v 8a841ed5b1e5 2009/08/24 14:07:14 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -40,7 +40,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision$
+ * @version $Revision: 8a841ed5b1e5 $
  *
  * @section DESCRIPTION
  * Misc functions.

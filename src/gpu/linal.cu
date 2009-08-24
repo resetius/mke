@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: linal.cu,v a12cc26a6b4b 2009/08/22 13:28:09 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
@@ -47,7 +47,7 @@
 #include "ver.h"
 #include "reduction.h"
 
-VERSION("$Id$");
+VERSION("$Id: linal.cu,v a12cc26a6b4b 2009/08/22 13:28:09 aozeritsky $");
 
 void vector_splay (int n, int threads_min, int threads_max, 
 	int grid_width, int *blocks, 

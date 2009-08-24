@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id$*/
+/*$Id: proj.cpp,v 280cd92cda42 2009/08/09 11:20:45 aozeritsky $*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
@@ -38,7 +38,7 @@
 #include "phelm.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION("$Id: proj.cpp,v 280cd92cda42 2009/08/09 11:20:45 aozeritsky $");
 
 using namespace std;
 
