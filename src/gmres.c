@@ -47,34 +47,13 @@ VERSION("$Id$");
 
 void vec_diff(double * r, const double * a, const double * b, int n);
 void vec_mult_scalar(double * a, const double * b, double k, int n);
+void vec_sum2(double * r, const double * a, const double *b, double k2, int n);
+
 double vec_norm2(const double *v, int n);
 double vec_scalar2(const double * a, const double * b, int n);
 
 double get_full_time();
 
-/**
- * a = b / k
- */
-static void vec_div_scalar(double * a, const double * b, double k, int n)
-{
-	int i;
-//#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		a[i] = b[i] / k;
-	}
-}
-
-/**
- * r = a + k2 * b
- */
-static void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
-{
-	int i;
-//#pragma omp parallel for
-	for (i = 0; i < n; ++i) {
-		r[i] = a[i] + k2 * b[i];
-	}
-}
 
 /**
  * Demmel Algorithm  6.9 p 303

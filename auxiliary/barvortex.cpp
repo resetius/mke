@@ -100,14 +100,14 @@ integrate_backward_cb( const Polynom & phi_i,
 }
 
 BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
-		double sigma, double mu)
-		 : SphereNorm(m), m_(m), l_(m), j_(m), 
-		 A_((int)m.inner.size()),
-		 bnd_((int)m.inner.size()),
-		 Ab_((int)m.inner.size()),
-		 bndb_((int)m.inner.size()),
-		 tau_(tau), sigma_(sigma), mu_(mu), theta_(SCHEME_THETA),
-		 rp_(rp), coriolis_(coriolis)
+					 double sigma, double mu, double k1, double k2)
+	: SphereNorm(m), m_(m), l_(m), j_(m), 
+	  A_((int)m.inner.size()),
+	  bnd_((int)m.inner.size()),
+	  Ab_((int)m.inner.size()),
+	  bndb_((int)m.inner.size()),
+	  tau_(tau), sigma_(sigma), mu_(mu), k1_(k1), k2_(k2), theta_(SCHEME_THETA),
+	  rp_(rp), coriolis_(coriolis)
 {
 	int sz = (int)m_.ps.size();
 	lh_.resize(sz);
@@ -182,7 +182,7 @@ right_part_backward_cb( const Polynom & phi_i,
 }
 
 /*
- * d L(phi)/dt + J(psi, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
+ * d L(phi)/dt + k1 J(psi, L(psi)) + k2 J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
  * L = Laplace
  */
 void BarVortex::calc(double * u1, const double * u, 
@@ -213,7 +213,7 @@ void BarVortex::calc(double * u1, const double * u,
 
 	// генерируем правую часть
 	// w/dt + mu (1-theta) L w - \sigma(1-theta) w -
-	// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
+	// - k1 J(0.5(u+u), 0.5(w+w)) - k2 J(0.5(u+u), l + h) + f(x, y)
 
 	// w = L (u)
 	l_.calc1(&w[0], &u[0], bnd);
@@ -246,14 +246,18 @@ void BarVortex::calc(double * u1, const double * u,
 	// в FC содержится правая часть, которая не меняется при итерациях!
 
 	for (int it = 0; it < 20; ++it) {
-		// 0.5(w+w) + l + h <- для вычисления Якобиана это надо знать и на границе!
-		vec_sum1(&tmp1[0], &w_n[0], &w[0], theta_, 
-			1.0 - theta_, sz);
-		vec_sum(&tmp1[0], &tmp1[0], &lh_[0], sz);
+		//   k1 J(0.5(u+u), 0.5(w+w)) + k2 J(0.5(u+u), l + h)   =
+		// = J(0.5 (u+u), 0.5 k1 (w+w)) + J(0.5 (u+u), k2 (l + h)) =
+		// = J(0.5 (u+u), 0.5 k1 (w+w) + k2 (l + h))
+
+		// 0.5 k1 (w+w) + k2 (l + h) <- для вычисления Якобиана это надо знать и на границе!
+		vec_sum1(&tmp1[0], &w_n[0], &w[0], k1_ * theta_, 
+				 k1_ * (1.0 - theta_), sz);
+		vec_sum2(&tmp1[0], &tmp1[0], &lh_[0], k2_, sz);
 		// 0.5(u+u)
 		vec_sum1(&tmp2[0], &u_n[0], &u[0], theta_, 
 			1.0 - theta_, sz);
-		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h)
+		// - k1 J(0.5(u+u), 0.5(w+w)) - k2 J(0.5(u+u), l + h)
 		j_.calc2(&jac[0], &tmp2[0], &tmp1[0]);
 		// w/dt + mu (1-theta) L w  - \sigma (1-theta) w -
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
@@ -331,9 +335,9 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 		j_.calc1(&jac2[0], z, &pt1[0], bnd);
 		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
 
-		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
 	}
 
 	vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
@@ -397,9 +401,9 @@ void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
 		j_.calc1(&jac2[0], z, &pt1[0], bnd);
 		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
 
-		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
 	}
 
 	//vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
@@ -475,8 +479,8 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 		l_.calc1(&p_lapl[0], &p_lapl[0], bnd);
 		j_.calc1t(h1, v1, &lz[0], bnd);
 
-		vec_sum(h1, h1, &p_lapl[0], sz);
-		vec_sum(h1, h1, &tmp[0], sz);
+		vec_sum1(h1, h1, &p_lapl[0], k1_, k1_, sz);
+		vec_sum2(h1, h1, &tmp[0], k2_, sz);
 		vec_mult_scalar(&h1[0], &h1[0], -1.0, sz);
 	}
 
@@ -516,9 +520,9 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 		j_.calc1(&jac2[0], z, &pt1[0], bnd);
 		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
 
-		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
 	}
 
 	l_.calc1(&pt2[0], &pt1[0], bnd);
@@ -558,9 +562,9 @@ void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const
 		j_.calc1t(&jac2[0], z, &pt1[0], bnd);
 		j_.calc1t(&jac3[0], u, &z_lapl[0], bnd);
 
-		vec_sum(&pt3[0], &pt3[0], &jac1[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac2[0], sz);
-		vec_sum(&pt3[0], &pt3[0], &jac3[0], sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
+		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
 	}
 
 	l_.calc1(&pt2[0], &pt1[0], bnd);

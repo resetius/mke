@@ -336,6 +336,18 @@ void vec_sum1(double * r, const double * a, const double *b, double k1, double k
 	}
 }
 
+/**
+ * r = a + k2 * b
+ */
+void vec_sum2(double * r, const double * a, const double *b, double k2, int n)
+{
+	int i;
+//#pragma omp parallel for
+	for (i = 0; i < n; ++i) {
+		r[i] = a[i] + k2 * b[i];
+	}
+}
+
 void vec_sum(double * r, const double * a, const double *b, int n)
 {
 	int i;
