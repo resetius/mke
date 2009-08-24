@@ -117,13 +117,15 @@ bool test_solver()
 	}
 	fprintf(stderr, "umfpack solve: %lf\n", t.elapsed());
 #endif
+#ifdef SUPERLU
 	t.restart();
 	for (int k = 0; k < 1; ++k) {
 		M3.solve(&x3[0], &b[0]);
 	}
 	fprintf(stderr, "superlu solve: %lf\n", t.elapsed());
-#if defined(UMFPACK) && defined(SUPERLU)
+#endif
 	T nr;
+#if defined(UMFPACK) && defined(SUPERLU)
 	vec_diff(&v[0], &x2[0], &x3[0], (int)x1.size());
 	nr = vec_norm2(&v[0], (int)x2.size());
 	fprintf(stderr, "%.16le\n", (double)nr);
