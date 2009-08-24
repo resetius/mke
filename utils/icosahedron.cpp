@@ -766,7 +766,7 @@ int main(int argc, char * argv[])
 	}
 
 	bool save_z = false;
-	if (type >= 2) save_z = true;
+	if (type == 2 || type == 5) save_z = true;
 
 	normalize_mesh(mesh, points, save_z);
 	iterate_mesh(mesh, points, iters, save_z);
