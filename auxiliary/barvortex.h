@@ -61,8 +61,8 @@
  * Solve the Barotropic vorticity equation.
  *
  \f[
- \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
-    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+ \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi) 
+    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
  \f]
  * where \f$J(\cdot,\cdot)\f$ is spherical jacobian operator 
  * and \f$\Delta\f$ is spherical Laplace operator.
@@ -105,11 +105,14 @@ public:
 	double tau_;   ///< time step
 	double sigma_; ///< \f$sigma\f$
 	double mu_;    ///< \f$theta\f$
+	double k1_;    ///< \f$k_1\f$
+	double k2_;    ///< \f$k_2\f$
+
 	/**
 	 * Time discretization scheme parameter \f$\theta\f$.
 	 * The default value is 0.5 (Crank–Nicolson).
 	 */
-	double theta_; 
+	double theta_;
 
 private:
 	rp_t rp_;
@@ -124,14 +127,17 @@ public:
 	 * @param tau - time step
 	 * @param sigma - \f$\sigma\f$
 	 * @param mu - \f$\mu\f$
+	 * @param k1 - \f$\k_1\f$
+	 * @param k2 - \f$\k_2\f$
 	 */
-	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma, double mu);
+	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma,
+			  double mu, double k1, double k2);
 
 	/**
 	 * Solve the Barotropic vorticity equation.
  \f[
- \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi)
-    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+ \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)
+    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
  \f]
 	 * @param Ans - output value
 	 * @param F - input vector (previous time step)
@@ -144,8 +150,8 @@ public:
 	/**
 	 * Solve the linearized Barotropic vorticity equation in a neibourhood of point (z).
  \f[
- \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta z)  + J(z, \Delta \psi)
-    + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = 0
+ \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta z)  + k_1 J(z, \Delta \psi)
+    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = 0
  \f]
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
@@ -179,7 +185,7 @@ public:
 	 * Calculate operator.
 	 *
 	 \f[
-	 J(\psi, \Delta z) + J(z, \Delta \psi) + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi
+	 k_1 J(\psi, \Delta z) + k_1 J(z, \Delta \psi) + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi
 	 \f]
 	 */
 	void L_spectr(double * u1, const double * u, const double * z, const double * bnd);

@@ -257,8 +257,8 @@ void test_barvortex_L (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
-	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
+	BarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
 
 	vector < double > u (sz);
 	vector < double > z (sz);
@@ -298,8 +298,8 @@ void test_barvortex_LT (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
-	BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+	//BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
+	BarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
 
 	vector < double > u  (sz);
 	vector < double > v  (sz);
@@ -417,8 +417,8 @@ void test_barvortex (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
-	//BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
+	//BarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
@@ -476,8 +476,8 @@ void test_barvortex_L2 (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu);
-	//BarVortex bv (m, rp, coriolis, tau, sigma, mu);
+	BarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
+	//BarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
 
 	vector < double > u (sz);
 	vector < double > u1(sz);
@@ -545,7 +545,7 @@ void test_dymnikov_196(const Mesh & m)
 	double mu    = 1250;
 	double sigma = 5e-8; //1.6e-2;
 
-	BarVortex bv (m, dymnikov_196_rp, dymnikov_196_coriolis, tau, sigma, mu);
+	BarVortex bv (m, dymnikov_196_rp, dymnikov_196_coriolis, tau, sigma, mu, 1.0, 1.0);
 
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
