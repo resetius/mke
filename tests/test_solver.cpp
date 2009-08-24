@@ -124,8 +124,8 @@ bool test_solver()
 	}
 	fprintf(stderr, "superlu solve: %lf\n", t.elapsed());
 #endif
-#if defined(UMFPACK) && defined(SUPERLU)
 	T nr;
+#if defined(UMFPACK) && defined(SUPERLU)
 	vec_diff(&v[0], &x2[0], &x3[0], (int)x1.size());
 	nr = vec_norm2(&v[0], (int)x2.size());
 	fprintf(stderr, "%.16le\n", (double)nr);
