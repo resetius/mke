@@ -577,6 +577,80 @@ void test_dymnikov_196(const Mesh & m)
 	}
 }
 
+
+double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
+{
+	double R    = 6.371e+3;
+	double omg  = 2.0 * M_PI/24./60./60.;
+	double T0    = 1./omg;
+	double k1    = T0/R/R;
+	double f = -sigma*6*180./1.15*(2.*ipow(cos(phi),2)-1)*sin(phi);
+
+	return T0 * R * R * k1 * f;
+}
+
+double kornev1_coriolis(double phi, double lambda)
+{
+	double omg  = 2.0 * M_PI/24./60./60.;
+	return 2 * omg * sin(phi) + 0.1 * 5000 * cos(2*lambda)*ipow(sin(2*phi),2);
+}
+
+void test_kornev1(const Mesh & m)
+{
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
+
+	double tau = 0.0001;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double sigma = 1./20./24./60./60.;
+	double mu    = sigma / 100.;
+	double R     = 6.371e+3;
+	double omg   = 2.0 * M_PI/24./60./60.;
+	double T0    = 1./omg;
+	double k1    = 1.0;//T0/R/R;
+	double k2    = T0;
+
+	mu = mu * k1;
+	sigma = sigma * T0;
+
+	BarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
+
+	vector < double > u (sz);
+	vector < double > bnd (std::max (os, 1));
+
+	proj (&u[0], m, an1, 0);
+	//proj (&u[0], m, u0);
+
+	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+#if 1
+		Timer tm;
+		bv.calc (&u[0], &u[0], &bnd[0], t);
+		if (i % 1 == 0) {
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+			         bv.norm (&u[0]), t, T, tm.elapsed());
+			// 3d print
+			//print_function (stdout, &u[0], m, x, y, z);
+			// flat print
+			// print_function (stdout, &u[0], m, 0, 0, 0);
+		}
+#endif
+
+		i += 1;
+		t += tau;
+	}
+}
+
 int main (int argc, char *argv[])
 {
 	Mesh mesh;
@@ -609,7 +683,8 @@ int main (int argc, char *argv[])
 		//test_barvortex_L(mesh);
 		//test_barvortex_L2(mesh);
 		//test_barvortex_LT(mesh);
-		test_dymnikov_196 (mesh);
+		//test_dymnikov_196 (mesh);
+		test_kornev1(mesh);
 		//test_laplace_LT(mesh);
 	}
 	return 0;

@@ -55,6 +55,8 @@
 #endif
 #endif
 
+#undef SUPERLU
+
 #include "util.h"
 #include "gmres.h"
 
@@ -280,9 +282,9 @@ public:
 #if defined(SUPERLU) && !defined(GPGPU)
 
 template < typename T >
-class Solver: public SuperLUSolver < T, StoreELL < T , Allocator >  >
+class Solver: public SuperLUSolver < T, StoreCSR < T , Allocator >  >
 {
-	typedef SuperLUSolver < T, StoreELL < T , Allocator >  > base;
+	typedef SuperLUSolver < T, StoreCSR < T , Allocator >  > base;
 public:
 	Solver(int n): base(n) {}
 };
