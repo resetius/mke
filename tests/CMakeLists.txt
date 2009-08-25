@@ -43,7 +43,12 @@ add_test(test_slaplace_half ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_s
 add_test(test_slaplace_test ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_slaplace.lua ${EXECUTABLE_OUTPUT_PATH} test)
 add_test(test_slaplace_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_slaplace.lua ${EXECUTABLE_OUTPUT_PATH} test2)
 add_test(test_gmres ${EXECUTABLE_OUTPUT_PATH}/test_gmres)
-add_test(test_barvortex ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_barvortex.lua ${EXECUTABLE_OUTPUT_PATH})
+add_test(test_barvortex_full ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_barvortex.lua ${EXECUTABLE_OUTPUT_PATH} full)
+add_test(test_barvortex_half ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_barvortex.lua ${EXECUTABLE_OUTPUT_PATH} half)
+add_test(test_jacobian_full ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_jacobian.lua ${EXECUTABLE_OUTPUT_PATH} full)
+add_test(test_jacobian_half ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_jacobian.lua ${EXECUTABLE_OUTPUT_PATH} half)
+add_test(test_jacobian_test ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_jacobian.lua ${EXECUTABLE_OUTPUT_PATH} test)
+add_test(test_jacobian_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_jacobian.lua ${EXECUTABLE_OUTPUT_PATH} test2)
 
 if (CUDA_FOUND)
 	cuda_add_executable(test_gmres_cu test_gmres.cpp)

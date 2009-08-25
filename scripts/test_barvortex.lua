@@ -21,14 +21,14 @@ function read_errors(f)
 	return e1
 end
 
-function run_test(path)
+function run_test(path, tp)
 	local exe1 = path .. "/test_barvortex"
-	local exe2 = path .. "/sphere --type half " 
+	local exe2 = path .. "/sphere --type " .. tp
 	print("run in " .. path)
 	os.execute(exe2 .. " --coord local --iter 4 > ss4.txt")
 	os.execute(exe2 .. " --coord local --iter 5 > ss5.txt")
-	local e11 = read_errors(io.popen(exe1 .. " -f ss4.txt --task test --time 0.01", "r"))
-	local e12 = read_errors(io.popen(exe1 .. " -f ss5.txt --task test --time 0.01", "r"))
+	local e11 = read_errors(io.popen(exe1 .. " -f ss4.txt --task test --time 0.01 -v 0", "r"))
+	local e12 = read_errors(io.popen(exe1 .. " -f ss5.txt --task test --time 0.01 -v 0", "r"))
 	local k = e11 / e12
 	print ("e11 / e12 =", k)
 	if (k < 2) then
@@ -41,6 +41,6 @@ function run_test(path)
 	end
 end
 
-run_test(arg[1])
+run_test(arg[1], arg[2])
 os.exit(0)
 
