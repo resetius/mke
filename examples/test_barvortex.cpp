@@ -611,7 +611,7 @@ double kornev1_rp_(double phi, double lambda)
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
 	double sigma = 1./20./24./60./60. * T0;
-	double f     = - sigma * 180/1.15 * (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
+	double f     = - sigma * /*180/1.15 **/ (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
 
 	return f;
 }
@@ -637,7 +637,7 @@ void test_kornev1(const Mesh & m)
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.001;
+	double tau = 0.0001;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -678,6 +678,8 @@ void test_kornev1(const Mesh & m)
 #if 1
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
+		print_function("kornev1_u1.txt", &u[0], m, x, y, z);
+//		exit(1);
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
 			         bv.norm (&u[0]), t, T, tm.elapsed());

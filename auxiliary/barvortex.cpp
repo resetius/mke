@@ -48,8 +48,9 @@ VERSION("$Id$");
 using namespace std;
 using namespace phelm;
 
-//#define SCHEME_THETA 0.5
-#define SCHEME_THETA 1.0
+#define SCHEME_THETA 0.5
+//#define SCHEME_THETA 1.0
+//#define SCHEME_THETA 0.2
 
 static double 
 integrate_cb( const Polynom & phi_i,
@@ -227,7 +228,7 @@ void BarVortex::calc(double * u1, const double * u,
 
 	// w/dt + mu (1-theta) L w - \sigma (1-theta) w
 	vec_sum1(&FC[0], &FC[0], &w[0], 1.0, 
-		-sigma_ * (1.0 - theta_), rs);
+		-sigma_ * (1.0 - theta_), sz);
 
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
@@ -274,15 +275,16 @@ void BarVortex::calc(double * u1, const double * u,
 		data2.d   = this;
 
 		generate_right_part(&rp[0], m_, 
-			(right_part_cb_t)right_part_cb, (void*)&data2);
+			right_part_cb, &data2);
 #endif
-
+#if 1
+		memset(&rp[0], 0, rp.size() * sizeof(double));
 		l_.idt_.mult_vector(&rp[0], &F[0]);
 		if (bnd) {
 			bnd_.mult_vector(&tmp1[0], bnd);
 			vec_sum(&rp[0], &rp[0], &tmp1[0], (int)rp.size());
 		}
-
+#endif
 		// тут граничное условие на омега!
 		solve(&w_n[0], bnd, &rp[0], A_, m_);
 		// а тут граничное условие на пси!
