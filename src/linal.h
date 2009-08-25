@@ -1,7 +1,7 @@
 #ifndef PHELM_LA_H
 #define PHELM_LA_H
 /* -*- charset: utf-8 -*- */
-/*$Id: linal.h,v a12cc26a6b4b 2009/08/22 13:28:09 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -40,7 +40,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: a12cc26a6b4b $
+ * @version $Revision$
  */
 
 #include <stdio.h>

@@ -1,4 +1,4 @@
-/*$Id: rectangle.cpp,v 9e135036651a 2009/06/28 17:12:59 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.

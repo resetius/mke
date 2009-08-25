@@ -1,4 +1,4 @@
-/*$Id: icosahedron.cpp,v 1249a6bbb3eb 2009/08/24 18:12:27 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.

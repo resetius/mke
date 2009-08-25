@@ -2,7 +2,7 @@
 #define MESH_H
 
 /* -*- charset: utf-8 -*- */
-/*$Id: mesh.h,v 3cb7b9553ca3 2009/08/17 09:24:05 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -42,7 +42,7 @@
 /**
  * @file 
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: 3cb7b9553ca3 $
+ * @version $Revision$
  */
 
 #include "polynom.h"

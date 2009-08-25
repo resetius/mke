@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id: phelm.cpp,v df846b89d750 2009/08/16 13:25:21 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -42,7 +42,7 @@
 #include "phelm.h"
 #include "ver.h"
 
-VERSION("$Id: phelm.cpp,v df846b89d750 2009/08/16 13:25:21 aozeritsky $");
+VERSION("$Id$");
 
 using namespace std;
 

@@ -1,7 +1,7 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 /* -*- charset: utf-8 -*- */
-/*$Id: solver.h,v 3875d9442be2 2009/08/24 18:13:18 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -40,7 +40,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: 3875d9442be2 $
+ * @version $Revision$
  *
  * @section DESCRIPTION
  * The Matrix class and linear system solver.

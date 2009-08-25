@@ -11,10 +11,21 @@
 using namespace std;
 using namespace phelm;
 
-void usage (const char * name)
+void usage(const char * name)
 {
-	fprintf (stderr, "usage: %s [mesh.txt|-]\n", name);
-	exit (1);
+	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-t|--threads number] [--task task] [--verbose|-v number]\n", name);
+	fprintf(stderr, "tasks:\n"
+			"jacobian\n"
+			"jacobian_T\n"
+			"test\n"
+			"L\n"
+			"L2\n"
+			"LT\n"
+			"dymnikov_196\n"
+			"kornev1\n"
+			"laplace_LT\n");
+
+	exit(1);
 }
 
 double f1 (double x, double y)
@@ -401,7 +412,7 @@ void test_laplace_LT (const Mesh & m)
 	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
-void test_barvortex (const Mesh & m)
+void test_barvortex (const Mesh & m, int verbose, double T)
 {
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
@@ -410,7 +421,6 @@ void test_barvortex (const Mesh & m)
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
-	double T = days * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
@@ -433,18 +443,20 @@ void test_barvortex (const Mesh & m)
 
 	while (t < T)
 	{
-#if 1
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
+
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
-			         bv.norm (&u[0]), t, T, tm.elapsed());
-			// 3d print
-			//print_function (stdout, &u[0], m, x, y, z);
-			// flat print
-			// print_function (stdout, &u[0], m, 0, 0, 0);
+					 bv.norm (&u[0]), t, T, tm.elapsed());
+			if (verbose) {
+
+				// 3d print
+				print_function (stdout, &u[0], m, x, y, z);
+				// flat print
+				// print_function (stdout, &u[0], m, 0, 0, 0);
+			}
 		}
-#endif
 
 		i += 1;
 		t += tau;
@@ -455,9 +467,11 @@ void test_barvortex (const Mesh & m)
 				bv.dist(&u[0], &Ans[0]));
 //			print_function (stdout, &Ans[0], m, x, y, z);
 		}
-//		Sleep(500);
 #endif
 	}
+
+	fprintf(stdout, "bv: norm %le\n",  
+			bv.dist(&u[0], &Ans[0]));
 }
 
 void test_barvortex_L2 (const Mesh & m)
@@ -669,38 +683,85 @@ void test_kornev1(const Mesh & m)
 int main (int argc, char *argv[])
 {
 	Mesh mesh;
+	string task;
+	int verbose = 0;
+	double time = 1.0;
 
-	if (argc > 1)
-	{
-		FILE * f = (strcmp (argv[1], "-") == 0) ? stdin : fopen (argv[1], "rb");
-		if (!f)
+	for (int i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
 		{
-			usage (argv[0]);
+			usage(argv[0]);
+		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "-f")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			FILE * f = (strcmp(argv[i + 1], "-") == 0) ? stdin : fopen(argv[i + 1], "rb");
+
+			if (!f) {
+				usage(argv[0]);
+			}
+			if (!mesh.load(f)) {
+				usage(argv[0]);
+			}
+
+			fclose(f);
+		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			int threads = atoi(argv[i + 1]);
+			set_num_threads(threads);
+		} else if (!strcmp(argv[i], "--time") || !strcmp(argv[i], "-T")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			time = atof(argv[i + 1]);
+		} else if (!strcmp(argv[i], "--task")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+			task = argv[i + 1];
+		} else if (!strcmp(argv[i], "--verbose") || !strcmp(argv[i], "-v")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+			verbose = atoi(argv[i + 1]);
 		}
-		if (!mesh.load (f) )
-		{
-			usage (argv[0]);
-		}
-		fclose (f);
 	}
-	else
-	{
-		usage (argv[0]);
+
+	if (mesh.ps.empty()) {
+		usage(argv[0]);
 	}
+
+#if defined(WIN32)
 	set_fpe_except();
+#endif
 
 	mesh.info();
 
-	{
-		//test_jacobian(mesh);
-		//test_jacobian_T(mesh);
-		//test_barvortex(mesh);
-		//test_barvortex_L(mesh);
-		//test_barvortex_L2(mesh);
-		//test_barvortex_LT(mesh);
-		//test_dymnikov_196 (mesh);
+	if (task == "jacobian") {
+		test_jacobian(mesh);
+	} else if (task == "jacobian_T") {
+		test_jacobian_T(mesh);
+	} else if (task == "test") {
+		test_barvortex(mesh, verbose, time);
+	} else if (task == "L") {
+		test_barvortex_L(mesh);
+	} else if (task == "L2") {
+		test_barvortex_L2(mesh);
+	} else if (task == "LT") {
+		test_barvortex_LT(mesh);
+	} else if (task == "dymnikov_196") {
+		test_dymnikov_196 (mesh);
+	} else if (task == "kornev1") {
 		test_kornev1(mesh);
-		//test_laplace_LT(mesh);
+	} else if (task == "laplace_LT") {
+		test_laplace_LT(mesh);
+	} else {
+		usage(argv[0]);
 	}
 	return 0;
 }

@@ -1,12 +1,12 @@
 #ifndef MKE_H
 #define MKE_H
 /* -*- charset: utf-8 -*- */
-/*$Id: phelm.h,v 8a841ed5b1e5 2009/08/24 14:07:14 aozeritsky $*/
+/*$Id$*/
 
 /**
  * @file 
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: 8a841ed5b1e5 $
+ * @version $Revision$
  *
  * @page License
  * @section LICENSE

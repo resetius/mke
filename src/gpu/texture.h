@@ -2,7 +2,7 @@
 #define TEXTURE_H
 
 /* -*- charset: utf-8 -*- */
-/*$Id: texture.h,v 5ebf770c6e00 2009/08/17 17:14:42 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.

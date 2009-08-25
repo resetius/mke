@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/*$Id: polynom.cpp,v 26667047d007 2009/06/29 06:57:20 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -46,7 +46,7 @@
 #include "util.h"
 #include "ver.h"
 
-VERSION("$Id: polynom.cpp,v 26667047d007 2009/06/29 06:57:20 aozeritsky $");
+VERSION("$Id$");
 
 #undef max
 #undef min

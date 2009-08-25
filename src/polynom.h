@@ -1,7 +1,7 @@
 #ifndef POLYNOM_H
 #define POLYNOM_H
 /* -*- charset: utf-8 -*- */
-/*$Id: polynom.h,v cfe83fe918fd 2009/07/01 12:50:00 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -40,7 +40,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: cfe83fe918fd $
+ * @version $Revision$
  *
  * @section DESCRIPTION
  * The polynom class, methods, functions.

@@ -43,6 +43,7 @@ add_test(test_slaplace_half ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_s
 add_test(test_slaplace_test ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_slaplace.lua ${EXECUTABLE_OUTPUT_PATH} test)
 add_test(test_slaplace_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_slaplace.lua ${EXECUTABLE_OUTPUT_PATH} test2)
 add_test(test_gmres ${EXECUTABLE_OUTPUT_PATH}/test_gmres)
+add_test(test_barvortex ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_barvortex.lua ${EXECUTABLE_OUTPUT_PATH})
 
 if (CUDA_FOUND)
 	cuda_add_executable(test_gmres_cu test_gmres.cpp)
