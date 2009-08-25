@@ -11,10 +11,21 @@
 using namespace std;
 using namespace phelm;
 
-void usage (const char * name)
+void usage(const char * name)
 {
-	fprintf (stderr, "usage: %s [mesh.txt|-]\n", name);
-	exit (1);
+	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [--task task] [--verbose|-v number]\n", name);
+	fprintf(stderr, "tasks:\n"
+			"jacobian\n"
+			"jacobian_T\n"
+			"test\n"
+			"L\n"
+			"L2\n"
+			"LT\n"
+			"dymnikov_196\n"
+			"kornev1\n"
+			"laplace_LT\n");
+
+	exit(1);
 }
 
 double f1 (double x, double y)
@@ -42,6 +53,21 @@ double an (double x, double y)
 	//return sin(x) * cos(y) / cos(x);
 }
 
+double test_jacobian_f1 (double x, double y)
+{
+	return sin (x) * sin (y);
+}
+
+double test_jacobian_f2 (double x, double y)
+{
+	return cos (x) * cos (y);
+}
+
+double test_jacobian_an (double x, double y)
+{
+	return (-sin (x) *cos (y) *sin (x) *cos (y) + cos (x) *sin (y) *cos (x) *sin (y) ) / cos (x);
+}
+
 void test_jacobian (const Mesh & m)
 {
 	int sz = (int)m.ps.size();
@@ -55,14 +81,14 @@ void test_jacobian (const Mesh & m)
 	vector < double > rans1 (sz);
 	vector < double > bnd (os);
 
-	proj (&F1[0], m, f1);
-	proj (&F2[0], m, f2);
-	proj (&rans1[0], m, an);
-	proj_bnd (&bnd[0], m, an);
+	proj (&F1[0], m, test_jacobian_f1);
+	proj (&F2[0], m, test_jacobian_f2);
+	proj (&rans1[0], m, test_jacobian_an);
+	proj_bnd (&bnd[0], m, test_jacobian_an);
 
 	j.calc1 (&ans1[0], &F1[0], &F2[0], &bnd[0]);
 
-	fprintf (stderr, "jacobian  err=%.2le\n",
+	fprintf (stdout, "jacobian err=%.2le\n",
 	         dist (&ans1[0], &rans1[0], m, sphere_scalar_cb, (void*)0) );
 
 	//vector < double > p1(m.inner.size());
@@ -177,6 +203,28 @@ double coriolis (double phi, double lambda)
 	return l + h;
 }
 
+double dymnikov_196_coriolis(double phi, double lambda)
+{
+	double R    = 6371.3;
+	double beta = 2e-11;
+	double l0   = 9.3e-5;
+	return l0 + beta * R * (M_PI / 10 + phi);
+}
+
+double dymnikov_196_rp(double phi, double lambda, double t, double mu, double sigma)
+{
+	double R    = 6371.3;
+	double y    = R * (M_PI / 10 + phi);
+	double k    = 10.0;
+	double tau0 = 1.1;
+	double tau  = 1.0; //?
+	double rho  = 1000;
+	double L    = 4000;
+	double H    = 500;
+	double ans = -k * 2.0 * M_PI * tau0 / rho / L / H * sin(2 * tau * y / L);
+	return ans;
+}
+
 double an1 (double x, double y, double t)
 {
 	return x*sin(y+t)*ipow(cos(x),4);
@@ -218,11 +266,6 @@ double rp2(double x, double y, double t, double mu, double sigma)
 		ipow(cos(x),2)-400*mu*sin(y+t)*x*
 		ipow(cos(x),4)+147*mu*sin(y+t)*sin(x)*cos(x)-45*mu*sin(y+t)*x;
 }
-
-#ifdef WIN32
-#include <windows.h>
-#undef max
-#endif
 
 void test_barvortex_L (const Mesh & m)
 {
@@ -330,9 +373,9 @@ void test_laplace_LT (const Mesh & m)
 
 	//srand(time(0));
 	srand(0);
-	SphereLaplace l (m);
+	SphereLaplace  l (m);
 	SphereJacobian j(m);
-	SphereNorm     s(m);
+	SphereNorm  s(m);
 
 	vector < double > u  (sz);
 	vector < double > v  (sz);
@@ -384,7 +427,7 @@ void test_laplace_LT (const Mesh & m)
 	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
-void test_barvortex (const Mesh & m)
+void test_barvortex (const Mesh & m, int verbose, double T)
 {
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
@@ -393,7 +436,6 @@ void test_barvortex (const Mesh & m)
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
-	double T = days * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
@@ -416,18 +458,20 @@ void test_barvortex (const Mesh & m)
 
 	while (t < T)
 	{
-#if 1
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
+
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
-			         bv.norm (&u[0]), t, T, tm.elapsed());
-			// 3d print
-			//print_function (stdout, &u[0], m, x, y, z);
-			// flat print
-			// print_function (stdout, &u[0], m, 0, 0, 0);
+					 bv.norm (&u[0]), t, T, tm.elapsed());
+			if (verbose) {
+
+				// 3d print
+				print_function (stdout, &u[0], m, x, y, z);
+				// flat print
+				// print_function (stdout, &u[0], m, 0, 0, 0);
+			}
 		}
-#endif
 
 		i += 1;
 		t += tau;
@@ -438,15 +482,17 @@ void test_barvortex (const Mesh & m)
 				bv.dist(&u[0], &Ans[0]));
 //			print_function (stdout, &Ans[0], m, x, y, z);
 		}
-//		Sleep(500);
 #endif
 	}
+
+	fprintf(stdout, "bv: norm %le\n",  
+			bv.dist(&u[0], &Ans[0]));
 }
 
 void test_barvortex_L2 (const Mesh & m)
 {
-	int sz = m.ps.size();
-	int os = m.outer.size();
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
 
 	double tau = 0.05;
 	double t = 0;
@@ -505,37 +551,225 @@ void test_barvortex_L2 (const Mesh & m)
 	}
 }
 
+/**
+ * Тест из книги Дымникова.
+ * Устойчивость и предсказуемость крупномасштабных атмосферных процессов, Москва, 
+ * ИВМ РАН, 2007, 283с
+ *
+ * Все данные со страницы 196.
+ */
+void test_dymnikov_196(const Mesh & m)
+{
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
+
+	double tau = 0.0001;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double mu    = 1250;
+	double sigma = 5e-8; //1.6e-2;
+
+	BarVortex bv (m, dymnikov_196_rp, dymnikov_196_coriolis, tau, sigma, mu, 1.0, 1.0);
+
+	vector < double > u (sz);
+	vector < double > bnd (std::max (os, 1));
+
+	//proj (&u[0], m, an1, 0);
+	//proj (&u[0], m, u0);
+
+	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+#if 1
+		Timer tm;
+		bv.calc (&u[0], &u[0], &bnd[0], t);
+		if (i % 1 == 0) {
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+			         bv.norm (&u[0]), t, T, tm.elapsed());
+			// 3d print
+			//print_function (stdout, &u[0], m, x, y, z);
+			// flat print
+			// print_function (stdout, &u[0], m, 0, 0, 0);
+		}
+#endif
+
+		i += 1;
+		t += tau;
+	}
+}
+
+double kornev1_rp_(double phi, double lambda)
+{
+	double omg   = 2.0 * M_PI/24./60./60.;
+	double T0    = 1./omg;
+	double sigma = 1./20./24./60./60. * T0;
+	double f     = - sigma * /*180/1.15 **/ (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
+
+	return f;
+}
+
+double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
+{
+	return kornev1_rp_(phi, lambda);
+}
+
+double kornev1_coriolis(double phi, double lambda)
+{
+	double omg  = 2.0 * M_PI/24./60./60.;
+	return 2 * omg * sin(phi) + 0.1 * /*5000 */ cos(2*lambda)*ipow(sin(2*phi),2);
+}
+
+double kornev1_u0(double phi, double lambda)
+{
+	return - ipow(sin(phi),3);
+}
+
+void test_kornev1(const Mesh & m)
+{
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
+
+	double tau = 0.0001;
+	double t = 0;
+	//double T = 0.1;
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+	double month = 30.0 * 2.0 * M_PI;
+	int i = 0;
+
+	double sigma = 1./20./24./60./60.;
+	double mu    = sigma / 100.;
+	double R     = 6.371e+6;
+	double omg   = 2.0 * M_PI/24./60./60.;
+	double T0    = 1./omg;
+	double k1    = 1.0;
+	double k2    = T0;
+
+	sigma = sigma * T0;
+	mu    = 10e-2*sigma;
+
+	BarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
+
+	vector < double > u (sz);
+	vector < double > bnd (std::max (os, 1));
+
+	proj (&u[0], m, kornev1_u0);
+
+	{
+		vector < double > tmp(sz);
+		proj(&tmp[0], m, kornev1_rp_);
+
+		print_function("kornev1_rp.txt", &tmp[0], m, x, y, z);
+		print_function("kornev1_u0.txt", &u[0], m, x, y, z);
+	}
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+#if 1
+		Timer tm;
+		bv.calc (&u[0], &u[0], &bnd[0], t);
+		print_function("kornev1_u1.txt", &u[0], m, x, y, z);
+//		exit(1);
+		if (i % 1 == 0) {
+			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+			         bv.norm (&u[0]), t, T, tm.elapsed());
+			// 3d print
+			//print_function (stdout, &u[0], m, x, y, z);
+			// flat print
+			// print_function (stdout, &u[0], m, 0, 0, 0);
+		}
+#endif
+
+		i += 1;
+		t += tau;
+	}
+}
+
 int main (int argc, char *argv[])
 {
 	Mesh mesh;
+	string task;
+	int verbose = 0;
+	double time = 1.0;
 
-	if (argc > 1)
-	{
-		FILE * f = (strcmp (argv[1], "-") == 0) ? stdin : fopen (argv[1], "rb");
-		if (!f)
+	for (int i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
 		{
-			usage (argv[0]);
+			usage(argv[0]);
+		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "-f")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			FILE * f = (strcmp(argv[i + 1], "-") == 0) ? stdin : fopen(argv[i + 1], "rb");
+
+			if (!f) {
+				usage(argv[0]);
+			}
+			if (!mesh.load(f)) {
+				usage(argv[0]);
+			}
+
+			fclose(f);
+		} else if (!strcmp(argv[i], "--time") || !strcmp(argv[i], "-T")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			time = atof(argv[i + 1]);
+		} else if (!strcmp(argv[i], "--task")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+			task = argv[i + 1];
+		} else if (!strcmp(argv[i], "--verbose") || !strcmp(argv[i], "-v")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+			verbose = atoi(argv[i + 1]);
 		}
-		if (!mesh.load (f) )
-		{
-			usage (argv[0]);
-		}
-		fclose (f);
 	}
-	else
-	{
-		usage (argv[0]);
+
+	if (mesh.ps.empty()) {
+		usage(argv[0]);
 	}
+
+#if defined(WIN32)
 	set_fpe_except();
+#endif
 
 	mesh.info();
 
-	//test_jacobian(mesh);
-	//test_jacobian_T(mesh);
-	//test_barvortex_L(mesh);
-	//test_barvortex_L2(mesh);
-	//test_barvortex_LT(mesh);
-	//test_barvortex (mesh);
-	test_laplace_LT(mesh);
+	if (task == "jacobian") {
+		test_jacobian(mesh);
+	} else if (task == "jacobian_T") {
+		test_jacobian_T(mesh);
+	} else if (task == "test") {
+		test_barvortex(mesh, verbose, time);
+	} else if (task == "L") {
+		test_barvortex_L(mesh);
+	} else if (task == "L2") {
+		test_barvortex_L2(mesh);
+	} else if (task == "LT") {
+		test_barvortex_LT(mesh);
+	} else if (task == "dymnikov_196") {
+		test_dymnikov_196 (mesh);
+	} else if (task == "kornev1") {
+		test_kornev1(mesh);
+	} else if (task == "laplace_LT") {
+		test_laplace_LT(mesh);
+	} else {
+		usage(argv[0]);
+	}
 	return 0;
 }
