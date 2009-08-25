@@ -608,14 +608,12 @@ void test_dymnikov_196(const Mesh & m)
 
 double kornev1_rp_(double phi, double lambda)
 {
-	double R     = 6.371e+6;
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
-	double k1    = T0/R/R;
-	double sigma = 1./20./24./60./60.;
-	double f     = -sigma*6*180./1.15*(2.*ipow(cos(phi),2)-1)*sin(phi);
+	double sigma = 1./20./24./60./60. * T0;
+	double f     = -sigma*(2.*ipow(cos(phi),2)-1)*sin(phi)*6;
 
-	return T0 * R * R * k1 * f;
+	return f;
 }
 
 double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
@@ -626,12 +624,12 @@ double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
 double kornev1_coriolis(double phi, double lambda)
 {
 	double omg  = 2.0 * M_PI/24./60./60.;
-	return 2 * omg * sin(phi) + 0.1 * 5000 * cos(2*lambda)*ipow(sin(2*phi),2);
+	return 2 * omg * sin(phi) + 0.1 * /*5000 */ cos(2*lambda)*ipow(sin(2*phi),2);
 }
 
 double kornev1_u0(double phi, double lambda)
 {
-	return -6*180./1.15*(2.*ipow(cos(phi),2)-1)*sin(phi);
+	return - ipow(sin(phi),3);//*6;
 }
 
 void test_kornev1(const Mesh & m)
@@ -639,7 +637,7 @@ void test_kornev1(const Mesh & m)
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.25;
+	double tau = 0.001;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -655,8 +653,8 @@ void test_kornev1(const Mesh & m)
 	double k1    = 1.0;//T0/R/R;
 	double k2    = T0;
 
-	mu = mu * k1;
 	sigma = sigma * T0;
+	mu    = 10e-2*sigma;
 
 	BarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
 

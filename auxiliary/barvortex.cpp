@@ -48,8 +48,8 @@ VERSION("$Id$");
 using namespace std;
 using namespace phelm;
 
-#define SCHEME_THETA 0.5
-//#define SCHEME_THETA 1.0
+//#define SCHEME_THETA 0.5
+#define SCHEME_THETA 1.0
 
 static double 
 integrate_cb( const Polynom & phi_i,
@@ -245,7 +245,7 @@ void BarVortex::calc(double * u1, const double * u,
 
 	// в FC содержится правая часть, которая не меняется при итерациях!
 
-	for (int it = 0; it < 20; ++it) {
+	for (int it = 0; it < 200; ++it) {
 		//   k1 J(0.5(u+u), 0.5(w+w)) + k2 J(0.5(u+u), l + h)   =
 		// = J(0.5 (u+u), 0.5 k1 (w+w)) + J(0.5 (u+u), k2 (l + h)) =
 		// = J(0.5 (u+u), 0.5 k1 (w+w) + k2 (l + h))
@@ -290,7 +290,7 @@ void BarVortex::calc(double * u1, const double * u,
 
 		double nr = dist(&u_n1[0], &u_n[0]);
 		u_n1.swap(u_n);
-		if (nr < 1e-8) {
+		if (nr < 1e-14) {
 			break;
 		}
 	}

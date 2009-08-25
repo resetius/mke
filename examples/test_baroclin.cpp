@@ -262,7 +262,7 @@ int main (int argc, char *argv[])
 	{
 		usage (argv[0]);
 	}
-	set_fpe_except();
+//	set_fpe_except();
 
 	test_boclinic (mesh);
 	return 0;
