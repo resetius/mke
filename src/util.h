@@ -250,6 +250,17 @@ void vec_sum1(double * r, const double * a,
 			  const double *b, double k1, double k2, int n);
 
 /**
+ * Linear combination of two vectors.
+ * @param r - output vector
+ * @param a - input vector
+ * @param b - input vector
+ * @param k2 - coefficient
+ * @param n - dimension of vectors
+ * @return r = a + k2 * b
+ */
+void vec_sum2(double * r, const double * a, const double *b, double k2, int n);
+
+/**
  * Product of vector by number.
  * @param a - output vector
  * @param b - input vector

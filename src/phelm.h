@@ -201,6 +201,10 @@
 
 typedef unsigned int uint;
 
+#define PHELM_VERSION    1
+#define PHELM_PATCHLEVEL 0
+#define PHELM_SUBLEVEL   2
+
 /**
  * @namespace phelm
  *
