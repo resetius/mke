@@ -611,7 +611,7 @@ double kornev1_rp_(double phi, double lambda)
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
 	double sigma = 1./20./24./60./60. * T0;
-	double f     = -sigma*(2.*ipow(cos(phi),2)-1)*sin(phi)*6;
+	double f     = - sigma * 180/1.15 * (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
 
 	return f;
 }
@@ -629,7 +629,7 @@ double kornev1_coriolis(double phi, double lambda)
 
 double kornev1_u0(double phi, double lambda)
 {
-	return - ipow(sin(phi),3);//*6;
+	return - ipow(sin(phi),3);
 }
 
 void test_kornev1(const Mesh & m)
@@ -650,7 +650,7 @@ void test_kornev1(const Mesh & m)
 	double R     = 6.371e+6;
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
-	double k1    = 1.0;//T0/R/R;
+	double k1    = 1.0;
 	double k2    = T0;
 
 	sigma = sigma * T0;

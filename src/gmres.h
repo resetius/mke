@@ -1,7 +1,7 @@
 #ifndef GMRES_H
 #define GMRES_H
 /* -*- charset: utf-8 -*- */
-/*$Id: gmres.h,v 4af9d8ff89f0 2009/08/16 13:04:27 aozeritsky $*/
+/*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
@@ -40,7 +40,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: 4af9d8ff89f0 $
+ * @version $Revision$
  *
  * @section DESCRIPTION
  *

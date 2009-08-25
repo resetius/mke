@@ -1,5 +1,5 @@
 /* -*- charset: utf-8 -*- */
-/* $Id: generators.h,v 4af9d8ff89f0 2009/08/16 13:04:27 aozeritsky $ */
+/* $Id$ */
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
@@ -38,7 +38,7 @@
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
- * @version $Revision: 4af9d8ff89f0 $
+ * @version $Revision$
  *
  * @section DESCRIPTION
  * finite-element matrix generators, right-part generator, mesh-vector norm, 
