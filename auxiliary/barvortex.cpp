@@ -227,7 +227,7 @@ void BarVortex::calc(double * u1, const double * u,
 
 	// w/dt + mu (1-theta) L w - \sigma (1-theta) w
 	vec_sum1(&FC[0], &FC[0], &w[0], 1.0, 
-		-sigma_ * (1.0 - theta_), rs);
+		-sigma_ * (1.0 - theta_), sz);
 
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i) {
