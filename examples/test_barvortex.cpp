@@ -610,10 +610,11 @@ double kornev1_rp_(double phi, double lambda)
 {
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
-	double sigma = 1./20./24./60./60. * T0;
-	double f     = - sigma * /*180/1.15 **/ (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
+	double H     = 5000;
+	double sigma = 1./20./2./M_PI;
+	double f     = - sigma * 180/1.15 * (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
 
-	return f;
+	return f/H;
 }
 
 double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
@@ -624,12 +625,13 @@ double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
 double kornev1_coriolis(double phi, double lambda)
 {
 	double omg  = 2.0 * M_PI/24./60./60.;
-	return 2 * omg * sin(phi) + 0.1 * /*5000 */ cos(2*lambda)*ipow(sin(2*phi),2);
+	double H    = 1;
+	return 2 * omg * sin(phi) + 0.1 * H * cos(2*lambda)*ipow(sin(2*phi),2);
 }
 
 double kornev1_u0(double phi, double lambda)
 {
-	return - ipow(sin(phi),3);
+	return - 180/1.15 * ipow(sin(phi),3);
 }
 
 void test_kornev1(const Mesh & m)
@@ -637,7 +639,7 @@ void test_kornev1(const Mesh & m)
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.0001;
+	double tau = 0.001;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -645,16 +647,17 @@ void test_kornev1(const Mesh & m)
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
-	double sigma = 1./20./24./60./60.;
+	double H     = 5000;
+	double sigma = 1./20./2./M_PI/H;
 	double mu    = sigma / 100.;
 	double R     = 6.371e+6;
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
-	double k1    = 1.0;
+	double k1    = 1.0/H;
 	double k2    = T0;
 
-	sigma = sigma * T0;
-	mu    = 10e-2*sigma;
+//	sigma = sigma * T0;
+//	mu    = 10e-2*sigma;
 
 	BarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
 
@@ -678,13 +681,13 @@ void test_kornev1(const Mesh & m)
 #if 1
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
-		print_function("kornev1_u1.txt", &u[0], m, x, y, z);
+//		print_function("kornev1_u1.txt", &u[0], m, x, y, z);
 //		exit(1);
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
 			         bv.norm (&u[0]), t, T, tm.elapsed());
 			// 3d print
-			//print_function (stdout, &u[0], m, x, y, z);
+//			print_function (stdout, &u[0], m, x, y, z);
 			// flat print
 			// print_function (stdout, &u[0], m, 0, 0, 0);
 		}

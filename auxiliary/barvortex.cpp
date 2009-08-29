@@ -278,9 +278,10 @@ void BarVortex::calc(double * u1, const double * u,
 			right_part_cb, &data2);
 #endif
 #if 1
-		memset(&rp[0], 0, rp.size() * sizeof(double));
+		memset(&rp[0], 0, rs * sizeof(double));
 		l_.idt_.mult_vector(&rp[0], &F[0]);
 		if (bnd) {
+			memset(&tmp1[0], 0, rs * sizeof(double));
 			bnd_.mult_vector(&tmp1[0], bnd);
 			vec_sum(&rp[0], &rp[0], &tmp1[0], (int)rp.size());
 		}
