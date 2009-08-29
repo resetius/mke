@@ -15,23 +15,23 @@
 using namespace std;
 using namespace phelm;
 
-void usage(const char * name)
+static void usage(const char * name)
 {
 	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
 	exit(1);
 }
 
-double ans(double x, double y, double t)
+static double ans(double x, double y, double t)
 {
 	return exp(t) * x * (x - 1) * y * (y - 1);
 }
 
-double bnd(double x, double y, double t)
+static double bnd(double x, double y, double t)
 {
 	return ans(x, y, t);
 }
 
-double nr2(double * a, double * b, int n)
+static double nr2(double * a, double * b, int n)
 {
 	double sum = 0.0;
 	for (int i = 0; i < n; ++i) {
@@ -98,7 +98,7 @@ void chafe_calc(Mesh & mesh)
 	}
 }
 
-int main(int argc, char *argv[])
+int test_chafe(int argc, char *argv[])
 {
 	Mesh mesh;
 	bool use_double = false;

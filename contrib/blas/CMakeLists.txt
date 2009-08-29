@@ -12,6 +12,6 @@ file(GLOB SRC3 BLAS/WRAP/*.c)
 
 include_directories(.)
 
-add_library(blas ${SRC2} ${SRC3})
+#add_library(blas ${SRC2} ${SRC3})
 
 endif(WIN32)

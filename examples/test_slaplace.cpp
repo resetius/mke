@@ -15,13 +15,13 @@
 using namespace std;
 using namespace phelm;
 
-void usage(const char * name)
+static void usage(const char * name)
 {
 	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
 	exit(1);
 }
 
-double rp(double x, double y)
+static double rp(double x, double y)
 {
 	//return -6.0 * sin(y) * sin(2.0 * x);
 	
@@ -50,7 +50,7 @@ double rp(double x, double y)
 	return ans;
 }
 
-double ans(double x, double y)
+static double ans(double x, double y)
 {
 	//return sin(y) * sin(2.0 * x);
 
@@ -64,12 +64,12 @@ double ans(double x, double y)
 		2.0 * ipow(sx - 3, 2);
 }
 
-double bnd(double x, double y)
+static double bnd(double x, double y)
 {
 	return ans(x, y);
 }
 
-double nr2(double * a, double * b, int n)
+static double nr2(double * a, double * b, int n)
 {
 	double sum = 0.0;
 	for (int i = 0; i < n; ++i) {
@@ -195,7 +195,7 @@ void test_laplace(const Mesh & mesh)
 	fprintf(stdout, "L3: laplace err=%.2le\n", (double)nr.dist(&cU[0], &cLU[0]));
 }
 
-int main(int argc, char *argv[])
+int test_slaplace(int argc, char *argv[])
 {
 	Mesh mesh;
 	bool use_double = false;
