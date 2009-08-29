@@ -13,7 +13,7 @@
 using namespace std;
 using namespace phelm;
 
-double ans(double x, double y, double t)
+static double ans(double x, double y, double t)
 {
 	//return sin(x + t) * cos(y + t);
 	return x * (double)rand() / (double)RAND_MAX +
@@ -45,13 +45,13 @@ static double z(double u, double v)
 	return sin(u);
 }
 
-void usage(const char * name)
+static void usage(const char * name)
 {
 	fprintf(stderr, "usage: %s [mesh.txt|-]\n", name);
 	exit(1);
 }
 
-int main(int argc, char * argv[])
+extern "C" int test_funcgen(int argc, char * argv[])
 {
 	Mesh mesh;
 	vector < double > F;

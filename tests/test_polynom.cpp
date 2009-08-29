@@ -8,7 +8,7 @@
 using namespace std;
 using namespace phelm;
 
-void check(const string & str1, const string & str2)
+static void check(const string & str1, const string & str2)
 {
 	if (str1 != str2) {
 		fprintf(stderr, "%s != %s\n", str1.c_str(), str2.c_str());
@@ -16,7 +16,7 @@ void check(const string & str1, const string & str2)
 	}
 }
 
-void test_primitives()
+static void test_primitives()
 {
 	fprintf(stderr, "primitives:\n");
 	check(P2X.print(), "+1.0 x^1 ");
@@ -24,7 +24,7 @@ void test_primitives()
 	fprintf(stderr, "done\n");
 }
 
-void test_primitives_operatins()
+static void test_primitives_operatins()
 {
 	fprintf(stderr, "primitives operations:\n");
 	Polynom p1 = (P2X - 1) * (2 - 5) - (P2Y - 11) * (-9 - 5);
@@ -47,7 +47,7 @@ void test_primitives_operatins()
 	fprintf(stderr, "done\n");
 }
 
-int main()
+extern "C" int test_polynom(int argc, char * argv[])
 {
 	test_primitives();
 	test_primitives_operatins();

@@ -13,7 +13,7 @@
 using namespace std;
 using namespace phelm;
 
-void check(double a, double b)
+static void check(double a, double b)
 {
 	if (fabs(a - b) > 1e-14) {
 		fprintf(stderr, "%.16lf != %.16lf\n", a, b);
@@ -22,7 +22,7 @@ void check(double a, double b)
 }
 
 #if 1
-void test_simple()
+static void test_simple()
 {
 	double a;
 	fprintf(stderr, "test_simple\n");
@@ -41,7 +41,7 @@ void test_simple()
 	fprintf(stderr, "done\n");
 }
 
-void test_simple2()
+static void test_simple2()
 {
 	fprintf(stderr, "int 0.5->1 int x->1 dx dy\n");
 	double a = trapezoid_integral(0, 0, 1, 0, 0, 1, 0.5, 1);
@@ -49,7 +49,7 @@ void test_simple2()
 	check(a, 0.125);
 }
 
-void test_simple3()
+static void test_simple3()
 {
 	double ans = 0.0;
 	fprintf(stderr, "test_simple\n");
@@ -76,14 +76,14 @@ void test_simple3()
 	fprintf(stderr, "done\n");
 }
 
-void print_poly(vector < Polynom > & p)
+static void print_poly(vector < Polynom > & p)
 {
 	for (size_t i = 0; i < p.size(); ++i) {
 		p[i].print();
 	}
 }
 #if 0
-void test_elem()
+static void test_elem()
 {
 	Mesh m;
 	FILE * f = fopen("input_0.txt", "rb");
@@ -104,7 +104,7 @@ void test_elem()
 	fclose(f);
 }
 #endif
-void test_trapezoid_cos()
+static void test_trapezoid_cos()
 {
 	double a, b; 
 	double step = M_PI / 8;
@@ -122,7 +122,7 @@ void test_trapezoid_cos()
 	fprintf(stderr, "b=%.16lf\n", b);
 }
 
-void test_sphere_area()
+static void test_sphere_area()
 {
 	fprintf(stderr, "test_sphere_area\n");
 
@@ -238,7 +238,7 @@ void test_sphere_area()
 
 #endif
 
-int main()
+extern "C" int test_integrate(int argc, char * argv[])
 {
 	test_simple();
 	test_simple2();

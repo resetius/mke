@@ -24,7 +24,7 @@ void check(double a, double b)
 	}
 }
 
-int main()
+int test_quadrature(int argc, char * argv[])
 {
 	double i;
 

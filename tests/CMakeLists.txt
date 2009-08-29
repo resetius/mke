@@ -4,27 +4,22 @@ set(EXECUTABLE_OUTPUT_PATH "../bin")
 include_directories(../src ../auxiliary)
 link_directories(../lib)
 
-add_executable(test_polynom test_polynom.cpp)
-add_executable(test_integrate test_integrate.cpp)
+create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp)
+
+add_executable(test_small ${small_tests})
 add_executable(test_gmres test_gmres.cpp)
 add_executable(test_solver test_solver.cpp)
-add_executable(test_quadrature test_quadrature.c)
-add_executable(test_funcgen test_funcgen.cpp)
 
-target_link_libraries(test_polynom phelm phelm_aux ${UMFPACK} ${SUPERLU})
-target_link_libraries(test_integrate phelm phelm_aux ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_small phelm phelm_aux ${MATH} ${UMFPACK} ${SUPERLU})
+
 target_link_libraries(test_gmres phelm phelm_aux ${UMFPACK} ${SUPERLU})
-target_link_libraries(test_quadrature phelm phelm_aux ${MATH} ${SUPERLU})
-target_link_libraries(test_funcgen phelm phelm_aux ${MATH} ${UMFPACK} ${SUPERLU})
 target_link_libraries(test_solver phelm phelm_aux ${UMFPACK} ${SUPERLU})
 
 if (OPENMP_FOUND)
-set_target_properties(test_polynom PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(test_integrate PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_small PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+
 set_target_properties(test_gmres PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_solver PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(test_quadrature PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(test_funcgen PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
 
 if (WIN32)
@@ -70,4 +65,3 @@ if (CUDA_FOUND)
 	add_test(test_gpu_reduction ${EXECUTABLE_OUTPUT_PATH}/test_gpu_reduction)
 	add_test(test_laplace_cu ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} test_laplace_cu)
 endif (CUDA_FOUND)
-
