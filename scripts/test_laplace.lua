@@ -33,7 +33,7 @@ end
 
 function run_test()
 	local path = arg[1]
-	local exe1 = path .. "/" .. arg[2] -- "/test_laplace"
+	local exe1 = path .. "/test_laplace test_laplace" -- "/test_laplace"
 	local exe2 = path .. "/rectangle"
 	print("run in " .. path)
 	os.execute(exe2 .. " 0 0 1 1 3 > r3.txt")
