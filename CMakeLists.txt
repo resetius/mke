@@ -15,6 +15,7 @@ include(FindSelfSuperLU)
 include(FindCuda)
 include(CommonDefinitions)
 include(Bison)
+include(FindNETCDF)
 endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
 add_subdirectory(contrib)
