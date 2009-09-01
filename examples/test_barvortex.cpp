@@ -612,9 +612,10 @@ double kornev1_rp_(double phi, double lambda)
 	double T0    = 1./omg;
 	double H     = 5000;
 	double sigma = 1./20./2./M_PI;
+	double R     = 6.371e+6;
 	double f     = - sigma * 180/1.15 * (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
 
-	return f/H;
+	return f*T0*T0/R/R;
 }
 
 double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
@@ -639,7 +640,7 @@ void test_kornev1(const Mesh & m)
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.001;
+	double tau = 0.00001;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -647,14 +648,14 @@ void test_kornev1(const Mesh & m)
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
 
+	double R     = 6.371e+6;
 	double H     = 5000;
 	double sigma = 1./20./2./M_PI/H;
 	double mu    = sigma / 100.;
-	double R     = 6.371e+6;
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
-	double k1    = 1.0/H;
-	double k2    = T0;
+	double k1    = 1.0;
+	double k2    = T0/R/R;
 
 //	sigma = sigma * T0;
 //	mu    = 10e-2*sigma;
