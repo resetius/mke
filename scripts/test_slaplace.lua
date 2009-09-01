@@ -31,7 +31,7 @@ function read_errors(f)
 end
 
 function run_test(path, tp)
-	local exe1 = path .. "/test_slaplace"
+	local exe1 = path .. "/test_laplace test_slaplace"
 	local exe2 = path .. "/sphere --type " .. tp
 	print("run in " .. path)
 	os.execute(exe2 .. " --coord local --iter 3 > ss3.txt")
