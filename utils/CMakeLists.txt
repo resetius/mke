@@ -1,13 +1,9 @@
 project(utils CXX C)
 
-if (NOT WIN32 AND BISON_FOUND)
-	include_directories(/usr/include/netcdf-3)
-	find_library(NETCDF netcdf HINTS /usr/lib /usr/lib64)
-	if (NETCDF)
-		set (BUILD_NETCDF 1)
-	endif (NETCDF)
-	message(STATUS "netcdf: ${NETCDF}")
-endif (NOT WIN32 AND BISON_FOUND)
+if (NETCDF_FOUND AND BISON_FOUND)
+	include_directories(${NETCDF_INCLUDE_DIR})
+	set (BUILD_NETCDF 1)
+endif (NETCDF_FOUND AND BISON_FOUND)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 add_executable(sphere icosahedron.cpp)
