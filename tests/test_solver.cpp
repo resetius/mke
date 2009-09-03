@@ -21,14 +21,11 @@ bool check(double val)
 	return fabs(val) < 1e-12;
 }
 
-template < typename T >
-bool test_solver()
+
+template < typename Matrix >
+void init_matrix(Matrix & m, int n)
 {
 	int i, j = 0;
-	int n  = 320000;
-//	int n  = 500000;
-//	int n  = 50000;
-//	int n = 20;
 
 	/**
 	 * 4 2 0 .... 0
@@ -40,6 +37,33 @@ bool test_solver()
 	 * .........1 4
 	 */
 
+	for (i = 0; i < n; ++i) {
+		if (i == 0) {
+			/* 4 2 0 .... 0 */
+			m.add(i, i,     4);
+			m.add(i, i + 1, 2);
+		} else if (i < n - 1) {
+			/* 1 4 2 .... 0 */
+			m.add(i, i - 1, 1);
+			m.add(i, i,     4);
+			m.add(i, i + 1, 2);
+		} else {
+			/* 0 .... 1 4 */
+			m.add(i, i - 1, 1);
+			m.add(i, i,     4);
+		}
+	}
+}
+
+template < typename T >
+bool test_solver()
+{
+	int i, j = 0;
+	int n  = 320000;
+//	int n  = 500000;
+//	int n  = 50000;
+//	int n = 20;
+
 	bool ret = true;
 
 	vector < T > b(n);
@@ -50,56 +74,19 @@ bool test_solver()
 
 	/* матрицу записываем по строкам! */
 	SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1(n);
+	init_matrix(M1, n);
+
 #ifdef UMFPACK
 	UmfPackSolver < T, StoreCSR < T , Allocator > > M2(n);
+	init_matrix(M2, n);
 #endif
 
 #ifdef SUPERLU
 	SuperLUSolver < T, StoreCSR < T , Allocator > > M3(n);
+	init_matrix(M1, n);
 #endif
 
 	for (i = 0; i < n; ++i) {
-		if (i == 0) {
-			/* 4 2 0 .... 0 */
-			M1.add(i, i,     4);
-			M1.add(i, i + 1, 2);
-#ifdef UMFPACK
-			M2.add(i, i,     4);
-			M2.add(i, i + 1, 2);
-#endif
-#ifdef SUPERLU
-			M3.add(i, i,     4);
-			M3.add(i, i + 1, 2);
-#endif
-		} else if (i < n - 1) {
-			/* 1 4 2 .... 0 */
-			M1.add(i, i - 1, 1);
-			M1.add(i, i,     4);
-			M1.add(i, i + 1, 2);
-#ifdef UMFPACK
-			M2.add(i, i - 1, 1);
-			M2.add(i, i,     4);
-			M2.add(i, i + 1, 2);
-#endif
-#ifdef SUPERLU
-			M3.add(i, i - 1, 1);
-			M3.add(i, i,     4);
-			M3.add(i, i + 1, 2);
-#endif
-		} else {
-			/* 0 .... 1 4 */
-			M1.add(i, i - 1, 1);
-			M1.add(i, i,     4);
-#ifdef UMFPACK
-			M2.add(i, i - 1, 1);
-			M2.add(i, i,     4);
-#endif
-#ifdef SUPERLU
-			M3.add(i, i - 1, 1);
-			M3.add(i, i,     4);
-#endif
-		}
-
 		b[i] = 1;
 	}
 
@@ -143,6 +130,17 @@ bool test_solver()
 int main(int argc, char * argv[])
 {
 	bool result = true;
+	for (int i = 0; i < argc; ++i) {
+		if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
+			if (i == argc - 1) {
+				continue;
+			}
+
+			int threads = atoi(argv[i + 1]);
+			set_num_threads(threads);
+		}
+	}
+
 	try {
 		phelm_init();
 
