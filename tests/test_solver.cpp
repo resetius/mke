@@ -56,7 +56,7 @@ void init_matrix(Matrix & m, int n)
 }
 
 template < typename T >
-bool test_solver()
+bool test_solve()
 {
 	int i, j = 0;
 	int n  = 320000;
@@ -126,6 +126,41 @@ bool test_solver()
 	return ret;
 }
 
+template < typename T >
+bool test_mult()
+{
+	int i, j = 0;
+	int n  = 320000;
+//	int n  = 500000;
+//	int n  = 50000;
+//	int n = 20;
+
+	bool ret = true;
+
+	vector < T > b(n);
+	vector < T > x1(n);
+	vector < T > x2(n);
+	vector < T > x3(n);
+	vector < T > v(n);
+
+	/* матрицу записываем по строкам! */
+	SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1(n);
+	init_matrix(M1, n);
+
+	for (i = 0; i < n; ++i) {
+		b[i] = 1;
+	}
+
+	Timer t;
+
+	t.restart();
+	for (int k = 0; k < 1; ++k) {
+		M1.mult_vector(&x1[0], &b[0]);
+	}
+	fprintf(stderr, "M1 mult_vector: %lf\n", t.elapsed());
+
+	return ret;
+}
 
 int main(int argc, char * argv[])
 {
@@ -151,13 +186,19 @@ int main(int argc, char * argv[])
 		if (has_double) {
 			fprintf(stderr, "testing double:\n");
 
-			t.restart(); result &= test_solver < double > ();
-			fprintf(stderr, "test_solver < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_solve < double > ();
+			fprintf(stderr, "test_solve < double > (): %lf, %d\n", t.elapsed(), (int)result);
+
+			t.restart(); result &= test_mult < double > ();
+			fprintf(stderr, "test_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 			fprintf(stderr, "testing float:\n");
 
-			t.restart(); result &= test_solver < float > ();
-			fprintf(stderr, "test_solver < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			t.restart(); result &= test_solve < float > ();
+			fprintf(stderr, "test_solve < float > (): %lf, %d\n", t.elapsed(), (int)result);
+
+			t.restart(); result &= test_mult < float > ();
+			fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
 
 		} else {
 			;
