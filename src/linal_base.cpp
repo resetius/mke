@@ -49,15 +49,17 @@
 #include "util.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION ("$Id$");
 
-namespace phelm {
+namespace phelm
+{
 
-void set_num_threads(int threads)
+void set_num_threads (int threads)
 {
 #ifdef _OPENMP
-	if (threads) {
-		omp_set_num_threads(threads);
+	if (threads)
+	{
+		omp_set_num_threads (threads);
 	}
 #endif
 }
@@ -65,18 +67,21 @@ void set_num_threads(int threads)
 /**
  * Gauss
  * Copyright (c) 2009 Andrey Kornev, Andrey Ivanchikov, Alexey Ozeritsky
- * from manipro 
+ * from manipro
  */
 static void gauss_reverse (const double *A, const double *b, double *x, int n, int diagUnit)
 {
 	int j, k;
 
-	for (k = n - 1; k >= 0; k--) {
+	for (k = n - 1; k >= 0; k--)
+	{
 		x[k] = b[k];
-		for (j = k + 1; j < n; j++) {
+		for (j = k + 1; j < n; j++)
+		{
 			x[k] = x[k] - x[j] * A[k*n+j];
 		}
-		if (!diagUnit) {
+		if (!diagUnit)
+		{
 			x[k] = x[k] / A[k*n+k];
 		}
 	}
@@ -89,14 +94,17 @@ int gauss (double *A, double *b, double *x, int n)
 	int imax;
 	double Eps = 1.e-15;
 
-	for (k = 0; k < n; k++) {
+	for (k = 0; k < n; k++)
+	{
 		imax = k;
 
-		for (i = k + 1; i < n; i++) {
-			if (fabs(A[i*n+k]) > fabs(A[imax*n+k])) imax = i;
+		for (i = k + 1; i < n; i++)
+		{
+			if (fabs (A[i*n+k]) > fabs (A[imax*n+k]) ) imax = i;
 		}
 
-		for (j = k; j < n; j++) {
+		for (j = k; j < n; j++)
+		{
 			p = A[imax*n+j];
 			A[imax*n+j] = A[k*n+j];
 			A[k*n+j] = p;
@@ -107,135 +115,178 @@ int gauss (double *A, double *b, double *x, int n)
 
 		p = A[k*n+k];
 
-		if (fabs(p) < Eps) {
-			printf("Warning in %s %s : Near-null zero element\n", __FILE__, __FUNCTION__);
+		if (fabs (p) < Eps)
+		{
+			printf ("Warning in %s %s : Near-null zero element\n", __FILE__, __FUNCTION__);
 			return -1;
 		}
 
-		for (j = k; j < n; j++) {
+		for (j = k; j < n; j++)
+		{
 			A[k*n+j] = A[k*n+j] / p;
 		}
 		b[k] = b[k] / p;
 
-		for (i = k + 1; i < n; i++) {
+		for (i = k + 1; i < n; i++)
+		{
 			p = A[i*n+k];
-			for (j = k; j < n; j++) {
+			for (j = k; j < n; j++)
+			{
 				A[i*n+j] = A[i*n+j] - A[k*n+j] * p;
 			}
 			b[i] = b[i] - b[k] * p;
 		}
 	}
 
-	gauss_reverse(A, b, x, n, true);
+	gauss_reverse (A, b, x, n, true);
 
 	return 0;
 }
 
 template < typename T >
-void mat_print_(const T * A, int n)
+void mat_print_ (const T * A, int n)
 {
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			printf("%9.2le ", A[i * n + j]);
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < n; ++j)
+		{
+			printf ("%9.2le ", A[i * n + j]);
 		}
-		printf("\n");
+		printf ("\n");
 	}
 }
 
-void mat_print(const float * A, int n)
+void mat_print (const float * A, int n)
 {
-	mat_print_(A, n);
+	mat_print_ (A, n);
 }
 
-void mat_print(const double * A, int n)
+void mat_print (const double * A, int n)
 {
-	mat_print_(A, n);
+	mat_print_ (A, n);
 }
 
-double vec_norm2(const double * v, int n)
+double vec_norm2 (const double * v, int n)
 {
-	return sqrt(vec_scalar2(v, v, n));
+	return sqrt (vec_scalar2 (v, v, n) );
 }
 
-float vec_norm2(const float * v, int n)
+float vec_norm2 (const float * v, int n)
 {
-	float f = vec_scalar2(v, v, n);
-	return sqrtf(f);
+	float f = vec_scalar2 (v, v, n);
+	return sqrtf (f);
 }
 
 template < typename T >
-void vec_print_(const T * A, int n)
+void vec_print_ (const T * A, int n)
 {
-	for (int i = 0; i < n; ++i) {
-		printf("%9.2le ", A[i]);
+	for (int i = 0; i < n; ++i)
+	{
+		printf ("%9.2le ", A[i]);
 	}
-	printf("\n");
+	printf ("\n");
 }
 
-void vec_print(const double * A, int n)
+void vec_print (const double * A, int n)
 {
-	vec_print_(A, n);
+	vec_print_ (A, n);
 }
 
-void vec_print(const float * A, int n)
+void vec_print (const float * A, int n)
 {
-	vec_print_(A, n);
+	vec_print_ (A, n);
 }
 
 template < typename T >
-void mat_mult_vector_(T * r, const T * A, const T * x, int n)
+void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
-	int i, j;
-	for (i = 0; i < n; ++i) {
-		r[i] = 0.0;
-		for (j = 0; j < n; ++j) {
-			r[i] += A[i * n + j] * x[j];
+#pragma omp parallel
+	{
+		int nt = omp_get_num_threads();
+		int my = omp_get_thread_num();
+		int fr = n * my;
+                fr /= nt;
+		int lr = n * (my + 1);
+		lr = lr / nt - 1;
+
+#pragma omp for
+		for (int i = 0; i < n; ++i)
+		{
+			r[i] = 0.0;
+		}
+
+		for (int l = 0; l < nt; ++l )
+		{
+			int k  = (my + l) % nt;
+			int fk = n * k;
+			fk /= nt;
+			int lk = n * (k + 1);
+			lk = lk / nt - 1;
+
+			for (int i = fr; i <= lr; ++i)
+			{
+				const T * ax = &A[i * n + fk];
+				const T * xx = &x[fk];
+				T s = 0.0;
+
+				for (int j = fk; j <= lk; ++j)
+				{
+					s += *ax++ * *xx++;
+				}
+				r[i] = s;
+			}
+
+#pragma omp barrier
 		}
 	}
 }
 
-void mat_mult_vector(double * r, const double * A, const double * x, int n)
+void mat_mult_vector (double * r, const double * A, const double * x, int n)
 {
-	mat_mult_vector_(r, A, x, n);
+	mat_mult_vector_ (r, A, x, n);
 }
 
-void mat_mult_vector(float * r, const float * A, const float * x, int n)
+void mat_mult_vector (float * r, const float * A, const float * x, int n)
 {
-	mat_mult_vector_(r, A, x, n);
+	mat_mult_vector_ (r, A, x, n);
 }
 
 template < typename T >
-void csr_print_(const int * Ap, const int * Ai, 
-						  const T * Ax, int n, FILE * f)
+void csr_print_ (const int * Ap, const int * Ai,
+                 const T * Ax, int n, FILE * f)
 {
 	int i, i0, j, k, i_old;
 	const T * p = Ax;
-	for (j = 0; j < n; ++j) {
+	for (j = 0; j < n; ++j)
+	{
 		i_old = -1;
-		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p) {
+		for (i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++p)
+		{
 			i = Ai[i0];
-			for (k = i_old; k < i - 1; ++k) {
-				fprintf(f, "%8.3lf ", 0.0);
+			for (k = i_old; k < i - 1; ++k)
+			{
+				fprintf (f, "%8.3lf ", 0.0);
 			}
-			fprintf(f, "%8.3lf ", (double)*p);
+			fprintf (f, "%8.3lf ", (double) *p);
 			i_old = i;
 		}
 
-		for (k = i_old + 1; k < n; ++k) {
-			fprintf(f, "%8.3lf ", 0.0);
+		for (k = i_old + 1; k < n; ++k)
+		{
+			fprintf (f, "%8.3lf ", 0.0);
 		}
-		fprintf(f, "\n");
+		fprintf (f, "\n");
 	}
 }
 
-void sparse_print(const int * Ap, const int * Ai, 
-						  const double * Ax, int n, FILE * f)
+void sparse_print (const int * Ap, const int * Ai,
+                   const double * Ax, int n, FILE * f)
 {
 	csr_print_ (Ap, Ai, Ax, n, f);
 }
 
-void sparse_print(const int * Ap, const int * Ai, 
-						  const float * Ax, int n, FILE * f)
+void sparse_print (const int * Ap, const int * Ai,
+                   const float * Ax, int n, FILE * f)
 {
 	csr_print_ (Ap, Ai, Ax, n, f);
 }

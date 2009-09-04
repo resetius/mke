@@ -92,13 +92,22 @@ void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
 	for (uint i = 0; i < A.size(); ++i) {
 		cols_ = std::max(cols_, (int)A[i].size());
 	}
-	stride_ = 32 * ((n_ + 32 - 1) / 32);
 
-	Ax_.resize(cols_ * stride_);
-	Ai_.resize(cols_ * stride_);
+	int stride_off = 1; //32;
+	stride_   = stride_off * ((n_ + stride_off - 1) / stride_off);
+	int count = cols_ * stride_;
 
-	std::vector < T > Ax(cols_ * stride_);
-	std::vector < int > Ai(cols_ * stride_);
+//	stride_   = stride_off * ((cols_ + stride_off - 1) / stride_off);
+//	int count = n_ * stride_;
+
+	Ax_.resize(count);
+	Ai_.resize(count);
+//	for (int i = 0; i < count; ++i) {
+//		Ai_[i] = -1;
+//	}
+
+	std::vector < T > Ax(count);
+	std::vector < int > Ai(count);
 
 	for (uint i = 0; i < A.size(); ++i)
 	{
@@ -108,12 +117,14 @@ void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
 		{
 			Ax[idx * stride_ + i] = it->second;
 			Ai[idx * stride_ + i] = it->first;
+			//Ax[i * stride_ + idx] = it->second;
+			//Ai[i * stride_ + idx] = it->first;
 			idx++;
 		}
 	}
 
-	vec_copy_from_host(&Ax_[0], &Ax[0], cols_ * stride_);
-	vec_copy_from_host(&Ai_[0], &Ai[0], cols_ * stride_);
+	vec_copy_from_host(&Ax_[0], &Ax[0], count);
+	vec_copy_from_host(&Ai_[0], &Ai[0], count);
 }
 
 template < typename T, template < class > class Alloc >
@@ -125,7 +136,7 @@ void StoreELL < T, Alloc > ::mult(T * r, const T * x) const
 template < typename T >
 void SimpleSolver < T > ::mult_vector(T * out, const T * in)
 {
-	matrix_mult_vector(out, &A_[0], in);
+	mat_mult_vector(out, &A_[0], in, n_);
 }
 
 template < typename T >
@@ -138,6 +149,12 @@ void SimpleSolver < T > ::solve(T * x, const T * b)
 #ifdef _DEBUG
 	fprintf(stderr, "solver time: %lf\n", t.elapsed());
 #endif
+}
+
+template < typename T >
+void SimpleSolver < T > ::add(int i, int j, T a)
+{
+	A_[i * n_ + j] += a;
 }
 
 template < typename T >

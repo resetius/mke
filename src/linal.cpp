@@ -249,14 +249,10 @@ void ell_mult_vector_(
 #pragma omp parallel for
 	for (int row = 0; row < n; ++row) {
 		T sum = 0;
-
-		for (int i0 = 0; i0 < cols; i0++){
+		for (int i0 = 0; i0 < cols; i0++) {
 			const T A_ij = Ax[stride * i0 + row];
-
-			if (A_ij != 0) {
-				const int col = Ai[stride * i0 + row];
-				sum += A_ij * x[col];
-			}
+			const int col = Ai[stride * i0 + row];
+			sum += A_ij * x[col];
 		}
 		r[row] = sum;
 	}

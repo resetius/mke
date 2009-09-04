@@ -21,6 +21,17 @@ bool check(double val)
 	return fabs(val) < 1e-12;
 }
 
+template < typename Matrix >
+void init_matrix2(Matrix & m, int n)
+{
+	int i, j = 0;
+
+	for (i = 0; i < n; ++i) {
+		for (j = 0; j < n; ++j) {
+			m.add(i, j, 1./(double)(i+j+1));
+		}
+	}
+}
 
 template < typename Matrix >
 void init_matrix(Matrix & m, int n)
@@ -154,12 +165,48 @@ bool test_mult()
 	Timer t;
 
 	t.restart();
-	for (int k = 0; k < 1; ++k) {
+
+	for (int k = 0; k < 10000; ++k) {
 		M1.mult_vector(&x1[0], &b[0]);
 	}
 	fprintf(stderr, "M1 mult_vector: %lf\n", t.elapsed());
 
 	return ret;
+}
+
+template < typename T >
+bool test_simple_mult()
+{
+	int i, j = 0;
+	int n  = 10000;
+
+	bool ret = true;
+
+	vector < T > b(n);
+	vector < T > x1(n);
+	vector < T > x2(n);
+	vector < T > x3(n);
+	vector < T > v(n);
+
+	/* матрицу записываем по строкам! */
+	SimpleSolver  < T > M1(n);
+	init_matrix2(M1, n);
+
+	for (i = 0; i < n; ++i) {
+		b[i] = 1;
+	}
+
+	Timer t;
+
+	t.restart();
+
+	for (int k = 0; k < 100; ++k) {
+		M1.mult_vector(&x1[0], &b[0]);
+	}
+	fprintf(stderr, "M1 (simple) mult_vector: %lf\n", t.elapsed());
+
+	return ret;
+
 }
 
 int main(int argc, char * argv[])
@@ -186,16 +233,22 @@ int main(int argc, char * argv[])
 		if (has_double) {
 			fprintf(stderr, "testing double:\n");
 
-			t.restart(); result &= test_solve < double > ();
-			fprintf(stderr, "test_solve < double > (): %lf, %d\n", t.elapsed(), (int)result);
+//			t.restart(); result &= test_solve < double > ();
+//			fprintf(stderr, "test_solve < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
 			t.restart(); result &= test_mult < double > ();
 			fprintf(stderr, "test_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
 
+//			t.restart(); result &= test_simple_mult < double > ();
+//			fprintf(stderr, "test_simple_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
+
 			fprintf(stderr, "testing float:\n");
 
-			t.restart(); result &= test_solve < float > ();
-			fprintf(stderr, "test_solve < float > (): %lf, %d\n", t.elapsed(), (int)result);
+//			t.restart(); result &= test_solve < float > ();
+//			fprintf(stderr, "test_solve < float > (): %lf, %d\n", t.elapsed(), (int)result);
+
+//			t.restart(); result &= test_simple_mult < float > ();
+//			fprintf(stderr, "test_simple_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
 
 			t.restart(); result &= test_mult < float > ();
 			fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
