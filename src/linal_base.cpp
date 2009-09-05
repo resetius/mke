@@ -202,7 +202,7 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
 #pragma omp parallel
 	{
-		int block_dim = 400; //1250K for cache (block_dim * block_dim * 8)
+		int block_dim = 600; //cache size = (block_dim * block_dim * 8)
 		int blocks = (n + block_dim - 1) / block_dim;
 
 		for (int l = 0; l < blocks; ++l )
@@ -217,15 +217,16 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 				// blocks:
 				// R[fl] += A[fl, fm] * X[fl]
 
-#pragma omp for
+#pragma omp for 
 				for (int i = fl; i <= ll; ++i)
 				{
 					const T * ax = &A[i * n + fm];
+					const T * xx = &x[fm];
 
 					T s = 0.0;
 					for (int j = fm; j <= lm; ++j)
 					{
-						s += *ax++ * x[i];
+						s += *ax++ * *xx++;
 					}
 					r[i] = s;
 				}
