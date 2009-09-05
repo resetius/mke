@@ -13,7 +13,7 @@ using namespace std;
 
 void usage(const char * n)
 {
-	fprintf(stderr, "%s [--threads|-t n] [--double|-d] [--task]\n", n);
+	fprintf(stderr, "%s [--threads|-t n] [--double|-d] [--task] [--dim] [--iters]\n", n);
 	fprintf(stderr, "--threads n - sets the number of threads\n");
 	fprintf(stderr, "--double - use double or float ? \n");
 	fprintf(stderr, "--task - all\n"
@@ -78,13 +78,11 @@ void init_matrix(Matrix & m, int n)
 }
 
 template < typename T >
-bool test_solve()
+bool test_solve(int n, int iters)
 {
 	int i, j = 0;
-	int n  = 320000;
-//	int n  = 500000;
-//	int n  = 50000;
-//	int n = 20;
+	if (n <= 0)     n     = 320000;
+	if (iters <= 0) iters = 1;
 
 	bool ret = true;
 
@@ -115,20 +113,20 @@ bool test_solve()
 	Timer t;
 
 	t.restart();
-	for (int k = 0; k < 1; ++k) {
+	for (int k = 0; k < iters; ++k) {
 		M1.solve(&x1[0], &b[0]);
 	}
 	fprintf(stderr, "gmres solve: %lf\n", t.elapsed());
 #ifdef UMFPACK
 	t.restart();
-	for (int k = 0; k < 1; ++k) {
+	for (int k = 0; k < iters; ++k) {
 		M2.solve(&x2[0], &b[0]);
 	}
 	fprintf(stderr, "umfpack solve: %lf\n", t.elapsed());
 #endif
 #ifdef SUPERLU
 	t.restart();
-	for (int k = 0; k < 1; ++k) {
+	for (int k = 0; k < iters; ++k) {
 		M3.solve(&x3[0], &b[0]);
 	}
 	fprintf(stderr, "superlu solve: %lf\n", t.elapsed());
@@ -149,13 +147,11 @@ bool test_solve()
 }
 
 template < typename T >
-bool test_mult()
+bool test_mult(int n, int iters)
 {
 	int i, j = 0;
-	int n  = 320000;
-//	int n  = 500000;
-//	int n  = 50000;
-//	int n = 20;
+	if (n <= 0)     n     = 320000;
+	if (iters <= 0) iters = 10000;
 
 	bool ret = true;
 
@@ -177,7 +173,7 @@ bool test_mult()
 
 	t.restart();
 
-	for (int k = 0; k < 10000; ++k) {
+	for (int k = 0; k < iters; ++k) {
 		M1.mult_vector(&x1[0], &b[0]);
 	}
 	fprintf(stderr, "M1 mult_vector: %lf\n", t.elapsed());
@@ -186,10 +182,11 @@ bool test_mult()
 }
 
 template < typename T >
-bool test_simple_mult()
+bool test_simple_mult(int n, int iters)
 {
 	int i, j = 0;
-	int n  = 10000;
+	if (n <= 0)     n     = 10000;
+	if (iters <= 0) iters = 100;
 
 	bool ret = true;
 
@@ -211,7 +208,7 @@ bool test_simple_mult()
 
 	t.restart();
 
-	for (int k = 0; k < 100; ++k) {
+	for (int k = 0; k < iters; ++k) {
 		M1.mult_vector(&x1[0], &b[0]);
 	}
 	fprintf(stderr, "M1 (simple) mult_vector: %lf\n", t.elapsed());
@@ -227,6 +224,9 @@ int main(int argc, char * argv[])
 	bool mult_dense    = false;
 	bool mult_sparse   = false;
 	bool invert_sparse = false;
+
+	int dim   = 0;
+	int iters = 0;
 
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
@@ -250,6 +250,18 @@ int main(int argc, char * argv[])
 			} if (!strcmp(argv[i + 1], "invert_sparse")) {
 				invert_sparse = true;
 			}
+		} if (!strcmp(argv[i], "--dim")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			dim = atoi(argv[i + 1]);
+		} if (!strcmp(argv[i], "--iters")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			iters = atoi(argv[i + 1]);
 		}
 	}
 
@@ -264,34 +276,34 @@ int main(int argc, char * argv[])
 			fprintf(stderr, "testing double:\n");
 
 			if (invert_sparse) {
-				t.restart(); result &= test_solve < double > ();
+				t.restart(); result &= test_solve < double > (dim, iters);
 				fprintf(stderr, "test_solve < double > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 
 			if (mult_sparse) {
-				t.restart(); result &= test_mult < double > ();
+				t.restart(); result &= test_mult < double > (dim, iters);
 				fprintf(stderr, "test_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 
 			if (mult_dense) {
-				t.restart(); result &= test_simple_mult < double > ();
+				t.restart(); result &= test_simple_mult < double > (dim, iters);
 				fprintf(stderr, "test_simple_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 		} else {
 			fprintf(stderr, "testing float:\n");
 
 			if (invert_sparse) {
-				t.restart(); result &= test_solve < float > ();
+				t.restart(); result &= test_solve < float > (dim, iters);
 				fprintf(stderr, "test_solve < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 
 			if (mult_sparse) {
-				t.restart(); result &= test_simple_mult < float > ();
+				t.restart(); result &= test_simple_mult < float > (dim, iters);
 				fprintf(stderr, "test_simple_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 
 			if (mult_dense) {
-				t.restart(); result &= test_mult < float > ();
+				t.restart(); result &= test_mult < float > (dim, iters);
 				fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 		}
