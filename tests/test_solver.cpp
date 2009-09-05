@@ -11,6 +11,17 @@
 using namespace phelm;
 using namespace std;
 
+void usage(const char * n)
+{
+	fprintf(stderr, "%s [--threads|-t n] [--double|-d] [--task]\n", n);
+	fprintf(stderr, "--threads n - sets the number of threads\n");
+	fprintf(stderr, "--double - use double or float ? \n");
+	fprintf(stderr, "--task - all\n"
+		"mult_dense\n"
+		"mult_sparse\n"
+		"invert_sparse\n");
+}
+
 bool check(float val)
 {
 	return fabs(val) < 1e-5;
@@ -211,15 +222,34 @@ bool test_simple_mult()
 
 int main(int argc, char * argv[])
 {
-	bool result = true;
+	bool result        = true;
+	bool use_double    = false;
+	bool mult_dense    = false;
+	bool mult_sparse   = false;
+	bool invert_sparse = false;
+
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
 			if (i == argc - 1) {
-				continue;
+				usage(argv[0]);
 			}
 
 			int threads = atoi(argv[i + 1]);
 			set_num_threads(threads);
+		} if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "-d")) {
+			use_double    = true;
+		} if (!strcmp(argv[i], "--task")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			if (!strcmp(argv[i + 1], "mult_dense")) {
+				mult_dense    = true;
+			} if (!strcmp(argv[i + 1], "mult_sparse")) {
+				mult_sparse   = true;
+			} if (!strcmp(argv[i + 1], "invert_sparse")) {
+				invert_sparse = true;
+			}
 		}
 	}
 
@@ -230,31 +260,40 @@ int main(int argc, char * argv[])
 		fprintf(stderr, "has double: %d\n", has_double);
 
 		Timer t;
-		if (has_double) {
+		if (use_double && has_double) {
 			fprintf(stderr, "testing double:\n");
 
-//			t.restart(); result &= test_solve < double > ();
-//			fprintf(stderr, "test_solve < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			if (invert_sparse) {
+				t.restart(); result &= test_solve < double > ();
+				fprintf(stderr, "test_solve < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			}
 
-			t.restart(); result &= test_mult < double > ();
-			fprintf(stderr, "test_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			if (mult_sparse) {
+				t.restart(); result &= test_mult < double > ();
+				fprintf(stderr, "test_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			}
 
-//			t.restart(); result &= test_simple_mult < double > ();
-//			fprintf(stderr, "test_simple_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
-
+			if (mult_dense) {
+				t.restart(); result &= test_simple_mult < double > ();
+				fprintf(stderr, "test_simple_mult < double > (): %lf, %d\n", t.elapsed(), (int)result);
+			}
+		} else {
 			fprintf(stderr, "testing float:\n");
 
-//			t.restart(); result &= test_solve < float > ();
-//			fprintf(stderr, "test_solve < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			if (invert_sparse) {
+				t.restart(); result &= test_solve < float > ();
+				fprintf(stderr, "test_solve < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			}
 
-//			t.restart(); result &= test_simple_mult < float > ();
-//			fprintf(stderr, "test_simple_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			if (mult_sparse) {
+				t.restart(); result &= test_simple_mult < float > ();
+				fprintf(stderr, "test_simple_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			}
 
-			t.restart(); result &= test_mult < float > ();
-			fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
-
-		} else {
-			;
+			if (mult_dense) {
+				t.restart(); result &= test_mult < float > ();
+				fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
+			}
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());
 
