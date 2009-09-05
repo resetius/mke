@@ -20,6 +20,7 @@ void usage(const char * n)
 		"mult_dense\n"
 		"mult_sparse\n"
 		"invert_sparse\n");
+	exit(-1);
 }
 
 bool check(float val)
