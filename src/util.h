@@ -186,6 +186,12 @@ double gauss_kronrod15(double a, double b, fx_t fm, void * data);
  */
 void set_fpe_except();
 
+/**
+ * burn loop.
+ * @param secs - the number of seconds
+ */
+void burn(double secs);
+
 /** @} */
 
 #ifdef __cplusplus

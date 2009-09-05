@@ -92,6 +92,7 @@ bool test_solve(int n, int iters)
 	vector < T > x2(n);
 	vector < T > x3(n);
 	vector < T > v(n);
+	fprintf(stderr, "n=%d, iters=%d\n", n, iters);
 
 	/* матрицу записываем по строкам! */
 	SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1(n);
@@ -117,20 +118,20 @@ bool test_solve(int n, int iters)
 	for (int k = 0; k < iters; ++k) {
 		M1.solve(&x1[0], &b[0]);
 	}
-	fprintf(stderr, "gmres solve: %lf\n", t.elapsed());
+	fprintf(stdout, "gmres solve: %lf\n", t.elapsed());
 #ifdef UMFPACK
 	t.restart();
 	for (int k = 0; k < iters; ++k) {
 		M2.solve(&x2[0], &b[0]);
 	}
-	fprintf(stderr, "umfpack solve: %lf\n", t.elapsed());
+	fprintf(stdout, "umfpack solve: %lf\n", t.elapsed());
 #endif
 #ifdef SUPERLU
 	t.restart();
 	for (int k = 0; k < iters; ++k) {
 		M3.solve(&x3[0], &b[0]);
 	}
-	fprintf(stderr, "superlu solve: %lf\n", t.elapsed());
+	fprintf(stdout, "superlu solve: %lf\n", t.elapsed());
 #endif
 	T nr;
 #if defined(UMFPACK) && defined(SUPERLU)
@@ -161,6 +162,7 @@ bool test_mult(int n, int iters)
 	vector < T > x2(n);
 	vector < T > x3(n);
 	vector < T > v(n);
+	fprintf(stderr, "n=%d, iters=%d\n", n, iters);
 
 	/* матрицу записываем по строкам! */
 	SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1(n);
@@ -177,7 +179,7 @@ bool test_mult(int n, int iters)
 	for (int k = 0; k < iters; ++k) {
 		M1.mult_vector(&x1[0], &b[0]);
 	}
-	fprintf(stderr, "M1 mult_vector: %lf\n", t.elapsed());
+	fprintf(stdout, "M1 mult_vector: %lf\n", t.elapsed());
 
 	return ret;
 }
@@ -197,6 +199,8 @@ bool test_simple_mult(int n, int iters)
 	vector < T > x3(n);
 	vector < T > v(n);
 
+	fprintf(stderr, "n=%d, iters=%d\n", n, iters);
+
 	/* матрицу записываем по строкам! */
 	SimpleSolver  < T > M1(n);
 	init_matrix2(M1, n);
@@ -212,7 +216,7 @@ bool test_simple_mult(int n, int iters)
 	for (int k = 0; k < iters; ++k) {
 		M1.mult_vector(&x1[0], &b[0]);
 	}
-	fprintf(stderr, "M1 (simple) mult_vector: %lf\n", t.elapsed());
+	fprintf(stdout, "M1 (simple) mult_vector: %lf\n", t.elapsed());
 
 	return ret;
 
@@ -275,6 +279,9 @@ int main(int argc, char * argv[])
 		fprintf(stderr, "has double: %d\n", has_double);
 
 		Timer t;
+		burn(1.0);
+		fprintf(stderr, "burn %lf\n", t.elapsed());
+		t.restart();
 		if (use_double && has_double) {
 			fprintf(stderr, "testing double:\n");
 
