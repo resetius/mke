@@ -226,17 +226,14 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 				for (int i = fl; i <= ll; ++i)
 				{
 					const T * ax = &A[i * n + fm];
-					const T * xx = &x[fl];
-					T * rx       = &r[fl];
 
 					T s = 0.0;
 					for (int j = fm; j <= lm; ++j)
 					{
-						s += *ax++ * *xx++;
+						s += *ax++ * x[i];
 					}
-					*rx++ += s;
+					r[i] += s;
 				}
-#pragma omp barrier
 			}
 		}
 	}
