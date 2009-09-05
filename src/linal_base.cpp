@@ -207,6 +207,7 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 		int fr = n * my;
                 fr /= nt;
 		int lr = n * (my + 1);
+		int blocks = 16;
 		lr = lr / nt - 1;
 
 #pragma omp for
@@ -215,15 +216,16 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 			r[i] = 0.0;
 		}
 
-		for (int l = 0; l < nt; ++l )
+		for (int l = 0; l < blocks; ++l )
 		{
-			int k  = (my + l) % nt;
+			int k  = (my + l) % blocks;
 			int fk = n * k;
-			fk /= nt;
+			fk /= blocks;
 			int lk = n * (k + 1);
-			lk = lk / nt - 1;
+			lk = lk / blocks - 1;
 
-			for (int i = fr; i <= lr; ++i)
+#pragma omp for
+			for (int i = fk; i <= lk; ++i)
 			{
 				const T * ax = &A[i * n + fk];
 				const T * xx = &x[fk];
@@ -233,7 +235,7 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 				{
 					s += *ax++ * *xx++;
 				}
-				r[i] = s;
+				r[i] += s;
 			}
 
 #pragma omp barrier
