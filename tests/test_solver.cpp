@@ -262,6 +262,8 @@ int main(int argc, char * argv[])
 			}
 
 			iters = atoi(argv[i + 1]);
+		} if (!strcmp(argv[i], "--help")||!strcmp(argv[i], "-h")) {
+			usage(argv[0]);
 		}
 	}
 
