@@ -202,13 +202,7 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
 #pragma omp parallel
 	{
-		int nt = omp_get_num_threads();
-		int my = omp_get_thread_num();
-		int fr = n * my;
-                fr /= nt;
-		int lr = n * (my + 1);
 		int blocks = 16;
-		lr = lr / nt - 1;
 
 #pragma omp for
 		for (int i = 0; i < n; ++i)
@@ -218,27 +212,32 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 
 		for (int l = 0; l < blocks; ++l )
 		{
-			int k  = (my + l) % blocks;
-			int fk = n * k;
-			fk /= blocks;
-			int lk = n * (k + 1);
-			lk = lk / blocks - 1;
+			int fl = n * l;	      fl /= blocks;
+			int ll = n * (l + 1); ll = ll / blocks - 1;
+
+			for (int m = 0; m < blocks; ++m) {
+				int fm = n * l;	      fm /= blocks;
+				int lm = n * (l + 1); lm = lm / blocks - 1;
+
+				// blocks:
+				// R[fl] += A[fl, fm] * X[fl]
 
 #pragma omp for
-			for (int i = fk; i <= lk; ++i)
-			{
-				const T * ax = &A[i * n + fk];
-				const T * xx = &x[fk];
-				T s = 0.0;
-
-				for (int j = fk; j <= lk; ++j)
+				for (int i = fl; i <= ll; ++i)
 				{
-					s += *ax++ * *xx++;
-				}
-				r[i] += s;
-			}
+					const T * ax = &A[i * n + fm];
+					const T * xx = &x[fl];
+					T * rx       = &r[fl];
 
+					T s = 0.0;
+					for (int j = fm; j <= lm; ++j)
+					{
+						s += *ax++ * *xx++;
+					}
+					*rx++ += s;
+				}
 #pragma omp barrier
+			}
 		}
 	}
 }
