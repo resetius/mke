@@ -69,6 +69,10 @@ namespace phelm {
  * @{
  */
 
+	/**
+	 *  Compressed Sparsed Row Format (CSR)
+	 *  Also known as Compressed Row Storage (CRS)
+	 */
 template < typename T, template < class > class Alloc = Allocator >
 struct StoreCSR
 {
