@@ -42,11 +42,14 @@ def output_scale(fname, scale):
 
 res1 = run_benchmark(1)
 res2 = run_benchmark(2)
+res3 = run_benchmark(3)
 res4 = run_benchmark(4)
 
 scale2 = build_scale(res1, res2)
+scale3 = build_scale(res1, res3)
 scale4 = build_scale(res1, res4)
 
 output_scale("scale2.txt", scale2)
+output_scale("scale3.txt", scale3)
 output_scale("scale4.txt", scale4)
 
