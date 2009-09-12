@@ -613,9 +613,15 @@ double kornev1_rp_(double phi, double lambda)
 	double H     = 5000;
 	double sigma = 1./20./2./M_PI;
 	double R     = 6.371e+6;
-	double f     = - sigma * 180/1.15 * (6*(2*cos(phi)*cos(phi)-1)*sin(phi));
+	double x   = phi;
 
-	return f*T0*T0/R/R;
+	double pt1 = -0.5 * (sin(x)*M_PI*x-2*sin(x)*x*x);
+	if (fabs(pt1) > 1e-14) {
+		pt1 /= cos(x);
+	}
+
+	double pt2 = -0.5*(-M_PI+4*x);
+	return -T0/R * 16.0 / M_PI / M_PI * 30.0 * (pt1 + pt2);
 }
 
 double kornev1_rp(double phi, double lambda, double t, double mu, double sigma)
@@ -627,12 +633,18 @@ double kornev1_coriolis(double phi, double lambda)
 {
 	double omg  = 2.0 * M_PI/24./60./60.;
 	double H    = 1;
-	return 2 * omg * sin(phi) + 0.1 * H * cos(2*lambda)*ipow(sin(2*phi),2);
+	return 2.*sin(phi) +  // l
+		0.5 * cos(2*lambda)*sin(2*phi)*sin(2*phi); //h
 }
 
 double kornev1_u0(double phi, double lambda)
 {
-	return - 180/1.15 * ipow(sin(phi),3);
+	double omg = 2.*M_PI/24./60./60.; // ?
+	double T0  = 1./omg;
+	double R   = 6.371e+6;
+
+	return -T0/R * 16.0 / M_PI / M_PI * 30.0 * 
+		(M_PI/4 * phi * phi - phi * phi * phi / 3);
 }
 
 void test_kornev1(const Mesh & m)
@@ -640,7 +652,7 @@ void test_kornev1(const Mesh & m)
 	int sz = (int)m.ps.size();
 	int os = (int)m.outer.size();
 
-	double tau = 0.00001;
+	double tau = 0.001;
 	double t = 0;
 	//double T = 0.1;
 	double days = 30;
@@ -650,12 +662,12 @@ void test_kornev1(const Mesh & m)
 
 	double R     = 6.371e+6;
 	double H     = 5000;
-	double sigma = 1./20./2./M_PI;
-	double mu    = sigma / 100.;
+	double sigma = 1.14e-2;
+	double mu    = 6.77e-5;
 	double omg   = 2.0 * M_PI/24./60./60.;
 	double T0    = 1./omg;
 	double k1    = 1.0;
-	double k2    = T0/R/R;
+	double k2    = 1.0;
 
 //	sigma = sigma * T0;
 //	mu    = 10e-2*sigma;

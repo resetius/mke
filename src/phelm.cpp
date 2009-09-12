@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include <set>
 
 #include "phelm.h"
 #include "ver.h"
@@ -47,6 +48,46 @@ VERSION("$Id$");
 using namespace std;
 
 namespace phelm {
+
+
+void smooth1(double * out, const double * in, const Mesh & m)
+{
+	int sz    = (int)m.ps.size();     // размерность
+
+#pragma omp parallel for
+	for (int i = 0; i < sz; ++i) {
+		if (m.ps_flags[i] == 0) {
+			set < int > p;
+
+			for (uint tk = 0; tk < m.adj[i].size(); ++tk) 
+			{
+				int trk_i = m.adj[i][tk];
+				const Triangle & trk = m.tr[trk_i];
+				p.insert(trk.p[0]);
+				p.insert(trk.p[1]);
+				p.insert(trk.p[2]);
+			}
+
+			double s  = 0;
+			double k1 = p.size() - 0.5;
+			double k2 = (p.size() - 1) / (1. - k1/p.size()) / p.size();
+
+			for (set < int > ::iterator it = p.begin(); it != p.end(); ++it)
+			{
+				double k;
+				if (*it == i) {
+					k = k1 / p.size();
+				} else {
+					k = 1. / k2 / p.size();
+				}
+				s += k * in[*it];
+			}
+			out[i] = s;
+		} else {
+			out[i] = in[i];
+		}
+	}
+}
 
 bool Mesh::load(FILE * f)
 {

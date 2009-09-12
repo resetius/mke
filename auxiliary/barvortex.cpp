@@ -192,6 +192,8 @@ void BarVortex::calc(double * u1, const double * u,
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
 
+	double nr0 = norm(u);
+
 	vector < double > w(sz);       // w = L(u)
 	vector < double > dw(sz);      // dw = L(w) = LL(u)
 	vector < double > FC(sz);      // правая часть
@@ -246,7 +248,7 @@ void BarVortex::calc(double * u1, const double * u,
 
 	// в FC содержится правая часть, которая не меняется при итерациях!
 
-	for (int it = 0; it < 200; ++it) {
+	for (int it = 0; it < 1000; ++it) {
 		//   k1 J(0.5(u+u), 0.5(w+w)) + k2 J(0.5(u+u), l + h)   =
 		// = J(0.5 (u+u), 0.5 k1 (w+w)) + J(0.5 (u+u), k2 (l + h)) =
 		// = J(0.5 (u+u), 0.5 k1 (w+w) + k2 (l + h))
@@ -290,14 +292,18 @@ void BarVortex::calc(double * u1, const double * u,
 		solve(&w_n[0], bnd, &rp[0], A_, m_);
 		// а тут граничное условие на пси!
 		l_.solve(&u_n1[0], &w_n[0], bnd);
+		
+		//l_.solve(&u1[0], &w_n[0], bnd);
+		//phelm::smooth1(&u_n[0], &u1[0], m_);
 
 		double nr = dist(&u_n1[0], &u_n[0]);
 		u_n1.swap(u_n);
-		if (nr < 1e-14) {
+		if (nr / nr0 < 1e-14) {
 			break;
 		}
 	}
 	memcpy(u1, &u_n[0], sz * sizeof(double));
+	//phelm::smooth1(&u1[0], &u_n[0], m_);
 }
 
 double l_rp(double x, double y, double t, double sigma, double mu)
