@@ -71,4 +71,5 @@ extern "C" int test_funcgen(int argc, char * argv[])
 		init_func(mesh, F, (double)i * 0.01, ans);
 		print_function(stdout, &F[0], mesh, x, y, z);
 	}
+	return 0;
 }
