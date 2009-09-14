@@ -89,6 +89,42 @@ void smooth1(double * out, const double * in, const Mesh & m)
 	}
 }
 
+void smooth2(double * out, const double * in, const Mesh & m)
+{
+	int rs    = (int)m.outer.size();     // размерность
+
+#pragma omp parallel for
+	for (int i = 0; i < rs; ++i) {
+		int point = m.inner[i];
+		set < int > p;
+
+		for (uint tk = 0; tk < m.adj[point].size(); ++tk) 
+		{
+			int trk_i = m.adj[point][tk];
+			const Triangle & trk = m.tr[trk_i];
+			p.insert(trk.p[0]);
+			p.insert(trk.p[1]);
+			p.insert(trk.p[2]);
+		}
+
+		double s  = 0;
+		double k1 = p.size() - 0.5;
+		double k2 = (p.size() - 1) / (1. - k1/p.size()) / p.size();
+
+		for (set < int > ::iterator it = p.begin(); it != p.end(); ++it)
+		{
+			double k = 1. / p.size();
+//			if (*it == point) {
+//				k = k1 / p.size();
+//			} else {
+//				k = 1. / k2 / p.size();
+//			}
+			s += k * in[m.p2io[*it]];
+		}
+		out[i] = s;
+	}
+}
+
 bool Mesh::load(FILE * f)
 {
 	int size;

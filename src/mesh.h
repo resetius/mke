@@ -615,6 +615,8 @@ void set_bnd(double * F, const float * bnd, const Mesh & m);
 /** @} */ /* proj */
 
 void smooth1(double * out, const double * in, const Mesh & m);
+void smooth2(double * out, const double * in, const Mesh & m);
+
 
 }
 
