@@ -86,6 +86,8 @@ class SphereJacobian {
 	Matrix diff1_cos_rp_t_;
 	Matrix diff2_cos_rp_t_;
 
+	std::vector < double > cos_1;
+
 public:
 	/**
 	 * Constructor.

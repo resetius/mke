@@ -61,10 +61,12 @@ double test_jacobian_f1 (double x, double y)
 double test_jacobian_f2 (double x, double y)
 {
 	return cos (x) * cos (y);
+	//return 0;
 }
 
 double test_jacobian_an (double x, double y)
 {
+	//return sin (x) * cos(y);
 	return (-sin (x) *cos (y) *sin (x) *cos (y) + cos (x) *sin (y) *cos (x) *sin (y) ) / cos (x);
 }
 
@@ -97,8 +99,8 @@ void test_jacobian (const Mesh & m)
 	//u2p(&p1[0], &ans1[0], m);
 	//vector_print(&p1[0], p1.size());
 
-	//vector_print(&rans1[0], rans1.size());
-	//vector_print(&ans1[0], ans1.size());
+	//vec_print(&rans1[0], rans1.size());
+	//vec_print(&ans1[0], ans1.size());
 }
 
 void rand_init(double * h, int n)

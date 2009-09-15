@@ -260,6 +260,18 @@ struct Triangle {
 		return phik;
 	}
 
+	int point_number(int p1) const
+	{
+		if (p1 == p[0]) {
+			return 0;
+		} else if (p1 == p[1]) {
+			return 1;
+		} else if (p1 == p[2]) {
+			return 2;
+		}
+		return -1;
+	}
+
 	/**
 	 * Returns finite element in point p1.
 	 * @param p1 - point number
@@ -271,9 +283,10 @@ struct Triangle {
 			return phik[0];
 		} else if (p1 == p[1]) {
 			return phik[1];
-		} else {
+		} else if (p1 == p[2]) {
 			return phik[2];
 		}
+		return *((Polynom*)0);
 	}
 };
 

@@ -44,6 +44,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 
 using namespace std;
 
@@ -487,11 +488,14 @@ double v(double x, double y, double z)
 	return v1;
 }
 
+static std::string head;
+
 void print_mesh(const vector < Triangle > & mesh, 
 				vector < Vector > & points, 
 				vector < int > & boundary,
 				int type, bool local)
 {
+	fprintf(stdout, "# %s\n", head.c_str());
 	fprintf(stdout, "# points %lu\n", points.size());
 	fprintf(stdout, "# zone1 ; zone2 ; zone 3; ... \n");
 	if (local) {
@@ -735,6 +739,16 @@ int main(int argc, char * argv[])
 			iters = atoi(argv[i + 1]);
 		}
 	}
+
+	head += argv[0];
+	head += "; revision: ";
+	head += "$Id$; ";
+	head += "args: ";
+	for (int i = 1; i < argc; ++i) {
+		head += argv[i];
+		head += " ";
+	}
+
 
 	fprintf(stderr, "iterations = %d\n", iters);
 	fprintf(stderr, "local coords ? %d\n", (int)local);

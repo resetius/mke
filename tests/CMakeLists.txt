@@ -4,7 +4,7 @@ set(EXECUTABLE_OUTPUT_PATH "../bin")
 include_directories(../src ../auxiliary)
 link_directories(../lib)
 
-create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp)
+create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp)
 
 add_executable(test_small ${small_tests})
 add_executable(test_solver test_solver.cpp)
