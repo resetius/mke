@@ -155,7 +155,6 @@ $fields{"mesh"} = $cur;
 open(FILE, ">tt.txt");
 print FILE $cur;
 close(FILE); 
-exit;
 
 open(PIPE, "./bin/test_barvortex --task kornev1 -f tt.txt 2>&1 | ");
 
