@@ -108,7 +108,7 @@ sub create_calc_table($) {
 sub create_insert_string($)
 {
 	my ($h) = @_;
-	my $s = "INSERT INTO barvortex_fdm (";
+	my $s = "INSERT INTO barvortex_mke (";
 	my $fst = 1;
 	while (my ($key, $value) = each(%$h)) {
 		$s .= "$key,";
