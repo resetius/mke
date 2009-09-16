@@ -166,8 +166,8 @@ void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
 //	return;
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
-	diff1_cos_.mult_vector(&tmp[0], &v_in[0]); //<
-	diff1_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]); //<
+	diff1_.mult_vector(&tmp[0], &v_in[0]); //<
+	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]); //<
 	vec_sum(&rp[0], &rp[0], &tmp[0], rs);
 	idt_.solve(&tmp[0], &rp[0]);
 	vec_mult(&pt1[0], &pt1[0], &tmp[0], rs);
@@ -179,14 +179,14 @@ void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
 	idt_.solve(&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
-	diff2_cos_.mult_vector(&tmp[0], &v_in[0]); //<
-	diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]); //<
+	diff2_.mult_vector(&tmp[0], &v_in[0]); //<
+	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]); //<
 	vec_sum(&rp[0], &rp[0], &tmp[0], rs);
 	idt_.solve(&tmp[0], &rp[0]);
 	vec_mult(&pt2[0], &pt2[0], &tmp[0], rs);
 
 	vec_diff(Ans, &pt1[0], &pt2[0], rs);
-	vec_mult(Ans, Ans, &cos_1[0], rs);
+//	vec_mult(Ans, Ans, &cos_1[0], rs);
 #endif
 }
 
