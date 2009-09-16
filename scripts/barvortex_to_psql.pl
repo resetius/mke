@@ -135,6 +135,10 @@ my $cur = "";
 my %fields = ();
 $fields{'other'} = `hg id`;
 
+if (not scalar @ARGV) {
+	print "ENTER MESH ARGUMENTS!\n";
+}
+
 my $mesh_args = $ARGV[0];
 open(PIPE, "./bin/sphere $mesh_args | ");
 while(<PIPE>) {
