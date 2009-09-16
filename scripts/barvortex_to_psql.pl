@@ -130,13 +130,35 @@ sub insert_data
 	$dbh->commit();
 }
 
+my $read_data = 0;
+my $cur = "";
 my %fields = ();
 $fields{'other'} = `hg id`;
 
+my $mesh_args = $ARGV[0];
+open(PIPE, "./bin/sphere $mesh_args | ");
+while(<PIPE>) {
+	if (not $read_data) {
+		if ($_ =~ m/^#([^:]+):(.*)/) {
+			$fields{"mesh_builder_$1"} = $2;
+		} else {
+			$read_data = 1;
+		}
+	}
+
+	if ($read_data) {
+		$cur .= $_;
+	}
+};
+close(PIPE);
+$fields{"mesh"} = $cur;
+open(FILE, ">tt.txt");
+print FILE $cur;
+close(FILE); 
+exit;
+
 open(PIPE, "./bin/test_barvortex --task kornev1 -f tt.txt 2>&1 | ");
 
-my $read_data = 0;
-my $cur = "";
 my $uniq_table_name;
 my $t    = 0;
 my $nr   = 0;
@@ -144,6 +166,9 @@ my $mn   = 0;
 my $mx   = 0;
 my $step = 1;
 my $wt   = 0;
+
+$read_data = 0;
+$cur = "";
 
 while(<PIPE>) {
 	if (not $read_data) {
@@ -157,9 +182,9 @@ while(<PIPE>) {
 	}
 
 	if ($read_data) {
-		if ($_ =~ m/^\n/) {
-			print STDERR "insert $step, $t, $nr, $mn, $mx\n";
-			insert_data($uniq_table_name, $step, $t, $nr, $mn, $mx, $cur);
+		if ($_ =~ m/^# end.*\n/) {
+			print STDERR "insert $step, $t, $wt, $nr, $mn, $mx \n";
+			insert_data($uniq_table_name, $step, $t, $wt, $nr, $mn, $mx, $cur);
 			$cur = "";
 			$step += 1;
 		} elsif ($_ =~ m/t=([^;]+); nr=([^;]+); min=([^;]+); max=([^;]+); work=([^;]+);/) {
@@ -174,3 +199,4 @@ while(<PIPE>) {
 	}
 }
 
+close(PIPE);
