@@ -187,6 +187,11 @@ double gauss_kronrod15(double a, double b, fx_t fm, void * data);
 void set_fpe_except();
 
 /**
+ * writes header.
+ */
+void write_header(int argc, char ** argv, const char * mes);
+
+/**
  * burn loop.
  * @param secs - the number of seconds
  */

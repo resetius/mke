@@ -54,6 +54,16 @@ VERSION ("$Id$");
 extern "C"
 {
 
+	void write_header(int argc, char ** argv, const char * mes)
+	{
+		fprintf(stderr, "#%s\n", mes);
+		fprintf(stderr, "#cmd:");
+		for (int i = 0; i < argc; ++i) {
+			fprintf(stderr, "%s ", argv[i]);
+		}
+		fprintf(stderr, "\n");
+	}
+
 #include "cnk_6.h"
 
 //це из ен по ка

@@ -134,6 +134,11 @@ public:
 			  double mu, double k1, double k2);
 
 	/**
+	 * Write Parameters.
+	 */
+	void info();
+
+	/**
 	 * Solve the Barotropic vorticity equation.
  \f[
  \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)

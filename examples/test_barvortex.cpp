@@ -676,6 +676,11 @@ void test_kornev1(const Mesh & m)
 
 	BarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
 
+	bv.info();
+	fprintf(stderr, "#rp:kornev1\n");
+	fprintf(stderr, "#coriolis:kornev1\n");
+	fprintf(stderr, "#initial:kornev1\n");
+
 	vector < double > u (sz);
 	vector < double > bnd (std::max (os, 1));
 
@@ -693,20 +698,15 @@ void test_kornev1(const Mesh & m)
 
 	while (t < T)
 	{
-#if 1
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
-//		print_function("kornev1_u1.txt", &u[0], m, x, y, z);
-//		exit(1);
-		if (i % 1 == 0) {
-			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
-			         bv.norm (&u[0]), t, T, tm.elapsed());
-			// 3d print
-//			print_function (stdout, &u[0], m, x, y, z);
-			// flat print
-			// print_function (stdout, &u[0], m, 0, 0, 0);
+
+		fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
+				 bv.norm (&u[0]), t, T, tm.elapsed());
+		print_function (stdout, &u[0], m, x, y, z);
+		// flat print
+		// print_function (stdout, &u[0], m, 0, 0, 0);
 		}
-#endif
 
 		i += 1;
 		t += tau;
@@ -719,6 +719,8 @@ int main (int argc, char *argv[])
 	string task;
 	int verbose = 0;
 	double time = 1.0;
+
+	write_header(argc, argv, "build:$Id$");
 
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
@@ -798,3 +800,4 @@ int main (int argc, char *argv[])
 	}
 	return 0;
 }
+

@@ -123,6 +123,16 @@ BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
 	generate_boundary_matrix(bndb_, m_, integrate_backward_cb, this);
 }
 
+void BarVortex::info()
+{
+	fprintf(stderr, "#tau:%.16lf\n", tau_);
+	fprintf(stderr, "#sigma:%.16lf\n", sigma_);
+	fprintf(stderr, "#mu:%.16lf\n", mu_);
+	fprintf(stderr, "#k1:%.16lf\n", k1_);
+	fprintf(stderr, "#k2:%.16lf\n", k2_);
+	fprintf(stderr, "#theta:%.16lf\n", theta_);
+}
+
 struct right_part_cb_data
 {
 	const double * F;

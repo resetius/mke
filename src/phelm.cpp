@@ -133,7 +133,7 @@ bool Mesh::load(FILE * f)
 #define _BUF_SZ 32768
 	char s[_BUF_SZ];
 
-	fprintf(stderr, "loading mesh ... \n");
+	fprintf(stderr, "#loading mesh ... \n");
 
 	fgets (s, _BUF_SZ - 1, f); lineno++;
 
@@ -244,8 +244,8 @@ bool Mesh::load(FILE * f)
 	while (fgets (s, _BUF_SZ - 1, f) );
 
 make_inner:
-	fprintf(stderr, "done ... \n");
-	fprintf(stderr, "preparing mesh ... \n");
+	fprintf(stderr, "#done ... \n");
+	fprintf(stderr, "#preparing mesh ... \n");
 	inner.reserve(ps.size());
 	outer.reserve(ps.size());
 	p2io.resize(ps.size());
@@ -261,13 +261,13 @@ make_inner:
 	}
 
 	prepare();
-	fprintf(stderr, "done ... \n");
+	fprintf(stderr, "#done ... \n");
 
 	return true;
 
 bad:
 	{
-		fprintf(stderr, "bad file format, line = %d\n", lineno);
+		fprintf(stderr, "#bad file format, line = %d\n", lineno);
 		return false;
 	}
 }
@@ -297,10 +297,10 @@ void Mesh::prepare()
 
 void Mesh::info()
 {
-	fprintf(stderr, "points: %lu\n", ps.size());
-	fprintf(stderr, "inner points: %lu\n", inner.size());
-	fprintf(stderr, "outer points: %lu\n", outer.size());
-	fprintf(stderr, "triangles: %lu\n", tr.size());
+	fprintf(stderr, "#points -- %lu\n", ps.size());
+	fprintf(stderr, "#inner points -- %lu\n", inner.size());
+	fprintf(stderr, "#outer points -- %lu\n", outer.size());
+	fprintf(stderr, "#triangles -- %lu\n", tr.size());
 }
 
 template < typename T >
