@@ -175,12 +175,15 @@ $cur = "";
 
 while(<PIPE>) {
 	if (not $read_data) {
-		if ($_ =~ m/^#([^:]+):(.*)/) {
-			$fields{$1}=$2;
+		if ($_ =~ m/^#.*/) {
+			if ($_ =~ m/^#([^:]+):(.*)/) {
+				$fields{$1}=$2;
+			}
 		} else {
 			# data begins
 			$read_data = 1;
 			$uniq_table_name = create_calc_table(create_insert_string(\%fields));
+			exit;
 		}
 	}
 
