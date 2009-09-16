@@ -88,6 +88,7 @@ sub create_calc_table($) {
 	my $table3 = "CREATE TABLE $uniq_table_name (
 		step INT UNIQUE,
 		t FLOAT8,
+		wt FLOAT8,
 		nr FLOAT8,
 		mn FLOAT8,
 		mx FLOAT8,
@@ -121,18 +122,18 @@ sub create_insert_string($)
 	return $s;
 }
 
-sub insert_data($$$$$$$)
+sub insert_data
 {
-	my ($tabname, $step, $t, $nr, $mn, $mx, $v) = @_;
-	my $s = "INSERT INTO $tabname VALUES(?,?,?,?,?,?)";
-	$dbh->do($s, undef, $step, $t, $nr, $mn, $mx, $v);
+	my ($tabname, $step, $t, $wt, $nr, $mn, $mx, $v) = @_;
+	my $s = "INSERT INTO $tabname VALUES(?,?,?,?,?,?,?)";
+	$dbh->do($s, undef, $step, $t, $wt, $nr, $mn, $mx, $v);
 	$dbh->commit();
 }
 
 my %fields = ();
 $fields{'other'} = `hg id`;
 
-open(PIPE, "./test/fdm_barvortex 2>&1 | ");
+open(PIPE, "./bin/test_barvortex --task kornev1 -f tt.txt 2>&1 | ");
 
 my $read_data = 0;
 my $cur = "";
@@ -142,6 +143,7 @@ my $nr   = 0;
 my $mn   = 0;
 my $mx   = 0;
 my $step = 1;
+my $wt   = 0;
 
 while(<PIPE>) {
 	if (not $read_data) {
@@ -160,11 +162,12 @@ while(<PIPE>) {
 			insert_data($uniq_table_name, $step, $t, $nr, $mn, $mx, $cur);
 			$cur = "";
 			$step += 1;
-		} elsif ($_ =~ m/t=([^;]+); nr=([^;]+); min=([^;]+); max=([^;]+);/) {
+		} elsif ($_ =~ m/t=([^;]+); nr=([^;]+); min=([^;]+); max=([^;]+); work=([^;]+);/) {
 			$t  = $1;
 			$nr = $2;
 			$mn = $3;
 			$mx = $4;
+			$wt = $5;
 		} else {
 			$cur .= $_;
 		}
