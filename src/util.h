@@ -197,6 +197,16 @@ void write_header(int argc, char ** argv, const char * mes);
  */
 void burn(double secs);
 
+/**
+ * Finds minimal element of vector.
+ */
+double vec_find_min(const double * v, int n);
+
+/**
+ * Finds maximal element of vector.
+ */
+double vec_find_max(const double * v, int n);
+
 /** @} */
 
 #ifdef __cplusplus

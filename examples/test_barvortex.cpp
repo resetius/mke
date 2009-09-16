@@ -701,12 +701,13 @@ void test_kornev1(const Mesh & m)
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
 
-		fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
-				 bv.norm (&u[0]), t, T, tm.elapsed());
+		fprintf (stderr, "t=%le; nr=%le; min=%le; max=%le; work=%le;\n",
+				 t, bv.norm (&u[0]), vec_find_min(&u[0], sz),
+				 vec_find_max(&u[0], sz), tm.elapsed());
+
 		print_function (stdout, &u[0], m, x, y, z);
 		// flat print
 		// print_function (stdout, &u[0], m, 0, 0, 0);
-		}
 
 		i += 1;
 		t += tau;
