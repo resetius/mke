@@ -670,6 +670,7 @@ void test_kornev1(const Mesh & m)
 	double T0    = 1./omg;
 	double k1    = 1.0;
 	double k2    = 1.0;
+	double nr;
 
 //	sigma = sigma * T0;
 //	mu    = 10e-2*sigma;
@@ -701,13 +702,18 @@ void test_kornev1(const Mesh & m)
 		Timer tm;
 		bv.calc (&u[0], &u[0], &bnd[0], t);
 
+		nr = bv.norm (&u[0]);
 		fprintf (stderr, "t=%le; nr=%le; min=%le; max=%le; work=%le;\n",
-				 t, bv.norm (&u[0]), vec_find_min(&u[0], sz),
+				 t, nr, vec_find_min(&u[0], sz),
 				 vec_find_max(&u[0], sz), tm.elapsed());
 
 		print_function (stdout, &u[0], m, x, y, z);
 		// flat print
 		// print_function (stdout, &u[0], m, 0, 0, 0);
+
+		if (isnan(nr) || isinf(nr)) {
+			return;
+		}
 
 		i += 1;
 		t += tau;
