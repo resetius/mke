@@ -49,7 +49,7 @@
 #include <vector>
 
 #include "slaplace.h"
-#include "jacobian.h"
+#include "sjacobian.h"
 #include "norm.h"
 
 /**

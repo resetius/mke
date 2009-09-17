@@ -1,5 +1,5 @@
-#ifndef JACOBIAN_H
-#define JACOBIAN_H
+#ifndef SJACOBIAN_H
+#define SJACOBIAN_H
 /* -*- charset: utf-8 -*- */
 /* $Id$ */
 
@@ -43,11 +43,12 @@
  * @version $Revision$
  * 
  * @section DESCRIPTION
- * The flat jacobian.
+ * The spherical jacobian.
  */
 
 #include "solver.h"
 
+using phelm::Matrix;
 using phelm::Mesh;
 
 /**
@@ -58,34 +59,39 @@ using phelm::Mesh;
 /**
  * Calculate the jacobian on a sphere.
  \f[
- J(u,v) = \frac{\partial u}{\partial y}\frac{\partial v}{\partial x} 
- - \frac{\partial u}{\partial x}\frac{\partial v}{\partial y}
- \f]
+ J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi} 
+ - \frac{\partial u}{\partial \varphi}\frac{\partial v}{\partial \lambda})
+ \f] 
  */
 class SphereJacobian {
-	typedef phelm::Solver < double > Matrix;
 	const Mesh & m_;
 	Matrix idt_;
 	Matrix diff1_;
 	Matrix diff2_;
+	Matrix diff1_cos_;
+	Matrix diff2_cos_;
 
 	Matrix diff1_rp_;
 	Matrix diff2_rp_;
+	Matrix diff1_cos_rp_;
+	Matrix diff2_cos_rp_;
 
 	Matrix diff1_t_;
 	Matrix diff2_t_;
+	Matrix diff1_cos_t_;
+	Matrix diff2_cos_t_;
 
 	Matrix diff1_rp_t_;
 	Matrix diff2_rp_t_;
-
-	std::vector < double > cos_1;
+	Matrix diff1_cos_rp_t_;
+	Matrix diff2_cos_rp_t_;
 
 public:
 	/**
 	 * Constructor.
 	 * @param m - mesh
 	 */
-	Jacobian(const Mesh & m);
+	SphereJacobian(const Mesh & m);
 
 	/**
 	 * Calculate J(u, v) in the inner points.
@@ -127,5 +133,5 @@ public:
 
 /** @} */
 
-#endif /* JACOBIAN_H */
+#endif /* SJACOBIAN_H */
 

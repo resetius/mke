@@ -12,10 +12,14 @@ set(SOURCE
 	barvortex.cpp # The Barotropic vorticity equation on a sphere
 	barvortex.h  
 
-	jacobian.cpp  # Spheric Jacobian
-	jacobian.h  
+	sjacobian.cpp # Spheric Jacobian
+	sjacobian.h
+
+	jacobian.cpp  # Flat Jacobian
+	jacobian.h
 
 	laplace.cpp   # Flat Laplace equations
+
 	laplace.h
 	impl/laplace_impl.h
 

@@ -11,6 +11,7 @@ add_executable(test_laplace ${test_laplace_source})
 add_executable(test_chafe ${test_chafe_source})
 
 add_executable(test_system_laplace test_system_laplace.cpp)
+add_executable(test_jacobian test_jacobian.cpp)
 add_executable(test_barvortex test_barvortex.cpp)
 add_executable(test_baroclin test_baroclin.cpp)
 
