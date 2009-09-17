@@ -6,12 +6,14 @@ set(LIBRARY_OUTPUT_PATH "../lib")
 add_library(phelm_aux 
 	baroclin.cpp  
 	barvortex.cpp  
-	jacobian.cpp  
+	jacobian.cpp
+	sjacobian.cpp  
 	laplace.cpp  
 	sphere_laplace.cpp
 	baroclin.h  
 	barvortex.h  
-	jacobian.h  
+	sjacobian.h
+	jacobian.h	
 	laplace.h
 	)
 

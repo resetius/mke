@@ -50,7 +50,7 @@
 
 #include "laplace.h"
 #include "solver.h"
-#include "jacobian.h"
+#include "sjacobian.h"
 
 /**
  * @ingroup aux
