@@ -19,6 +19,7 @@ target_link_libraries(test_laplace phelm phelm_aux ${UMFPACK} ${SUPERLU})
 target_link_libraries(test_chafe phelm_aux phelm ${UMFPACK} ${SUPERLU})
 
 target_link_libraries(test_system_laplace phelm phelm_aux ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_jacobian phelm_aux phelm ${UMFPACK} ${SUPERLU})
 target_link_libraries(test_barvortex phelm_aux phelm ${UMFPACK} ${SUPERLU})
 target_link_libraries(test_baroclin phelm_aux phelm ${UMFPACK} ${SUPERLU})
 
@@ -27,6 +28,7 @@ set_target_properties(test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 
 set_target_properties(test_system_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(test_jacobian PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_barvortex PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(test_baroclin PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
