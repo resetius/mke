@@ -48,6 +48,7 @@
 
 #include "solver.h"
 
+using phelm::Matrix;
 using phelm::Mesh;
 
 /**
@@ -62,8 +63,7 @@ using phelm::Mesh;
  - \frac{\partial u}{\partial x}\frac{\partial v}{\partial y}
  \f]
  */
-class SphereJacobian {
-	typedef phelm::Solver < double > Matrix;
+class Jacobian {
 	const Mesh & m_;
 	Matrix idt_;
 	Matrix diff1_;
@@ -77,8 +77,6 @@ class SphereJacobian {
 
 	Matrix diff1_rp_t_;
 	Matrix diff2_rp_t_;
-
-	std::vector < double > cos_1;
 
 public:
 	/**

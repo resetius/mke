@@ -127,38 +127,33 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	proj_bnd(&v_in_bnd[0], v, m_);
 	proj_bnd(&u_in_bnd[0], u, m_);
 
-	// 1/cos(x) before integral!
-	
-//	generate_right_part(&rp[0], m_, diff_2_cos_rp, u);
-	diff2_cos_.mult_vector(&tmp[0], &u_in[0]);
-	diff2_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], rs);
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)u);
+	diff2_.mult_vector(&tmp[0], &u_in[0]);
+	diff2_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 	idt_.solve(&pt1[0], &rp[0]);
-//	memcpy(Ans, &pt1[0], rs * sizeof(double));
-//	return;
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
-	diff1_.mult_vector(&tmp[0], &v_in[0]); //<
-	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]); //<
-	vec_sum(&rp[0], &rp[0], &tmp[0], rs);
+	diff1_.mult_vector(&tmp[0], &v_in[0]);
+	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt1[0], &pt1[0], &tmp[0], rs);
+	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
 
-	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
-	diff1_cos_.mult_vector(&tmp[0], &u_in[0]);
-	diff1_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], rs);
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)u);
+	diff1_.mult_vector(&tmp[0], &u_in[0]);
+	diff1_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 	idt_.solve(&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
-	diff2_.mult_vector(&tmp[0], &v_in[0]); //<
-	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]); //<
-	vec_sum(&rp[0], &rp[0], &tmp[0], rs);
+	diff2_.mult_vector(&tmp[0], &v_in[0]);
+	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
 	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt2[0], &pt2[0], &tmp[0], rs);
+	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
 
-	vec_diff(Ans, &pt1[0], &pt2[0], rs);
-//	vec_mult(Ans, Ans, &cos_1[0], rs);
+	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
 #endif
 }
 
@@ -166,11 +161,6 @@ void Jacobian::calc2t(double * Ans, const double * u, const double * v)
 {
 	calc2(Ans, u, v);
 	vec_mult_scalar(Ans, Ans, -1.0, (int)m_.inner.size());
-}
-
-static double multiplier(double x, double y)
-{
-	return 1. / cos(x);
 }
 
 /*
@@ -201,14 +191,6 @@ Jacobian::Jacobian(const Mesh & m): m_(m),
 
 	generate_boundary_matrix(diff1_rp_t_, m_, diff_1_rp, (double*)0);
 	generate_boundary_matrix(diff2_rp_t_, m_, diff_2_rp, (double*)0);
-
-	generate_boundary_matrix(diff1_cos_rp_t_, m_, diff_1_cos_rp, (double*)0);
-	generate_boundary_matrix(diff2_cos_rp_t_, m_, diff_2_cos_rp, (double*)0);
-
-	vector < double > tmp(m_.size);
-	proj(&tmp[0], m_, multiplier);
-	cos_1.resize(m_.inner_size);
-	u2p(&cos_1[0], &tmp[0], m_);
 }
 
 void Jacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)
