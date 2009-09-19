@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 #include <string.h>
+#include <stdio.h>
 #include <netcdf.hh>
 
 struct Slice {
