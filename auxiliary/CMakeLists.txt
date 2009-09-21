@@ -9,7 +9,7 @@ set(SOURCE
 	baroclin.cpp  # The two-dimensional baroclinic atmosphere equations  on a sphere
 	baroclin.h  
 
-	barvortex.cpp # The Barotropic vorticity equation on a sphere
+	impl/barvortex_impl.h # The Barotropic vorticity equation
 	barvortex.h  
 
 	sjacobian.cpp # Spheric Jacobian

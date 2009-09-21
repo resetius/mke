@@ -48,6 +48,8 @@
 
 #include <vector>
 
+#include "laplace.h"
+#include "jacobian.h"
 #include "slaplace.h"
 #include "sjacobian.h"
 #include "norm.h"
@@ -68,6 +70,7 @@
  * and \f$\Delta\f$ is spherical Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
+template < typename Laplace, typename Jacobian >
 class BarVortex: public SphereNorm < double > {
 public:
 	/**
@@ -90,8 +93,8 @@ public:
 
 private:
 	const Mesh & m_;
-	SphereLaplace < double > l_;
-	SphereJacobian j_;
+	Laplace l_;
+	Jacobian j_;
 	Matrix A_;
 	Matrix bnd_;
 
@@ -233,7 +236,12 @@ public:
 	void LT_step(double * Ans, const double * F, const double * z);
 };
 
+
+typedef BarVortex < SphereLaplace < double > , SphereJacobian > SBarVortex; //!<spheric barvortex
+typedef BarVortex < Laplace < double > , Jacobian > FBarVortex;   //!<flat barvortex
+
+#include "impl/barvortex_impl.h"
+
 /** @} */
 
 #endif /* BARVORTEX_H */
-

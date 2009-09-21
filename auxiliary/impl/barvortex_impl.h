@@ -52,14 +52,17 @@ using namespace phelm;
 //#define SCHEME_THETA 1.0
 //#define SCHEME_THETA 0.2
 
-static double 
+namespace bv_private {
+
+template < typename BV > 
+double 
 integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-					 int i, int j,
-                     BarVortex * d)
+              const Polynom & phi_j, 
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+			  int i, int j,
+              BV * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -76,14 +79,15 @@ integrate_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
-static double 
+template < typename BV > 
+double 
 integrate_backward_cb( const Polynom & phi_i,
                      const Polynom & phi_j, 
                      const Triangle & trk,
                      const Mesh & m,
                      int point_i, int point_j,
 					 int i, int j,
-                     BarVortex * d)
+                     BV * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -100,54 +104,23 @@ integrate_backward_cb( const Polynom & phi_i,
 	return pt1 + pt2;
 }
 
-BarVortex::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
-					 double sigma, double mu, double k1, double k2)
-	: SphereNorm < double > (m), m_(m), l_(m), j_(m), 
-	  A_((int)m.inner.size()),
-	  bnd_((int)m.inner.size()),
-	  Ab_((int)m.inner.size()),
-	  bndb_((int)m.inner.size()),
-	  tau_(tau), sigma_(sigma), mu_(mu), k1_(k1), k2_(k2), theta_(SCHEME_THETA),
-	  rp_(rp), coriolis_(coriolis)
-{
-	int sz = (int)m_.ps.size();
-	lh_.resize(sz);
-	proj(&lh_[0], m_, coriolis);
-
-	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
-	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, integrate_cb, this);
-	generate_boundary_matrix(bnd_, m_, integrate_cb, this);
-
-	generate_matrix(Ab_, m_, integrate_backward_cb, this);
-	generate_boundary_matrix(bndb_, m_, integrate_backward_cb, this);
-}
-
-void BarVortex::info()
-{
-	fprintf(stderr, "#tau:%.16lf\n", tau_);
-	fprintf(stderr, "#sigma:%.16lf\n", sigma_);
-	fprintf(stderr, "#mu:%.16lf\n", mu_);
-	fprintf(stderr, "#k1:%.16lf\n", k1_);
-	fprintf(stderr, "#k2:%.16lf\n", k2_);
-	fprintf(stderr, "#theta:%.16lf\n", theta_);
-}
-
+template < typename BV > 
 struct right_part_cb_data
 {
 	const double * F;
 	const double * bnd;
-	BarVortex  * d;
+	BV  * d;
 };
 
+template < typename BV > 
 double 
 right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-					  int i, int j,
-                      right_part_cb_data * d)
+              const Polynom & phi_j,
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+			  int i, int j,
+			   right_part_cb_data < BV >  * d)
 {
 	const double * F = d->F;
 	double b = 0.0;
@@ -166,6 +139,7 @@ right_part_cb( const Polynom & phi_i,
 	return b;
 }
 
+template < typename BV > 
 double 
 right_part_backward_cb( const Polynom & phi_i,
                       const Polynom & phi_j,
@@ -173,7 +147,7 @@ right_part_backward_cb( const Polynom & phi_i,
                       const Mesh & m,
                       int point_i, int point_j,
 					  int i, int j,
-                      right_part_cb_data * d)
+						right_part_cb_data < BV > * d)
 {
 	const double * F = d->F;
 	double b = 0.0;
@@ -191,12 +165,49 @@ right_part_backward_cb( const Polynom & phi_i,
 
 	return b;
 }
+}
+
+template < typename L, typename J >
+BarVortex < L, J > ::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
+					 double sigma, double mu, double k1, double k2)
+	: SphereNorm < double > (m), m_(m), l_(m), j_(m), 
+	  A_((int)m.inner.size()),
+	  bnd_((int)m.inner.size()),
+	  Ab_((int)m.inner.size()),
+	  bndb_((int)m.inner.size()),
+	  tau_(tau), sigma_(sigma), mu_(mu), k1_(k1), k2_(k2), theta_(SCHEME_THETA),
+	  rp_(rp), coriolis_(coriolis)
+{
+	int sz = (int)m_.ps.size();
+	lh_.resize(sz);
+	proj(&lh_[0], m_, coriolis);
+
+	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
+	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
+	generate_matrix(A_, m_, bv_private::integrate_cb < BarVortex < L, J > > , this);
+	generate_boundary_matrix(bnd_, m_, bv_private::integrate_cb < BarVortex < L, J > >, this);
+
+	generate_matrix(Ab_, m_, bv_private::integrate_backward_cb < BarVortex < L, J > > , this);
+	generate_boundary_matrix(bndb_, m_, bv_private::integrate_backward_cb < BarVortex < L, J > >, this);
+}
+
+template < typename L, typename J >
+void BarVortex < L, J > ::info()
+{
+	fprintf(stderr, "#tau:%.16lf\n", tau_);
+	fprintf(stderr, "#sigma:%.16lf\n", sigma_);
+	fprintf(stderr, "#mu:%.16lf\n", mu_);
+	fprintf(stderr, "#k1:%.16lf\n", k1_);
+	fprintf(stderr, "#k2:%.16lf\n", k2_);
+	fprintf(stderr, "#theta:%.16lf\n", theta_);
+}
 
 /*
  * d L(phi)/dt + k1 J(psi, L(psi)) + k2 J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
  * L = Laplace
  */
-void BarVortex::calc(double * u1, const double * u, 
+template < typename L, typename J >
+void BarVortex < L, J > ::calc(double * u1, const double * u, 
 					 const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
@@ -330,7 +341,8 @@ double l_rp(double x, double y, double t, double sigma, double mu)
 		ipow(cos(x),4)+147*mu*sin(y+t)*sin(x)*cos(x)-45*mu*sin(y+t)*x;
 }
 
-void BarVortex::calc_L(double * u1, const double * u, const double * z,
+template < typename L, typename J >
+void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
 					   const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
@@ -396,7 +408,8 @@ void BarVortex::calc_L(double * u1, const double * u, const double * z,
 	l_.solve(u1, u1, bnd);
 }
 
-void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
+template < typename L, typename J >
+void BarVortex < L, J >::calc_L_1(double * u1, const double * u, const double * z,
 					   const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
@@ -451,7 +464,8 @@ void BarVortex::calc_L_1(double * u1, const double * u, const double * z,
 	l_.solve(u1, u1, bnd);
 }
 
-void BarVortex::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
+template < typename L, typename J >
+void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -509,13 +523,15 @@ void BarVortex::calc_LT(double * v1, const double * v, const double * z, const d
 	vec_sum(v1, v1, &pt3[0], sz);
 }
 
-void BarVortex::S_step(double * Ans, const double * F)
+template < typename L, typename J >
+void BarVortex < L, J >::S_step(double * Ans, const double * F)
 {
 	calc(Ans, F, 0, 0);
 }
 
 /* J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) */
-void BarVortex::L_spectr(double * u1, const double * u, const double * z, const double * bnd)
+template < typename L, typename J >
+void BarVortex < L, J >::L_spectr(double * u1, const double * u, const double * z, const double * bnd)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -558,7 +574,8 @@ void BarVortex::L_spectr(double * u1, const double * u, const double * z, const 
 	}
 }
 
-void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
+template < typename L, typename J >
+void BarVortex < L, J >::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -604,24 +621,26 @@ void BarVortex::LT_spectr(double * u1, const double * u, const double * z, const
  * d L(psi)/dt + J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = 0
  * L = Laplace
  */
-void BarVortex::L_step(double * Ans, const double * F, const double * z)
+template < typename L, typename J >
+void BarVortex < L, J >::L_step(double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp(m_.ps.size());
 	calc_L(&tmp[0], F, z, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
 
-void BarVortex::L_1_step(double * Ans, const double * F, const double * z)
+template < typename L, typename J >
+void BarVortex < L, J >::L_1_step(double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp(m_.ps.size());
 	calc_L_1(&tmp[0], F, z, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
 
-void BarVortex::LT_step(double * Ans, const double * F, const double * z)
+template < typename L, typename J >
+void BarVortex < L, J >::LT_step(double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp(m_.ps.size());
 	calc_LT(&tmp[0], F, z, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
-
