@@ -145,22 +145,12 @@ void Laplace < T > ::calc2(T * Ans, const T * F)
 	Array tmp(os);
 	Timer t;
 	u2p(&in[0], F, m_);
-	fprintf(stderr, "p2u: %lf\n", t.elapsed()); t.restart();
 
 	proj_bnd(&tmp[0], F, m_);
-	fprintf(stderr, "proj_bnd: %lf\n", t.elapsed()); t.restart();
-
 	laplace_.mult_vector(&out[0], &in[0]);
-	fprintf(stderr, "mult_vector: %lf\n", t.elapsed()); t.restart();
-
 	bnd3_.mult_vector(&in[0], &tmp[0]);
-	fprintf(stderr, "mult_vector: %lf\n", t.elapsed()); t.restart();
-
 	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
-	fprintf(stderr, "vec_sum: %lf\n", t.elapsed()); t.restart();
-
 	idt_.solve(Ans, &out[0]);
-	fprintf(stderr, "solve: %lf\n", t.elapsed()); t.restart();
 
 #endif
 
