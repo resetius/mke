@@ -113,7 +113,7 @@ void Laplace < T >::solve(T * Ans, const T * F, const T * bnd)
 #endif	
 
 	phelm::solve(Ans, bnd, &b[0], laplace_, m_);
-	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
+//	fprintf(stderr, "Total elapsed: %lf \n", full.elapsed()); 
 }
 
 template < typename T >
