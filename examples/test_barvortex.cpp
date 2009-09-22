@@ -298,52 +298,6 @@ void test_barvortex_L (const Mesh & m)
 		dist (&u[0], &Ans1[0], m, sphere_scalar_cb, (void*)0));
 }
 
-void test_barvortex_LT (const Mesh & m)
-{
-	int sz = (int)m.ps.size();
-	int os = (int)m.outer.size();
-
-	double tau = 0.05;
-	double t = 0;
-	//double T = 0.1;
-	double days = 30;
-	double T = days * 2.0 * M_PI;
-	double month = 30.0 * 2.0 * M_PI;
-	int i = 0;
-
-	double mu    = 8e-5;   //8e-5;
-	double sigma = 1.6e-2; //1.6e-2;
-
-	//SBarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
-	SBarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
-
-	vector < double > u  (sz);
-	vector < double > v  (sz);
-	vector < double > lv (sz);
-	vector < double > ltu(sz);
-
-	vector < double > z (sz);
-	vector < double > bnd (std::max (os, 1));
-
-	proj (&u[0], m, f1);
-	proj (&v[0], m, f2);
-
-	proj (&z[0], m, z0);
-
-	setbuf (stdout, 0);
-
-	bv.L_step (&lv[0],  &v[0], &z[0]);
-	bv.LT_step(&ltu[0], &u[0], &z[0]);
-
-	double nr1 = scalar(&lv[0],  &u[0], m, sphere_scalar_cb, (void*)0);
-	double nr2 = scalar(&ltu[0], &v[0], m, sphere_scalar_cb, (void*)0);
-
-	fprintf (stderr, "(Lv, u)  = %le \n", nr1);
-	fprintf (stderr, "(v, LTu) = %le \n", nr2);
-
-	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
-}
-
 double rnd1(double x, double y)
 {
 	if (fabs(x) < 1e-8) {
@@ -436,7 +390,8 @@ void test_barvortex (const Mesh & m, int verbose, double T)
 	//SBarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
 
 	vector < double > u (sz);
-	vector < double > bnd (std::max (os, 1));
+	vector < double > bnd_u (std::max (os, 1));
+	vector < double > bnd_w (std::max (os, 1));
 	vector < double > Ans(sz);
 
 	proj (&u[0], m, an1, 0);
@@ -449,7 +404,7 @@ void test_barvortex (const Mesh & m, int verbose, double T)
 	while (t < T)
 	{
 		Timer tm;
-		bv.calc (&u[0], &u[0], &bnd[0], t);
+		bv.calc (&u[0], &u[0], &bnd_u[0], &bnd_w[0], t);
 
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
@@ -501,7 +456,8 @@ void test_barvortex_L2 (const Mesh & m)
 	vector < double > u (sz);
 	vector < double > u1(sz);
 	vector < double > z(sz);
-	vector < double > bnd (std::max (os, 1));
+	vector < double > bnd_u (std::max (os, 1));
+	vector < double > bnd_w (std::max (os, 1));
 	vector < double > Ans(sz);
 
 	proj (&u[0], m, an1, 0);
@@ -514,7 +470,7 @@ void test_barvortex_L2 (const Mesh & m)
 	while (t < T)
 	{
 		Timer tm;
-		bv.calc_L (&u1[0], &u[0], &z[0], &bnd[0], t);
+		bv.calc_L (&u1[0], &u[0], &z[0], &bnd_u[0], &bnd_w[0], t);
 #if 0
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
@@ -590,7 +546,8 @@ void test_dymnikov_196(const Mesh & m)
 	SBarVortex bv (m, dymnikov_196_rp, dymnikov_196_coriolis, tau, sigma, mu, 0.0, 1.0);
 
 	vector < double > u (sz);
-	vector < double > bnd (std::max (os, 1));
+	vector < double > bnd_u (std::max (os, 1));
+	vector < double > bnd_w (std::max (os, 1));
 
 	//proj (&u[0], m, an1, 0);
 	//proj (&u[0], m, u0);
@@ -603,7 +560,7 @@ void test_dymnikov_196(const Mesh & m)
 	{
 #if 1
 		Timer tm;
-		bv.calc (&u[0], &u[0], &bnd[0], t);
+		bv.calc (&u[0], &u[0], &bnd_u[0], &bnd_w[0], t);
 		if (i % 1 == 0) {
 			fprintf (stderr, " === NORM = %le, STEP %lf of %lf: %lf\n",
 			         bv.norm (&u[0]), t, T, tm.elapsed());
@@ -660,6 +617,11 @@ double kornev1_u0(double phi, double lambda)
 		(M_PI/4 * phi * phi - phi * phi * phi / 3);
 }
 
+double kornev1_w0(double phi, double lambda)
+{
+	return kornev1_rp_(phi, lambda);
+}
+
 void test_kornev1(const Mesh & m)
 {
 	int sz = (int)m.ps.size();
@@ -694,9 +656,12 @@ void test_kornev1(const Mesh & m)
 	fprintf(stderr, "#initial:kornev1\n");
 
 	vector < double > u (sz);
-	vector < double > bnd (std::max (os, 1));
+	vector < double > bnd_u (std::max (os, 1));
+	vector < double > bnd_w (std::max (os, 1));
 
 	proj (&u[0], m, kornev1_u0);
+	proj_bnd (&bnd_u[0], m, kornev1_u0);
+	proj_bnd (&bnd_w[0], m, kornev1_w0);
 
 	{
 		vector < double > tmp(sz);
@@ -711,7 +676,7 @@ void test_kornev1(const Mesh & m)
 	while (t < T)
 	{
 		Timer tm;
-		bv.calc (&u[0], &u[0], &bnd[0], t);
+		bv.calc (&u[0], &u[0], &bnd_u[0], &bnd_w[0], t);
 
 		nr = bv.norm (&u[0]);
 		fprintf (stderr, "t=%le; nr=%le; min=%le; max=%le; work=%le;\n",
@@ -805,8 +770,6 @@ int main (int argc, char *argv[])
 		test_barvortex_L(mesh);
 	} else if (task == "L2") {
 		test_barvortex_L2(mesh);
-	} else if (task == "LT") {
-		test_barvortex_LT(mesh);
 	} else if (task == "dymnikov_196") {
 		test_dymnikov_196 (mesh);
 	} else if (task == "kornev1") {

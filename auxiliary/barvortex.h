@@ -149,10 +149,12 @@ public:
  \f]
 	 * @param Ans - output value
 	 * @param F - input vector (previous time step)
-	 * @param bnd - boundary condition
+	 * @param bnd_u - boundary condition (u)
+	 * @param bnd_w - boundary condition (w)
 	 * @param t   - time
 	 */
-	void calc(double * Ans, const double * F, const double * bnd, double t);
+	void calc(double * Ans, const double * F, const double * bnd_u,
+			  const double * bnd_w, double t);
 
 
 	/**
@@ -164,19 +166,23 @@ public:
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
-	 * @param bnd - boundary condition
+	 * @param bnd_u - boundary condition (u)
+	 * @param bnd_w - boundary condition (w)
 	 * @param t - time
 	 */
-	void calc_L(double * Ans, const double * F, const double * z, const double * bnd, double t);
+	void calc_L(double * Ans, const double * F, const double * z, const double * bnd_u,
+				const double * bnd_w, double t);
 	/**
 	 * Solve the invert linearized Barotropic vorticity equation in a neibourhood of point (z).
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
-	 * @param bnd - boundary condition
+	 * @param bnd_u - boundary condition (u)
+	 * @param bnd_w - boundary condition (w)
 	 * @param t - time
 	 */
-	void calc_L_1(double * Ans, const double * F, const double * z, const double * bnd, double t);
+	void calc_L_1(double * Ans, const double * F, const double * z,
+				  const double * bnd_u, const double * bnd_w, double t);
 
 	/**
 	 * Adjoint operator to calc_L.
@@ -184,24 +190,12 @@ public:
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
-	 * @param bnd - boundary condition
+	 * @param bnd_u - boundary condition (u)
+	 * @param bnd_w - boundary condition (w)
 	 * @param t - time
 	 */
-	void calc_LT(double * Ans, const double * F, const double * z, const double * bnd, double t);
-
-	/**
-	 * Calculate operator.
-	 *
-	 \f[
-	 k_1 J(\psi, \Delta z) + k_1 J(z, \Delta \psi) + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi
-	 \f]
-	 */
-	void L_spectr(double * u1, const double * u, const double * z, const double * bnd);
-	/**
-	 * Adjoint operator to L_spectr.
-	 * (L u, v) = (u, LT v)
-	 */
-	void LT_spectr(double * u1, const double * u, const double * z, const double * bnd);
+	void calc_LT(double * Ans, const double * F, const double * z,
+				 const double * bnd, const double * bnd_w, double t);
 
 	/**
 	 * Helper-function.

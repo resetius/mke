@@ -207,8 +207,11 @@ void BarVortex < L, J > ::info()
  * L = Laplace
  */
 template < typename L, typename J >
-void BarVortex < L, J > ::calc(double * u1, const double * u, 
-					 const double * bnd, double t)
+void BarVortex < L, J > ::calc(double * u1,
+							   const double * u, 
+							   const double * bnd_u,
+							   const double * bnd_w,
+							   double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -240,10 +243,10 @@ void BarVortex < L, J > ::calc(double * u1, const double * u,
 	// - k1 J(0.5(u+u), 0.5(w+w)) - k2 J(0.5(u+u), l + h) + f(x, y)
 
 	// w = L (u)
-	l_.calc1(&w[0], &u[0], bnd);
+	l_.calc1(&w[0], &u[0], bnd_w);
 
 	// dw = L (w)
-	l_.calc1(&dw[0], &w[0], bnd);
+	l_.calc1(&dw[0], &w[0], 0);
 
 	// w/dt + mu (1-theta) L w
 	vec_sum1(&FC[0], &w[0], &dw[0], 1.0 / tau_, 
@@ -303,16 +306,16 @@ void BarVortex < L, J > ::calc(double * u1, const double * u,
 #if 1
 		memset(&rp[0], 0, rs * sizeof(double));
 		l_.idt_.mult_vector(&rp[0], &F[0]);
-		if (bnd) {
+		if (bnd_w) {
 			memset(&tmp1[0], 0, rs * sizeof(double));
-			bnd_.mult_vector(&tmp1[0], bnd);
+			bnd_.mult_vector(&tmp1[0], bnd_w);
 			vec_sum(&rp[0], &rp[0], &tmp1[0], (int)rp.size());
 		}
 #endif
 		// тут граничное условие на омега!
-		solve(&w_n[0], bnd, &rp[0], A_, m_);
+		solve(&w_n[0], bnd_w, &rp[0], A_, m_);
 		// а тут граничное условие на пси!
-		l_.solve(&u_n1[0], &w_n[0], bnd);
+		l_.solve(&u_n1[0], &w_n[0], bnd_u);
 		
 		//l_.solve(&u1[0], &w_n[0], bnd);
 		//phelm::smooth1(&u_n[0], &u1[0], m_);
@@ -343,7 +346,9 @@ double l_rp(double x, double y, double t, double sigma, double mu)
 
 template < typename L, typename J >
 void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
-					   const double * bnd, double t)
+								const double * bnd_u,
+								const double * bnd_w,
+								double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -354,17 +359,17 @@ void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
 	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
 	vector < double > pt3(sz); //якобиан, умноженный на коэф
 
-	l_.calc1(&z_lapl[0], z, bnd);
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1(&z_lapl[0], z, bnd_w);
+	l_.calc1(&pt1[0], u, bnd_w); //первая часть - лаплас, умноженный на коэф, 
 
 	{
 		vector < double > jac1(sz);
 		vector < double > jac2(sz);
 		vector < double > jac3(sz);
 
-		j_.calc1(&jac1[0], u, &lh_[0], bnd);
-		j_.calc1(&jac2[0], z, &pt1[0], bnd);
-		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
+		j_.calc1(&jac1[0], u, &lh_[0], 0);
+		j_.calc1(&jac2[0], z, &pt1[0], 0);
+		j_.calc1(&jac3[0], u, &z_lapl[0], 0);
 
 		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
 		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
@@ -373,7 +378,7 @@ void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
 
 	vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
 
-	l_.calc1(&pt2[0], &pt1[0], bnd);
+	l_.calc1(&pt2[0], &pt1[0], 0);
 	vec_mult_scalar(&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
 
 	vec_mult_scalar(&pt1[0], &pt1[0], 
@@ -399,18 +404,21 @@ void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
 		vector < double > rp(rs);
 		u2p(&tmp[0], u1, m_);
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd) {
-			bnd_.mult_vector(&tmp[0], bnd);
+		if (bnd_w) {
+			bnd_.mult_vector(&tmp[0], bnd_w);
 			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
 		}
-		solve(&u1[0], bnd, &rp[0], A_, m_);
+		solve(&u1[0], bnd_w, &rp[0], A_, m_);
 	}
-	l_.solve(u1, u1, bnd);
+	l_.solve(u1, u1, bnd_u);
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::calc_L_1(double * u1, const double * u, const double * z,
-					   const double * bnd, double t)
+void BarVortex < L, J >::calc_L_1(double * u1,
+								  const double * u, const double * z,
+								  const double * bnd_u,
+								  const double * bnd_w,
+								  double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -421,17 +429,17 @@ void BarVortex < L, J >::calc_L_1(double * u1, const double * u, const double * 
 	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
 	vector < double > pt3(sz); //якобиан, умноженный на коэф
 
-	l_.calc1(&z_lapl[0], z, bnd);
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1(&z_lapl[0], z, bnd_w);
+	l_.calc1(&pt1[0], u, bnd_w); //первая часть - лаплас, умноженный на коэф, 
 
 	{
 		vector < double > jac1(sz);
 		vector < double > jac2(sz);
 		vector < double > jac3(sz);
 
-		j_.calc1(&jac1[0], u, &lh_[0], bnd);
-		j_.calc1(&jac2[0], z, &pt1[0], bnd);
-		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
+		j_.calc1(&jac1[0], u, &lh_[0], 0);
+		j_.calc1(&jac2[0], z, &pt1[0], 0);
+		j_.calc1(&jac3[0], u, &z_lapl[0], 0);
 
 		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
 		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
@@ -440,7 +448,7 @@ void BarVortex < L, J >::calc_L_1(double * u1, const double * u, const double * 
 
 	//vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
 
-	l_.calc1(&pt2[0], &pt1[0], bnd);
+	l_.calc1(&pt2[0], &pt1[0], 0);
 	vec_mult_scalar(&pt2[0], &pt2[0], - theta_ * mu_, sz);
 
 	vec_mult_scalar(&pt1[0], &pt1[0], 
@@ -455,17 +463,19 @@ void BarVortex < L, J >::calc_L_1(double * u1, const double * u, const double * 
 		vector < double > rp(rs);
 		u2p(&tmp[0], u1, m_);
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd) {
-			bndb_.mult_vector(&tmp[0], bnd);
-			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+		if (bnd_w) {
+			bndb_.mult_vector(&tmp[0], bnd_w);
+			vec_sum(&rp[0], &rp[0], &tmp[0], rs);
 		}
-		solve(&u1[0], bnd, &rp[0], Ab_, m_);
+		solve(&u1[0], bnd_w, &rp[0], Ab_, m_);
 	}
-	l_.solve(u1, u1, bnd);
+	l_.solve(u1, u1, bnd_u);
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z, const double * bnd, double t)
+void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z,
+								 const double * bnd_u,
+								 const double * bnd_w, double t)
 {
 	int rs = (int)m_.inner.size(); // размерность внутренней области
 	int sz = (int)m_.ps.size();    // размерность полная
@@ -476,27 +486,27 @@ void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z
 	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
 	vector < double > pt3(sz); //якобиан, умноженный на коэф
 
-	l_.calc1(&lz[0], z, bnd);
-	l_.solve(&v1[0], v, bnd);
+	l_.calc1(&lz[0], z, bnd_w);
+	l_.solve(&v1[0], v, bnd_u);
 
 	{
 		vector < double > tmp(rs);
 		vector < double > rp(rs);
 		u2p(&tmp[0], v1, m_);
 		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd) {
-			bnd_.mult_vector(&tmp[0], bnd);
-			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+		if (bnd_w) {
+			bnd_.mult_vector(&tmp[0], bnd_w);
+			vec_sum(&rp[0], &rp[0], &tmp[0], rs);
 		}
-		solve(&v1[0], bnd, &rp[0], A_, m_);
+		solve(&v1[0], bnd_w, &rp[0], A_, m_);
 	}
 
-	l_.calc1(&pt1[0], v1, bnd);
+	l_.calc1(&pt1[0], v1, bnd_w); //<- wtf ?
 	vec_mult_scalar(&pt1[0], &pt1[0], 
 		1.0 / tau_ - (1.0 - theta_) * sigma_, sz);
 
-	l_.calc1(&pt2[0], v1, bnd);
-	l_.calc1(&pt2[0], &pt2[0], bnd);
+	l_.calc1(&pt2[0], v1, bnd_w); //<- wtf ?
+	l_.calc1(&pt2[0], &pt2[0], 0);
 
 	vec_mult_scalar(&pt2[0], &pt2[0], 
 		(1.0 - theta_) * mu_, sz);
@@ -507,10 +517,10 @@ void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z
 		vector < double > p_lapl(sz);
 		vector < double > tmp(sz);
 
-		j_.calc1t(&tmp[0], v1, &lh_[0], bnd);
-		j_.calc1t(&p_lapl[0], z, v1, bnd);
-		l_.calc1(&p_lapl[0], &p_lapl[0], bnd);
-		j_.calc1t(h1, v1, &lz[0], bnd);
+		j_.calc1t(&tmp[0], v1, &lh_[0], 0);
+		j_.calc1t(&p_lapl[0], z, v1, 0);
+		l_.calc1(&p_lapl[0], &p_lapl[0], 0);
+		j_.calc1t(h1, v1, &lz[0], 0);
 
 		vec_sum1(h1, h1, &p_lapl[0], k1_, k1_, sz);
 		vec_sum2(h1, h1, &tmp[0], k2_, sz);
@@ -521,100 +531,13 @@ void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z
 	vec_sum(v1, v1, &pt1[0], sz);
 	vec_sum(v1, v1, &pt2[0], sz);
 	vec_sum(v1, v1, &pt3[0], sz);
+	set_bnd(v1, bnd_u, m_);
 }
 
 template < typename L, typename J >
 void BarVortex < L, J >::S_step(double * Ans, const double * F)
 {
-	calc(Ans, F, 0, 0);
-}
-
-/* J(phi, L(z)) + J(z, L(phi)) + J(phi, l + h) + sigma L(phi) - mu LL(phi) */
-template < typename L, typename J >
-void BarVortex < L, J >::L_spectr(double * u1, const double * u, const double * z, const double * bnd)
-{
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
-
-	vector < double > z_lapl(sz);
-
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
-
-	l_.calc1(&z_lapl[0], z, bnd);
-	memcpy(&pt1[0], u, pt1.size() * sizeof(double));
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
-
-	{
-		vector < double > jac1(sz);
-		vector < double > jac2(sz);
-		vector < double > jac3(sz);
-
-		j_.calc1(&jac1[0], u, &lh_[0], bnd);
-		j_.calc1(&jac2[0], z, &pt1[0], bnd);
-		j_.calc1(&jac3[0], u, &z_lapl[0], bnd);
-
-		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
-	}
-
-	l_.calc1(&pt2[0], &pt1[0], bnd);
-	vec_mult_scalar(&pt2[0], &pt2[0], -mu_, sz);
-
-	vec_mult_scalar(&pt1[0], &pt1[0], sigma_, sz);
-
-	{
-		vector < double > tmp(sz);
-		vec_sum(&tmp[0], &tmp[0], &pt1[0], sz);
-		vec_sum(&tmp[0], &tmp[0], &pt2[0], sz);
-		vec_sum(&tmp[0], &tmp[0], &pt3[0], sz);
-		l_.solve(u1, &tmp[0], bnd);
-	}
-}
-
-template < typename L, typename J >
-void BarVortex < L, J >::LT_spectr(double * u1, const double * u, const double * z, const double * bnd)
-{
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
-
-	vector < double > z_lapl(sz);
-
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
-
-	l_.calc1(&z_lapl[0], z, bnd);
-	l_.calc1(&pt1[0], u, bnd); //первая часть - лаплас, умноженный на коэф, 
-
-	{
-		vector < double > jac1(sz);
-		vector < double > jac2(sz);
-		vector < double > jac3(sz);
-
-		j_.calc1t(&jac1[0], u, &lh_[0], bnd);
-		j_.calc1t(&jac2[0], z, &pt1[0], bnd);
-		j_.calc1t(&jac3[0], u, &z_lapl[0], bnd);
-
-		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
-	}
-
-	l_.calc1(&pt2[0], &pt1[0], bnd);
-	vec_mult_scalar(&pt2[0], &pt2[0], -mu_, sz);
-
-	vec_mult_scalar(&pt1[0], &pt1[0], sigma_, sz);
-
-	{
-		vector < double > tmp(sz);
-		vec_sum(&tmp[0], &tmp[0], &pt1[0], sz);
-		vec_sum(&tmp[0], &tmp[0], &pt2[0], sz);
-		vec_sum(&tmp[0], &tmp[0], &pt3[0], sz);
-		l_.solve(u1, &tmp[0], bnd);
-	}
+	calc(Ans, F, 0, 0, 0);
 }
 
 /*
@@ -625,7 +548,7 @@ template < typename L, typename J >
 void BarVortex < L, J >::L_step(double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp(m_.ps.size());
-	calc_L(&tmp[0], F, z, 0, 0);
+	calc_L(&tmp[0], F, z, 0, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
 
@@ -633,7 +556,7 @@ template < typename L, typename J >
 void BarVortex < L, J >::L_1_step(double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp(m_.ps.size());
-	calc_L_1(&tmp[0], F, z, 0, 0);
+	calc_L_1(&tmp[0], F, z, 0, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
 
