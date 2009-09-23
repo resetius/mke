@@ -271,9 +271,9 @@ void BarVortex < L, J > ::calc(double * u1,
 	memcpy(&w_n[0], &w[0], sz * sizeof(double));
 
 	// в FC содержится правая часть, которая не меняется при итерациях!
-	double theta = 0.0;
+	double theta = theta_;
 
-	for (int it = 0; it < 1; ++it) {
+	for (int it = 0; it < 1000; ++it) {
 		//   k1 J(0.5(u+u), 0.5(w+w)) + k2 J(0.5(u+u), l + h)   =
 		// = J(0.5 (u+u), 0.5 k1 (w+w)) + J(0.5 (u+u), k2 (l + h)) =
 		// = J(0.5 (u+u), 0.5 k1 (w+w) + k2 (l + h))
