@@ -338,6 +338,15 @@ bool ok2(Vector & v)
 	return true;	
 }
 
+bool ok3(Vector & v)
+{
+	if (v.z > 0.9) {
+		return false;
+	}
+
+	return true;	
+}
+
 void filter_mesh(vector < Triangle > & mesh, 
 				 vector < Vector > & points, 
 				 vector < int > & boundary,
@@ -350,7 +359,14 @@ void filter_mesh(vector < Triangle > & mesh,
 	vector < Vector > new_points;
 	vector < Triangle > new_mesh;
 	vector < int > nums(points.size());
-	bool (* ok)(Vector & v) = (type == 3) ? ok1 : ok2;
+	bool (* ok)(Vector & v) = 0;
+	if (type == 3) {
+		ok = ok1;
+	} else if (type == 6) {
+		ok = ok3;
+	} else {
+		ok = ok2;
+	}
 
 	for (size_t i = 0; i < points.size(); ++i) {
 		Vector & p = points[i];
@@ -714,6 +730,10 @@ int main(int argc, char * argv[])
 				// lambda: [0,      pi/5 ]
 				// phi:    [-pi/10, pi/10]
 				type = 5;
+			} else if (!strcmp(argv[i + 1], "test5")) {
+				// полусфера с вырезанной шапкой у полюса
+				// две области
+				type = 6;
 			} else {
 				usage(argv[0]);
 			}
@@ -750,6 +770,7 @@ int main(int argc, char * argv[])
 	vector < int >  boundary;
 
 	switch (type) {
+	case 6:
 	case 1:
 		build_hemisphere(mesh, points);
 		break;
