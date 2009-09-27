@@ -565,6 +565,6 @@ template < typename L, typename J >
 void BarVortex < L, J >::LT_step(double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp(m_.ps.size());
-	calc_LT(&tmp[0], F, z, 0, 0);
+	calc_LT(&tmp[0], F, z, 0, 0, 0);
 	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
 }
