@@ -43,6 +43,7 @@
 VERSION("$Id$");
 
 typedef double (*fx_t)(double x, void * data);
+typedef double (*fxy_t)(double x, double y, void * data);
 
 /* w_i */
 static double g7w[] = 
@@ -126,3 +127,45 @@ double gauss_kronrod15(double a, double b, fx_t f, void * d)
 	return k15;
 }
 
+/* w_i */
+static double w7[] = {
+	0.225,
+	0.1259391805448265,
+	0.1259391805448265,
+	0.1259391805448265,
+	0.1323941527885112,
+	0.1323941527885112,
+	0.1323941527885112,
+};
+
+#define A1 0.7974269853530880
+#define B1 0.1012865073234560
+#define A2 0.0597158717897742
+#define B2 0.4701420641051129 
+
+static double c7[][3] = {
+	{1./3., 1./3.,1./3.},
+	{A1, B1, B1},
+	{B1, A1, B1},
+	{B1, B1, A1},
+	{A2, B2, B2},
+	{B2, A2, B2},
+	{B2, B2, A2},
+};
+
+double cubature7(double x1, double y1, double x2, double y2, double x3, double y3, fxy_t f, void * d)
+{
+	double s = 0.0;
+	int i;
+	for (i = 0; i < 7; ++i)
+	{
+		double a = c7[i][0];
+		double b = c7[i][1];
+		double c = c7[i][2];
+		double u = a * x1 + b * x2 + c * x3;
+		double v = a * y1 + b * y2 + c * y3;
+		s += w7[i] * f(u, v, d);
+	}
+	s *= 0.5 * ((x1 - x3) * (y2 - y3) - (y1 - y3) * (x2 - x3));
+	return 0;
+}
