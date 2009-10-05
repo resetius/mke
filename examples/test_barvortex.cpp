@@ -371,6 +371,97 @@ void test_laplace_LT (const Mesh & m)
 	fprintf (stderr, " |(Lv, u) - (v, LTu)| = %le \n", fabs(nr1 - nr2));
 }
 
+static double ans_stationar(double x, double y, double t)
+{
+	return an1(x, y, 0);
+}
+
+static double rp_stationar(double x, double y, double t, double mu, double sigma)
+{
+	return rp1(x, y, 0, mu, sigma);
+}
+
+static double rp_stationar2(double x, double y, double t, double mu, double sigma)
+{
+	return rp2(x, y, 0, mu, sigma);
+}
+
+void test_barvortex_stationar (const Mesh & m, int verbose, double T)
+{
+	int sz = (int)m.ps.size();
+	int os = (int)m.outer.size();
+
+	double tau = 0.01;
+	double t = 0;
+	double days = 30;
+	double month = 30.0 * 2.0 * M_PI;
+
+	int i = 0;
+
+	double mu    = 8e-5;   //8e-5;
+	double sigma = 1.6e-2; //1.6e-2;
+
+	SBarVortex bv (m, rp_stationar, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
+
+	bv.info();
+	fprintf(stderr, "#rp:stationar1\n");
+	fprintf(stderr, "#coriolis:stationar1\n");
+	fprintf(stderr, "#initial:stationar1\n");
+
+	vector < double > u (sz);
+	vector < double > bnd_u (std::max (os, 1));
+	vector < double > bnd_w (std::max (os, 1));
+	vector < double > Ans(sz);
+
+	proj (&u[0], m, ans_stationar, 0);
+	//proj (&u[0], m, u0);
+
+	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+		Timer tm;
+		bv.calc (&u[0], &u[0], &bnd_u[0], &bnd_w[0], t);
+
+		if (i % 1 == 0) {
+			double nr = bv.norm (&u[0]);
+			fprintf (stderr, "t=%le; nr=%le; min=%le; max=%le; work=%le;\n",
+				 t, nr, vec_find_min(&u[0], sz),
+				 vec_find_max(&u[0], sz), tm.elapsed());
+
+			if (verbose) {
+
+				// 3d print
+				print_function (stdout, &u[0], m, x, y, z);
+				// flat print
+				// print_function (stdout, &u[0], m, 0, 0, 0);
+			}
+
+
+			if (isnan(nr) || isinf(nr)) {
+				return;
+			}
+		}
+
+		i += 1;
+		t += tau;
+#if 1
+		{
+			proj(&Ans[0], m, ans_stationar, t);
+			fprintf(stderr, "time %lf/ norm %le\n", t, 
+				bv.dist(&u[0], &Ans[0]));
+//			print_function (stdout, &Ans[0], m, x, y, z);
+		}
+#endif
+	}
+
+	fprintf(stdout, "bv: norm %le\n",  
+			bv.dist(&u[0], &Ans[0]));
+}
+
+
 void test_barvortex (const Mesh & m, int verbose, double T)
 {
 	int sz = (int)m.ps.size();
@@ -776,6 +867,8 @@ int main (int argc, char *argv[])
 		test_kornev1(mesh);
 	} else if (task == "laplace_LT") {
 		test_laplace_LT(mesh);
+	} else if (task == "stationar") {
+		test_barvortex_stationar(mesh, verbose, time);
 	} else {
 		usage(argv[0]);
 	}

@@ -308,7 +308,7 @@ void BarVortex < L, J > ::calc(double * u1,
 #pragma omp parallel for
 		for (int i = 0; i < rs; ++i) {
 			int point = m_.inner[i];
-			F[i] = FC[point] - jac[i];
+			F[i] = FC[point]  - jac[i];
 		}
 #if 0
 		right_part_cb_data data2;
