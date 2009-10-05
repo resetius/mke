@@ -47,15 +47,9 @@ VERSION("$Id$");
 using namespace std;
 using namespace phelm;
 
-static double 
-jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 
-	 const Mesh & m, int i, int j, void * data)
+static double integrate_cos_func(double x, double y, Polynom * poly)
 {
-	Polynom pt1 = diff(phi_i, 1) * diff(phi_j, 0);
-	Polynom pt2 = diff(phi_i, 0) * diff(phi_j, 1);
-
-	Point p = m.ps[i].p[0];
-	return (pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y)) / cos(p.x);
+	return cos(x) * poly->apply(x, y);
 }
 
 static double id_cb(const Polynom & phi_i,
@@ -68,7 +62,9 @@ static double id_cb(const Polynom & phi_i,
 		int j,
 		void *)
 {
-	return integrate_cos(phi_i * phi_j, trk, m.ps);
+	Polynom poly = phi_i * phi_j;
+	//return integrate_cos(poly, trk, m.ps);
+	return integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 }
 
 static double diff_1_rp(const Polynom & phi_i,
@@ -95,7 +91,8 @@ static double diff_1_cos_rp(const Polynom & phi_i,
 {
 	Polynom poly = diff(phi_j, 0) * phi_i;
 	double v = (u) ? u[j] : 1;
-	double r = v * integrate_cos(poly, trk, m.ps);
+	//double r = v * integrate_cos(poly, trk, m.ps);
+	double r = v * integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 	return r;
 }
 
@@ -123,7 +120,8 @@ static double diff_2_cos_rp(const Polynom & phi_i,
 {
 	Polynom poly = diff(phi_j, 1) * phi_i;
 	double v = (u) ? u[j] : 1;
-	double r = v * integrate_cos(poly, trk, m.ps);
+	//double r = v * integrate_cos(poly, trk, m.ps);
+	double r = v * integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 	return r;
 }
 
@@ -132,11 +130,6 @@ void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
 	int rs = (int)m_.inner.size();
 	int sz = (int)m_.ps.size();
 	int os = (int)m_.outer.size();
-#if 0
-	vector < double > rp(sz);
-	convolution(&rp[0], u, v, m_, (scalar_cb_t)jacobian, 0);
-	u2p(Ans, &rp[0], m_);
-#endif
 
 #if 1
 	vector < double > v_in(rs);

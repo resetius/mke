@@ -196,6 +196,10 @@ double integrate(const Polynom & p, const Triangle & t,
  */
 double integrate_cos(const Polynom & p, const Triangle & t,
 					 const std::vector < MeshPoint > & ps);
+
+typedef double (*fxy_t)(double x, double y, void * data);
+double integrate_generic(const Triangle & t, fxy_t f, void * data);
+
 /**
  * Takes the integral of Polynom over the Triangle t.
  \f[

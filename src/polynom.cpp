@@ -274,6 +274,15 @@ double integrate_1_cos(const Polynom & p, const Triangle & tr, const vector < Me
 	return integrate_(p, tr, ps, trapezoid_integral_1_cos);
 }
 
+extern "C" double cubature7(double x1, double y1, double x2, double y2, double x3, double y3, fxy_t f, void * d);
+
+double integrate_generic(const Triangle & tr, fxy_t f, void * data)
+{
+	double x1 = tr.x[0], x2 = tr.x[1], x3 = tr.x[2];
+	double y1 = tr.y[0], y2 = tr.y[1], y3 = tr.y[2];
+	return cubature7(x1, y1, x2, y2, x3, y3, f, data);
+}
+
 Polynom operator * (const Polynom &p1, const Polynom &p2)
 {
 	short i, j, k, m;

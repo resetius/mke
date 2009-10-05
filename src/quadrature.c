@@ -166,6 +166,6 @@ double cubature7(double x1, double y1, double x2, double y2, double x3, double y
 		double v = a * y1 + b * y2 + c * y3;
 		s += w7[i] * f(u, v, d);
 	}
-	s *= 0.5 * ((x1 - x3) * (y2 - y3) - (y1 - y3) * (x2 - x3));
-	return 0;
+	s *= 0.5 * fabs(((x1 - x3) * (y2 - y3) - (y1 - y3) * (x2 - x3)));
+	return s;
 }

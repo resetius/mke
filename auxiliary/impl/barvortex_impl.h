@@ -54,6 +54,17 @@ using namespace phelm;
 
 namespace bv_private {
 
+static double integrate_cos_func(double x, double y, Polynom * poly)
+{
+	return cos(x) * poly->apply(x, y);
+}
+
+template < typename A, typename B, typename C >
+double my_integrate_cos(const A & poly, B & trk, C & points)
+{
+	return integrate_generic(trk, (fxy_t)integrate_cos_func, (void*)&poly);
+}
+
 template < typename BV > 
 double 
 integrate_cb( const Polynom & phi_i,
@@ -70,7 +81,7 @@ integrate_cb( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
+	pt1  = my_integrate_cos(phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * d->theta_;
 
 	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
@@ -95,7 +106,7 @@ integrate_backward_cb( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = integrate_cos(phi_i * phi_j, trk, m.ps);
+	pt1  = my_integrate_cos(phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau - sigma * (1.0 - d->theta_);
 
 	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
@@ -112,6 +123,7 @@ struct right_part_cb_data
 	BV  * d;
 };
 
+#if 0
 template < typename BV > 
 double 
 right_part_cb( const Polynom & phi_i,
@@ -138,7 +150,9 @@ right_part_cb( const Polynom & phi_i,
 
 	return b;
 }
+#endif
 
+#if 0
 template < typename BV > 
 double 
 right_part_backward_cb( const Polynom & phi_i,
@@ -165,6 +179,8 @@ right_part_backward_cb( const Polynom & phi_i,
 
 	return b;
 }
+#endif
+
 }
 
 template < typename L, typename J >

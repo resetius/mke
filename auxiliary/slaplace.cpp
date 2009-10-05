@@ -59,13 +59,25 @@ using namespace phelm;
  * laplace = laplace1 + laplace2
  */
 
+static double integrate_cos_func(double x, double y, Polynom * poly)
+{
+	return cos(x) * poly->apply(x, y);
+}
+
+static double integrate_1_cos_func(double x, double y, Polynom * poly)
+{
+	return poly->apply(x, y) / cos(x);
+}
+
 /*
  * laplace1 = (1 / cos phi d / d phi phi_i, cos phi d / phi phi_j)
  */
 static double laplace1(const Polynom & phi_i, const Polynom & phi_j, 
 		const Triangle & trk, const Mesh::points_t & ps)
 {
-	return integrate_cos(diff(phi_i, 0) * diff(phi_j, 0), trk, ps);
+	Polynom poly = diff(phi_i, 0) * diff(phi_j, 0);
+//	return integrate_cos(poly, trk, ps);
+	return integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 }
 
 /*
@@ -74,7 +86,9 @@ static double laplace1(const Polynom & phi_i, const Polynom & phi_j,
 static double laplace2(const Polynom & phi_i, const Polynom & phi_j,
 		const Triangle & trk, const Mesh::points_t & ps)
 {
-	return integrate_1_cos(diff(phi_i, 1) * diff(phi_j, 1), trk, ps);
+	Polynom poly = diff(phi_i, 1) * diff(phi_j, 1);
+//	return integrate_1_cos(poly, trk, ps);
+	return integrate_generic(trk, (fxy_t)integrate_1_cos_func, &poly);
 }
 
 double slaplace(const Polynom & phi_i, const Polynom & phi_j, 
@@ -89,6 +103,7 @@ struct slaplace_right_part_cb_data
 	const double * bnd;
 };
 
+#if 0
 static double 
 slaplace_right_part_cb( const Polynom & phi_i,
                         const Polynom & phi_j,
@@ -112,6 +127,7 @@ slaplace_right_part_cb( const Polynom & phi_i,
 
 	return b;
 }
+#endif
 
 namespace SphereLaplace_Private 
 {
@@ -126,7 +142,9 @@ laplace_bnd1_cb( const Polynom & phi_i,
 		int, int,
 		void * d)
 {
-	return integrate_cos(phi_i * phi_j, trk, m.ps);
+	Polynom poly = phi_i * phi_j;
+	//return integrate_cos(poly, trk, m.ps);
+	return integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 }
 
 double
@@ -165,7 +183,9 @@ double id_cb(const Polynom & phi_i,
 		int, int,
 		void *)
 {
-	return integrate_cos(phi_i * phi_j, trk, m.ps);
+	Polynom poly = phi_i * phi_j;
+	//return integrate_cos(poly, trk, m.ps);
+	return integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 }
 
 }

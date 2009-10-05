@@ -49,6 +49,11 @@ VERSION("$Id$");
 using namespace std;
 using namespace phelm;
 
+static double polynom_func(double x, double y, Polynom * p)
+{
+	return p->apply(x, y);
+}
+
 struct laplace_right_part_cb_data
 {
 	const double * F;
@@ -60,9 +65,12 @@ laplace(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, cons
 {
 	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0)
 		+ diff(phi_j, 1) * diff(phi_i, 1);
-	return -integrate(poly, trk, ps);
+//	double d1 = -integrate(poly, trk, ps);
+	double d2 = -integrate_generic(trk, (fxy_t)polynom_func, &poly);	
+	return d2;
 }
 
+#if 0
 static double 
 laplace_right_part_cb( const Polynom & phi_i,
                        const Polynom & phi_j,
@@ -89,6 +97,7 @@ laplace_right_part_cb( const Polynom & phi_i,
 
 	return b;
 }
+#endif
 
 namespace Laplace_Private {
 
@@ -144,6 +153,7 @@ laplace_integrate_cb( const Polynom & phi_i,
 
 } /* namespace */
 
+#if 0
 static double lp_rp(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
@@ -172,3 +182,4 @@ static double lp_rp(const Polynom & phi_i,
 #endif
 	return b;
 }
+#endif

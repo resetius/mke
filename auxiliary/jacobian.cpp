@@ -47,17 +47,6 @@ VERSION("$Id$");
 using namespace std;
 using namespace phelm;
 
-static double 
-jacobian(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, 
-	 const Mesh & m, int i, int j, void * data)
-{
-	Polynom pt1 = diff(phi_i, 1) * diff(phi_j, 0);
-	Polynom pt2 = diff(phi_i, 0) * diff(phi_j, 1);
-
-	Point p = m.ps[i].p[0];
-	return (pt1.apply(p.x, p.y) - pt2.apply(p.x, p.y)) / cos(p.x);
-}
-
 static double id_cb(const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
@@ -104,13 +93,7 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	int rs = (int)m_.inner.size();
 	int sz = (int)m_.ps.size();
 	int os = (int)m_.outer.size();
-#if 0
-	vector < double > rp(sz);
-	convolution(&rp[0], u, v, m_, (scalar_cb_t)jacobian, 0);
-	u2p(Ans, &rp[0], m_);
-#endif
 
-#if 1
 	vector < double > v_in(rs);
 	vector < double > u_in(rs);
 	vector < double > v_in_bnd(os);
@@ -154,7 +137,6 @@ void Jacobian::calc2(double * Ans, const double * u, const double * v)
 	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
 
 	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
-#endif
 }
 
 void Jacobian::calc2t(double * Ans, const double * u, const double * v)
