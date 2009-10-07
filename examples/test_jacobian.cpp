@@ -109,14 +109,24 @@ double test_jacobian_f2_r (double x, double y)
 	return sin (M_PI * x) * sin (M_PI * y) * (double)rand() / (double)RAND_MAX / 10.0;
 }
 
+double test_jacobian_f1_test (double x, double y)
+{
+	return x * (x - M_PI / 4) * y * (y - M_PI);
+}
+
+double test_jacobian_f2_test (double x, double y)
+{
+	return sin(4 * x) * sin(y);
+}
+
 double test_jacobian_f1_sh (double x, double y)
 {
-	return x * cos(y);
+	return x * (x - M_PI / 4) * y * (y - M_PI);
 }
 
 double test_jacobian_f2_sh (double x, double y)
 {
-	return sin(x) * sin(y);
+	return sin(4 * x) * sin(y);
 }
 
 void test_invariants(const Mesh & m)
@@ -129,6 +139,8 @@ void test_invariants(const Mesh & m)
 	vector < double > F2 (sz);
 	vector < double > RND(sz);
 	vector < double > bnd (os);
+	vector < double > fbnd1 (os);
+	vector < double > fbnd2 (os);
 
 	vector < double > ans1 (rs);
 	vector < double > ans2 (sz);
@@ -143,8 +155,11 @@ void test_invariants(const Mesh & m)
 
 	SphereJacobian j (m);
 	SphereNorm < double > nrm(m);
-	proj (&F1[0], m, test_jacobian_f1_sh);
-	proj (&F2[0], m, test_jacobian_f2_sh);
+	proj (&F1[0], m, test_jacobian_f1_test);
+	proj (&F2[0], m, test_jacobian_f2_test);
+
+	proj_bnd(&fbnd1[0], &F1[0], m);
+	proj_bnd(&fbnd2[0], &F2[0], m);
 
 	proj (&RND[0], m, test_jacobian_rnd);
 

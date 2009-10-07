@@ -63,6 +63,8 @@ using phelm::Mesh;
  \f] 
  */
 class SphereJacobian {
+public:
+
 	typedef phelm::Solver < double > Matrix;
 	const Mesh & m_;
 	Matrix idt_;
@@ -86,7 +88,6 @@ class SphereJacobian {
 	Matrix diff1_cos_rp_t_;
 	Matrix diff2_cos_rp_t_;
 
-public:
 	/**
 	 * Constructor.
 	 * @param m - mesh

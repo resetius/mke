@@ -73,6 +73,8 @@
 template < typename Laplace, typename Jacobian >
 class BarVortex: public SphereNorm < double > {
 public:
+	typedef BarVortex < Laplace, Jacobian > my_type;
+
 	/**
 	 * Function of right part.
 	 * @param phi - \f$\varphi\f$
@@ -98,6 +100,8 @@ private:
 	Matrix A_;
 	Matrix bnd_;
 
+	Matrix A2_;
+
 	Matrix Ab_;   // for backward
 	Matrix bndb_; // for backward
 
@@ -116,6 +120,9 @@ public:
 	 * The default value is 0.5 (Crank–Nicolson).
 	 */
 	double theta_;
+
+	std::vector < double > lh_x_;
+	std::vector < double > lh_cos_y_;
 
 private:
 	rp_t rp_;
