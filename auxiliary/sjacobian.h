@@ -122,6 +122,11 @@ public:
 	 */
 	void calc2(double * Ans, const double * u, const double * v);
 
+	void calc2_1(double * Ans, const double * u, const double * v);
+	void calc2_2(double * Ans, const double * u, const double * v);
+	void calc2_3(double * Ans, const double * u, const double * v);
+	void calc2_4(double * Ans, const double * u, const double * v);
+
 	/**
 	 * Calculate ajoint operator to J(u, v) (=-J(u, v))
 	 * @param Ans - the answer

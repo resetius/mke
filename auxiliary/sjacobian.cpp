@@ -132,7 +132,113 @@ static double diff_2_cos_rp(const Polynom & phi_i,
 	return r;
 }
 
-void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2_1(double * Ans, const double * u, const double * v)
+{
+	int rs = (int)m_.inner.size();
+	int sz = (int)m_.ps.size();
+	int os = (int)m_.outer.size();
+
+#if 1
+	vector < double > v_in(rs);
+	vector < double > u_in(rs);
+	vector < double > v_in_bnd(os);
+	vector < double > u_in_bnd(os);
+
+	vector < double > rp(rs);
+
+	vector < double > pt1(rs);
+	vector < double > pt2(rs);
+	vector < double > tmp(rs);
+
+	u2p(&v_in[0], v, m_);
+	u2p(&u_in[0], u, m_);
+	proj_bnd(&v_in_bnd[0], v, m_);
+	proj_bnd(&u_in_bnd[0], u, m_);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
+	diff2_cos_.mult_vector(&tmp[0], &u_in[0]);
+	diff2_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&pt1[0], &rp[0]);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
+	diff1_.mult_vector(&tmp[0], &v_in[0]);
+	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&tmp[0], &rp[0]);
+	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
+	diff1_cos_.mult_vector(&tmp[0], &u_in[0]);
+	diff1_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&pt2[0], &rp[0]);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
+	diff2_.mult_vector(&tmp[0], &v_in[0]);
+	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
+	idt_.solve(&tmp[0], &rp[0]);
+	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+
+	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+#endif
+}
+
+void SphereJacobian::calc2_2(double * Ans, const double * u, const double * v)
+{
+	int rs = (int)m_.inner.size();
+	int sz = (int)m_.ps.size();
+	int os = (int)m_.outer.size();
+
+#if 1
+	vector < double > v_in(rs);
+	vector < double > u_in(rs);
+	vector < double > v_in_bnd(os);
+	vector < double > u_in_bnd(os);
+
+	vector < double > rp(rs);
+
+	vector < double > pt1(rs);
+	vector < double > pt2(rs);
+	vector < double > tmp(rs);
+
+	u2p(&v_in[0], v, m_);
+	u2p(&u_in[0], u, m_);
+	proj_bnd(&v_in_bnd[0], v, m_);
+	proj_bnd(&u_in_bnd[0], u, m_);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
+	diff2_.mult_vector(&tmp[0], &u_in[0]);
+	diff2_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&pt1[0], &rp[0]);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
+	diff1_cos_.mult_vector(&tmp[0], &v_in[0]);
+	diff1_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&tmp[0], &rp[0]);
+	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
+	diff1_.mult_vector(&tmp[0], &u_in[0]);
+	diff1_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&pt2[0], &rp[0]);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
+	diff2_cos_.mult_vector(&tmp[0], &v_in[0]);
+	diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
+	idt_.solve(&tmp[0], &rp[0]);
+	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+
+	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+#endif
+}
+
+void SphereJacobian::calc2_3(double * Ans, const double * u, const double * v)
 {
 	int rs = (int)m_.inner.size();
 	int sz = (int)m_.ps.size();
@@ -183,6 +289,75 @@ void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
 
 	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
 #endif
+}
+
+void SphereJacobian::calc2_4(double * Ans, const double * u, const double * v)
+{
+	int rs = (int)m_.inner.size();
+	int sz = (int)m_.ps.size();
+	int os = (int)m_.outer.size();
+
+#if 1
+	vector < double > v_in(rs);
+	vector < double > u_in(rs);
+	vector < double > v_in_bnd(os);
+	vector < double > u_in_bnd(os);
+
+	vector < double > rp(rs);
+
+	vector < double > pt1(rs);
+	vector < double > pt2(rs);
+	vector < double > tmp(rs);
+
+	u2p(&v_in[0], v, m_);
+	u2p(&u_in[0], u, m_);
+	proj_bnd(&v_in_bnd[0], v, m_);
+	proj_bnd(&u_in_bnd[0], u, m_);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
+	diff2_.mult_vector(&tmp[0], &u_in[0]);
+	diff2_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&pt1[0], &rp[0]);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
+	diff1_cos_.mult_vector(&tmp[0], &v_in[0]);
+	diff1_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&tmp[0], &rp[0]);
+	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
+	diff1_cos_.mult_vector(&tmp[0], &u_in[0]);
+	diff1_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&pt2[0], &rp[0]);
+
+	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
+	diff2_.mult_vector(&tmp[0], &v_in[0]);
+	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
+	idt_.solve(&tmp[0], &rp[0]);
+	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+
+	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+#endif
+}
+
+void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
+{
+//	calc2_3(Ans, u, v);
+
+	int rs = (int)m_.inner.size();
+	vector < double > tmp(rs);
+	calc2_1(Ans,     u, v);
+	calc2_2(&tmp[0], u, v);
+	vec_sum(Ans, Ans, &tmp[0], rs);
+	calc2_3(&tmp[0], u, v);
+	vec_sum(Ans, Ans, &tmp[0], rs);
+	calc2_4(&tmp[0], u, v);
+	vec_sum(Ans, Ans, &tmp[0], rs);
+	vec_mult_scalar(Ans, Ans, 0.25, rs);
 }
 
 void SphereJacobian::calc2t(double * Ans, const double * u, const double * v)
