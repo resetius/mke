@@ -610,7 +610,7 @@ void print_mesh(const vector < Triangle > & mesh,
 					// in zone 2
 					fprintf(stdout, " ; 2 ");
 				}
-			} else {
+			} else if (type != 2) {
 				if (   v1 < M_PI_2 || v2  < M_PI_2 || v2 < M_PI_2
 					|| v1 > 1.5 * M_PI || v2  > 1.5 * M_PI || v2 > 1.5 * M_PI)
 				{
