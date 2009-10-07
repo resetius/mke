@@ -7,8 +7,10 @@
 #include <stdio.h>
 
 #include "phelm.h"
+#include "sjacobian.h"
 #include "jacobian.h"
 #include "util.h"
+#include "norm.h"
 
 using namespace std;
 using namespace phelm;
@@ -65,7 +67,7 @@ void test_jacobian (const Mesh & m)
 	int rs = (int)m.inner.size();
 	int os = (int)m.outer.size();
 
-	Jacobian j (m);
+	SphereJacobian j (m);
 	vector < double > F1 (sz);
 	vector < double > F2 (sz);
 	vector < double > ans1 (sz);
@@ -90,6 +92,61 @@ void test_jacobian (const Mesh & m)
 
 	//vector_print(&rans1[0], rans1.size());
 	//vector_print(&ans1[0], ans1.size());
+}
+
+double test_jacobian_rnd (double x, double y)
+{
+	return (double)rand() / (double)RAND_MAX;
+}
+
+void test_invariants(const Mesh & m)
+{
+	int sz = (int)m.ps.size();
+	int rs = (int)m.inner.size();
+	int os = (int)m.outer.size();
+
+	SphereJacobian j (m);
+	SphereNorm < double > nrm(m);
+
+//	Jacobian j (m);
+//	FlatNorm < double > nrm(m);
+
+	vector < double > F1 (sz);
+	vector < double > F2 (sz);
+	vector < double > RND(sz);
+	vector < double > bnd (os);
+
+	vector < double > ans1 (rs);
+	vector < double > ans2 (sz);
+	double nr;
+
+	srand(0);
+
+	proj (&F1[0], m, test_jacobian_f1);
+	proj (&F2[0], m, test_jacobian_f2);
+	proj (&RND[0], m, test_jacobian_rnd);
+
+	j.calc2(&ans1[0], &F1[0], &F1[0]);
+	nr = vec_find_max(&ans1[0], rs);
+	fprintf(stderr, "J(rnd, rnd) = %.16le\n", nr);
+
+//	vec_print(&ans1[0], rs);
+
+	j.calc1(&ans2[0], &F1[0], &F2[0], &bnd[0]);
+	nr = nrm.scalar(&ans2[0], &F2[0]);
+	fprintf(stderr, "(J(u, w), w) = %.16le\n", nr);
+
+	j.calc1(&ans2[0], &F1[0], &F2[0], &bnd[0]);
+	nr = nrm.scalar(&ans2[0], &F1[0]);
+	fprintf(stderr, "(J(u, w), u) = %.16le\n", nr);
+
+	j.calc1(&ans2[0], &F2[0], &F1[0], &bnd[0]);
+	nr = nrm.scalar(&ans2[0], &F1[0]);
+	fprintf(stderr, "(J(u, w), w) = %.16le\n", nr);
+
+	j.calc1(&ans2[0], &F2[0], &F1[0], &bnd[0]);
+	nr = nrm.scalar(&ans2[0], &F2[0]);
+	fprintf(stderr, "(J(u, w), u) = %.16le\n", nr);
 }
 
 static double x (double u, double v)
@@ -150,7 +207,8 @@ int main (int argc, char *argv[])
 
 	mesh.info();
 
-	test_jacobian(mesh);
+	//test_jacobian(mesh);
+	test_invariants(mesh);
 	return 0;
 }
 
