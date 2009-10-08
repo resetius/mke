@@ -142,6 +142,14 @@ void csr_add_matrix1(const int * oAp, float * oAx,
 					 const int * Ap, const int * Ai, const float * Ax,
 					 const float * x, int n);
 
+void csr_add_matrix2(const int * oAp, double * oAx, 
+					 const int * Ap, const int * Ai, const double * Ax,
+					 const double * x, int n);
+
+void csr_add_matrix2(const int * oAp, float * oAx, 
+					 const int * Ap, const int * Ai, const float * Ax,
+					 const float * x, int n);
+
 /**
  * ELL matrix multiplication: r = A x
  * @param r - output vector

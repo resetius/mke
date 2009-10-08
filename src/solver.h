@@ -119,6 +119,14 @@ struct StoreCSR
 	 * главного минора размера mxm матрицы this.
 	 */
 	void add_matrix1(const my_type & A, const T * vec);
+
+	/**
+	 * Прибавляет матрицу A размера mxm. 
+	 * Каждый столбец матрицы A умножается поэлементно на vec.
+	 * Структура строк матрицы A ДОЛЖНА совпадать со структурой
+	 * главного минора размера mxm матрицы this.
+	 */
+	void add_matrix2(const my_type & A, const T * vec);
 };
 
 template < typename T, template < class > class Alloc = Allocator >
@@ -171,6 +179,11 @@ struct StoreELL
 	{
 		assert(0);
 	}
+
+	void add_matrix2(const my_type & A, const T * vec)
+	{
+		assert(0);
+	}
 };
 
 template < typename Store1, typename Store2 >
@@ -187,6 +200,12 @@ struct DoubleStore
 	{
 		mult.add_matrix1(A.mult, vec);
 		invert.add_matrix1(A.invert, vec);
+	}
+
+	void add_matrix2(const my_type & A, const typename Store1::data_type * vec)
+	{
+		mult.add_matrix2(A.mult, vec);
+		invert.add_matrix2(A.invert, vec);
 	}
 };
 
@@ -205,6 +224,11 @@ struct DoubleStore < Store, Store >
 	void add_matrix1(const my_type & A, const typename Store::data_type * vec)
 	{
 		mult.add_matrix1(A.mult, vec);
+	}
+
+	void add_matrix2(const my_type & A, const typename Store::data_type * vec)
+	{
+		mult.add_matrix2(A.mult, vec);
 	}
 };
 
@@ -265,6 +289,7 @@ public:
 	void prepare();
 
 	void add_matrix1(my_type & A, const T * vec);
+	void add_matrix2(my_type & A, const T * vec);
 };
 
 #ifdef UMFPACK

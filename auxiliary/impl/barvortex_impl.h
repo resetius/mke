@@ -556,8 +556,9 @@ void BarVortex < L, J > ::calc(double * u1,
 		//phelm::smooth1(&u_n[0], &u1[0], m_);
 
 		double nr = dist(&u_n1[0], &u_n[0]);
+
 		u_n1.swap(u_n);
-		if (nr / nr0 < 1e-14) {
+		if (nr / nr0 < 1e-14 || isnan(nr)) {
 			break;
 		}
 	}

@@ -11,16 +11,6 @@
 using namespace std;
 using namespace phelm;
 
-#ifdef WIN32
-#include <float.h>
-#define isnan _isnan
-inline bool isinf(double x)
-{
-	int c = _fpclass(x);
-	return (c == _FPCLASS_NINF || c == _FPCLASS_PINF);
-}
-#endif
-
 void usage(const char * name)
 {
 	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-t|--threads number] [--task task] [--verbose|-v number]\n", name);

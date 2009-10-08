@@ -89,6 +89,14 @@ void StoreCSR < T, Alloc > ::add_matrix1(const my_type & A, const T * x)
 }
 
 template < typename T, template < class > class Alloc >
+void StoreCSR < T, Alloc > ::add_matrix2(const my_type & A, const T * x)
+{
+	csr_add_matrix2(&Ap_[0], &Ax_[0], 
+		&A.Ap_[0], &A.Ai_[0], &A.Ax_[0], 
+		x, A.n_);
+}
+
+template < typename T, template < class > class Alloc >
 void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
 {
 	nz_ = 0; // non-null elements
