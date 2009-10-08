@@ -101,6 +101,7 @@ private:
 	Matrix bnd_;
 
 	Matrix A2_; // 2nx2n
+	Matrix bnd2_;
 	Matrix C1_;
 	Matrix C2_;
 
