@@ -264,7 +264,7 @@ public:
 	 */
 	void prepare();
 
-	void add_matrix1(const my_type & A, const T * vec);
+	void add_matrix1(my_type & A, const T * vec);
 };
 
 #ifdef UMFPACK

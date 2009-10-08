@@ -126,6 +126,9 @@ public:
 	std::vector < double > lh_x_;
 	std::vector < double > lh_cos_y_;
 
+	std::vector < double > u_x_;
+	std::vector < double > u_cos_y_;
+
 private:
 	rp_t rp_;
 	coriolis_t coriolis_;

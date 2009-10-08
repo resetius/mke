@@ -135,6 +135,16 @@ public:
 	 * @param v - vector v
 	 */
 	void calc2t(double * Ans, const double * u, const double * v);
+
+	/**
+	 * Calculate \f$ \frac{\partial u}{\partial x} \f$
+	 */
+	void calc2_diff_x(double * Ans, const double * v);
+
+	/**
+	 * Calculate \f$ \frac{1}{cos(y)}\frac{\partial u}{\partial y} \f$
+	 */
+	void calc2_diff_cos_y(double * Ans, const double * v);
 };
 
 /** @} */

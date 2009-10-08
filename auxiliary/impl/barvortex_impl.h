@@ -109,16 +109,22 @@ integrate_cb2( const Polynom & phi_i,
 	double theta = d->theta_;
 	double k1    = d->k1_;
 	double k2    = d->k2_;
-	double hx    = d->lh_x_[m.p2io[point_j]];
-	double hy    = d->lh_cos_y_[m.p2io[point_j]];
+	double hx    = d->lh_x_[m.p2io[point_i]];
+	double hy    = d->lh_cos_y_[m.p2io[point_i]];
 
-	double a, b, j1, j2;
+	double ux    = d->u_x_[m.p2io[point_i]];
+	double uy    = d->u_cos_y_[m.p2io[point_i]];
+
+	double a, b, j1, j2, j3, j4;
 
 	a = my_integrate_cos(phi_i * phi_j, trk, m.ps);
 	b = slaplace(phi_j, phi_i, trk, m.ps);
 
-	j1 = k2 * hx * integrate(diff(phi_j, 1) * phi_i, trk, m.ps);
-	j2 = k2 * hy * my_integrate_cos(diff(phi_j, 0) * phi_i, trk, m.ps);
+	j1 = k2 * hx * my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
+	j2 = k2 * hy * integrate(diff(phi_j, 0) * phi_i, trk, m.ps);
+
+	j3 = uy * integrate(diff(phi_j, 0) * phi_i, trk, m.ps);
+	j4 = ux * my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
 
 	/**
 	 * 2nx2n matrix
@@ -128,7 +134,8 @@ integrate_cb2( const Polynom & phi_i,
 	// 4 элемента создаем
 	r.reserve(4);
 	r.push_back(Element(i, j, a * (1.0 / tau + sigma * theta) 
-		- theta * mu * b + theta * (j1 - j2)));
+		- theta * mu * b + k1 * theta * (j3 - j4)));
+	r.push_back(Element(i, j + rs, theta * (j1 - j2)));
 
 	// w-L(u) = 0
 	// w
@@ -149,7 +156,8 @@ integrate_c1( const Polynom & phi_i,
 			  int i, int j,
               BV * d)
 {
-	return my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
+	double k = d->theta_ * d->k1_;
+	return k * integrate(diff(phi_j, 0) * phi_i, trk, m.ps);
 }
 
 template < typename BV > 
@@ -162,7 +170,8 @@ integrate_c2( const Polynom & phi_i,
 			  int i, int j,
               BV * d)
 {
-	return -my_integrate_cos(diff(phi_j, 0) * phi_i, trk, m.ps);
+	double k = d->theta_ * d->k1_;
+	return - k * my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
 }
 
 template < typename BV > 
@@ -337,33 +346,17 @@ BarVortex < L, J > ::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, dou
 	lh_.resize(sz);
 	lh_x_.resize(rs);
 	lh_cos_y_.resize(rs);
+	u_x_.resize(rs);
+	u_cos_y_.resize(rs);
 	proj(&lh_[0], m_, coriolis);
 
-	{
-		std::vector < double > v_in(rs);
-		std::vector < double > v_in_bnd(os);
-		std::vector < double > rp(rs);
-		std::vector < double > tmp(rs);
-
-		u2p(&v_in[0], &lh_[0], m_);
-		proj_bnd(&v_in_bnd[0], &lh_[0], m_);
-
-		j_.diff1_.mult_vector(&tmp[0], &v_in[0]);
-		j_.diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-		vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-		j_.idt_.solve(&lh_x_[0], &rp[0]);
-		
-		j_.diff2_cos_.mult_vector(&tmp[0], &v_in[0]);
-		j_.diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-		vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
-		j_.idt_.solve(&lh_cos_y_[0], &rp[0]);
-	}
-
+	j_.calc2_diff_x(&lh_x_[0], &lh_[0]);
+	j_.calc2_diff_x(&lh_cos_y_[0], &lh_[0]);
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 	generate_matrix(A_, m_, bv_private::integrate_cb < my_type > , this);
-	generate_matrix(A2_, m_, bv_private::integrate_cb2 < my_type > , this);
+//	generate_matrix(A2_, m_, bv_private::integrate_cb2 < my_type > , this);
 	generate_matrix(C1_, m_, bv_private::integrate_c1 < my_type > , this);
 	generate_matrix(C2_, m_, bv_private::integrate_c2 < my_type > , this);
 
@@ -481,13 +474,18 @@ void BarVortex < L, J > ::calc(double * u1,
 #endif
 		// 0.5(w+w)
 		vec_sum1(&tmp1[0], &w_n[0], &w[0], k1_ * theta,
-				 k1_ * (1.0 - theta), sz);
+			k1_ * (1.0 - theta), sz);
 		// 0.5(u+u)
 		vec_sum1(&tmp2[0], &u_n[0], &u[0], theta,
 			1.0 - theta, sz);
-		j_.calc2(&jac1[0], &tmp2[0], &tmp1[0]);
-//		j_.calc2(&jac2[0], &u[0], &lh_[0]);
-//		vec_sum1(&jac[0], &jac1[0], &jac2[0], k1_, k2_ * theta, rs);
+//		j_.calc2(&jac1[0], &tmp2[0], &tmp1[0]);
+
+
+		// J(0.5(u+u), 0.5 w)
+		j_.calc2(&jac1[0], &tmp2[0], &w[0]);
+
+		j_.calc2_diff_x(&u_x_[0], &tmp2[0]);
+		j_.calc2_diff_cos_y(&u_cos_y_[0], &tmp2[0]);
 
 		// w/dt + mu (1-theta) L w  - \sigma (1-theta) w -
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
@@ -495,11 +493,20 @@ void BarVortex < L, J > ::calc(double * u1,
 		for (int i = 0; i < rs; ++i) {
 		//	int point = m_.inner[i];
 		//	F[i] = FC[point]  - jac[i];
-			F[i] = FC1[i]  - jac1[i];
+			F[i] = FC1[i]  - k1_ * (1.0 - theta) * jac1[i];
+		//	F[i] = FC1[i]  - jac1[i];
 		}
 
 #if 1
-		Matrix A2_copy = A2_;
+
+		Matrix A2_copy(2*rs);
+		generate_matrix(A2_copy, m_, bv_private::integrate_cb2 < my_type > , this);
+//		Matrix A2_copy = A2_;
+
+//		Matrix A2_copy = A2_;
+//		A2_copy.add_matrix1(C1_, &u_cos_y[0]);
+//		A2_copy.add_matrix1(C2_, &u_x[0]);
+
 		// надо сделать матрицу A2 = A+B+C(psi)
 		// A2_copy.add_matrix1(C1, psi_x)
 		// A2_copy.add_matrix1(C2, psi_y_cos)

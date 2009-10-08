@@ -184,7 +184,7 @@ void SparseSolver < T, MultStore, InvStore > ::prepare()
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::add_matrix1(const my_type & A, const T * vec)
+void SparseSolver < T, MultStore, InvStore > ::add_matrix1(my_type & A, const T * vec)
 {
 	prepare();
 	A.prepare();

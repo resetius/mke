@@ -81,7 +81,7 @@ static double diff_1_rp(const Polynom & phi_i,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 0) * phi_i;
-	double v = (u) ? u[j] : 1;
+	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
 	double r = v * integrate_generic(trk, (fxy_t)integrate_func, &poly);
 	return r;
@@ -96,7 +96,7 @@ static double diff_1_cos_rp(const Polynom & phi_i,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 0) * phi_i;
-	double v = (u) ? u[j] : 1;
+	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
 	double r = v * integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 	return r;
@@ -111,7 +111,7 @@ static double diff_2_rp(const Polynom & phi_i,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 1) * phi_i;
-	double v = (u) ? u[j] : 1;
+	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
 	double r = v * integrate_generic(trk, (fxy_t)integrate_func, &poly);
 	return r;
@@ -126,7 +126,7 @@ static double diff_2_cos_rp(const Polynom & phi_i,
 		const double * u)
 {
 	Polynom poly = diff(phi_j, 1) * phi_i;
-	double v = (u) ? u[j] : 1;
+	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
 	double r = v * integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
 	return r;
@@ -358,6 +358,46 @@ void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
 	calc2_4(&tmp[0], u, v);
 	vec_sum(Ans, Ans, &tmp[0], rs);
 	vec_mult_scalar(Ans, Ans, 0.25, rs);
+}
+
+void SphereJacobian::calc2_diff_x(double * Ans, const double * v)
+{
+	int sz = m_.size;
+	int os = m_.outer_size;
+	int rs = m_.inner_size;
+
+	std::vector < double > v_in(rs);
+	std::vector < double > v_in_bnd(os);
+	std::vector < double > rp(rs);
+	std::vector < double > tmp(rs);
+
+	u2p(&v_in[0], &v[0], m_);
+	proj_bnd(&v_in_bnd[0], &v[0], m_);
+
+	diff1_.mult_vector(&tmp[0], &v_in[0]);
+	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+	idt_.solve(&Ans[0], &rp[0]);
+}
+
+void SphereJacobian::calc2_diff_cos_y(double * Ans, const double * v)
+{
+	int sz = m_.size;
+	int os = m_.outer_size;
+	int rs = m_.inner_size;
+
+	std::vector < double > v_in(rs);
+	std::vector < double > v_in_bnd(os);
+	std::vector < double > rp(rs);
+	std::vector < double > tmp(rs);
+
+	u2p(&v_in[0], &v[0], m_);
+	proj_bnd(&v_in_bnd[0], &v[0], m_);
+
+	diff2_cos_.mult_vector(&tmp[0], &v_in[0]);
+	diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
+	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
+	idt_.solve(&Ans[0], &rp[0]);
 }
 
 void SphereJacobian::calc2t(double * Ans, const double * u, const double * v)
