@@ -224,16 +224,47 @@ void csr_mult_vector_(T * r, const int * Ap, const int * Ai,
 	}
 }
 
-void sparse_mult_vector_r(double * r, const int * Ap, const int * Ai, 
+void csr_mult_vector_r(double * r, const int * Ap, const int * Ai, 
 						  const double * Ax, const double * x, int n, int nz)
 {
 	csr_mult_vector_(r, Ap, Ai, Ax, x, n);
 }
 
-void sparse_mult_vector_r(float * r, const int * Ap, const int * Ai, 
+void csr_mult_vector_r(float * r, const int * Ap, const int * Ai, 
 						  const float * Ax, const float * x, int n, int nz)
 {
 	csr_mult_vector_(r, Ap, Ai, Ax, x, n);
+}
+
+template < typename T >
+void csr_add_matrix1_(const int * oAp, T * oAx, 
+					  const int * Ap, const int * Ai, const T * Ax,
+					  const T * x, int n)
+{
+#pragma omp parallel for
+	for (int j = 0; j < n; ++j) {
+		const T * a =  &Ax[Ap[j]];
+		T * o = &oAx[oAp[j]];
+
+		for (int i0 = Ap[j]; i0 < Ap[j + 1]; ++i0, ++a, ++o) {
+			int i = Ai[i0];
+			*o += *a * x[i];
+		}
+	}
+}
+
+void csr_add_matrix1(const int * oAp, double * oAx, 
+					 const int * Ap, const int * Ai, const double * Ax,
+					 const double * x, int n)
+{
+	csr_add_matrix1_(oAp, oAx, Ap, Ai, Ax, x, n);
+}
+
+void csr_add_matrix1(const int * oAp, float * oAx, 
+					 const int * Ap, const int * Ai, const float * Ax,
+					 const float * x, int n)
+{
+	csr_add_matrix1_(oAp, oAx, Ap, Ai, Ax, x, n);
 }
 
 template < typename T >
@@ -258,14 +289,14 @@ void ell_mult_vector_(
 	}
 }
 
-void sparse_mult_vector_r(double * r, const int * Ai, 
+void ell_mult_vector_r(double * r, const int * Ai, 
 						  const double * Ax, const double * x, 
 						  int n, int cols, int stride)
 {
 	ell_mult_vector_(r, Ai, Ax, x, n, cols, stride);
 }
 
-void sparse_mult_vector_r(float * r, const int * Ai, 
+void ell_mult_vector_r(float * r, const int * Ai, 
 						  const float * Ax, const float * x, 
 						  int n, int cols, int stride)
 {

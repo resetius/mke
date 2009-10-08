@@ -54,14 +54,6 @@ VERSION("$Id$");
 
 namespace phelm {
 
-void 
-sparse_mult_vector_ell(double * r, const int * Ai, const double * Ax, 
-					   const double * x, int n, int cols, int stride);
-
-void
-sparse_mult_vector_ell(float * r, const int * Ai, const float * Ax, 
-					   const float * x, int n, int cols, int stride);
-
 double vec_scalar2(const double * a, const double * b, int n)
 {
 	return cublasDdot(n, a, 1, b, 1);

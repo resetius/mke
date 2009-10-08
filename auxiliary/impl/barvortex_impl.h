@@ -499,6 +499,12 @@ void BarVortex < L, J > ::calc(double * u1,
 		}
 
 #if 1
+		Matrix A2_copy = A2_;
+		// надо сделать матрицу A2 = A+B+C(psi)
+		// A2_copy.add_matrix1(C1, psi_x)
+		// A2_copy.add_matrix1(C2, psi_y_cos)
+		// ...
+
 		bv_private::right_part_cb_data < my_type > data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
 		data2.F   = &F[0];
@@ -509,7 +515,7 @@ void BarVortex < L, J > ::calc(double * u1,
 		memset(&rp[0], 0, 2 * rs * sizeof(double));
 		generate_right_part(&rp[0], m_, 
 			bv_private::right_part_cb2 < my_type >, &data2);
-		A2_.solve(&ans[0], &rp[0]);
+		A2_copy.solve(&ans[0], &rp[0]);
 		p2u(&w_n[0],  &ans[0],  bnd_w, m_);
 		p2u(&u_n1[0], &ans[rs], bnd_u, m_);
 #endif

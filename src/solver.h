@@ -77,6 +77,8 @@ template < typename T, template < class > class Alloc = Allocator >
 struct StoreCSR
 {
 	typedef T data_type;
+	typedef StoreCSR < T, Alloc> my_type;
+
 	int n_;
 	int nz_;
 	Array < int, Alloc < int > > Ap_; // количества ненулевых в столбцах
@@ -109,12 +111,22 @@ struct StoreCSR
 	void load(const sparse_t & unstruct);
 
 	void mult(T * r, const T * x) const;
+
+	/**
+	 * Прибавляет матрицу A размера mxm. 
+	 * Каждая строка матрицы A умножается поэлементно на vec.
+	 * Структура строк матрицы A ДОЛЖНА совпадать со структурой
+	 * главного минора размера mxm матрицы this.
+	 */
+	void add_matrix1(const my_type & A, const T * vec);
 };
 
 template < typename T, template < class > class Alloc = Allocator >
 struct StoreELL
 {
 	typedef T data_type;
+	typedef StoreELL < T, Alloc > my_type;
+
 	int n_;
 	int nz_;
 	int cols_;
@@ -154,6 +166,11 @@ struct StoreELL
 	void load(const sparse_t & unstruct);
 
 	void mult(T * r, const T * x) const;
+
+	void add_matrix1(const my_type & A, const T * vec)
+	{
+		assert(0);
+	}
 };
 
 template < typename Store1, typename Store2 >
@@ -161,9 +178,16 @@ struct DoubleStore
 {
 	typedef Store1 mult_t;
 	typedef Store2 invert_t;
+	typedef DoubleStore < Store1, Store2 > my_type;
 
 	Store1 mult;
 	Store2 invert;
+
+	void add_matrix1(const my_type & A, const typename Store1::data_type * vec)
+	{
+		mult.add_matrix1(A.mult, vec);
+		invert.add_matrix1(A.invert, vec);
+	}
 };
 
 template < typename Store >
@@ -171,11 +195,17 @@ struct DoubleStore < Store, Store >
 {
 	typedef Store mult_t;
 	typedef Store invert_t;
+	typedef DoubleStore < Store, Store > my_type;
 
 	Store both;
 	Store & mult;
 	Store & invert;
 	DoubleStore (): mult(both), invert(both) {}
+
+	void add_matrix1(const my_type & A, const typename Store::data_type * vec)
+	{
+		mult.add_matrix1(A.mult, vec);
+	}
 };
 
 /**
@@ -233,6 +263,8 @@ public:
 	 * fill permanent storage from temporary storage
 	 */
 	void prepare();
+
+	void add_matrix1(const my_type & A, const T * vec);
 };
 
 #ifdef UMFPACK
@@ -307,9 +339,9 @@ public:
 #elif defined(UMFPACK) && !defined(GPGPU)
 
 template < typename T >
-class Solver: public UmfPackSolver < T, StoreELL < T , Allocator >  >
+class Solver: public UmfPackSolver < T, StoreCSR < T , Allocator >  >
 {
-	typedef UmfPackSolver < T, StoreELL < T , Allocator >  > base;
+	typedef UmfPackSolver < T, StoreCSR < T , Allocator >  > base;
 public:
 	Solver(int n): base(n) {}
 };

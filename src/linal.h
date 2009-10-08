@@ -126,15 +126,34 @@ void mat_mult_vector(float * r, const float * A, const float * x, int n);
  * @param x - input vector
  * @param n - the size of vector and matrix
  */
-void sparse_mult_vector_r(double * r, const int * Ap, const int * Ai, 
+void csr_mult_vector_r(double * r, const int * Ap, const int * Ai, 
 						  const double * Ax, const double * x, int n, int nz);
-void sparse_mult_vector_r(float * r, const int * Ap, const int * Ai, 
+void csr_mult_vector_r(float * r, const int * Ap, const int * Ai, 
 						  const float * Ax, const float * x, int n, int nz);
 
-void sparse_mult_vector_r(double * r, const int * Ai, 
+/**
+ * @param n - число строк в матрице Ax
+ */
+void csr_add_matrix1(const int * oAp, double * oAx, 
+					 const int * Ap, const int * Ai, const double * Ax,
+					 const double * x, int n);
+
+void csr_add_matrix1(const int * oAp, float * oAx, 
+					 const int * Ap, const int * Ai, const float * Ax,
+					 const float * x, int n);
+
+/**
+ * ELL matrix multiplication: r = A x
+ * @param r - output vector
+ * @param Ai - 
+ * @param Ax - 
+ * @param x - input vector
+ * @param n - the size of vector and matrix
+ */
+void ell_mult_vector_r(double * r, const int * Ai, 
 						  const double * Ax, const double * x, 
 						  int n, int cols, int stride);
-void sparse_mult_vector_r(float * r, const int * Ai, 
+void ell_mult_vector_r(float * r, const int * Ai, 
 						  const float * Ax, const float * x, 
 						  int n, int cols, int stride);
 

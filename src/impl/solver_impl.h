@@ -77,7 +77,15 @@ void StoreCSR < T, Alloc > ::load(const std::vector < row_t > & A)
 template < typename T, template < class > class Alloc >
 void StoreCSR < T, Alloc > ::mult(T * r, const T * x) const
 {
-	sparse_mult_vector_r(r, &Ap_[0], &Ai_[0], &Ax_[0], x, n_, nz_);
+	csr_mult_vector_r(r, &Ap_[0], &Ai_[0], &Ax_[0], x, n_, nz_);
+}
+
+template < typename T, template < class > class Alloc >
+void StoreCSR < T, Alloc > ::add_matrix1(const my_type & A, const T * x)
+{
+	csr_add_matrix1(&Ap_[0], &Ax_[0], 
+		&A.Ap_[0], &A.Ai_[0], &A.Ax_[0], 
+		x, A.n_);
 }
 
 template < typename T, template < class > class Alloc >
@@ -130,7 +138,7 @@ void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
 template < typename T, template < class > class Alloc >
 void StoreELL < T, Alloc > ::mult(T * r, const T * x) const
 {
-	sparse_mult_vector_r(r, &Ai_[0], &Ax_[0], x, n_, cols_, stride_);
+	ell_mult_vector_r(r, &Ai_[0], &Ax_[0], x, n_, cols_, stride_);
 }
 
 template < typename T >
@@ -173,6 +181,14 @@ void SparseSolver < T, MultStore, InvStore > ::prepare()
 	if (store_.invert.empty()) {
 		store_.invert.load(A_);
 	}
+}
+
+template < typename T, typename MultStore, typename InvStore  >
+void SparseSolver < T, MultStore, InvStore > ::add_matrix1(const my_type & A, const T * vec)
+{
+	prepare();
+	A.prepare();
+	store_.add_matrix1(A.store_, vec);
 }
 
 template < typename T, typename MultStore, typename InvStore  >
