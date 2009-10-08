@@ -195,6 +195,7 @@ protected:
 
 public:
 	typedef T data_type;
+	typedef SparseSolver < T, MultStore, InvStore > my_type;
 
 	SparseSolver(int n): A_(n)
 	{
@@ -227,6 +228,11 @@ public:
 	 * print matrix to stdout.
 	 */
 	void print();
+
+	/**
+	 * fill permanent storage from temporary storage
+	 */
+	void prepare();
 };
 
 #ifdef UMFPACK
@@ -280,6 +286,11 @@ public:
 	 * print matrix to stdout.
 	 */
 	void print();
+
+	/**
+	 * Do nothing. For compatibility with sparse solvers.
+	 */
+	void prepare() {}
 };
 
 

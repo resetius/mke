@@ -164,12 +164,21 @@ void SimpleSolver < T > ::print()
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::mult_vector(T * out, const T * in)
+void SparseSolver < T, MultStore, InvStore > ::prepare()
 {
 	if (store_.mult.empty()) {
 		store_.mult.load(A_);
 	}
 
+	if (store_.invert.empty()) {
+		store_.invert.load(A_);
+	}
+}
+
+template < typename T, typename MultStore, typename InvStore  >
+void SparseSolver < T, MultStore, InvStore > ::mult_vector(T * out, const T * in)
+{
+	prepare();
 	store_.mult.mult(out, in);
 }
 
@@ -194,10 +203,7 @@ void SparseSolver__Ax(T * r, const Invert * invert, const T * x, int n)
 template < typename T, typename MultStore, typename InvStore  >
 void SparseSolver < T, MultStore, InvStore > ::solve(T * x, const T * b)
 {
-	if (store_.invert.empty()) {
-		store_.invert.load(A_);
-	}
-
+	prepare();
 	gmres(&x[0], &store_.invert, &b[0], SparseSolver__Ax < T, typename store_t::invert_t > , 
 		store_.invert.n_, 100, 1000);
 }

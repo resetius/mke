@@ -289,6 +289,8 @@ void vec_copy_from_device(T * b, const T * a, int n)
 
 template < typename T, typename Alloc >
 class Array {
+	typedef Array < T, Alloc > my_type;
+
 	size_t size_;
 	T * data_;
 	Alloc alloc_;
@@ -304,6 +306,25 @@ public:
 		if (data_) {
 			alloc_.deallocate(data_, size_);
 		}
+	}
+
+	Array(const my_type & other): size_(0), data_(0)
+	{
+		operator = (other);
+	}
+
+	Array & operator = (const my_type & other)
+	{
+		if (data_) {
+			alloc_.deallocate(data_, size_);
+			data_ = 0;
+		}
+		size_ = other.size_;
+		if (size_ > 0) {
+			data_ = alloc_.allocate(size_);
+			vec_copy(data_, other.data_, (int)size_);
+		}
+		return *this;
 	}
 
 	void resize(size_t size) {

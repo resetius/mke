@@ -211,10 +211,7 @@ void SuperLUSolver < T, MultStore > ::solve(T * x, const T * b)
 {
 	CSR & invert = base::store_.invert;
 
-	if (invert.empty()) {
-		fprintf(stderr, "make sparse\n");
-		invert.load(base::A_);
-	}
+	base::prepare();
 
 	SuperMatrix B;
 	SuperLUStat_t stat;

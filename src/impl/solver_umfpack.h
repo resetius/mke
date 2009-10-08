@@ -16,6 +16,7 @@ class UmfPackSolver: public SparseSolver < T, MultStore, StoreCSR < T, std::allo
 
 public:
 	typedef T data_type;
+	typedef UmfPackSolver < T, MultStore > my_type;
 
 	UmfPackSolver(int n): base(n), Symbolic_(0), Numeric_(0) 
 	{
@@ -37,9 +38,7 @@ public:
 	void solve(T * x, const T * b)
 	{
 		CSR & invert = base::store_.invert;
-		if (invert.empty()) {
-			invert.load(base::A_);
-		}
+		base::prepare();
 
 		int status;
 
@@ -80,6 +79,7 @@ class UmfPackSolver < float, MultStore >: public SparseSolver < float, MultStore
 
 public:
 	typedef float data_type;
+	typedef UmfPackSolver < float, MultStore > my_type;
 
 	UmfPackSolver(int n): base(n), Symbolic_(0), Numeric_(0) 
 	{
@@ -101,9 +101,7 @@ public:
 	void solve(float * x, const float * b)
 	{
 		CSR & invert = base::store_.invert;
-		if (invert.empty()) {
-			invert.load(base::A_);
-		}
+		base::prepare();
 
 		if (Ax_.empty()) {
 			Ax_.resize(invert.Ax_.size());

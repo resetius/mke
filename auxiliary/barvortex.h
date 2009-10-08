@@ -100,7 +100,9 @@ private:
 	Matrix A_;
 	Matrix bnd_;
 
-	Matrix A2_;
+	Matrix A2_; // 2nx2n
+	Matrix C1_;
+	Matrix C2_;
 
 	Matrix Ab_;   // for backward
 	Matrix bndb_; // for backward

@@ -140,6 +140,32 @@ integrate_cb2( const Polynom & phi_i,
 }
 
 template < typename BV > 
+double
+integrate_c1( const Polynom & phi_i,
+              const Polynom & phi_j, 
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+			  int i, int j,
+              BV * d)
+{
+	return my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
+}
+
+template < typename BV > 
+double
+integrate_c2( const Polynom & phi_i,
+              const Polynom & phi_j, 
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+			  int i, int j,
+              BV * d)
+{
+	return -my_integrate_cos(diff(phi_j, 0) * phi_i, trk, m.ps);
+}
+
+template < typename BV > 
 struct right_part_cb_data
 {
 	const double * F;
@@ -294,17 +320,19 @@ template < typename L, typename J >
 BarVortex < L, J > ::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
 					 double sigma, double mu, double k1, double k2)
 	: SphereNorm < double > (m), m_(m), l_(m), j_(m), 
-	  A_((int)m.inner.size()),
-	  A2_(2*(int)m.inner.size()),
-	  bnd_((int)m.inner.size()),
-	  Ab_((int)m.inner.size()),
-	  bndb_((int)m.inner.size()),
+	  A_(m.inner_size),
+	  A2_(2*m.inner_size),
+	  C1_(m.inner_size),
+	  C2_(m.inner_size),
+	  bnd_(m.inner_size),
+	  Ab_(m.inner_size),
+	  bndb_(m.inner_size),
 	  tau_(tau), sigma_(sigma), mu_(mu), k1_(k1), k2_(k2), theta_(SCHEME_THETA),
 	  rp_(rp), coriolis_(coriolis)
 {
-	int sz = (int)m_.ps.size();
-	int os = (int)m_.outer.size();
-	int rs = (int)m_.inner.size();
+	int sz = m_.size;
+	int os = m_.outer_size;
+	int rs = m_.inner_size;
 
 	lh_.resize(sz);
 	lh_x_.resize(rs);
@@ -334,12 +362,15 @@ BarVortex < L, J > ::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, dou
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, bv_private::integrate_cb < BarVortex < L, J > > , this);
-	generate_matrix(A2_, m_, bv_private::integrate_cb2 < BarVortex < L, J > > , this);
-	generate_boundary_matrix(bnd_, m_, bv_private::integrate_cb < BarVortex < L, J > >, this);
+	generate_matrix(A_, m_, bv_private::integrate_cb < my_type > , this);
+	generate_matrix(A2_, m_, bv_private::integrate_cb2 < my_type > , this);
+	generate_matrix(C1_, m_, bv_private::integrate_c1 < my_type > , this);
+	generate_matrix(C2_, m_, bv_private::integrate_c2 < my_type > , this);
 
-	generate_matrix(Ab_, m_, bv_private::integrate_backward_cb < BarVortex < L, J > > , this);
-	generate_boundary_matrix(bndb_, m_, bv_private::integrate_backward_cb < BarVortex < L, J > >, this);
+	generate_boundary_matrix(bnd_, m_, bv_private::integrate_cb < my_type >, this);
+
+	generate_matrix(Ab_, m_, bv_private::integrate_backward_cb < my_type > , this);
+	generate_boundary_matrix(bndb_, m_, bv_private::integrate_backward_cb < my_type >, this);
 }
 
 template < typename L, typename J >
