@@ -90,6 +90,21 @@ struct Triangle {
 	}
 };
 
+double x_ (double u, double v)
+{
+	return cos (u) * cos (v);
+}
+
+double y_ (double u, double v)
+{
+	return cos (u) * sin (v);
+}
+
+double z_ (double u, double v)
+{
+	return sin (u);
+}
+
 void build_icosahedron(vector < Triangle > & r, vector < Vector > & p)
 {
 	double t = (1.0 + sqrt(5.0)) / 2.0;
@@ -197,9 +212,9 @@ void build_hemisphere(vector < Triangle > & r, vector < Vector > & p)
 		{0, 1, 0},
 		{0.866025403784438, -0.5, 0},
 		{-0.866025403784438, -0.5, 0},
-		{0, 0.707106781186548, 0.707106781186547},
-		{0.612372435695794, -0.353553390593274, 0.707106781186547},
-		{-0.612372435695794, -0.353553390593274, 0.707106781186547},
+		{0, 0.707106781186548,                   z_(2. * M_PI / 3., 0)},
+		{0.612372435695794, -0.353553390593274,  z_(2. * M_PI / 3., 0)},
+		{-0.612372435695794, -0.353553390593274, z_(2. * M_PI / 3., 0)},
 		{0, -0.5, 0},
 		{-0.433012701892219, 0.25, 0},
 		{0.433012701892219, 0.25, 0},
@@ -270,21 +285,6 @@ void build_test(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
-double x_ (double u, double v)
-{
-	return cos (u) * cos (v);
-}
-
-double y_ (double u, double v)
-{
-	return cos (u) * sin (v);
-}
-
-double z_ (double u, double v)
-{
-	return sin (u);
-}
-
 void build_test5(vector < Triangle > & r, vector < Vector > & p)
 {
 	double ploc[][2] = {
@@ -340,7 +340,8 @@ bool ok2(Vector & v)
 
 bool ok3(Vector & v)
 {
-	if (v.z > 0.9) {
+	double z = z_(M_PI / 4, 0);
+	if (v.z > z) {
 		return false;
 	}
 
@@ -369,6 +370,11 @@ void filter_mesh(vector < Triangle > & mesh,
 	}
 
 	for (size_t i = 0; i < points.size(); ++i) {
+		nums[i] = -1;
+	}
+
+#if 0
+	for (size_t i = 0; i < points.size(); ++i) {
 		Vector & p = points[i];
 
 		if (ok(p)) {
@@ -376,6 +382,7 @@ void filter_mesh(vector < Triangle > & mesh,
 			new_points.push_back(p);
 		}
 	}
+#endif
 
 	set < int > bnd;
 	for (size_t i = 0; i < mesh.size(); ++i) {
@@ -384,6 +391,21 @@ void filter_mesh(vector < Triangle > & mesh,
 		Vector & p1 = points[t.v1];
 		Vector & p2 = points[t.v2];
 		Vector & p3 = points[t.v3];
+
+		if (ok(p1) && nums[t.v1] < 0) {
+			nums[t.v1] = (int)new_points.size();
+			new_points.push_back(p1);
+		}
+
+		if (ok(p2) && nums[t.v2] < 0) {
+			nums[t.v2] = (int)new_points.size();
+			new_points.push_back(p2);
+		}
+
+		if (ok(p3) && nums[t.v3] < 0) {
+			nums[t.v3] = (int)new_points.size();
+			new_points.push_back(p3);
+		}
 
 		if (ok(p1) && ok(p2) && ok(p3)) {
 			t.v1 = nums[t.v1];
@@ -792,7 +814,7 @@ int main(int argc, char * argv[])
 	}
 
 	bool save_z = false;
-	if (type == 2 || type == 5) save_z = true;
+	if (type == 2 || type == 5 || type == 6) save_z = true;
 
 	normalize_mesh(mesh, points, save_z);
 	iterate_mesh(mesh, points, iters, save_z);
