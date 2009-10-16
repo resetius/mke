@@ -77,7 +77,6 @@ void normalize_mesh(std::vector < Triangle > & mesh, std::vector < Point > & poi
 void iterate_mesh(std::vector < Triangle > & mesh, std::vector < Point > & points, int iterations, surface_projector project);
 
 typedef bool (* filter_condition)(Point & p);
-bool alwais(Point & v);
 
 void filter_mesh(std::vector < Triangle > & mesh,
 				 std::vector < Point > & points,

@@ -617,8 +617,10 @@ int main(int argc, char * argv[])
 
 	surface_projector project = sphere_orto_projector;
 	if (type == 2 || type == 5 || type == 6) project = sphere_z_projector;
-	bool (* ok)(Point & v) = 0;
-	if (type == 3) {
+	filter_condition ok = 0;
+	if (type < 3 || type == 5) {
+		ok = 0; // alwais
+	} else if (type == 3) {
 		ok = ok1;
 	} else if (type == 6) {
 		ok = ok3;
@@ -628,11 +630,7 @@ int main(int argc, char * argv[])
 
 	normalize_mesh(mesh, points, project);
 	iterate_mesh(mesh, points, iters, project);
-	if (type < 3 || type == 5) {
-		;
-	} else {
-		filter_mesh(mesh, points, boundary, ok);
-	}
+	filter_mesh(mesh, points, boundary, ok);
 	print_mesh(mesh, points, boundary, type, local);
 	return 0;
 }

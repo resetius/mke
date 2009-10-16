@@ -146,16 +146,13 @@ void normalize_mesh(vector < Triangle > & mesh, vector < Point > & points, surfa
 	}
 }
 
-bool alwais(Point & v)
-{
-	return true;
-}
-
 void filter_mesh(vector < Triangle > & mesh,
 				 vector < Point > & points,
 				 vector < int > & boundary,
 				 filter_condition ok)
 {
+	if (!ok) return;
+
 	vector < Point > new_points;
 	vector < Triangle > new_mesh;
 	vector < int > nums(points.size());
