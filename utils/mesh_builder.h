@@ -1,3 +1,5 @@
+#ifndef MESH_BUILDER_H
+#define MESH_BUILDER_H
 /*$Id$*/
 
 /* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
@@ -34,95 +36,52 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <vector>
-#include <map>
 
-#include "mesh_builder.h"
+struct Point {
+	double x;
+	double y;
+	double z;
 
-using namespace std;
+	Point(double x1, double y1, double z1) : x(x1), y(y1), z(z1) {}
+	Point(double * x1) : x(x1[0]), y(x1[1]), z(x1[2]) {}
+};
 
-void build_rectangle(double x, double y, double w, double h, vector < Triangle > & r, vector < Point > & p)
+inline Point operator + (const Point & a, const Point & b)
 {
-	double points[][2] = {
-		{x, y},
-		{x, y + h},
-		{x + w, y + h},
-		{x + w, y},
-	};
-
-	int triangles[][3] = {
-		{0, 1, 2},
-		{0, 2, 3},
-	};
-
-	int v = 4;
-	int f = 2;
-	int i;
-
-	for (i = 0; i < f; ++i) {
-		Triangle t1(triangles[i][0], triangles[i][1], triangles[i][2]);
-		r.push_back(t1);
-	}
-
-	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
-	}
+	return Point(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
-void print_mesh(double x, double y, double w, double h, const vector < Triangle > & mesh, vector < Point > & points)
+inline Point operator / (const Point & a, double k)
 {
-	for (vector < Point >::const_iterator it = points.begin();
-		it != points.end(); ++it)
+	return Point(a.x / k, a.y / k, a.z / k);
+}
+
+struct Triangle {
+	int v1;
+	int v2;
+	int v3;
+
+	Triangle(int v1_, int v2_, int v3_) : v1(v1_), v2(v2_), v3(v3_)
 	{
-		fprintf(stdout, "%.16lf %.16lf\n", it->x, it->y);
 	}
-	fprintf(stdout, "# triangles\n");
+};
 
-	for (vector < Triangle >::const_iterator it = mesh.begin();
-		it != mesh.end(); ++it)
-	{
-		fprintf(stdout, "%d %d %d\n", it->v1 + 1, it->v2 + 1, it->v3 + 1);
-	}
-	fprintf(stdout, "# boundary\n");
+typedef void (* surface_projector)(Point & p);
 
-	for (size_t i = 0; i < points.size(); ++i) {
-		if (fabs(points[i].x - x) < 1e-15 || fabs(points[i].y - y) < 1e-15
-				|| fabs(points[i].x - x - w) < 1e-15 || fabs(points[i].y - y - h) < 1e-15)
-		{
-			fprintf(stdout, "%lu \n", i + 1);
-		}
-	}
-}
+void sphere_orto_projector(Point & p);
+void sphere_z_projector(Point & p);
+void flat_projector(Point & p);
 
-void usage(const char * name)
-{
-	fprintf(stderr, "usage: %s x y w h iters\n", name);
-	exit(1);
-}
+void normalize_mesh(std::vector < Triangle > & mesh, std::vector < Point > & points, surface_projector project);
+void iterate_mesh(std::vector < Triangle > & mesh, std::vector < Point > & points, int iterations, surface_projector project);
 
-int main(int argc, char * argv[])
-{
-	if (argc < 6) {
-		usage(argv[0]);
-	}
+typedef bool (* filter_condition)(Point & p);
+bool alwais(Point & v);
 
-	vector < Triangle > mesh;
-	vector < Point    >  points;
+void filter_mesh(std::vector < Triangle > & mesh,
+				 std::vector < Point > & points,
+				 std::vector < int > & boundary,
+				 filter_condition what);
 
-	double x  = atof(argv[1]);
-	double y  = atof(argv[2]);
-	double w  = atof(argv[3]);
-	double h  = atof(argv[4]);
-	int iters = atoi(argv[5]);
-	fprintf(stderr, "x, y, w, h = %lf, %lf, %lf, %lf\n", x, y, w, h);
-	fprintf(stderr, "iterations = %d\n", iters);
-
-	build_rectangle(x, y, w, h, mesh, points);
-	iterate_mesh(mesh, points, iters, flat_projector);
-	print_mesh(x, y, w, h, mesh, points);
-}
-
+#endif /* MESH_BUILDER_H */

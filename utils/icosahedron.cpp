@@ -33,7 +33,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
@@ -46,49 +46,9 @@
 #include <set>
 #include <string>
 
+#include "mesh_builder.h"
+
 using namespace std;
-
-struct Vector {
-	double x;
-	double y;
-	double z;
-
-	Vector(double x1, double y1, double z1) : x(x1), y(y1), z(z1) {}
-	Vector(double * x1) : x(x1[0]), y(x1[1]), z(x1[2]) {}
-
-	void normalize(bool save_z) {
-		if (save_z) {
-			double l = sqrt(1.0 - z * z) / sqrt(x * x + y * y);
-			x *= l;
-			y *= l;
-		} else {
-			double l = sqrt(x * x + y * y + z * z);
-			x /= l;
-			y /= l;
-			z /= l;
-		}
-	}
-};
-
-Vector operator + (const Vector & a, const Vector & b)
-{
-	return Vector(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-Vector operator / (const Vector & a, double k)
-{
-	return Vector(a.x / k, a.y / k, a.z / k);
-}
-
-struct Triangle {
-	int v1;
-	int v2;
-	int v3;
-
-	Triangle(int v1_, int v2_, int v3_) : v1(v1_), v2(v2_), v3(v3_) 
-	{
-	}
-};
 
 double x_ (double u, double v)
 {
@@ -105,7 +65,7 @@ double z_ (double u, double v)
 	return sin (u);
 }
 
-void build_icosahedron(vector < Triangle > & r, vector < Vector > & p)
+void build_icosahedron(vector < Triangle > & r, vector < Point > & p)
 {
 	double t = (1.0 + sqrt(5.0)) / 2.0;
 
@@ -168,7 +128,7 @@ void build_icosahedron(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
-void build_test2(vector < Triangle > & r, vector < Vector > & p)
+void build_test2(vector < Triangle > & r, vector < Point > & p)
 {
 	double t = (1.0 + sqrt(5.0)) / 2.0;
 
@@ -206,7 +166,7 @@ void build_test2(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
-void build_hemisphere(vector < Triangle > & r, vector < Vector > & p)
+void build_hemisphere(vector < Triangle > & r, vector < Point > & p)
 {
 	double points[][3] = {
 		{0, 1, 0},
@@ -232,22 +192,22 @@ void build_hemisphere(vector < Triangle > & r, vector < Vector > & p)
 		{4, 6, 5},
 		{3, 4, 5},
 	};
-	
+
 	int v = 9;
 	int f = 10;
 	int i;
-	
+
 	for (i = 0; i < f; ++i) {
 		Triangle t1(triangles[i][0], triangles[i][1], triangles[i][2]);
 		r.push_back(t1);
 	}
-	
+
 	for (i = 0; i < v; ++i) {
 		p.push_back(points[i]);
 	}
 }
 
-void build_test(vector < Triangle > & r, vector < Vector > & p)
+void build_test(vector < Triangle > & r, vector < Point > & p)
 {
 	double z = sin(M_PI / 4.0);
 	double points[][3] = {
@@ -285,7 +245,7 @@ void build_test(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
-void build_test5(vector < Triangle > & r, vector < Vector > & p)
+void build_test5(vector < Triangle > & r, vector < Point > & p)
 {
 	double ploc[][2] = {
 		{-M_PI / 10, 0},
@@ -320,7 +280,7 @@ void build_test5(vector < Triangle > & r, vector < Vector > & p)
 	}
 }
 
-bool ok1(Vector & v)
+bool ok1(Point & v)
 {
 	if ((fabs(v.z - 1.0) < 1e-10) || (fabs(v.z + 1.0) < 1e-10)) {
 		return false;
@@ -329,181 +289,23 @@ bool ok1(Vector & v)
 	return true;
 }
 
-bool ok2(Vector & v)
+bool ok2(Point & v)
 {
 	if (v.z < -0.9) {
 		return false;
 	}
 
-	return true;	
+	return true;
 }
 
-bool ok3(Vector & v)
+bool ok3(Point & v)
 {
 	double z = z_(M_PI / 4, 0);
 	if (v.z > z) {
 		return false;
 	}
 
-	return true;	
-}
-
-void filter_mesh(vector < Triangle > & mesh, 
-				 vector < Vector > & points, 
-				 vector < int > & boundary,
-				 int type)
-{
-	if (type < 3 || type == 5) {
-		return;
-	}
-
-	vector < Vector > new_points;
-	vector < Triangle > new_mesh;
-	vector < int > nums(points.size());
-	bool (* ok)(Vector & v) = 0;
-	if (type == 3) {
-		ok = ok1;
-	} else if (type == 6) {
-		ok = ok3;
-	} else {
-		ok = ok2;
-	}
-
-	for (size_t i = 0; i < points.size(); ++i) {
-		nums[i] = -1;
-	}
-
-#if 0
-	for (size_t i = 0; i < points.size(); ++i) {
-		Vector & p = points[i];
-
-		if (ok(p)) {
-			nums[i] = (int)new_points.size();
-			new_points.push_back(p);
-		}
-	}
-#endif
-
-	set < int > bnd;
-	for (size_t i = 0; i < mesh.size(); ++i) {
-		Triangle & t = mesh[i];
-
-		Vector & p1 = points[t.v1];
-		Vector & p2 = points[t.v2];
-		Vector & p3 = points[t.v3];
-
-		if (ok(p1) && nums[t.v1] < 0) {
-			nums[t.v1] = (int)new_points.size();
-			new_points.push_back(p1);
-		}
-
-		if (ok(p2) && nums[t.v2] < 0) {
-			nums[t.v2] = (int)new_points.size();
-			new_points.push_back(p2);
-		}
-
-		if (ok(p3) && nums[t.v3] < 0) {
-			nums[t.v3] = (int)new_points.size();
-			new_points.push_back(p3);
-		}
-
-		if (ok(p1) && ok(p2) && ok(p3)) {
-			t.v1 = nums[t.v1];
-			t.v2 = nums[t.v2];
-			t.v3 = nums[t.v3];
-			new_mesh.push_back(t);
-		} else {
-			if (ok(p1)) {
-				bnd.insert(nums[t.v1]);
-			}
-
-			if (ok(p2)) {
-				bnd.insert(nums[t.v2]);
-			}
-
-			if (ok(p3)) {
-				bnd.insert(nums[t.v3]);
-			}
-		}
-	}
-
-	boundary.insert(boundary.end(), bnd.begin(), bnd.end());
-
-	new_mesh.swap(mesh);
-	new_points.swap(points);
-}
-
-void divide(vector < Triangle > & mesh, vector < Vector > & points, bool save_z)
-{
-	vector < Triangle > new_mesh;
-	vector < Vector   > new_points;
-
-	int old_size = (int)points.size();
-	vector < map < int, int > > already(old_size);
-
-	new_points.insert(new_points.end(), points.begin(), points.end());
-
-	for (vector < Triangle >::iterator it = mesh.begin(); it != mesh.end(); ++it)
-	{
-		Vector a = points[it->v1];
-		Vector b = points[it->v2];
-		Vector c = points[it->v3];
-
-		int p1, p2, p3;
-
-		if (already[it->v1].find(it->v2) != already[it->v1].end()) {
-			p1 = already[it->v1][it->v2];
-		} else {
-			p1 = (int)new_points.size();
-			Vector v1 = (a + b) / 2; v1.normalize(save_z);
-			new_points.push_back(v1);
-			
-			already[it->v1][it->v2] = already[it->v2][it->v1] = p1;
-		}
-		
-		if (already[it->v1].find(it->v3) != already[it->v1].end()) {
-			p2 = already[it->v1][it->v3];
-		} else {
-			p2 = (int)new_points.size();
-			Vector v2 = (a + c) / 2; v2.normalize(save_z);
-			new_points.push_back(v2);
-			
-			already[it->v1][it->v3] = already[it->v3][it->v1] = p2;
-		}
-		
-		if (already[it->v2].find(it->v3) != already[it->v2].end()) {
-			p3 = already[it->v2][it->v3];
-		} else {
-			p3 = (int)new_points.size();
-			Vector v3 = (b + c) / 2; v3.normalize(save_z);
-			new_points.push_back(v3);
-			
-			already[it->v2][it->v3] = already[it->v3][it->v2] = p3;
-		}
-
-		new_mesh.push_back(Triangle(it->v1, p1, p2));
-		new_mesh.push_back(Triangle(it->v3, p2, p3));
-		new_mesh.push_back(Triangle(it->v2, p3, p1));
-		new_mesh.push_back(Triangle(p1, p2, p3));
-	}
-	mesh.swap(new_mesh);
-	points.swap(new_points);
-}
-
-void iterate_mesh(vector < Triangle > & mesh, vector < Vector > & points, int iterations, bool save_z)
-{
-	for (int i = 0; i < iterations; ++i) {
-		divide(mesh, points, save_z);
-	}
-}
-
-void normalize_mesh(vector < Triangle > & mesh, vector < Vector > & points, bool save_z)
-{
-	for (vector < Vector >::iterator it = points.begin(); 
-		it != points.end(); ++it)
-	{
-		it->normalize(save_z);
-	}
+	return true;
 }
 
 double u(double x, double y, double z)
@@ -526,8 +328,8 @@ double v(double x, double y, double z)
 	return v1;
 }
 
-void print_mesh(const vector < Triangle > & mesh, 
-				vector < Vector > & points, 
+void print_mesh(const vector < Triangle > & mesh,
+				vector < Point > & points,
 				vector < int > & boundary,
 				int type, bool local)
 {
@@ -545,7 +347,7 @@ void print_mesh(const vector < Triangle > & mesh,
 		fprintf(stdout, "# x y z \n");
 	}
 
-	for (vector < Vector >::const_iterator it = points.begin(); 
+	for (vector < Point >::const_iterator it = points.begin();
 		it != points.end(); ++it)
 	{
 		double x = it->x;
@@ -588,8 +390,8 @@ void print_mesh(const vector < Triangle > & mesh,
 		}
 	}
 	fprintf(stdout, "# triangles %lu \n", mesh.size());
-	
-	for (vector < Triangle >::const_iterator it = mesh.begin(); 
+
+	for (vector < Triangle >::const_iterator it = mesh.begin();
 		it != mesh.end(); ++it)
 	{
 		fprintf(stdout, "%d %d %d ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
@@ -625,7 +427,7 @@ void print_mesh(const vector < Triangle > & mesh,
 				} else if (z1 < -0.9 || z2 < -0.9 || z3 < -0.9) {
 					// in zone 3
 					fprintf(stdout, " ; 3 ");
-				} else 
+				} else
 				if (   v1 < M_PI_2 || v2  < M_PI_2 || v2 < M_PI_2
 					|| v1 > 1.5 * M_PI || v2  > 1.5 * M_PI || v2 > 1.5 * M_PI)
 				{
@@ -644,8 +446,8 @@ void print_mesh(const vector < Triangle > & mesh,
 
 		fprintf(stdout, "\n");
 	}
-	
-	if (type == 1 || type == 2 || type == 0 || type == 5) 
+
+	if (type == 1 || type == 2 || type == 0 || type == 5)
 	{
 		fprintf(stdout, "# boundary \n");
 		for (size_t i = 0; i < points.size(); ++i) {
@@ -653,8 +455,8 @@ void print_mesh(const vector < Triangle > & mesh,
 			double y = points[i].y;
 			double z = points[i].z;
 
-			if (type == 0 && 
-				fabs(z + 1.0) < 1e-14) 
+			if (type == 0 &&
+				fabs(z + 1.0) < 1e-14)
 			{
 				// south pole
 				fprintf(stdout, "%lu \n", i + 1);
@@ -675,7 +477,7 @@ void print_mesh(const vector < Triangle > & mesh,
 					}
 				}
 			} else if (type == 5) {
-				if (fabs(u(x, y, z) - M_PI / 10) < 1e-14 || 
+				if (fabs(u(x, y, z) - M_PI / 10) < 1e-14 ||
 					fabs(u(x, y, z) + M_PI / 10) < 1e-14)
 				{
 					fprintf(stdout, "%lu \n", i + 1);
@@ -788,7 +590,7 @@ int main(int argc, char * argv[])
 	fprintf(stdout, "#build:$Id$\n");
 
 	vector < Triangle > mesh;
-	vector < Vector >  points;
+	vector < Point >  points;
 	vector < int >  boundary;
 
 	switch (type) {
@@ -813,12 +615,24 @@ int main(int argc, char * argv[])
 		assert(0);
 	}
 
-	bool save_z = false;
-	if (type == 2 || type == 5 || type == 6) save_z = true;
+	surface_projector project = sphere_orto_projector;
+	if (type == 2 || type == 5 || type == 6) project = sphere_z_projector;
+	bool (* ok)(Point & v) = 0;
+	if (type == 3) {
+		ok = ok1;
+	} else if (type == 6) {
+		ok = ok3;
+	} else {
+		ok = ok2;
+	}
 
-	normalize_mesh(mesh, points, save_z);
-	iterate_mesh(mesh, points, iters, save_z);
-	filter_mesh(mesh, points, boundary, type);
+	normalize_mesh(mesh, points, project);
+	iterate_mesh(mesh, points, iters, project);
+	if (type < 3 || type == 5) {
+		;
+	} else {
+		filter_mesh(mesh, points, boundary, ok);
+	}
 	print_mesh(mesh, points, boundary, type, local);
 	return 0;
 }

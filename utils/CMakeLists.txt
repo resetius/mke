@@ -6,10 +6,17 @@ if (NETCDF_FOUND AND BISON_FOUND)
 endif (NETCDF_FOUND AND BISON_FOUND)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
+set(LIBRARY_OUTPUT_PATH "../lib")
+
+add_library(mesh_builder mesh_builder.cpp)
 add_executable(sphere icosahedron.cpp)
 add_executable(rectangle rectangle.cpp)
 add_executable(srtm2mesh srtm2mesh.cpp)
 add_executable(analizer analizer.cpp)
+
+target_link_libraries(sphere mesh_builder)
+target_link_libraries(rectangle mesh_builder)
+
 if (BUILD_NETCDF)
 	set (netcdf_source netcdf_reader.cpp)
 	add_bison_files(netcdf_source netcdf_cmd.ypp)
