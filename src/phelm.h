@@ -50,12 +50,12 @@
  *
  * @mainpage Phelm Documentation
  * @section into_sec Introduction
- * This library is meant to solve partial differential equations.
+ * This library is to solve partial differential equations.
  * It implements the Finite Element Method.
  * The library is able to solve partial differential equations 
  * on two-dimensional smooth manifolds. 
  *
- * To solve a problem you need the following:
+ * To find the solution you need the following:
  * - triangulate the manifold;
  * - partition the manifold into subdomains;
  * - specify a local coordinate system in each subdomain;
@@ -64,45 +64,45 @@
  * The library already contains triangulation builders for spherical surfaces 
  * and flat rectangular domains.
  *
- * The sample result of mesh builder is shown below: 
+ * The sample of the result of mesh builder functioning is given below: 
  * @image html zones.png
- * In that case the sphere is built on 4 parts.
+ * In that case the sphere splits into 4 parts.
  * 
  * @section ex Usage examples
- * These examples are to give you some tips on Phelm features.
-    -# @ref test_laplace.cpp "Laplace equation on a flat domain"
+ * These examples demonstrate some tips on Phelm features.
+    -# @ref test_laplace.cpp "Laplace equation on the flat domain"
   \f{eqnarray*}
   \Delta u &=& f(x, y) \\
   u|_{\partial\Omega}&=&u_0
   \f}
-    -# @ref test_laplace.cpp "Laplace equation on a sphere"
+    -# @ref test_laplace.cpp "Laplace equation on the sphere"
   \f{eqnarray*}
   \Delta \psi &=& f(\varphi, \lambda) \\
   \Delta \psi &=& \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
   \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi\\
   \psi|_{\partial\Omega}&=&\psi_0 \\
   \f}
-    -# @ref test_system_laplace.cpp "Double Laplace equations on a flat domain"
+    -# @ref test_system_laplace.cpp "Double Laplace equations on the flat domain"
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
   u|_{\partial\Omega}&=&u_0\\
   v|_{\partial\Omega}&=&v_0\\
   \f}
-    -# @ref test_chafe.cpp "Chafe-Infante equation on a flat domain"
+    -# @ref test_chafe.cpp "Chafe-Infante equation on the flat domain"
   \f{eqnarray*}
   \frac{du}{dt} &=& \mu \Delta u - \sigma u + f (u) \\
   u(x,y,t)|_{\partial\Omega}&=&a \\
   u(x,y,t)|_{t=0} &=& u_0 \\
   \f}
-    -# @ref test_chafe.cpp "Chafe-Infante equation on a sphere"
-    -# @ref test_barvortex.cpp "The Barotropic vorticity equation on a sphere"
+    -# @ref test_chafe.cpp "Chafe-Infante equation on the sphere"
+    -# @ref test_barvortex.cpp "The Barotropic vorticity equation on the sphere"
   \f{eqnarray*}
   \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi &=& f(\varphi, \lambda) \\
 	\psi|_{t=0}=\psi_0
   \f}
-    -# @ref test_baroclin.cpp  "The two-dimensional baroclinic atmosphere equations  on a sphere"
+    -# @ref test_baroclin.cpp  "The two-dimensional baroclinic atmosphere equations on the sphere"
  \f{eqnarray*}
   \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
   + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
@@ -120,8 +120,9 @@
  *
  * @page Build
  * @section build_sec Build
- * Phelm uses GMRES method to solve linear equations. If you do not like
- * that, install UMFPACK or place UMFPACK sources in 
+ * Phelm uses GMRES method to solve linear equations. If you 
+ * are not satisfied with the above solution, 
+ * install UMFPACK or place UMFPACK sources in 
  * /path-to-phelm/contrib/umfpack
  * 
  * @subsection Unix-like
@@ -139,7 +140,7 @@
   cmake -G "Visual Studio 2009" #place your version of Visual Studio here
   @endverbatim
  * @page Thanks
- * Thanks to
+ * Special thanks to
  *  - Andrey Kornev for consultations, <br/>
  *  - Andrey Ivanchikov for initial idea and consultations. 
  */
@@ -161,7 +162,7 @@
   \psi|_{\partial\Omega}&=&\psi_0 \\
   \f}
   @example test_system_laplace.cpp
-  Double Laplace equations on a flat domain
+  Double Laplace equations on the flat domain
   \f{eqnarray*}
   \Delta u + v &=& f(x, y)\\
   u + \Delta v &=& g(x, y)\\
@@ -169,7 +170,7 @@
   v|_{\partial\Omega}&=&v_0\\
   \f}
   @example test_chafe.cpp
-  Chafe-Infante equation on a flat domain
+  Chafe-Infante equation on the flat domain
   \f{eqnarray*}
   \frac{du}{dt} &=& \mu \Delta u - \sigma u + f (u) \\
   u(x,y,t)|_{\partial\Omega}&=&a \\

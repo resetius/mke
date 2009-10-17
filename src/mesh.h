@@ -61,7 +61,7 @@ namespace phelm {
  */
 
 /**
- * Point class represents a 2-dimensional point on a plane.
+ * The Point class represents a 2-dimensional point on a plane.
  */
 struct Point {
 	double x; ///< x coordinate
@@ -70,13 +70,13 @@ struct Point {
 	/** Default constructor. */
 	Point(): x(0), y(0) {}
 	/**
-	 * Initialization of x1 and y1.
+	 * The initialization of x1 and y1.
 	 * @param x1 - x coordinate
 	 * @param y1 - y coordinate
 	 */
 	Point(double x1, double y1): x(x1), y(y1) {}
 	/**
-	 * Initialization of x[2] array.
+	 * The initialization of x[2] array.
 	 * @param x1 - array x1[2]
 	 */
 	Point(double *x1): x(x1[0]), y(x1[1]) {}
@@ -84,7 +84,7 @@ struct Point {
 	/**
 	 * Divide each coordinate by k.
 	 * @param k - a number
-	 * @return new point
+	 * @return the new point
 	 */
 	Point operator / (double k)
 	{
