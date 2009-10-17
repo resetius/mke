@@ -366,7 +366,7 @@ void print_mesh(const vector < Triangle > & mesh,
 			// zone 1
 			fprintf(stdout, "%.16lf %.16lf ", u_, v_);
 			// zone 2
-			u_ = u(y, -x, z); v_ = v(y, -x, z);
+			u_ = u(-x, -y, z); v_ = v(-x, -y, z);
 			fprintf(stdout, " ; %.16lf %.16lf ", u_, v_);
 
 			if (type == 0 || type == 1 || type == 4) {
