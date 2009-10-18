@@ -138,8 +138,8 @@ sub insert_data
 sub update_data
 {
 	my ($tabname, $step, $t, $wt, $nr, $mn, $mx, $v) = @_;
-	my $s = "UPDATE $tabname SET nr2=?,mn2=?,mx2=?,v2=?";
-	$dbh->do($s, undef, $nr, $mn, $mx, $v);
+	my $s = "UPDATE $tabname SET nr2=?,mn2=?,mx2=?,v2=? WHERE step=?";
+	$dbh->do($s, undef, $nr, $mn, $mx, $v, $step);
 	$dbh->commit();
 }
 
