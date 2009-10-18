@@ -198,6 +198,7 @@ void test_boclinic (const Mesh & m)
 
 	Baroclin bc (m, rp_f1, rp_g1, zero_coriolis, tau, 
 		sigma, mu, sigma1, mu1, alpha);
+	bc.info();
 
 //	Baroclin bc (m, rp_f2, rp_g2, zero_coriolis, tau, 
 //		sigma, mu, sigma1, mu1, alpha);

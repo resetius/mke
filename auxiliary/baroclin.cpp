@@ -940,3 +940,14 @@ void Baroclin::LT_step(double * u11, double * u21,
 {
 	calc_LT(u11, u21, u1, u2, z1, z2, 0, 0);
 }
+
+void Baroclin::info()
+{
+	fprintf(stderr, "#tau:%.16lf\n", tau_);
+	fprintf(stderr, "#sigma:%.16lf\n", sigma_);
+	fprintf(stderr, "#mu:%.16lf\n", mu_);
+	fprintf(stderr, "#sigma1:%.16lf\n", sigma1_);
+	fprintf(stderr, "#mu1:%.16lf\n", mu1_);
+	fprintf(stderr, "#alpha:%.16lf\n", mu1_);
+	fprintf(stderr, "#theta:%.16lf\n", theta_);
+}
