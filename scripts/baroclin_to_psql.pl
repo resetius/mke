@@ -31,7 +31,7 @@ my $table1 = "CREATE TABLE experiment (
 )";
 my $alter = "ALTER TABLE experiment ALTER COLUMN id SET DEFAULT NEXTVAL('experiment_id_seq')";
 
-my $table2 = "CREATE TABLE baroclin_mke_ (
+my $table2 = "CREATE TABLE baroclin_mke (
 	experiment_id INT, -- link to experiment
 	t TIMESTAMP,
 	mesh_builder_cmd TEXT,
