@@ -241,30 +241,183 @@ void test_boclinic (const Mesh & m)
 	}
 }
 
+double kornev1_rp_(double phi, double lambda)
+{
+	double omg   = 2.0 * M_PI/24./60./60.;
+	double T0    = 1./omg;
+	double H     = 5000;
+	double sigma = 1./20./2./M_PI;
+	double R     = 6.371e+6;
+	double x   = phi;
+
+	double pt1 = -0.5 * (sin(x)*M_PI*x-2*sin(x)*x*x);
+	if (fabs(pt1) > 1e-14) {
+		pt1 /= cos(x);
+	}
+
+	double pt2 = -0.5*(-M_PI+4*x);
+	return -T0/R * 16.0 / M_PI / M_PI * 30.0 * (pt1 + pt2);
+}
+
+double kornev1_rp1(double phi, double lambda, 
+				   double t, double sigma, 
+				   double mu, double sigma1,
+				   double mu1, double alpha)
+{
+	return kornev1_rp_(phi, lambda);
+}
+
+double kornev1_rp2(double phi, double lambda, double t, 
+				   double sigma, 
+				   double mu, double sigma1,
+				   double mu1, double alpha)
+{
+	return 0.1 * kornev1_rp_(phi, lambda);
+}
+
+double kornev1_coriolis(double phi, double lambda)
+{
+	double omg  = 2.0 * M_PI/24./60./60.;
+	double H    = 1;
+	return 2.*sin(phi) +  // l
+		0.5 * cos(2*lambda)*sin(2*phi)*sin(2*phi); //h
+}
+
+double kornev1_u1(double phi, double lambda)
+{
+	double omg = 2.*M_PI/24./60./60.; // ?
+	double T0  = 1./omg;
+	double R   = 6.371e+6;
+
+	return -T0/R * 16.0 / M_PI / M_PI * 30.0 * 
+		(M_PI/4 * phi * phi - phi * phi * phi / 3);
+}
+
+double kornev1_u2(double phi, double lambda)
+{
+	return 0.1 * kornev1_u1(phi, lambda);
+}
+
+void test_kornev1 (const Mesh & m)
+{
+	int sz = m.size;
+	int os = m.outer_size;
+
+	double days = 30;
+	double T = days * 2.0 * M_PI;
+
+	double tau = 0.001;
+	double t = 0.0;
+	int steps = 100000;
+	double sigma  = 1.14e-2;
+	double mu     = 6.77e-5;
+	double sigma1 = sigma;
+	double mu1    = mu;
+	double alpha  = 1.0;
+	double nr, elapsed;
+	int i = 0;
+
+	Baroclin bc (m, kornev1_rp1, kornev1_rp2, kornev1_coriolis, tau, 
+		sigma, mu, sigma1, mu1, alpha);
+
+	vector < double > u1 (sz);
+	vector < double > u2 (sz);
+	vector < double > bnd (std::max (os, 1) );
+
+	proj (&u1[0], m, kornev1_u1);
+	proj (&u2[0], m, kornev1_u2);
+
+	setbuf (stdout, 0);
+
+	while (t < T)
+	{
+		Timer tm;
+		bc.calc (&u1[0], &u2[0], &u1[0], &u2[0], &bnd[0], t);
+
+		elapsed = tm.elapsed();
+
+		nr = bc.norm (&u1[0]);
+
+		fprintf (stderr, "t=%le; nr=%le; min=%le; max=%le; work=%le;\n",
+				 t, nr, vec_find_min(&u1[0], sz),
+				 vec_find_max(&u1[0], sz), tm.elapsed());
+
+		print_function (stdout, &u1[0], m, x, y, z);
+
+		if (isnan(nr) || isinf(nr)) {
+			return;
+		}
+
+		nr = bc.norm (&u2[0]);
+
+		fprintf (stderr, "t=%le; nr=%le; min=%le; max=%le; work=%le;\n",
+				 t, nr, vec_find_min(&u2[0], sz),
+				 vec_find_max(&u2[0], sz), tm.elapsed());
+
+		print_function (stdout, &u2[0], m, x, y, z);
+
+		if (isnan(nr) || isinf(nr)) {
+			return;
+		}
+
+		i += 1;
+		t += tau;
+	}
+}
+
 int main (int argc, char *argv[])
 {
 	Mesh mesh;
+	string task;
 
-	if (argc > 1)
+	for (int i = 0; i < argc; ++i)
 	{
-		FILE * f = (strcmp (argv[1], "-") == 0) ? stdin : fopen (argv[1], "rb");
-		if (!f)
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
 		{
-			usage (argv[0]);
-		}
-		if (!mesh.load (f) )
-		{
-			usage (argv[0]);
-		}
-		fclose (f);
-	}
-	else
-	{
-		usage (argv[0]);
-	}
-//	set_fpe_except();
+			usage(argv[0]);
+		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "-f")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
 
-	test_boclinic (mesh);
+			FILE * f = (strcmp(argv[i + 1], "-") == 0) ? stdin : fopen(argv[i + 1], "rb");
+
+			if (!f) {
+				usage(argv[0]);
+			}
+			if (!mesh.load(f)) {
+				usage(argv[0]);
+			}
+
+			fclose(f);
+		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			int threads = atoi(argv[i + 1]);
+			set_num_threads(threads);
+		} else if (!strcmp(argv[i], "--task")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+			task = argv[i + 1];
+		}
+	}
+
+#if defined(WIN32)
+	set_fpe_except();
+#endif
+
+	mesh.info();
+
+	if (task == "test") {
+		test_boclinic (mesh);
+	} else if (task == "kornev1") {
+		test_kornev1 (mesh);
+	} else {
+		usage(argv[0]);
+	}
 	return 0;
 }
 
