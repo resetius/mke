@@ -408,6 +408,7 @@ void test_barvortex_stationar (const Mesh & m, int verbose, double T)
 
 	//if (!bnd.empty()) proj_bnd(&bnd[0], m, f1);
 
+	//fprintf(stderr, "T=%lf\n", T);
 	setbuf (stdout, 0);
 
 	while (t < T)
@@ -437,7 +438,7 @@ void test_barvortex_stationar (const Mesh & m, int verbose, double T)
 
 		i += 1;
 		t += tau;
-#if 1
+#if 0
 		{
 			proj(&Ans[0], m, ans_stationar, t);
 			fprintf(stderr, "time %lf/ norm %le\n", t, 
@@ -446,9 +447,10 @@ void test_barvortex_stationar (const Mesh & m, int verbose, double T)
 		}
 #endif
 	}
-
+#if 0
 	fprintf(stdout, "bv: norm %le\n",  
 			bv.dist(&u[0], &Ans[0]));
+#endif 
 }
 
 
@@ -695,7 +697,7 @@ double kornev1_u0(double phi, double lambda)
 	double R   = 6.371e+6;
 
 	return -T0/R * 16.0 / M_PI / M_PI * 30.0 * 
-		(M_PI/4 * phi * phi - phi * phi * phi / 3);
+		(M_PI/4 * phi * phi - phi * phi * phi / 3) * (phi - M_PI / 4.);
 }
 
 double kornev1_w0(double phi, double lambda)
@@ -711,7 +713,7 @@ void test_kornev1(const Mesh & m)
 	double tau = 0.001;
 	double t = 0;
 	//double T = 0.1;
-	double days = 30;
+	double days = 300;
 	double T = days * 2.0 * M_PI;
 	double month = 30.0 * 2.0 * M_PI;
 	int i = 0;
@@ -730,19 +732,22 @@ void test_kornev1(const Mesh & m)
 //	mu    = 10e-2*sigma;
 
 	SBarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
+//	SBarVortex bv (m, kornev1_rp, zero_coriolis, tau, sigma, mu, k1, k2);
 
 	bv.info();
 	fprintf(stderr, "#rp:kornev1\n");
 	fprintf(stderr, "#coriolis:kornev1\n");
-	fprintf(stderr, "#initial:kornev1\n");
+//	fprintf(stderr, "#coriolis:zero\n");
+//	fprintf(stderr, "#initial:kornev1 (zero boundary)\n");
+	fprintf(stderr, "#initial:kornev1 (zero boundary, zero half)\n");
 
 	vector < double > u (sz);
 	vector < double > bnd_u (std::max (os, 1));
 	vector < double > bnd_w (std::max (os, 1));
 
 	proj (&u[0], m, kornev1_u0);
-	proj_bnd (&bnd_u[0], m, kornev1_u0);
-	proj_bnd (&bnd_w[0], m, kornev1_w0);
+//	proj_bnd (&bnd_u[0], m, kornev1_u0);
+//	proj_bnd (&bnd_w[0], m, kornev1_w0);
 
 	{
 		vector < double > tmp(sz);
@@ -860,6 +865,7 @@ int main (int argc, char *argv[])
 	} else if (task == "stationar") {
 		test_barvortex_stationar(mesh, verbose, time);
 	} else {
+		fprintf(stderr, "bad task '%s'\n", task.c_str());
 		usage(argv[0]);
 	}
 	return 0;

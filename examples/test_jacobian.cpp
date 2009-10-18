@@ -111,12 +111,12 @@ double test_jacobian_f2_r (double x, double y)
 
 double test_jacobian_f1_test (double x, double y)
 {
-	return x * (x - M_PI / 4) * y * (y - M_PI);
+	return x * (x - M_PI / 4) * y * (y - M_PI) * (x - M_PI / 2);
 }
 
 double test_jacobian_f2_test (double x, double y)
 {
-	return sin(4 * x) * sin(y);
+	return sin(4 * x) * sin(y) * (x - M_PI / 2);
 }
 
 double test_jacobian_f1_sh (double x, double y)

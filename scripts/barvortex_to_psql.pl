@@ -118,7 +118,7 @@ sub create_insert_string($)
 		$s .= "'$value',";
 	}
 	$s .= "?,?)";
-	print STDERR "=> $s\n";
+	#print STDERR "=> $s\n";
 	return $s;
 }
 
@@ -140,6 +140,8 @@ if (not scalar @ARGV) {
 }
 
 my $mesh_args = $ARGV[0];
+my $step_interval = $ARGV[1];
+
 open(PIPE, "./bin/sphere $mesh_args | ");
 while(<PIPE>) {
 	if (not $read_data) {
@@ -160,7 +162,9 @@ open(FILE, ">tt.txt");
 print FILE $cur;
 close(FILE); 
 
-open(PIPE, "./bin/test_barvortex --task kornev1 -f tt.txt 2>&1 | ");
+my $cmd = "./bin/test_barvortex -t 1 --task kornev1 -f tt.txt -v 10 --time 100 2>&1 | ";
+open(PIPE, $cmd);
+print "run $cmd\n";
 
 my $uniq_table_name;
 my $t    = 0;
@@ -168,6 +172,7 @@ my $nr   = 0;
 my $mn   = 0;
 my $mx   = 0;
 my $step = 1;
+my $total = 0;
 my $wt   = 0;
 
 $read_data = 0;
@@ -188,10 +193,13 @@ while(<PIPE>) {
 
 	if ($read_data) {
 		if ($_ =~ m/^# end.*\n/) {
-			print STDERR "insert $step, $t, $wt, $nr, $mn, $mx \n";
-			insert_data($uniq_table_name, $step, $t, $wt, $nr, $mn, $mx, $cur);
+			if (not $step_interval or $total % $step_interval == 0) {
+				print STDERR "insert $step, $t, $wt, $nr, $mn, $mx \n";
+				insert_data($uniq_table_name, $step, $t, $wt, $nr, $mn, $mx, $cur);
+				$step += 1;
+			}
 			$cur = "";
-			$step += 1;
+			$total += 1;
 		} elsif ($_ =~ m/t=([^;]+); nr=([^;]+); min=([^;]+); max=([^;]+); work=([^;]+);/) {
 			$t  = $1;
 			$nr = $2;
@@ -205,3 +213,4 @@ while(<PIPE>) {
 }
 
 close(PIPE);
+
