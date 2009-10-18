@@ -10,10 +10,15 @@
 using namespace std;
 using namespace phelm;
 
-void usage (const char * name)
+void usage(const char * name)
 {
-	fprintf (stderr, "usage: %s [mesh.txt|-]\n", name);
-	exit (1);
+	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-t|--threads number] [--task task] [--verbose|-v number]\n", name);
+	fprintf(stderr, "tasks:\n"
+			"test\n"
+			"kornev1\n"
+			);
+
+	exit(1);
 }
 
 double f1 (double x, double y)
