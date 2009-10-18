@@ -54,7 +54,7 @@ my $table2 = "CREATE TABLE baroclin_mke (
 	cmd TEXT, -- command line
 	calc_table VARCHAR(256)
 )";
-my $table2_index = "CREATE INDEX calc_table_idx ON baroclin_mke_(calc_table)";
+my $table2_index = "CREATE INDEX calc_table_idx ON baroclin_mke(calc_table)";
 
 $dbh->do($id); $dbh->commit();
 $dbh->do($table1); $dbh->commit();
@@ -74,7 +74,7 @@ sub create_calc_table($) {
 	my $uniq_name = create_uniq_name($ins); #md5 of input data
 	my $uniq_table_name = "baroclin_mke_$uniq_name";
 
-	my $ans = $dbh->selectall_arrayref("SELECT experiment_id FROM baroclin_mke_ WHERE calc_table=?",
+	my $ans = $dbh->selectall_arrayref("SELECT experiment_id FROM baroclin_mke WHERE calc_table=?",
 		undef,$uniq_table_name);
 	$dbh->commit();
 	my $upd = 0;
