@@ -29,6 +29,7 @@ set_target_properties(sphere PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(rectangle PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(srtm2mesh PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(analizer PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+
 if (BUILD_NETCDF)
 set_target_properties(netcdf_reader PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (BUILD_NETCDF)
