@@ -281,6 +281,8 @@ public:
 	void LT_step(double * u11, double * u21, 
 		const double * u1, const double * u2,
 		const double * z1, const double * z2);
+
+	void info();
 };
 
 /** @} */
