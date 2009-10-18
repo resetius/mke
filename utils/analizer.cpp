@@ -50,14 +50,16 @@ public:
 	A x;
 	A y;
 	A z;
+	A u;
+	A v;
 
 	template < typename T >
-	Point(T x1, T y1, T z1): 
-		x(x1), y(y1), z(z1)
+	Point(T x1, T y1, T z1, T u1, T v1): 
+		x(x1), y(y1), z(z1), u(u1), v(v1)
 	{
 	}
 
-	Point() : x(0), y(0), z(0)
+	Point() : x(0), y(0), z(0), u(0), v(0)
 	{
 	}
 };
@@ -90,20 +92,20 @@ void load_file(std::vector < Pointd > & points,  //!<координаты точ
 
 	do
 	{
-		double x = 0.0, y = 0.0, z = 0.0;
+		double x = 0.0, y = 0.0, z = 0.0, u = 0.0, v = 0.0;
 		double f = 0.0;
 		int m;
 
 		if (*s == '#')
 			break;
 
-		m = sscanf (s, "%lf%lf%lf%lf", &x, &y, &z, &f);
+		m = sscanf (s, "%lf%lf%lf%lf%lf%lf", &x, &y, &z, &f, &u, &v);
 		if (m < 2)
 		{
 			goto bad;
 		}
 
-		points.push_back(Pointd (x, y, z));
+		points.push_back(Pointd (x, y, z, u, v));
 		colors.push_back(f);
 		lineno ++;
 	}
@@ -144,13 +146,10 @@ void load_file(std::vector < Pointd > & points,  //!<координаты точ
 			goto bad;
 		}
 
-		if ((int)tri.size() <= zone) {
-			tri.resize(zone + 1);
-		}
+		vector < int > tr(4);
+		tr.push_back(n1); tr.push_back(n2); tr.push_back(n3); tr.push_back(zone);
 
-		tri[zone].push_back(n1);
-		tri[zone].push_back(n2);
-		tri[zone].push_back(n3);
+		tri.push_back(tr);
 
 		lineno ++;
 	}
@@ -166,6 +165,33 @@ bad:
 		string out = ss.str();
 		throw logic_error (out.c_str());
 	}
+}
+
+void print_func(const char * fn,
+				std::vector < Pointd > & points,  
+			    std::vector < double > & colors,  
+			    std::vector < std::vector < int > > & tri)
+{
+	FILE * f = fopen(fn, "w");
+	if (!f) return;
+
+	fprintf(f, "#points %lu\n", points.size()); 
+	for (size_t i = 0; i < points.size(); ++i)
+	{
+		Pointd & p = points[i];
+		double & F = colors[i];
+		fprintf(f, "%.16lf %16lf %.16lf %16lf %.16lf %16lf \n", 
+			p.x, p.y, p.z, F, p.u, p.v);
+	}
+
+	fprintf(f, "# triangles %lu\n", tri.size());
+	for (size_t i = 0; i < tri.size(); ++i)
+	{
+		fprintf(f, "%d %d %d %d\n", tri[i][0] + 1, tri[i][1] + 1, 
+			tri[i][2] + 1,  tri[i][3] + 1);
+	}
+	fprintf(f, "# end \n");
+	fclose(f);
 }
 
 void analize(FILE * fp)
@@ -200,6 +226,9 @@ void analize(FILE * fp)
 			m2[i] = k1 * m2[i] + k2 * f[i] * f[i];
 		}
 	}
+
+	print_func("average.txt", points, m, tri);
+	print_func("dispersion.txt", points, m2, tri);
 }
 
 int main(int argc, char * argv[])
