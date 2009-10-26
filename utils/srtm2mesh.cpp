@@ -279,6 +279,39 @@ void make_relief(vector < double > & relief, SimpleMesh & mesh, Data & data)
 	}
 }
 
+void make_relief(vector < double > & relief, int n_phi, int n_la, Data & data)
+{
+	relief.resize(n_phi * n_la);
+
+	double d_la  = 2.0*M_PI/(n_la); // dx on new grid
+	double d_phi = M_PI/(2.0*(n_phi-1.0)+1.0); // dy on new grid
+	double omg   = 2.*M_PI/24./60./60.; // ?
+	double T     = 1./omg;
+
+	for (int i = 0; i < n_phi; ++i) 
+	{
+        for (int j = 0; j < n_la; ++j) 
+		{
+			double u1 = i * d_phi; // latitude
+			double v1 = j * d_la; // longitude
+
+			relief[i * n_la + j] = T * data.get(u1, v1);
+		}
+	}
+}
+
+void print_relief(vector < double > & relief, int n_phi, int n_la, int type)
+{
+	for (int i = 0; i < n_phi; ++i) 
+	{
+        for (int j = 0; j < n_la; ++j) 
+		{
+			fprintf(stdout, "%.16le ", relief[i * n_la + j]);
+		}
+		fprintf(stdout, "\n");
+	}
+}
+
 void print_relief(vector < double > & relief, SimpleMesh & mesh, int type)
 {
 	size_t sz = mesh.ps.size();
@@ -318,7 +351,7 @@ int main(int argc, char * argv[])
 {
 	vector < double > relief;
 	const char * srtm_path = ".";
-	const char * mesh_file = "mesh.txt";
+	const char * mesh_file = 0;
 	int output_type   = 0; //0 - f only, 1 - full
 	SimpleMesh mesh;
 	Data data;
@@ -357,24 +390,29 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	f = fopen(mesh_file, "rb");
-	if (!f) {
-		fprintf(stderr, "cannot open %s\n", mesh_file);
-		usage(argv[0]);
-	}
-
-	if (!mesh.load(f)) {
-		fprintf(stderr, "cannot load %s\n", mesh_file);
-		usage(argv[0]);
-	}
-
 	if (!data.load(srtm_path)) {
 		fprintf(stderr, "cannot load data %s\n", srtm_path);
 		usage(argv[0]);
 	}
 
-	make_relief(relief, mesh, data);
-	print_relief(relief, mesh, output_type);
+	if (mesh_file) {
+		f = fopen(mesh_file, "rb");
+		if (!f) {
+			fprintf(stderr, "cannot open %s\n", mesh_file);
+			usage(argv[0]);
+		}
+
+		if (!mesh.load(f)) {
+			fprintf(stderr, "cannot load %s\n", mesh_file);
+			usage(argv[0]);
+		}
+
+		make_relief(relief, mesh, data);
+		print_relief(relief, mesh, output_type);
+	} else {
+		make_relief(relief, 24, 32, data);
+		print_relief(relief, 24, 32, output_type);
+	}
 
 	return 0;
 }

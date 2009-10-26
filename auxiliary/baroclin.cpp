@@ -826,7 +826,7 @@ void Baroclin::calc_L_1(double * u11, double * u21,
 	data2.BU2 = bnd;
 	data2.d   = this;
 
-	for (int it = 0; it < 1; ++it) {
+	for (int it = 0; it < 10; ++it) {
 		//  J(0.5(u1+u1), L(z1)+l+h) + J(z1, 0.5(w1+w1)) +
 		// + J(z2,0.5(w2+w2)) + J(0.5(u2+u2),L(z2))
 
@@ -892,7 +892,7 @@ void Baroclin::calc_L_1(double * u11, double * u21,
 
 		memset(&rp[0], 0, 4 * rs * sizeof(double));
 		generate_right_part(&rp[0], m_, right_part_backward_cb, &data2);
-		A_.solve(&ans[0], &rp[0]);
+		Ab_.solve(&ans[0], &rp[0]);
 		p2u(&w1_n[0], &ans[0],    bnd, m_);
 		p2u(&w2_n[0], &ans[rs],   bnd, m_);
 		p2u(&u1_n1[0], &ans[2*rs], bnd, m_);
