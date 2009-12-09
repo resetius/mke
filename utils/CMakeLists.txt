@@ -19,8 +19,8 @@ target_link_libraries(rectangle mesh_builder)
 
 if (BUILD_NETCDF)
 	set (netcdf_source netcdf_reader.cpp)
-	add_bison_files(netcdf_source netcdf_cmd.ypp)
-	add_executable(netcdf_reader ${netcdf_source})
+	bison_target(netcdf_parser netcdf_cmd.ypp ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
+	add_executable(netcdf_reader ${netcdf_source} ${BISON_netcdf_parser_OUTPUTS})
 	target_link_libraries(netcdf_reader netcdf_c++ netcdf)
 endif (BUILD_NETCDF)
 
