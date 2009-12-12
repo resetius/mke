@@ -21,7 +21,7 @@ if (BUILD_NETCDF)
 	set (netcdf_source netcdf_reader.cpp)
 	bison_target(netcdf_parser netcdf_cmd.ypp ${CMAKE_CURRENT_BINARY_DIR}/netcdf_cmd.cpp)
 	add_executable(netcdf_reader ${netcdf_source} ${BISON_netcdf_parser_OUTPUTS})
-	target_link_libraries(netcdf_reader netcdf_c++ netcdf)
+	target_link_libraries(netcdf_reader ${NETCDF_LIBRARIES})
 endif (BUILD_NETCDF)
 
 if (OPENMP_FOUND)
