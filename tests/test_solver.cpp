@@ -308,13 +308,13 @@ int main(int argc, char * argv[])
 			}
 
 			if (mult_sparse) {
-				t.restart(); result &= test_simple_mult < float > (dim, iters);
-				fprintf(stderr, "test_simple_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
+				t.restart(); result &= test_mult < float > (dim, iters);
+				fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 
 			if (mult_dense) {
-				t.restart(); result &= test_mult < float > (dim, iters);
-				fprintf(stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
+				t.restart(); result &= test_simple_mult < float > (dim, iters);
+				fprintf(stderr, "test_simple_mult < float > (): %lf, %d\n", t.elapsed(), (int)result);
 			}
 		}
 		fprintf(stderr, "elapsed: %lf\n", t.elapsed());

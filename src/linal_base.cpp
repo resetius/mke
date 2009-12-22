@@ -200,6 +200,8 @@ void vec_print (const float * A, int n)
 template < typename T >
 void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
+#if 0
+
 #pragma omp parallel
 	{
 		int block_dim = 900; //cache size = (block_dim * block_dim * 8)
@@ -240,6 +242,17 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 			}
 		}
 	}
+#else
+#pragma omp parallel for
+	for (int i = 0; i < n; ++i)
+	{
+		T s = 0.0;
+		for (int j = 0; j < n; ++j) {
+			s += A[i * n + j] * x[j];
+		}
+		r[i] = s;
+	}
+#endif
 }
 
 void mat_mult_vector (double * r, const double * A, const double * x, int n)
