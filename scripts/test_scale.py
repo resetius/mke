@@ -15,20 +15,29 @@ dims = range(*dims)
 
 r = re.compile(r".* ([0-9]+\.[0-9]+).*")
 
+tries = 3
+
+def run_single(c):
+	print >> sys.stderr, "run '%s'" % c
+	cout, cin = popen2(c)
+	cin.close()
+	a = None
+	for line in cout:
+		m = r.match(line)
+		#print "line === ", line
+		if m:
+			a = float(m.groups()[0])
+	
+	return a
+
 def run_benchmark(t):
 	ret = []
 	for dim in dims:
 		c = cmd % (dim, t)
-		print >> sys.stderr, "run '%s'" % c
-		cout, cin = popen2(c)
-		cin.close()
-		for line in cout:
-			m = r.match(line)
-			#print "line === ", line
-			if m:
-				a = float(m.groups()[0])
-				#print "->>>>%s: %f" % (line, a)
-				ret.append(a)
+		r = []
+		for tr in xrange(tries):
+			r.append(run_single(c))
+		ret.append(min(r))
 
 	return ret
 
