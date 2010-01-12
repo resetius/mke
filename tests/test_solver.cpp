@@ -280,7 +280,6 @@ int main(int argc, char * argv[])
 
 		Timer t;
 		burn(1.0);
-		fprintf(stderr, "burn %lf\n", t.elapsed());
 		t.restart();
 		if (use_double && has_double) {
 			fprintf(stderr, "testing double:\n");

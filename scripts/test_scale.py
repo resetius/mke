@@ -4,13 +4,16 @@ import sys
 import re
 from popen2 import popen2
 
-cmd = sys.argv[1]
+# example
+# python test_scale.py "./bin/test_solver --task mult_dense -d --iters 100 --dim %d -t %d" "100,5000"
 
+cmd = sys.argv[1]
 dims = sys.argv[2]
+
 dims = map(int, dims.split(","))
 dims = range(*dims)
 
-r = re.compile(".* ([0-9]+\.[0-9]+).*")
+r = re.compile(r".* ([0-9]+\.[0-9]+).*")
 
 def run_benchmark(t):
 	ret = []
@@ -21,6 +24,7 @@ def run_benchmark(t):
 		cin.close()
 		for line in cout:
 			m = r.match(line)
+			#print "line === ", line
 			if m:
 				a = float(m.groups()[0])
 				#print "->>>>%s: %f" % (line, a)
