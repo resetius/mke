@@ -66,3 +66,8 @@ output_scale("scale2.txt", scale2)
 output_scale("scale3.txt", scale3)
 output_scale("scale4.txt", scale4)
 
+output_scale("time1.txt", res1)
+output_scale("time2.txt", res2)
+output_scale("time3.txt", res3)
+output_scale("time4.txt", res4)
+
