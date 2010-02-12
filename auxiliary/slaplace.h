@@ -51,7 +51,7 @@ using phelm::Triangle;
 using phelm::Polynom;
 
 /**
- * Spherical Laplace operator.
+ * Compute Spherical Laplacian.
  \f[
   \Delta \psi(\varphi, \lambda)= \frac{1}{cos\varphi}\frac{\partial}{\partial\varphi}cos(\varphi)\frac{\partial}{\partial\varphi}\psi+
   \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi

@@ -58,7 +58,7 @@ using phelm::Polynom;
  */
 
 /**
- * Calculate one element of finite-element matrix
+ * Compute one element of finite-element matrix
  * for Laplace operator on flat domain.
  * @param phi_i - basis function
  * @param phi_j - basis function
@@ -70,7 +70,7 @@ double laplace(const Polynom & phi_i, const Polynom & phi_j,
 
 
 /**
- * Laplace operator on a flat domain
+ * Compute the laplacian on a flat domain
  */
 template < typename T >
 class Laplace {

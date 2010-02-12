@@ -56,7 +56,7 @@ using phelm::Mesh;
  */
 
 /**
- * Calculate the jacobian on a sphere.
+ * Compute the jacobian on a sphere.
  \f[
  J(u,v) = \frac{\partial u}{\partial y}\frac{\partial v}{\partial x} 
  - \frac{\partial u}{\partial x}\frac{\partial v}{\partial y}
