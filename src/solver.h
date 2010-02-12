@@ -60,7 +60,8 @@
 #include "util.h"
 #include "gmres.h"
 
-namespace phelm {
+namespace phelm
+{
 
 /**
  * @defgroup solver Linear equations solver.
@@ -69,10 +70,10 @@ namespace phelm {
  * @{
  */
 
-	/**
-	 *  Compressed Sparsed Row Format (CSR)
-	 *  Also known as Compressed Row Storage (CRS)
-	 */
+/**
+ *  Compressed Sparsed Row Format (CSR)
+ *  Also known as Compressed Row Storage (CRS)
+ */
 template < typename T, template < class > class Alloc = Allocator >
 struct StoreCSR
 {
@@ -85,19 +86,19 @@ struct StoreCSR
 	Array < int, Alloc < int > > Ai_; // индексы (номер строки) ненулевых элементов
 	Array < T, Alloc < T > > Ax_;   // ненулевые элементы матрицы
 
-	StoreCSR(): n_(0), nz_(0) {}
-	StoreCSR(int n, int nz): n_(n), nz_(nz), Ap_(n_ + 1), Ai_(nz_), Ax_(nz_) {}
+	StoreCSR() : n_ (0), nz_ (0) {}
+	StoreCSR (int n, int nz) : n_ (n), nz_ (nz), Ap_ (n_ + 1), Ai_ (nz_), Ax_ (nz_) {}
 
-	void resize(int n, int nz)
+	void resize (int n, int nz)
 	{
 		n_  = n;
 		nz_ = nz;
-		Ap_.resize(n_ + 1);
-		Ai_.resize(nz_);
-		Ax_.resize(nz_);
+		Ap_.resize (n_ + 1);
+		Ai_.resize (nz_);
+		Ax_.resize (nz_);
 	}
 
-	bool empty() 
+	bool empty()
 	{
 		return n_ == 0;
 	}
@@ -108,25 +109,25 @@ struct StoreCSR
 	/**
 	 * Fill CSR Matrix from unstructured data
 	 */
-	void load(const sparse_t & unstruct);
+	void load (const sparse_t & unstruct);
 
-	void mult(T * r, const T * x) const;
+	void mult (T * r, const T * x) const;
 
 	/**
-	 * Прибавляет матрицу A размера mxm. 
+	 * Прибавляет матрицу A размера mxm.
 	 * Каждая строка матрицы A умножается поэлементно на vec.
 	 * Структура строк матрицы A ДОЛЖНА совпадать со структурой
 	 * главного минора размера mxm матрицы this.
 	 */
-	void add_matrix1(const my_type & A, const T * vec);
+	void add_matrix1 (const my_type & A, const T * vec);
 
 	/**
-	 * Прибавляет матрицу A размера mxm. 
+	 * Прибавляет матрицу A размера mxm.
 	 * Каждый столбец матрицы A умножается поэлементно на vec.
 	 * Структура строк матрицы A ДОЛЖНА совпадать со структурой
 	 * главного минора размера mxm матрицы this.
 	 */
-	void add_matrix2(const my_type & A, const T * vec);
+	void add_matrix2 (const my_type & A, const T * vec);
 };
 
 template < typename T, template < class > class Alloc = Allocator >
@@ -143,24 +144,24 @@ struct StoreELL
 	Array < int, Alloc < int > > Ai_;
 	Array < T, Alloc < T > > Ax_;
 
-	StoreELL(): n_(0), nz_(0), cols_(0), stride_(0) {}
+	StoreELL() : n_ (0), nz_ (0), cols_ (0), stride_ (0) {}
 
-	StoreELL(int n, int nz, int cols): 
-		n_(n), nz_(nz), cols_(cols), stride_(32 * ((cols_ + 32 - 1) / 32)),
-		Ai_(cols_ * stride_), Ax_(cols_ * stride_)
+	StoreELL (int n, int nz, int cols) :
+			n_ (n), nz_ (nz), cols_ (cols), stride_ (32 * ( (cols_ + 32 - 1) / 32) ),
+			Ai_ (cols_ * stride_), Ax_ (cols_ * stride_)
 	{
 	}
 
-	void resize(int n, int nz, int cols)
+	void resize (int n, int nz, int cols)
 	{
 		n_    = n;
 		nz_   = nz;
 		cols_ = cols;
-		Ai_.resize(cols_ * stride_);
-		Ax_.resize(cols_ * stride_);
+		Ai_.resize (cols_ * stride_);
+		Ax_.resize (cols_ * stride_);
 	}
 
-	bool empty() 
+	bool empty()
 	{
 		return n_ == 0;
 	}
@@ -171,18 +172,18 @@ struct StoreELL
 	/**
 	 * Fill ELL Matrix from unstructured data
 	 */
-	void load(const sparse_t & unstruct);
+	void load (const sparse_t & unstruct);
 
-	void mult(T * r, const T * x) const;
+	void mult (T * r, const T * x) const;
 
-	void add_matrix1(const my_type & A, const T * vec)
+	void add_matrix1 (const my_type & A, const T * vec)
 	{
-		assert(0);
+		assert (0);
 	}
 
-	void add_matrix2(const my_type & A, const T * vec)
+	void add_matrix2 (const my_type & A, const T * vec)
 	{
-		assert(0);
+		assert (0);
 	}
 };
 
@@ -196,16 +197,16 @@ struct DoubleStore
 	Store1 mult;
 	Store2 invert;
 
-	void add_matrix1(const my_type & A, const typename Store1::data_type * vec)
+	void add_matrix1 (const my_type & A, const typename Store1::data_type * vec)
 	{
-		mult.add_matrix1(A.mult, vec);
-		invert.add_matrix1(A.invert, vec);
+		mult.add_matrix1 (A.mult, vec);
+		invert.add_matrix1 (A.invert, vec);
 	}
 
-	void add_matrix2(const my_type & A, const typename Store1::data_type * vec)
+	void add_matrix2 (const my_type & A, const typename Store1::data_type * vec)
 	{
-		mult.add_matrix2(A.mult, vec);
-		invert.add_matrix2(A.invert, vec);
+		mult.add_matrix2 (A.mult, vec);
+		invert.add_matrix2 (A.invert, vec);
 	}
 };
 
@@ -219,16 +220,16 @@ struct DoubleStore < Store, Store >
 	Store both;
 	Store & mult;
 	Store & invert;
-	DoubleStore (): mult(both), invert(both) {}
+	DoubleStore () : mult (both), invert (both) {}
 
-	void add_matrix1(const my_type & A, const typename Store::data_type * vec)
+	void add_matrix1 (const my_type & A, const typename Store::data_type * vec)
 	{
-		mult.add_matrix1(A.mult, vec);
+		mult.add_matrix1 (A.mult, vec);
 	}
 
-	void add_matrix2(const my_type & A, const typename Store::data_type * vec)
+	void add_matrix2 (const my_type & A, const typename Store::data_type * vec)
 	{
-		mult.add_matrix2(A.mult, vec);
+		mult.add_matrix2 (A.mult, vec);
 	}
 };
 
@@ -238,7 +239,8 @@ struct DoubleStore < Store, Store >
  * и для умножения.
  */
 template < typename T, typename MultStore, typename InvStore = MultStore >
-class SparseSolver {
+class SparseSolver
+{
 protected:
 	typedef DoubleStore < MultStore, InvStore > store_t;
 	store_t store_;
@@ -251,7 +253,7 @@ public:
 	typedef T data_type;
 	typedef SparseSolver < T, MultStore, InvStore > my_type;
 
-	SparseSolver(int n): A_(n)
+	SparseSolver (int n) : A_ (n)
 	{
 	}
 
@@ -261,7 +263,7 @@ public:
 	 *  @param j - index
 	 *  @param a - value
 	 */
-	void add(int i, int j, T a);
+	void add (int i, int j, T a);
 
 	/**
 	 * Solve equation Ax = b.
@@ -269,14 +271,14 @@ public:
 	 * @param x - answer
 	 * @param b - right part
 	 */
-	void solve(T * x, const T * b);
+	void solve (T * x, const T * b);
 
 	/**
 	 * Product of matrix by vector (out = A in).
 	 * @param out - result
 	 * @param in  - input vector
 	 */
-	void mult_vector(T * out, const T * in);
+	void mult_vector (T * out, const T * in);
 
 	/**
 	 * print matrix to stdout.
@@ -288,8 +290,8 @@ public:
 	 */
 	void prepare();
 
-	void add_matrix1(my_type & A, const T * vec);
-	void add_matrix2(my_type & A, const T * vec);
+	void add_matrix1 (my_type & A, const T * vec);
+	void add_matrix2 (my_type & A, const T * vec);
 };
 
 #ifdef UMFPACK
@@ -314,7 +316,7 @@ class SimpleSolver
 public:
 	typedef T data_type;
 
-	SimpleSolver(int n): n_(n), A_(n * n) {}
+	SimpleSolver (int n) : n_ (n), A_ (n * n) {}
 
 	/**
 	 *  Add a number to element (i, j) (A[i][j] += a).
@@ -322,7 +324,7 @@ public:
 	 *  @param j - index
 	 *  @param a - value
 	 */
-	void add(int i, int j, T a);
+	void add (int i, int j, T a);
 
 	/**
 	 * Solve equation Ax = b.
@@ -330,14 +332,14 @@ public:
 	 * @param x - answer
 	 * @param b - right part
 	 */
-	void solve(T * x, const T * b);
+	void solve (T * x, const T * b);
 
 	/**
 	 * Product of matrix by vector (out = A in).
 	 * @param out - result
 	 * @param in  - input vector
 	 */
-	void mult_vector(T * out, const T * in);
+	void mult_vector (T * out, const T * in);
 
 	/**
 	 * print matrix to stdout.
@@ -358,7 +360,7 @@ class Solver: public SuperLUSolver < T, StoreCSR < T , Allocator >  >
 {
 	typedef SuperLUSolver < T, StoreCSR < T , Allocator >  > base;
 public:
-	Solver(int n): base(n) {}
+	Solver (int n) : base (n) {}
 };
 
 #elif defined(UMFPACK) && !defined(GPGPU)
@@ -368,24 +370,24 @@ class Solver: public UmfPackSolver < T, StoreCSR < T , Allocator >  >
 {
 	typedef UmfPackSolver < T, StoreCSR < T , Allocator >  > base;
 public:
-	Solver(int n): base(n) {}
+	Solver (int n) : base (n) {}
 };
 
 #else
 template < typename T >
-class Solver: public SparseSolver < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > 
+class Solver: public SparseSolver < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > >
 {
 	typedef SparseSolver < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > >  base;
 public:
-	Solver(int n): base (n) {}
+	Solver (int n) : base (n) {}
 };
 #endif
 
 /**
  * Solve the system with A matrix (Ax=rp).
- * (Helper function) 
+ * (Helper function)
  * The function founds an answer on the inner part of the domain
- * and then sets boundary value of the answer to bnd    
+ * and then sets boundary value of the answer to bnd
  *
  * @param answer - the answer
  * @param bnd - boundary
@@ -394,20 +396,20 @@ public:
  * @param m - mesh
  */
 template < typename T, typename Matrix, typename Mesh >
-void solve(T * answer, const T * bnd,
-		   T * rp, Matrix & A, const Mesh & m)
+void solve (T * answer, const T * bnd,
+            T * rp, Matrix & A, const Mesh & m)
 {
-	int sz  = (int)m.ps.size();
-	int rs  = (int)m.inner.size();     // размерность
-	Array < T, Allocator < T > > x(rs);      // ответ
-	solve2(&x[0], rp, A, m);
-	p2u(answer, &x[0], bnd, m);
+	int sz  = (int) m.ps.size();
+	int rs  = (int) m.inner.size();    // размерность
+	Array < T, Allocator < T > > x (rs);     // ответ
+	solve2 (&x[0], rp, A, m);
+	p2u (answer, &x[0], bnd, m);
 }
 
 /**
  * Solve the system with A matrix (Ax=rp).
  * (Helper function)
- * Found an answer on the inner part of the domain.    
+ * Found an answer on the inner part of the domain.
  *
  * @param answer the answer
  * @param rp the right part
@@ -415,11 +417,11 @@ void solve(T * answer, const T * bnd,
  * @param m the mesh
  */
 template < typename T, typename Matrix, typename Mesh >
-void solve2(T * answer, T * rp, Matrix & A, const Mesh & m)
+void solve2 (T * answer, T * rp, Matrix & A, const Mesh & m)
 {
-	int sz  = (int)m.ps.size();
-	int rs  = (int)m.inner.size();     // размерность
-	A.solve(answer, &rp[0]);
+	int sz  = (int) m.ps.size();
+	int rs  = (int) m.inner.size();    // размерность
+	A.solve (answer, &rp[0]);
 }
 
 /** @} */ /* solver */

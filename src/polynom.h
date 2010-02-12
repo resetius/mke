@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -52,12 +52,13 @@
 
 typedef unsigned int uint;
 
-namespace phelm {
+namespace phelm
+{
 
-	/**
-	 * @defgroup polynom Polynom functions and classes
-	 * @{
-	 */
+/**
+ * @defgroup polynom Polynom functions and classes
+ * @{
+ */
 
 /**
  * Polynom of variables (x, y).
@@ -74,40 +75,41 @@ namespace phelm {
   P(x,y) = \sum_{i=0}^{x\_deg}\sum_{j=0}^{y\_deg}k_{ij}x^i y^j.
   \f]
 */
-struct Polynom {
+struct Polynom
+{
 	short x_deg_;                   ///<x degree
-	short y_deg_;                   ///<y degree 
+	short y_deg_;                   ///<y degree
 	std::vector < double > koef_;   ///<coefficients
 
-/**
- * Creates new empty polynom.
- * @param x_deg - x degree 
- * @param y_deg - y degree
- */
-	Polynom(short x_deg, short y_deg)
-		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
+	/**
+	 * Creates new empty polynom.
+	 * @param x_deg - x degree
+	 * @param y_deg - y degree
+	 */
+	Polynom (short x_deg, short y_deg)
+			: x_deg_ (x_deg), y_deg_ (y_deg), koef_ ( (x_deg + 1) * (y_deg + 1) )
 	{
 	}
 
-/**
- * Creates new polynom from coefficients.
- * @param x_deg - x degree 
- * @param y_deg - y degree
- * @param koef - the coefficients
- * @param l - the number of elements in the coefficients array
- */
-	Polynom(short x_deg, short y_deg, double * koef, int l)
-		: x_deg_(x_deg), y_deg_(y_deg), koef_((x_deg + 1) * (y_deg + 1))
+	/**
+	 * Creates new polynom from coefficients.
+	 * @param x_deg - x degree
+	 * @param y_deg - y degree
+	 * @param koef - the coefficients
+	 * @param l - the number of elements in the coefficients array
+	 */
+	Polynom (short x_deg, short y_deg, double * koef, int l)
+			: x_deg_ (x_deg), y_deg_ (y_deg), koef_ ( (x_deg + 1) * (y_deg + 1) )
 	{
-		memcpy(&koef_[0], koef, std::min(l, (int)koef_.size())
-			   * sizeof(double));
+		memcpy (&koef_[0], koef, std::min (l, (int) koef_.size() )
+		        * sizeof (double) );
 	}
 
 	~Polynom() {}
 
 	/**
 	 * Prints polynom into the string.
-	 * @return string representation of the polynom. 
+	 * @return string representation of the polynom.
 	 */
 	std::string print() const;
 
@@ -115,13 +117,13 @@ struct Polynom {
 	 * Calculates Polynom(x, y).
 	 * @return Polynom(x, y)
 	 */
-	double apply(double x, double y) const;
+	double apply (double x, double y) const;
 
 	/**
 	 * Returns polynom coefficient.
 	 * @return \f$k_{ij}\f$
 	 */
-	double k(int i, int j) const
+	double k (int i, int j) const
 	{
 		if (i > x_deg_ || j > y_deg_) return 0;
 		return koef_[i * (y_deg_ + 1) + j];
@@ -131,10 +133,12 @@ struct Polynom {
 	 * Calculates new polynom.
 	 * @return \f$\frac{P(x,y)}{k}\f$
 	 */
-	void operator /= (double k) {
-		uint sz   = (uint)koef_.size();
+	void operator /= (double k)
+	{
+		uint sz   = (uint) koef_.size();
 		double k1 = 1.0 / k;
-		for (uint i = 0; i < sz; ++i) {
+		for (uint i = 0; i < sz; ++i)
+		{
 			koef_[i] *= k1;
 		}
 	}
@@ -166,9 +170,9 @@ struct MeshPoint;
  * @param p - the polynom
  * @param i - 0 or 1 (x or y)
  * @return \f$\frac{\partial P(x,y)}{\partial x}\f$
- * or \f$\frac{\partial P(x,y)}{\partial y}\f$. 
+ * or \f$\frac{\partial P(x,y)}{\partial y}\f$.
  */
-Polynom diff(const Polynom & p, int i);
+Polynom diff (const Polynom & p, int i);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -178,10 +182,10 @@ Polynom diff(const Polynom & p, int i);
  * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
- * @param ps - the mesh points 
+ * @param ps - the mesh points
  */
-double integrate(const Polynom & p, const Triangle & t,
-				 const std::vector < MeshPoint > & ps);
+double integrate (const Polynom & p, const Triangle & t,
+                  const std::vector < MeshPoint > & ps);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -192,13 +196,13 @@ double integrate(const Polynom & p, const Triangle & t,
  * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
- * @param ps - the mesh points 
+ * @param ps - the mesh points
  */
-double integrate_cos(const Polynom & p, const Triangle & t,
-					 const std::vector < MeshPoint > & ps);
+double integrate_cos (const Polynom & p, const Triangle & t,
+                      const std::vector < MeshPoint > & ps);
 
-typedef double (*fxy_t)(double x, double y, void * data);
-double integrate_generic(const Triangle & t, fxy_t f, void * data);
+typedef double (*fxy_t) (double x, double y, void * data);
+double integrate_generic (const Triangle & t, fxy_t f, void * data);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -209,10 +213,10 @@ double integrate_generic(const Triangle & t, fxy_t f, void * data);
  * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
- * @param ps - the mesh points 
+ * @param ps - the mesh points
  */
-double integrate_sin(const Polynom & p, const Triangle & t,
-					 const std::vector < MeshPoint > & ps);
+double integrate_sin (const Polynom & p, const Triangle & t,
+                      const std::vector < MeshPoint > & ps);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -223,10 +227,10 @@ double integrate_sin(const Polynom & p, const Triangle & t,
  * @relates Polynom
  * @param p  - the polynom
  * @param t  - the triangle
- * @param ps - the mesh points 
+ * @param ps - the mesh points
  */
-double integrate_1_cos(const Polynom & p, const Triangle & t,
-					   const std::vector < MeshPoint > & ps);
+double integrate_1_cos (const Polynom & p, const Triangle & t,
+                        const std::vector < MeshPoint > & ps);
 
 /**
  * A product of polynom p1 by polynom p2.
@@ -234,7 +238,7 @@ double integrate_1_cos(const Polynom & p, const Triangle & t,
  * @relates Polynom
  * @param p1 - the polynom
  * @param p2 - the polynom
- * @return a product of polynoms. 
+ * @return a product of polynoms.
  */
 Polynom operator * (const Polynom &p1, const Polynom &p2);
 
@@ -268,7 +272,7 @@ Polynom operator + (const Polynom &p1, const Polynom &p2);
  */
 inline Polynom operator - (const Polynom &p1, double x)
 {
-	Polynom r(p1);
+	Polynom r (p1);
 	r.koef_[0] -= x;
 	return r;
 }
@@ -279,12 +283,12 @@ inline Polynom operator - (const Polynom &p1, double x)
  * @relates Polynom
  * @param p1 - the polynom
  * @param x - the number
- * @return a product of a polynom and a number. 
+ * @return a product of a polynom and a number.
  */
 inline Polynom operator * (const Polynom &p1, double x)
 {
-	Polynom r(p1);
-	uint sz = (uint)r.koef_.size();
+	Polynom r (p1);
+	uint sz = (uint) r.koef_.size();
 	for (uint i = 0; i < sz; ++i)
 	{
 		r.koef_[i] *= x;

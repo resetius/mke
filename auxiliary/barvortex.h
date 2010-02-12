@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -63,15 +63,16 @@
  * Solve the Barotropic vorticity equation.
  *
  \f[
- \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi) 
+ \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)
     + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
  \f]
- * where \f$J(\cdot,\cdot)\f$ is spherical jacobian operator 
+ * where \f$J(\cdot,\cdot)\f$ is spherical jacobian operator
  * and \f$\Delta\f$ is spherical Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
 template < typename Laplace, typename Jacobian >
-class BarVortex: public SphereNorm < double > {
+class BarVortex: public SphereNorm < double >
+{
 public:
 	typedef BarVortex < Laplace, Jacobian > my_type;
 
@@ -84,7 +85,7 @@ public:
 	 * @param sigma - \f$\sigma\f$
 	 */
 	typedef double (*rp_t ) (double phi, double lambda, double t,
-		double mu, double sigma);
+	                         double mu, double sigma);
 	/**
 	 * Coriolis.
 	 * l+h: coriolis function plus orographic function.
@@ -146,8 +147,8 @@ public:
 	 * @param k1 - \f$\k_1\f$
 	 * @param k2 - \f$\k_2\f$
 	 */
-	BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma,
-			  double mu, double k1, double k2);
+	BarVortex (const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma,
+	           double mu, double k1, double k2);
 
 	/**
 	 * Write Parameters.
@@ -156,26 +157,26 @@ public:
 
 	/**
 	 * Solve the Barotropic vorticity equation.
- \f[
- \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)
-    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
- \f]
+	\f[
+	\frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)
+	+ k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+	\f]
 	 * @param Ans - output value
 	 * @param F - input vector (previous time step)
 	 * @param bnd_u - boundary condition (u)
 	 * @param bnd_w - boundary condition (w)
 	 * @param t   - time
 	 */
-	void calc(double * Ans, const double * F, const double * bnd_u,
-			  const double * bnd_w, double t);
+	void calc (double * Ans, const double * F, const double * bnd_u,
+	           const double * bnd_w, double t);
 
 
 	/**
 	 * Solve the linearized Barotropic vorticity equation in a neibourhood of point (z).
- \f[
- \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta z)  + k_1 J(z, \Delta \psi)
-    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = 0
- \f]
+	\f[
+	\frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta z)  + k_1 J(z, \Delta \psi)
+	+ k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = 0
+	\f]
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
@@ -183,8 +184,8 @@ public:
 	 * @param bnd_w - boundary condition (w)
 	 * @param t - time
 	 */
-	void calc_L(double * Ans, const double * F, const double * z, const double * bnd_u,
-				const double * bnd_w, double t);
+	void calc_L (double * Ans, const double * F, const double * z, const double * bnd_u,
+	             const double * bnd_w, double t);
 	/**
 	 * Solve the invert linearized Barotropic vorticity equation in a neibourhood of point (z).
 	 * @param Ans - output vector
@@ -194,8 +195,8 @@ public:
 	 * @param bnd_w - boundary condition (w)
 	 * @param t - time
 	 */
-	void calc_L_1(double * Ans, const double * F, const double * z,
-				  const double * bnd_u, const double * bnd_w, double t);
+	void calc_L_1 (double * Ans, const double * F, const double * z,
+	               const double * bnd_u, const double * bnd_w, double t);
 
 	/**
 	 * Adjoint operator to calc_L.
@@ -207,8 +208,8 @@ public:
 	 * @param bnd_w - boundary condition (w)
 	 * @param t - time
 	 */
-	void calc_LT(double * Ans, const double * F, const double * z,
-				 const double * bnd, const double * bnd_w, double t);
+	void calc_LT (double * Ans, const double * F, const double * z,
+	              const double * bnd, const double * bnd_w, double t);
 
 	/**
 	 * Helper-function.
@@ -216,7 +217,7 @@ public:
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 */
-	void S_step(double * Ans, const double * F);
+	void S_step (double * Ans, const double * F);
 	/**
 	 * Helper-function.
 	 * call calc_L(Ans, F, z, 0, 0).
@@ -224,7 +225,7 @@ public:
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
 	 */
-	void L_step(double * Ans, const double * F, const double * z);
+	void L_step (double * Ans, const double * F, const double * z);
 	/**
 	 * Helper-function.
 	 * Call calc_L_1(Ans, F, z, 0, 0).
@@ -232,15 +233,15 @@ public:
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
 	 */
-	void L_1_step(double * Ans, const double * F, const double * z);
+	void L_1_step (double * Ans, const double * F, const double * z);
 	/**
-   	 * Helper-function.
+	    * Helper-function.
 	 * Call calc_LT(Ans, F, z, 0, 0).
 	 * @param Ans - output vector
 	 * @param F - input vector (previous time step)
 	 * @param z - vector z
 	 */
-	void LT_step(double * Ans, const double * F, const double * z);
+	void LT_step (double * Ans, const double * F, const double * z);
 };
 
 

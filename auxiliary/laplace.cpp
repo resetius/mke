@@ -44,14 +44,14 @@
 #include "laplace.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION ("$Id$");
 
 using namespace std;
 using namespace phelm;
 
-static double polynom_func(double x, double y, Polynom * p)
+static double polynom_func (double x, double y, Polynom * p)
 {
-	return p->apply(x, y);
+	return p->apply (x, y);
 }
 
 struct laplace_right_part_cb_data
@@ -61,125 +61,53 @@ struct laplace_right_part_cb_data
 };
 
 double
-laplace(const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh::points_t & ps)
+laplace (const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh::points_t & ps)
 {
-	Polynom poly = diff(phi_j, 0) * diff(phi_i, 0)
-		+ diff(phi_j, 1) * diff(phi_i, 1);
-//	double d1 = -integrate(poly, trk, ps);
-	double d2 = -integrate_generic(trk, (fxy_t)polynom_func, &poly);	
-	return d2;
+	Polynom poly = diff (phi_j, 0) * diff (phi_i, 0)
+	               + diff (phi_j, 1) * diff (phi_i, 1);
+	double d1 = -integrate(poly, trk, ps);
+	return d1;
 }
 
-#if 0
-static double 
-laplace_right_part_cb( const Polynom & phi_i,
+namespace Laplace_Private
+{
+
+double
+laplace_bnd2_cb ( const Polynom & phi_i,
+                  const Polynom & phi_j,
+                  const Triangle & trk,
+                  const Mesh & m,
+                  int point_i,
+                  int point_j,
+                  int, int,
+                  void * )
+{
+	return -laplace (phi_i, phi_j, trk, m.ps);
+}
+
+double id_cb (const Polynom & phi_i,
+              const Polynom & phi_j,
+              const Triangle & trk,
+              const Mesh & m,
+              int point_i, int point_j,
+              int, int,
+              void *)
+{
+	return integrate (phi_i * phi_j, trk, m.ps);
+}
+
+double
+laplace_integrate_cb ( const Polynom & phi_i,
                        const Polynom & phi_j,
                        const Triangle & trk, /* номер треугольника */
                        const Mesh & m,
                        int point_i,
                        int point_j,
                        int, int,
-                       laplace_right_part_cb_data * d)
+                       void * user_data)
 {
-	const double * F = d->F;
-	double b = 0.0;
-
-	//b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
-
-	if (m.ps_flags[point_j] == 1) {         // на границе
-		int j0       = m.p2io[point_j]; //номер внешней точки
-		const double * bnd = d->bnd;
-		b += - bnd[j0] * laplace(phi_i, phi_j, trk, m.ps);
-	}
-	else {
-		b += F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
-	}
-
-	return b;
-}
-#endif
-
-namespace Laplace_Private {
-
-double
-laplace_bnd1_cb( const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int point_i,
-		int point_j,
-		int, int,
-		void * d)
-{
-	return integrate(phi_i * phi_j, trk, m.ps);
-}
-
-double
-laplace_bnd2_cb( const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int point_i,
-		int point_j,
-		int, int,
-		void * )
-{
-	return -laplace(phi_i, phi_j, trk, m.ps);
-}
-
-double id_cb(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int point_i, int point_j,
-		int, int,
-		void *)
-{
-	return integrate(phi_i * phi_j, trk, m.ps);
-}
-
-double 
-laplace_integrate_cb( const Polynom & phi_i,
-                      const Polynom & phi_j, 
-                      const Triangle & trk, /* номер треугольника */
-                      const Mesh & m,
-                      int point_i,
-                      int point_j,
-                      int, int,
-                      void * user_data)
-{
-	return laplace(phi_i, phi_j, trk, m.ps);
+	return laplace (phi_i, phi_j, trk, m.ps);
 }
 
 } /* namespace */
 
-#if 0
-static double lp_rp(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int point_i, int point_j,
-		laplace_right_part_cb_data * d)
-{
-	const double * F = d->F;
-	double b = 0.0;
-
-	b = F[point_j] * laplace(phi_i, phi_j, trk, m.ps);
-
-	//return F[point_j] * laplace(phi_i, phi_j, trk, m);
-#if 0
-	if (m.ps_flags[point_j] == 1)
-	{
-		b = F[point_j] * id_cb(phi_i, phi_j, trk, m, point_i, point_j, 0);
-	}
-
-	//if (m.ps_flags[point_j] == 1 && d->bnd)
-	//{
-	//	int j0       = m.p2io[point_j];
-	//	b += - d->bnd[j0] * id_cb(phi_i, phi_j, 
-	//			trk, m, point_i, point_j, 0);
-	//}
-#endif
-	return b;
-}
-#endif

@@ -34,21 +34,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  *
  * @section DESCRIPTION
- * finite-element matrix generators, right-part generator, mesh-vector norm, 
+ * finite-element matrix generators, right-part generator, mesh-vector norm,
  * mesh-vectors inner-product, mesh-vectors distance.
  */
 
 #include "solver.h"
 #include "util.h"
 
-namespace phelm {
+namespace phelm
+{
 
 /**
  * @defgroup generators Finite element matrix generators.
@@ -56,51 +57,53 @@ namespace phelm {
  * @{
  */
 
-	/**
-	 * Destination of this structure is finite-element matrix changing.
-	 * If one wants to change multiple entries of finite-element matrix
-	 * or finite-element right part he should return elements_t in callback.
-	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
-	 */
-	struct Element {
-		int i;    ///< the number of row in finite-element matrix
-		int j;    ///< the number of column in finite-element matrix
-		double a; ///< the value (A[i][j] += a)
-		// calculate alvais in double, but can store in float!
+/**
+ * Destination of this structure is finite-element matrix changing.
+ * If one wants to change multiple entries of finite-element matrix
+ * or finite-element right part he should return elements_t in callback.
+ * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
+ */
+struct Element
+{
+	int i;    ///< the number of row in finite-element matrix
+	int j;    ///< the number of column in finite-element matrix
+	double a; ///< the value (A[i][j] += a)
 
-		/**
-		 * Initialization of row and column numbers and value.
-		 * @param i1 - row number
-		 * @param j1 - columnt number
-		 * @param a1 - value
-		 */
-		Element(int i1, int j1, double a1) : i(i1), j(j1), a(a1) {}
-	};
+	/* compute elements in double, but store it in float! */
 
 	/**
-	 * Elements vector.
-	 * If one wants to change multiple entries of finite-element matrix
-	 * or finite-element right part he should return that vector in callback.
-	 * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
+	 * Initialization of row and column numbers and value.
+	 * @param i1 - row number
+	 * @param j1 - columnt number
+	 * @param a1 - value
 	 */
-	typedef std::vector < Element > elements_t;
+	Element (int i1, int j1, double a1) : i (i1), j (j1), a (a1) {}
+};
 
-	#include "impl/generators_impl.h"
+/**
+ * Elements vector.
+ * If one wants to change multiple entries of finite-element matrix
+ * or finite-element right part he should return that vector in callback.
+ * @see generate_matrix, generate_right_part, @ref test_system_laplace.cpp
+ */
+typedef std::vector < Element > elements_t;
+
+#include "impl/generators_impl.h"
 
 /**
  * Generate finite element matrix.
- * Call integrate_cb for all phi_i, phi_j that are defined 
+ * Call integrate_cb for all phi_i, phi_j that are defined
  * at shared point in triangle tr.
- * If flag transpose is set then generate  
+ * If flag transpose is set then generate
  * transposed matrix
- * 
+ *
  * Callback parameters:
  *
- *	- const Polynom & phi_i, 
- *	- const Polynom & phi_j, 
- *	- const Triangle & tr  - triangle, 
+ *	- const Polynom & phi_i,
+ *	- const Polynom & phi_j,
+ *	- const Triangle & tr  - triangle,
  *	- const Mesh & mesh    - mesh,
- *	- int point_i          - global point number, 
+ *	- int point_i          - global point number,
  *	- int point_j          - global point number ,
  *	- int i                - number of row in matrix (inner point number),
  *	- int j                - number of columnt in matrix (inner point number),
@@ -114,44 +117,49 @@ namespace phelm {
  * @param transpose - generate transposed matrix ?
  */
 template < typename Matrix, typename Functor, typename Data >
-void generate_matrix(Matrix & A, const Mesh & m, 
-					 Functor integrate_cb, 
-					 Data user_data, 
-					 bool transpose = false)
+void generate_matrix (Matrix & A, const Mesh & m,
+                      Functor integrate_cb,
+                      Data user_data,
+                      bool transpose = false)
 {
 	using namespace phelm_private_;
-	int rs  = (int)m.inner.size();     // размерность
+	int rs  = (int) m.inner.size();    // размерность
 
 	Timer t;
 #pragma omp parallel for
-	for (int i = 0; i < rs; ++i) { // номер строки
+	for (int i = 0; i < rs; ++i)   // номер строки
+	{
 		// по внутренним точкам
 		int p = m.inner[i];
 
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk) 
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
 		{
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1(p);
+			const Polynom & phi_i           = trk.elem1 (p);
 
-			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
 				int p2   = m.tr[trk_i].p[i0];
 				int j    = m.p2io[p2]; // номер внутренней точки
-				                       // номер столбца
-				if (m.ps_flags[p2] == 1) {
+				// номер столбца
+				if (m.ps_flags[p2] == 1)
+				{
 					; // граница
-				} else {
-					mat_add(A, i, j, 
-						integrate_cb(phi_i, phik[i0], trk, 
-							m, p, p2, i, j, user_data), transpose);
+				}
+				else
+				{
+					mat_add (A, i, j,
+					         integrate_cb (phi_i, phik[i0], trk,
+					                       m, p, p2, i, j, user_data), transpose);
 				}
 			}
 		}
 	}
 #ifdef _DEBUG
-	fprintf(stderr, "generate_matrix: %lf \n", t.elapsed()); 
+	fprintf (stderr, "generate_matrix: %lf \n", t.elapsed() );
 #endif
 }
 
@@ -165,39 +173,42 @@ void generate_matrix(Matrix & A, const Mesh & m,
  * @param transpose - generate transposed matrix ?
  */
 template < typename Matrix, typename Functor, typename Data >
-void generate_full_matrix(Matrix & A, const Mesh & m, 
-						  Functor integrate_cb, 
-						  Data user_data,
-						  bool transpose = false)
+void generate_full_matrix (Matrix & A, const Mesh & m,
+                           Functor integrate_cb,
+                           Data user_data,
+                           bool transpose = false)
 {
 	using namespace phelm_private_;
-	int sz  = (int)m.ps.size();
+	int sz  = (int) m.ps.size();
 
 	Timer t;
 //#pragma omp parallel for
-	for (int p = 0; p < sz; ++p) {
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+	for (int p = 0; p < sz; ++p)
+	{
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
+		{
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1(p);
+			const Polynom & phi_i           = trk.elem1 (p);
 
-			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
 				int p2   = m.tr[trk_i].p[i0];
-				mat_add(A, p, p2, 
-					integrate_cb(phi_i, phik[i0], trk, m, 
-						p, p2, p, p2, user_data), transpose);
+				mat_add (A, p, p2,
+				         integrate_cb (phi_i, phik[i0], trk, m,
+				                       p, p2, p, p2, user_data), transpose);
 			}
 		}
 	}
 #ifdef _DEBUG
-	fprintf(stderr, "generate_full_matrix: %lf \n", t.elapsed()); 
+	fprintf (stderr, "generate_full_matrix: %lf \n", t.elapsed() );
 #endif
 }
 
 /**
- * Generate right part. 
+ * Generate right part.
  * @param b - output right part vector
  * @param m - mesh
  * @param right_part_cb - callback that calculates inner product of two basis functions on a triangle
@@ -205,16 +216,16 @@ void generate_full_matrix(Matrix & A, const Mesh & m,
  * @param user_data - user data
  */
 template < typename T, typename Functor, typename Data >
-void generate_right_part(T * b, const Mesh & m, 
-						 Functor right_part_cb, 
-						 Data user_data)
+void generate_right_part (T * b, const Mesh & m,
+                          Functor right_part_cb,
+                          Data user_data)
 {
 	using namespace phelm_private_;
-	int rs  = (int)m.inner.size();     // размерность
+	int rs  = (int) m.inner.size();    // размерность
 	Timer t;
 
 	// WARNING: если генерируем правую часть для системы уравнений,
-	// то реальная размерность не известна, поэтому 
+	// то реальная размерность не известна, поэтому
 	// memset(b, 0) надо вызывать руками до вызова generate_right_part !
 
 #pragma omp parallel for
@@ -224,31 +235,33 @@ void generate_right_part(T * b, const Mesh & m,
 		int p = m.inner[i];
 		b[i]  = 0.0;
 
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
+		{
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1(p);
-			
+			const Polynom & phi_i           = trk.elem1 (p);
+
 			// если граница не меняется по времени, то надо делать отдельный callback
 			// для вычисления постоянной поправки к правой части?
-			
-			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
 				int p2   = m.tr[trk_i].p[i0];
-				vec_add(b, i, 
-					right_part_cb(phi_i, phik[i0], 
-						trk, m, p, p2, i, m.p2io[p2], user_data));
+				vec_add (b, i,
+				         right_part_cb (phi_i, phik[i0],
+				                        trk, m, p, p2, i, m.p2io[p2], user_data) );
 			}
 		}
 	}
 #ifdef _DEBUG
-	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
+	fprintf (stderr, "generate_right_part: %lf \n", t.elapsed() );
 #endif
 }
 
 /**
- * Generate full right part. 
+ * Generate full right part.
  * @param b - output right part vector
  * @param m - mesh
  * @param right_part_cb - callback that calculates inner product of two basis functions on a triangle
@@ -256,17 +269,17 @@ void generate_right_part(T * b, const Mesh & m,
  * @param user_data - user data
  */
 template < typename Functor, typename Data >
-void generate_full_right_part(double * b, const Mesh & m, 
-							  Functor right_part_cb, 
-							  Data user_data)
+void generate_full_right_part (double * b, const Mesh & m,
+                               Functor right_part_cb,
+                               Data user_data)
 {
 	using namespace phelm_private_;
-	int sz  = (int)m.ps.size();     // размерность
+	int sz  = (int) m.ps.size();    // размерность
 
 	Timer t;
 
 	// WARNING: если генерируем правую часть для системы уравнений,
-	// то реальная размерность не известна, поэтому 
+	// то реальная размерность не известна, поэтому
 	// memset(b, 0) надо вызывать руками до вызова generate_right_part !
 
 #pragma omp parallel for
@@ -274,26 +287,28 @@ void generate_full_right_part(double * b, const Mesh & m,
 	{
 		b[p]  = 0.0;
 
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
+		{
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1(p);
-			
+			const Polynom & phi_i           = trk.elem1 (p);
+
 			// если граница не меняется по времени, то надо делать отдельный callback
 			// для вычисления постоянной поправки к правой части?
-			
-			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
 				int p2   = m.tr[trk_i].p[i0];
-				vec_add(b, p, 
-					right_part_cb(phi_i, phik[i0], 
-						trk, m, p, p2, p, p2, user_data));
+				vec_add (b, p,
+				         right_part_cb (phi_i, phik[i0],
+				                        trk, m, p, p2, p, p2, user_data) );
 			}
 		}
 	}
 #ifdef _DEBUG
-	fprintf(stderr, "generate_right_part: %lf \n", t.elapsed());
+	fprintf (stderr, "generate_right_part: %lf \n", t.elapsed() );
 #endif
 }
 
@@ -309,35 +324,41 @@ void generate_full_right_part(double * b, const Mesh & m,
  * @param transpose - generate transposed matrix?
  */
 template < typename Matrix, typename Functor, typename Data >
-void generate_boundary_matrix(Matrix & A, const Mesh & m, 
-							  Functor right_part_cb, 
-							  Data user_data,
-							  bool transpose = false)
+void generate_boundary_matrix (Matrix & A, const Mesh & m,
+                               Functor right_part_cb,
+                               Data user_data,
+                               bool transpose = false)
 {
 	using namespace phelm_private_;
-	int os = (int)m.outer.size(); // размер границы
-	for (int j = 0; j < os; ++j) {
+	int os = (int) m.outer.size(); // размер границы
+	for (int j = 0; j < os; ++j)
+	{
 		// по внешним точкам
 		int p2 = m.outer[j];
 
-		for (uint tk = 0; tk < m.adj[p2].size(); ++tk) {
+		for (uint tk = 0; tk < m.adj[p2].size(); ++tk)
+		{
 			// по треугольникам в точке
 			int trk_j = m.adj[p2][tk];
 			const Triangle & trk    = m.tr[trk_j];
 			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_j           = trk.elem1(p2);
+			const Polynom & phi_j           = trk.elem1 (p2);
 
-			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
 				int p    = m.tr[trk_j].p[i0];
 
-				if (m.ps_flags[p] == 1) {
+				if (m.ps_flags[p] == 1)
+				{
 					;
-				} else {
+				}
+				else
+				{
 					// p - внутренняя точка
 					int i = m.p2io[p];
-					mat_add(A, i, j, 
-						right_part_cb(phik[i0], phi_j, 
-							trk, m, p, p2, i, j, user_data), transpose);
+					mat_add (A, i, j,
+					         right_part_cb (phik[i0], phi_j,
+					                        trk, m, p, p2, i, j, user_data), transpose);
 				}
 			}
 		}
@@ -355,12 +376,12 @@ void generate_boundary_matrix(Matrix & A, const Mesh & m,
  * @param user_data - user data that is passed to callback
  */
 template < typename Functor, typename Data >
-void convolution(double * ans, const double * u, const double * v, 
-				 const Mesh & m, Functor cb, Data user_data)
+void convolution (double * ans, const double * u, const double * v,
+                  const Mesh & m, Functor cb, Data user_data)
 {
 	using namespace phelm_private_;
 
-	int sz  = (int)m.ps.size(); // размерность
+	int sz  = (int) m.ps.size(); // размерность
 
 //#pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
@@ -369,18 +390,20 @@ void convolution(double * ans, const double * u, const double * v,
 		int p = i;
 		ans[i] = 0.0;
 
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk) {
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
+		{
 			// по треугольникам в точке
 			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1(p);
-			
-			for (uint i0 = 0; i0 < phik.size(); ++i0) {
+			const Polynom & phi_i           = trk.elem1 (p);
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
 				int j  = trk.p[i0];
-				ans[i] += u[i] * v[j] * 
-					cb(phi_i, phik[i0], trk, m, i, j, i, j, user_data);
-					//cb(phik[i0], phi_i, trk, m, i, j, i, j, user_data);
+				ans[i] += u[i] * v[j] *
+				          cb (phi_i, phik[i0], trk, m, i, j, i, j, user_data);
+				//cb(phik[i0], phi_i, trk, m, i, j, i, j, user_data);
 			}
 		}
 	}
@@ -404,15 +427,16 @@ void convolution(double * ans, const double * u, const double * v,
  * @return inner product of two mesh vectors
  */
 template < typename Functor, typename Data >
-double scalar(const double * u, const double * v, const Mesh & m, 
-				  Functor cb, Data user_data)
+double scalar (const double * u, const double * v, const Mesh & m,
+               Functor cb, Data user_data)
 {
-	int sz  = (int)m.ps.size();
+	int sz  = (int) m.ps.size();
 	double s = 0.0;
-	std::vector < double > nr(sz);
-	convolution(&nr[0], u, v, m, cb, user_data);
+	std::vector < double > nr (sz);
+	convolution (&nr[0], u, v, m, cb, user_data);
 //#pragma omp parallel for reduction(+:s)
-	for (int i = 0; i < sz; ++i) {
+	for (int i = 0; i < sz; ++i)
+	{
 		s = s + nr[i];
 	}
 	return s;
@@ -427,10 +451,10 @@ double scalar(const double * u, const double * v, const Mesh & m,
  * @param user_data - user data that is passed to callback
  */
 template < typename Matrix, typename Functor, typename Data >
-void generate_scalar_matrix(Matrix & mat, const Mesh & m, 
-							Functor cb, Data user_data)
+void generate_scalar_matrix (Matrix & mat, const Mesh & m,
+                             Functor cb, Data user_data)
 {
-	generate_full_matrix(mat, m, cb, user_data);
+	generate_full_matrix (mat, m, cb, user_data);
 }
 
 /**
@@ -443,10 +467,10 @@ void generate_scalar_matrix(Matrix & mat, const Mesh & m,
  * @return norm of mesh vector
  */
 template < typename Functor, typename Data >
-double norm(const double * u, const Mesh & m, 
-				Functor cb, Data user_data)
+double norm (const double * u, const Mesh & m,
+             Functor cb, Data user_data)
 {
-	return sqrt(scalar(u, u, m, cb, user_data));
+	return sqrt (scalar (u, u, m, cb, user_data) );
 }
 
 /**
@@ -455,9 +479,9 @@ double norm(const double * u, const Mesh & m,
  * @param m - mesh
  * @return norm of mesh vector on flat domain
  */
-inline double norm(const double * u, const Mesh & m)
+inline double norm (const double * u, const Mesh & m)
 {
-	return norm(u, m, generic_scalar_cb, (void*)0);
+	return norm (u, m, generic_scalar_cb, (void*) 0);
 }
 
 /**
@@ -471,13 +495,13 @@ inline double norm(const double * u, const Mesh & m)
  * @return distance between two mesh vectors
  */
 template < typename Functor, typename Data>
-double dist(const double * u, const double * v, const Mesh & m, 
-				Functor cb, Data user_data)
+double dist (const double * u, const double * v, const Mesh & m,
+             Functor cb, Data user_data)
 {
-	int sz  = (int)m.ps.size(); // размерность
-	std::vector < double > diff(sz);
-	vec_diff(&diff[0], u, v, sz);
-	return norm(&diff[0], m, cb, user_data);
+	int sz  = (int) m.ps.size(); // размерность
+	std::vector < double > diff (sz);
+	vec_diff (&diff[0], u, v, sz);
+	return norm (&diff[0], m, cb, user_data);
 }
 
 /**
@@ -487,9 +511,9 @@ double dist(const double * u, const double * v, const Mesh & m,
  * @param m - mesh
  * @return distance between two mesh vectors on flat domain
  */
-inline double dist(const double * u, const double * v, const Mesh & m)
+inline double dist (const double * u, const double * v, const Mesh & m)
 {
-	return dist(u, v, m, generic_scalar_cb, (void*)0);
+	return dist (u, v, m, generic_scalar_cb, (void*) 0);
 }
 
 /** @} */

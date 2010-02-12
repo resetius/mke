@@ -15,49 +15,50 @@
 using namespace std;
 using namespace phelm;
 
-static void usage(const char * name)
+static void usage (const char * name)
 {
-	fprintf(stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
-	exit(1);
+	fprintf (stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
+	exit (1);
 }
 
-static double ans(double x, double y, double t)
+static double ans (double x, double y, double t)
 {
 	//return exp(t) * sin(y) * sin(2.0 * x);
-	return x*sin(y+t)*ipow(cos(x),4);
+	return x*sin (y + t) *ipow (cos (x), 4);
 }
 
-static double bnd(double x, double y, double t)
+static double bnd (double x, double y, double t)
 {
-	return ans(x, y, t);
+	return ans (x, y, t);
 }
 
-static double nr2(double * a, double * b, int n)
+static double nr2 (double * a, double * b, int n)
 {
 	double sum = 0.0;
-	for (int i = 0; i < n; ++i) {
+	for (int i = 0; i < n; ++i)
+	{
 		sum += (a[i] - b[i]) * (a[i] - b[i]);
 	}
-	return sqrt(sum);
+	return sqrt (sum);
 }
 
-static double x(double u, double v)
+static double x (double u, double v)
 {
-	return cos(u) * cos(v);
+	return cos (u) * cos (v);
 }
 
-static double y(double u, double v)
+static double y (double u, double v)
 {
-	return cos(u) * sin(v);
+	return cos (u) * sin (v);
 }
 
-static double z(double u, double v)
+static double z (double u, double v)
 {
-	return sin(u);
+	return sin (u);
 }
 
 template < typename T >
-void calc_schafe(Mesh & mesh)
+void calc_schafe (Mesh & mesh)
 {
 	int i, steps = 100;
 	double tau   = 0.01;
@@ -65,42 +66,43 @@ void calc_schafe(Mesh & mesh)
 	double sigma = +70;
 
 
-	int sz = (int)mesh.ps.size();
-	int rs = (int)mesh.inner.size();
+	int sz = (int) mesh.ps.size();
+	int rs = (int) mesh.inner.size();
 
-	ArrayHost < T > U(sz);
-	ArrayHost < T > B(mesh.outer.size());
-	ArrayHost < T > Ans(sz);
-	ArrayHost < T > P(rs);
+	ArrayHost < T > U (sz);
+	ArrayHost < T > B (mesh.outer.size() );
+	ArrayHost < T > Ans (sz);
+	ArrayHost < T > P (rs);
 
-	ArrayDevice < T > cU(sz);
-	ArrayDevice < T > cB(mesh.outer.size());
-	ArrayDevice < T > cAns(sz);
-	ArrayDevice < T > cP(rs);
+	ArrayDevice < T > cU (sz);
+	ArrayDevice < T > cB (mesh.outer.size() );
+	ArrayDevice < T > cAns (sz);
+	ArrayDevice < T > cP (rs);
 
-	SphereNorm < T > nr(mesh);
+	SphereNorm < T > nr (mesh);
 
-	proj(&U[0], mesh, ans, 0.0);
-	vec_copy_from_host(&cU[0],    &U[0], sz);
+	proj (&U[0], mesh, ans, 0.0);
+	vec_copy_from_host (&cU[0],    &U[0], sz);
 
 //	print_function(stdout, &U[0], mesh, x, y, z);
 //	fflush(stdout);
 
-	SphereChafe < T > schafe(mesh, tau, sigma, mu);
+	SphereChafe < T > schafe (mesh, tau, sigma, mu);
 
-	for (i = 0; i < steps; ++i) {
+	for (i = 0; i < steps; ++i)
+	{
 		Timer t;
 
-		proj_bnd(&B[0], mesh, bnd, tau * (i + 1));
-		vec_copy_from_host(&cB[0], &B[0], (int)B.size());
-		schafe.solve(&cU[0], &cU[0], &cB[0], tau * (i));
+		proj_bnd (&B[0], mesh, bnd, tau * (i + 1) );
+		vec_copy_from_host (&cB[0], &B[0], (int) B.size() );
+		schafe.solve (&cU[0], &cU[0], &cB[0], tau * (i) );
 
 		// check
 		{
-			proj(&Ans[0], mesh, ans, tau * (i + 1));
-			vec_copy_from_host(&cAns[0], &Ans[0], (int)Ans.size());
-			fprintf(stderr, "time %lf/ norm %le: %lf\n", tau * (i + 1), 
-				(double)nr.dist(&cU[0], &cAns[0]), t.elapsed());
+			proj (&Ans[0], mesh, ans, tau * (i + 1) );
+			vec_copy_from_host (&cAns[0], &Ans[0], (int) Ans.size() );
+			fprintf (stderr, "time %lf/ norm %le: %lf\n", tau * (i + 1),
+			         (double) nr.dist (&cU[0], &cAns[0]), t.elapsed() );
 //			vector_print(&U[0], U.size());
 //			vector_print(&Ans[0], U.size());
 
@@ -121,44 +123,56 @@ void calc_schafe(Mesh & mesh)
 
 }
 
-int test_schafe(int argc, char *argv[])
+int test_schafe (int argc, char *argv[])
 {
 	Mesh mesh;
 	bool use_double = false;
 
-	for (int i = 0; i < argc; ++i) {
-		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h"))
+	for (int i = 0; i < argc; ++i)
+	{
+		if (!strcmp (argv[i], "--help") || !strcmp (argv[i], "-h") )
 		{
-			usage(argv[0]);
-		} else if (!strcmp(argv[i], "--file") || !strcmp(argv[i], "-f")) {
-			if (i == argc - 1) {
-				usage(argv[0]);
+			usage (argv[0]);
+		}
+		else if (!strcmp (argv[i], "--file") || !strcmp (argv[i], "-f") )
+		{
+			if (i == argc - 1)
+			{
+				usage (argv[0]);
 			}
 
-			FILE * f = (strcmp(argv[i + 1], "-") == 0) ? stdin : fopen(argv[i + 1], "rb");
+			FILE * f = (strcmp (argv[i + 1], "-") == 0) ? stdin : fopen (argv[i + 1], "rb");
 
-			if (!f) {
-				usage(argv[0]);
+			if (!f)
+			{
+				usage (argv[0]);
 			}
-			if (!mesh.load(f)) {
-				usage(argv[0]);
-			}
-
-			fclose(f);
-		} else if (!strcmp(argv[i], "--threads") || !strcmp(argv[i], "-t")) {
-			if (i == argc - 1) {
-				usage(argv[0]);
+			if (!mesh.load (f) )
+			{
+				usage (argv[0]);
 			}
 
-			int threads = atoi(argv[i + 1]);
-			set_num_threads(threads);
-		} else if (!strcmp(argv[i], "--double") || !strcmp(argv[i], "-d")) {
+			fclose (f);
+		}
+		else if (!strcmp (argv[i], "--threads") || !strcmp (argv[i], "-t") )
+		{
+			if (i == argc - 1)
+			{
+				usage (argv[0]);
+			}
+
+			int threads = atoi (argv[i + 1]);
+			set_num_threads (threads);
+		}
+		else if (!strcmp (argv[i], "--double") || !strcmp (argv[i], "-d") )
+		{
 			use_double = true;
 		}
 	}
 
-	if (mesh.ps.empty()) {
-		usage(argv[0]);
+	if (mesh.ps.empty() )
+	{
+		usage (argv[0]);
 	}
 
 	mesh.info();
@@ -166,21 +180,24 @@ int test_schafe(int argc, char *argv[])
 	phelm_init();
 
 	Timer t;
-	try {
+	try
+	{
 		if (check_device_supports_double() && use_double)
 		{
-			fprintf(stderr, "using double\n");
+			fprintf (stderr, "using double\n");
 			calc_schafe < float > (mesh);
 		}
 		else
 		{
-			fprintf(stderr, "using float\n");
+			fprintf (stderr, "using float\n");
 			calc_schafe < float > (mesh);
 		}
-	} catch (const std::exception & e) {
-		fprintf(stderr, "exception: %s\n", e.what());
 	}
-	fprintf(stderr, "elapsed: %lf\n", t.elapsed());
+	catch (const std::exception & e)
+	{
+		fprintf (stderr, "exception: %s\n", e.what() );
+	}
+	fprintf (stderr, "elapsed: %lf\n", t.elapsed() );
 
 	phelm_shutdown();
 

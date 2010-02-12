@@ -36,15 +36,16 @@
 
 #include "chafe.h"
 
-namespace Chafe_Private {
+namespace Chafe_Private
+{
 
-double 
-chafe_integrate_cb( const Polynom & phi_i,
-                    const Polynom & phi_j, 
-                    const Triangle & trk, 
-                    const Mesh & m, int point_i, int point_j,
-                    int, int,
-                    const ChafeConfig * d)
+double
+chafe_integrate_cb ( const Polynom & phi_i,
+                     const Polynom & phi_j,
+                     const Triangle & trk,
+                     const Mesh & m, int point_i, int point_j,
+                     int, int,
+                     const ChafeConfig * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -52,10 +53,10 @@ chafe_integrate_cb( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = integrate(phi_j * phi_i, trk, m.ps);
+	pt1  = integrate (phi_j * phi_i, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * 0.5;
 
-	pt2  = laplace(phi_i, phi_j, trk, m.ps);
+	pt2  = laplace (phi_i, phi_j, trk, m.ps);
 	pt2 *= -0.5 * mu;
 
 	return pt1 + pt2;

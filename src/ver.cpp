@@ -10,7 +10,7 @@ class StringsStorage
 	StringsStorage() {}
 	~StringsStorage() {};
 
-	StringsStorage(const StringsStorage &);
+	StringsStorage (const StringsStorage &);
 	StringsStorage & operator = (const StringsStorage &);
 
 public:
@@ -20,21 +20,21 @@ public:
 		return s;
 	}
 
-	void add(const std::string & str)
+	void add (const std::string & str)
 	{
-		storage_.insert(str);
+		storage_.insert (str);
 	}
 };
 
 extern "C"
-const char * add_version_string(const char * const str)
+const char * add_version_string (const char * const str)
 {
-	StringsStorage::instance().add(str);
+	StringsStorage::instance().add (str);
 	return str;
 }
 
-static const char * const license = add_version_string(
-" \
+static const char * const license = add_version_string (
+                                        " \
 /** \n \
  * Copyright (c) 2009\n \
  *      Alexey Ozeritsky.  All rights reserved.\n \

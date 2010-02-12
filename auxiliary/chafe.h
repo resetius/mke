@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -51,13 +51,14 @@
  * Chafe-Infante equation on flat domain.
  * Configuration.
  */
-struct ChafeConfig {
+struct ChafeConfig
+{
 	double tau_;   ///<time step
 	double mu_;    ///<\f$\mu\f$
 	double sigma_; ///<\f$\sigma\f$
 
-	ChafeConfig(double tau, double sigma, double mu):
-		tau_(tau), mu_(mu), sigma_(sigma) {}
+	ChafeConfig (double tau, double sigma, double mu) :
+			tau_ (tau), mu_ (mu), sigma_ (sigma) {}
 };
 
 /**
@@ -66,7 +67,8 @@ struct ChafeConfig {
  * \f$Delta\f$ is Laplace. @see Laplace
  */
 template < typename T >
-class Chafe: public ChafeConfig {
+class Chafe: public ChafeConfig
+{
 private:
 	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > ArrayDevice;
@@ -84,7 +86,7 @@ public:
 	 * @param sigma - \f$\sigma\f$
 	 * @param mu - \f$\mu\f$
 	 */
-	Chafe(const Mesh & m, double tau, double sigma, double mu);
+	Chafe (const Mesh & m, double tau, double sigma, double mu);
 	~Chafe() {}
 
 	/**
@@ -95,8 +97,8 @@ public:
 	 * @param bnd - boundary condition
 	 * @param t - time
 	 */
-	void solve(T * Ans, const T * X0,
-						const T * bnd, double t);
+	void solve (T * Ans, const T * X0,
+	            const T * bnd, double t);
 };
 
 #include "impl/chafe_impl.h"

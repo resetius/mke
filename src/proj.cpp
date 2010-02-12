@@ -38,106 +38,122 @@
 #include "phelm.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION ("$Id$");
 
 using namespace std;
 
-namespace phelm {
+namespace phelm
+{
 
 /* добавляем краевые условия */
 template < typename T >
-void p2u_(T * u, const T * p, const T * bnd, const Mesh & m)
+void p2u_ (T * u, const T * p, const T * bnd, const Mesh & m)
 {
-	int sz  = (int)m.ps.size();
+	int sz  = (int) m.ps.size();
 
 #pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		if (m.ps_flags[i] == 1) {
+	for (int i = 0; i < sz; ++i)
+	{
+		if (m.ps_flags[i] == 1)
+		{
 			//внешняя
-			if (bnd) {
+			if (bnd)
+			{
 				u[i] = bnd[m.p2io[i]];
-			} else {
+			}
+			else
+			{
 				u[i] = 0;
 			}
-		} else {
+		}
+		else
+		{
 			//внутренняя
 			u[i] = p[m.p2io[i]];
 		}
 	}
 }
 
-void p2u(double * u, const double * p, const double * bnd, const Mesh & m)
+void p2u (double * u, const double * p, const double * bnd, const Mesh & m)
 {
-	p2u_(u, p, bnd, m);
+	p2u_ (u, p, bnd, m);
 }
 
-void p2u(float * u, const float * p, const float * bnd, const Mesh & m)
+void p2u (float * u, const float * p, const float * bnd, const Mesh & m)
 {
-	p2u_(u, p, bnd, m);
+	p2u_ (u, p, bnd, m);
 }
 
 /* убираем краевые условия */
 template < typename T >
-void u2p_(T * p, const T * u, const Mesh & m)
+void u2p_ (T * p, const T * u, const Mesh & m)
 {
-	int rs = (int)m.inner.size();
+	int rs = (int) m.inner.size();
 #pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
+	for (int i = 0; i < rs; ++i)
+	{
 		p[i] = u[m.inner[i]];
 	}
 }
 
-void u2p(double * p, const double * u, const Mesh & m)
+void u2p (double * p, const double * u, const Mesh & m)
 {
-	u2p_(p, u, m);
+	u2p_ (p, u, m);
 }
 
-void u2p(float * p, const float * u, const Mesh & m)
+void u2p (float * p, const float * u, const Mesh & m)
 {
-	u2p_(p, u, m);
+	u2p_ (p, u, m);
 }
 
 template < typename T >
-void set_bnd_(T * u, const T * bnd, const Mesh & m)
+void set_bnd_ (T * u, const T * bnd, const Mesh & m)
 {
-	int sz  = (int)m.ps.size();
+	int sz  = (int) m.ps.size();
 #pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
-		if (m.ps_flags[i] == 1) {
-			if (bnd) {
+	for (int i = 0; i < sz; ++i)
+	{
+		if (m.ps_flags[i] == 1)
+		{
+			if (bnd)
+			{
 				u[i] = bnd[m.p2io[i]];
-			} else {
+			}
+			else
+			{
 				u[i] = 0;
 			}
 		}
 	}
 }
 
-void set_bnd(double *u, const double * bnd, const Mesh & m)
+void set_bnd (double *u, const double * bnd, const Mesh & m)
 {
-	set_bnd_(u, bnd, m);
+	set_bnd_ (u, bnd, m);
 }
 
-void set_bnd(float *u, const float * bnd, const Mesh & m)
+void set_bnd (float *u, const float * bnd, const Mesh & m)
 {
-	set_bnd_(u, bnd, m);
+	set_bnd_ (u, bnd, m);
 }
 
-void proj_bnd(double * F, const double * F1, const Mesh & m)
+void proj_bnd (double * F, const double * F1, const Mesh & m)
 {
-	int sz = (int)m.outer.size();
+	int sz = (int) m.outer.size();
 #pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
+	for (int i = 0; i < sz; ++i)
+	{
 		int p0 = m.outer[i];
 		F[i] = F1[p0];
 	}
 }
 
-void proj_bnd(float * F, const float * F1, const Mesh & m)
+void proj_bnd (float * F, const float * F1, const Mesh & m)
 {
-	int sz = (int)m.outer.size();
+	int sz = (int) m.outer.size();
 #pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
+	for (int i = 0; i < sz; ++i)
+	{
 		int p0 = m.outer[i];
 		F[i] = F1[p0];
 	}

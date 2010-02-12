@@ -38,30 +38,31 @@
 #include <assert.h>
 
 template < typename T, template < class > class Alloc >
-void StoreCSR < T, Alloc > ::load(const std::vector < row_t > & A)
+void StoreCSR < T, Alloc > ::load (const std::vector < row_t > & A)
 {
 	int idx = 0;
-	n_  = (int)A.size();
+	n_  = (int) A.size();
 	nz_ = 0; // non-null elements
-	for (uint i = 0; i < A.size(); ++i) {
-		nz_ += (int)A[i].size();
+	for (uint i = 0; i < A.size(); ++i)
+	{
+		nz_ += (int) A[i].size();
 	}
 
-	Ax_.resize(nz_);
-	Ai_.resize(nz_);
-	Ap_.resize(n_ + 1);
+	Ax_.resize (nz_);
+	Ai_.resize (nz_);
+	Ap_.resize (n_ + 1);
 
-	std::vector < T >   Ax(nz_);
-	std::vector < int > Ai(nz_);
-	std::vector < int > Ap(n_ + 1);
+	std::vector < T >   Ax (nz_);
+	std::vector < int > Ai (nz_);
+	std::vector < int > Ap (n_ + 1);
 
 	Ap[0] = 0;
 
 	for (uint i = 0; i < A.size(); ++i)
 	{
-		Ap[i + 1] = Ap[i] + (int)A[i].size();
+		Ap[i + 1] = Ap[i] + (int) A[i].size();
 		for (typename row_t::const_iterator it = A[i].begin();
-				it != A[i].end(); ++it)
+		        it != A[i].end(); ++it)
 		{
 			Ax[idx] = it->second;
 			Ai[idx] = it->first;
@@ -69,67 +70,69 @@ void StoreCSR < T, Alloc > ::load(const std::vector < row_t > & A)
 		}
 	}
 
-	vec_copy_from_host(&Ax_[0], &Ax[0], nz_);
-	vec_copy_from_host(&Ai_[0], &Ai[0], nz_);
-	vec_copy_from_host(&Ap_[0], &Ap[0], n_ + 1);
+	vec_copy_from_host (&Ax_[0], &Ax[0], nz_);
+	vec_copy_from_host (&Ai_[0], &Ai[0], nz_);
+	vec_copy_from_host (&Ap_[0], &Ap[0], n_ + 1);
 }
 
 template < typename T, template < class > class Alloc >
-void StoreCSR < T, Alloc > ::mult(T * r, const T * x) const
+void StoreCSR < T, Alloc > ::mult (T * r, const T * x) const
 {
-	csr_mult_vector_r(r, &Ap_[0], &Ai_[0], &Ax_[0], x, n_, nz_);
+	csr_mult_vector_r (r, &Ap_[0], &Ai_[0], &Ax_[0], x, n_, nz_);
 }
 
 template < typename T, template < class > class Alloc >
-void StoreCSR < T, Alloc > ::add_matrix1(const my_type & A, const T * x)
+void StoreCSR < T, Alloc > ::add_matrix1 (const my_type & A, const T * x)
 {
-	csr_add_matrix1(&Ap_[0], &Ax_[0], 
-		&A.Ap_[0], &A.Ai_[0], &A.Ax_[0], 
-		x, A.n_);
+	csr_add_matrix1 (&Ap_[0], &Ax_[0],
+	                 &A.Ap_[0], &A.Ai_[0], &A.Ax_[0],
+	                 x, A.n_);
 }
 
 template < typename T, template < class > class Alloc >
-void StoreCSR < T, Alloc > ::add_matrix2(const my_type & A, const T * x)
+void StoreCSR < T, Alloc > ::add_matrix2 (const my_type & A, const T * x)
 {
-	csr_add_matrix2(&Ap_[0], &Ax_[0], 
-		&A.Ap_[0], &A.Ai_[0], &A.Ax_[0], 
-		x, A.n_);
+	csr_add_matrix2 (&Ap_[0], &Ax_[0],
+	                 &A.Ap_[0], &A.Ai_[0], &A.Ax_[0],
+	                 x, A.n_);
 }
 
 template < typename T, template < class > class Alloc >
-void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
+void StoreELL < T, Alloc > ::load (const std::vector < row_t > & A)
 {
 	nz_ = 0; // non-null elements
-	n_  = (int)A.size();
-	for (uint i = 0; i < A.size(); ++i) {
-		nz_ += (int)A[i].size();
+	n_  = (int) A.size();
+	for (uint i = 0; i < A.size(); ++i)
+	{
+		nz_ += (int) A[i].size();
 	}
 	cols_ = 0;
-	for (uint i = 0; i < A.size(); ++i) {
-		cols_ = std::max(cols_, (int)A[i].size());
+	for (uint i = 0; i < A.size(); ++i)
+	{
+		cols_ = std::max (cols_, (int) A[i].size() );
 	}
 
 	int stride_off = 1; //32;
-	stride_   = stride_off * ((n_ + stride_off - 1) / stride_off);
+	stride_   = stride_off * ( (n_ + stride_off - 1) / stride_off);
 	int count = cols_ * stride_;
 
 //	stride_   = stride_off * ((cols_ + stride_off - 1) / stride_off);
 //	int count = n_ * stride_;
 
-	Ax_.resize(count);
-	Ai_.resize(count);
+	Ax_.resize (count);
+	Ai_.resize (count);
 //	for (int i = 0; i < count; ++i) {
 //		Ai_[i] = -1;
 //	}
 
-	std::vector < T > Ax(count);
-	std::vector < int > Ai(count);
+	std::vector < T > Ax (count);
+	std::vector < int > Ai (count);
 
 	for (uint i = 0; i < A.size(); ++i)
 	{
 		int idx = 0;
 		for (typename row_t::const_iterator it = A[i].begin();
-				it != A[i].end(); ++it)
+		        it != A[i].end(); ++it)
 		{
 			Ax[idx * stride_ + i] = it->second;
 			Ai[idx * stride_ + i] = it->first;
@@ -139,36 +142,36 @@ void StoreELL < T, Alloc > ::load(const std::vector < row_t > & A)
 		}
 	}
 
-	vec_copy_from_host(&Ax_[0], &Ax[0], count);
-	vec_copy_from_host(&Ai_[0], &Ai[0], count);
+	vec_copy_from_host (&Ax_[0], &Ax[0], count);
+	vec_copy_from_host (&Ai_[0], &Ai[0], count);
 }
 
 template < typename T, template < class > class Alloc >
-void StoreELL < T, Alloc > ::mult(T * r, const T * x) const
+void StoreELL < T, Alloc > ::mult (T * r, const T * x) const
 {
-	ell_mult_vector_r(r, &Ai_[0], &Ax_[0], x, n_, cols_, stride_);
+	ell_mult_vector_r (r, &Ai_[0], &Ax_[0], x, n_, cols_, stride_);
 }
 
 template < typename T >
-void SimpleSolver < T > ::mult_vector(T * out, const T * in)
+void SimpleSolver < T > ::mult_vector (T * out, const T * in)
 {
-	mat_mult_vector(out, &A_[0], in, n_);
+	mat_mult_vector (out, &A_[0], in, n_);
 }
 
 template < typename T >
-void SimpleSolver < T > ::solve(T * x, const T * b)
+void SimpleSolver < T > ::solve (T * x, const T * b)
 {
 	Timer t;
 
-	gauss(&A_[0], &b[0], &x[0], n_);
+	gauss (&A_[0], &b[0], &x[0], n_);
 
 #ifdef _DEBUG
-	fprintf(stderr, "solver time: %lf\n", t.elapsed());
+	fprintf (stderr, "solver time: %lf\n", t.elapsed() );
 #endif
 }
 
 template < typename T >
-void SimpleSolver < T > ::add(int i, int j, T a)
+void SimpleSolver < T > ::add (int i, int j, T a)
 {
 	A_[i * n_ + j] += a;
 }
@@ -176,42 +179,44 @@ void SimpleSolver < T > ::add(int i, int j, T a)
 template < typename T >
 void SimpleSolver < T > ::print()
 {
-	print_matrix(&A_[0], n_);
+	print_matrix (&A_[0], n_);
 }
 
 template < typename T, typename MultStore, typename InvStore  >
 void SparseSolver < T, MultStore, InvStore > ::prepare()
 {
-	if (store_.mult.empty()) {
-		store_.mult.load(A_);
+	if (store_.mult.empty() )
+	{
+		store_.mult.load (A_);
 	}
 
-	if (store_.invert.empty()) {
-		store_.invert.load(A_);
+	if (store_.invert.empty() )
+	{
+		store_.invert.load (A_);
 	}
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::add_matrix1(my_type & A, const T * vec)
+void SparseSolver < T, MultStore, InvStore > ::add_matrix1 (my_type & A, const T * vec)
 {
 	prepare();
 	A.prepare();
-	store_.add_matrix1(A.store_, vec);
+	store_.add_matrix1 (A.store_, vec);
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::add_matrix2(my_type & A, const T * vec)
+void SparseSolver < T, MultStore, InvStore > ::add_matrix2 (my_type & A, const T * vec)
 {
 	prepare();
 	A.prepare();
-	store_.add_matrix2(A.store_, vec);
+	store_.add_matrix2 (A.store_, vec);
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::mult_vector(T * out, const T * in)
+void SparseSolver < T, MultStore, InvStore > ::mult_vector (T * out, const T * in)
 {
 	prepare();
-	store_.mult.mult(out, in);
+	store_.mult.mult (out, in);
 }
 
 template < typename T, typename MultStore, typename InvStore  >
@@ -221,21 +226,21 @@ void SparseSolver < T, MultStore, InvStore > ::print()
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::add(int i, int j, T a)
+void SparseSolver < T, MultStore, InvStore > ::add (int i, int j, T a)
 {
 	A_[i][j] += a;
 }
 
 template < typename T, typename Invert >
-void SparseSolver__Ax(T * r, const Invert * invert, const T * x, int n)
+void SparseSolver__Ax (T * r, const Invert * invert, const T * x, int n)
 {
-	invert->mult(r, x);
+	invert->mult (r, x);
 }
 
 template < typename T, typename MultStore, typename InvStore  >
-void SparseSolver < T, MultStore, InvStore > ::solve(T * x, const T * b)
+void SparseSolver < T, MultStore, InvStore > ::solve (T * x, const T * b)
 {
 	prepare();
-	gmres(&x[0], &store_.invert, &b[0], SparseSolver__Ax < T, typename store_t::invert_t > , 
-		store_.invert.n_, 100, 1000);
+	gmres (&x[0], &store_.invert, &b[0], SparseSolver__Ax < T, typename store_t::invert_t > ,
+	       store_.invert.n_, 100, 1000);
 }

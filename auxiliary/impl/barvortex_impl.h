@@ -43,7 +43,7 @@
 #include "util.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION ("$Id$");
 
 using namespace std;
 using namespace phelm;
@@ -52,28 +52,29 @@ using namespace phelm;
 //#define SCHEME_THETA 1.0
 //#define SCHEME_THETA 0.2
 
-namespace bv_private {
-
-static double integrate_cos_func(double x, double y, Polynom * poly)
+namespace bv_private
 {
-	return cos(x) * poly->apply(x, y);
+
+static double integrate_cos_func (double x, double y, Polynom * poly)
+{
+	return cos (x) * poly->apply (x, y);
 }
 
 template < typename A, typename B, typename C >
-double my_integrate_cos(const A & poly, B & trk, C & points)
+double my_integrate_cos (const A & poly, B & trk, C & points)
 {
-	return integrate_generic(trk, (fxy_t)integrate_cos_func, (void*)&poly);
+	return integrate_generic (trk, (fxy_t) integrate_cos_func, (void*) &poly);
 }
 
-template < typename BV > 
-double 
-integrate_cb( const Polynom & phi_i,
-              const Polynom & phi_j, 
-              const Triangle & trk,
-              const Mesh & m,
-              int point_i, int point_j,
-			  int i, int j,
-              BV * d)
+template < typename BV >
+double
+integrate_cb ( const Polynom & phi_i,
+               const Polynom & phi_j,
+               const Triangle & trk,
+               const Mesh & m,
+               int point_i, int point_j,
+               int i, int j,
+               BV * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -81,26 +82,26 @@ integrate_cb( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = my_integrate_cos(phi_i * phi_j, trk, m.ps);
+	pt1  = my_integrate_cos (phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * d->theta_;
 
-	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
+	pt2  =  slaplace (phi_j, phi_i, trk, m.ps);
 	pt2 *= - d->theta_ * mu;
 
 	return pt1 + pt2;
 }
 
-template < typename BV > 
+template < typename BV >
 elements_t
-integrate_cb2( const Polynom & phi_i,
-              const Polynom & phi_j, 
-              const Triangle & trk,
-              const Mesh & m,
-              int point_i, int point_j,
-			  int i, int j,
-              BV * d)
+integrate_cb2 ( const Polynom & phi_i,
+                const Polynom & phi_j,
+                const Triangle & trk,
+                const Mesh & m,
+                int point_i, int point_j,
+                int i, int j,
+                BV * d)
 {
-	int rs = (int)m.inner.size();
+	int rs = (int) m.inner.size();
 	elements_t r;
 
 	double tau   = d->tau_;
@@ -118,11 +119,11 @@ integrate_cb2( const Polynom & phi_i,
 	double a, b, j1, j2;
 //	double j3, j4;
 
-	a = my_integrate_cos(phi_i * phi_j, trk, m.ps);
-	b = slaplace(phi_j, phi_i, trk, m.ps);
+	a = my_integrate_cos (phi_i * phi_j, trk, m.ps);
+	b = slaplace (phi_j, phi_i, trk, m.ps);
 
-	j1 = k2 * hx * my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
-	j2 = k2 * hy * integrate(diff(phi_j, 0) * phi_i, trk, m.ps);
+	j1 = k2 * hx * my_integrate_cos (diff (phi_j, 1) * phi_i, trk, m.ps);
+	j2 = k2 * hy * integrate (diff (phi_j, 0) * phi_i, trk, m.ps);
 
 //	j3 = uy * integrate(diff(phi_j, 0) * phi_i, trk, m.ps);
 //	j4 = ux * my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
@@ -133,49 +134,49 @@ integrate_cb2( const Polynom & phi_i,
 	 * u - [n, 2n)
 	 */
 	// 4 элемента создаем
-	r.reserve(4);
-	r.push_back(Element(i, j, a * (1.0 / tau + sigma * theta) 
-		- theta * mu * b /*+ k1 * theta * (j3 - j4)*/));
-	r.push_back(Element(i, j + rs, theta * (j1 - j2)));
+	r.reserve (4);
+	r.push_back (Element (i, j, a * (1.0 / tau + sigma * theta)
+	                      - theta * mu * b /*+ k1 * theta * (j3 - j4)*/) );
+	r.push_back (Element (i, j + rs, theta * (j1 - j2) ) );
 
 	// w-L(u) = 0
 	// w
-	r.push_back(Element(i + rs, j, a));
+	r.push_back (Element (i + rs, j, a) );
 	//-L(u)
-	r.push_back(Element(i + rs, j + rs, -b));
+	r.push_back (Element (i + rs, j + rs, -b) );
 
 	return r;
 }
 
-template < typename BV > 
+template < typename BV >
 double
-integrate_c1( const Polynom & phi_i,
-              const Polynom & phi_j, 
-              const Triangle & trk,
-              const Mesh & m,
-              int point_i, int point_j,
-			  int i, int j,
-              BV * d)
+integrate_c1 ( const Polynom & phi_i,
+               const Polynom & phi_j,
+               const Triangle & trk,
+               const Mesh & m,
+               int point_i, int point_j,
+               int i, int j,
+               BV * d)
 {
 	double k = d->theta_ * d->k1_;
-	return k * integrate(diff(phi_j, 0) * phi_i, trk, m.ps);
+	return k * integrate (diff (phi_j, 0) * phi_i, trk, m.ps);
 }
 
-template < typename BV > 
+template < typename BV >
 double
-integrate_c2( const Polynom & phi_i,
-              const Polynom & phi_j, 
-              const Triangle & trk,
-              const Mesh & m,
-              int point_i, int point_j,
-			  int i, int j,
-              BV * d)
+integrate_c2 ( const Polynom & phi_i,
+               const Polynom & phi_j,
+               const Triangle & trk,
+               const Mesh & m,
+               int point_i, int point_j,
+               int i, int j,
+               BV * d)
 {
 	double k = d->theta_ * d->k1_;
-	return - k * my_integrate_cos(diff(phi_j, 1) * phi_i, trk, m.ps);
+	return - k * my_integrate_cos (diff (phi_j, 1) * phi_i, trk, m.ps);
 }
 
-template < typename BV > 
+template < typename BV >
 struct right_part_cb_data
 {
 	const double * F;
@@ -184,24 +185,25 @@ struct right_part_cb_data
 	BV  * d;
 };
 
-template < typename BV > 
+template < typename BV >
 elements_t
-right_part_cb2( const Polynom & phi_i,
-               const Polynom & phi_j,
-               const Triangle & trk,
-               const Mesh & m,
-               int point_i, int point_j,
-               int i, int j /*unused*/,
-               right_part_cb_data < BV > * d)
+right_part_cb2 ( const Polynom & phi_i,
+                 const Polynom & phi_j,
+                 const Triangle & trk,
+                 const Mesh & m,
+                 int point_i, int point_j,
+                 int i, int j /*unused*/,
+                 right_part_cb_data < BV > * d)
 {
 	elements_t r;
-	int rs = (int)m.inner.size();
+	int rs = (int) m.inner.size();
 	const double * F = d->F;
 
-	if (m.ps_flags[point_j] == 1) { // на границе
+	if (m.ps_flags[point_j] == 1)   // на границе
+	{
 		int j0        = m.p2io[point_j]; //номер внешней точки
-		elements_t r1 = integrate_cb2(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
+		elements_t r1 = integrate_cb2 (phi_i, phi_j,
+		                               trk, m, point_i, point_j, i, j, d->d);
 		double rp[] = {0, 0};
 		for (elements_t::iterator it = r1.begin(); it != r1.end(); ++it)
 		{
@@ -210,46 +212,56 @@ right_part_cb2( const Polynom & phi_i,
 			double * b1 = 0;
 
 			// detect equation number
-			if (e.i < rs) {
+			if (e.i < rs)
+			{
 				b1 = &rp[0];
-			} else { //if (e.i < 2 * rs) {
+			}
+			else   //if (e.i < 2 * rs) {
+			{
 				b1 = &rp[1];
 			}
 
 			double & b = *b1;
-			if (e.j < rs) {
+			if (e.j < rs)
+			{
 				// w
-				if (d->BW) {
+				if (d->BW)
+				{
 					b += -d->BW[j0] * e.a;
 				}
-			} else { //if (e.j < 2 * rs) {
+			}
+			else   //if (e.j < 2 * rs) {
+			{
 				// u
-				if (d->BU) {
+				if (d->BU)
+				{
 					b += -d->BU[j0] * e.a;
 				}
 			}
 		}
 
-		r.push_back(Element(i,          j, rp[0]));
-		r.push_back(Element(i + rs,     j, rp[1]));
-	} else {
-		double a = my_integrate_cos(phi_i * phi_j, trk, m.ps);
+		r.push_back (Element (i,          j, rp[0]) );
+		r.push_back (Element (i + rs,     j, rp[1]) );
+	}
+	else
+	{
+		double a = my_integrate_cos (phi_i * phi_j, trk, m.ps);
 		// F
-		r.push_back(Element(i, j, F[m.p2io[point_j]] * a));
+		r.push_back (Element (i, j, F[m.p2io[point_j]] * a) );
 	}
 
 	return r;
 }
 
-template < typename BV > 
-double 
-integrate_backward_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-					 int i, int j,
-                     BV * d)
+template < typename BV >
+double
+integrate_backward_cb ( const Polynom & phi_i,
+                        const Polynom & phi_j,
+                        const Triangle & trk,
+                        const Mesh & m,
+                        int point_i, int point_j,
+                        int i, int j,
+                        BV * d)
 {
 	double tau   = d->tau_;
 	double mu    = d->mu_;
@@ -257,38 +269,41 @@ integrate_backward_cb( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = my_integrate_cos(phi_i * phi_j, trk, m.ps);
+	pt1  = my_integrate_cos (phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau - sigma * (1.0 - d->theta_);
 
-	pt2  =  slaplace(phi_j, phi_i, trk, m.ps);
+	pt2  =  slaplace (phi_j, phi_i, trk, m.ps);
 	pt2 *= (1.0 - d->theta_) * mu;
 
 	return pt1 + pt2;
 }
 
 #if 0
-template < typename BV > 
-double 
-right_part_cb( const Polynom & phi_i,
-              const Polynom & phi_j,
-              const Triangle & trk,
-              const Mesh & m,
-              int point_i, int point_j,
-			  int i, int j,
-			   right_part_cb_data < BV >  * d)
+template < typename BV >
+double
+right_part_cb ( const Polynom & phi_i,
+                const Polynom & phi_j,
+                const Triangle & trk,
+                const Mesh & m,
+                int point_i, int point_j,
+                int i, int j,
+                right_part_cb_data < BV >  * d)
 {
 	const double * F = d->F;
 	double b = 0.0;
 
 	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
+	if (m.ps_flags[point_j] == 1 && d->bnd)   // на границе
+	{
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b += -bnd[j0] * integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
-	} else if (m.ps_flags[point_j] == 0) {
-		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b += -bnd[j0] * integrate_cb (phi_i, phi_j,
+		                              trk, m, point_i, point_j, i, j, d->d);
+	}
+	else if (m.ps_flags[point_j] == 0)
+	{
+		b += F[m.p2io[point_j]] * integrate_cos (phi_i * phi_j, trk, m.ps);
 	}
 
 	return b;
@@ -296,28 +311,31 @@ right_part_cb( const Polynom & phi_i,
 #endif
 
 #if 0
-template < typename BV > 
-double 
-right_part_backward_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-					  int i, int j,
-						right_part_cb_data < BV > * d)
+template < typename BV >
+double
+right_part_backward_cb ( const Polynom & phi_i,
+                         const Polynom & phi_j,
+                         const Triangle & trk,
+                         const Mesh & m,
+                         int point_i, int point_j,
+                         int i, int j,
+                         right_part_cb_data < BV > * d)
 {
 	const double * F = d->F;
 	double b = 0.0;
 
 	//b = F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1 && d->bnd) { // на границе
+	if (m.ps_flags[point_j] == 1 && d->bnd)   // на границе
+	{
 		int j0       = m.p2io[point_j]; //номер внешней точки
 		const double * bnd = d->bnd;
-		b += -bnd[j0] * integrate_backward_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
-	} else if (m.ps_flags[point_j] == 0) {
-		b += F[m.p2io[point_j]] * integrate_cos(phi_i * phi_j, trk, m.ps);
+		b += -bnd[j0] * integrate_backward_cb (phi_i, phi_j,
+		                                       trk, m, point_i, point_j, i, j, d->d);
+	}
+	else if (m.ps_flags[point_j] == 0)
+	{
+		b += F[m.p2io[point_j]] * integrate_cos (phi_i * phi_j, trk, m.ps);
 	}
 
 	return b;
@@ -327,57 +345,57 @@ right_part_backward_cb( const Polynom & phi_i,
 }
 
 template < typename L, typename J >
-BarVortex < L, J > ::BarVortex(const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, 
-					 double sigma, double mu, double k1, double k2)
-	: SphereNorm < double > (m), m_(m), l_(m), j_(m), 
-	  A_(m.inner_size),
-	  A2_(2*m.inner_size),
-	  bnd2_(2*m.inner_size),
-	  C1_(m.inner_size),
-	  C2_(m.inner_size),
-	  bnd_(m.inner_size),
-	  Ab_(m.inner_size),
-	  bndb_(m.inner_size),
-	  tau_(tau), sigma_(sigma), mu_(mu), k1_(k1), k2_(k2), theta_(SCHEME_THETA),
-	  rp_(rp), coriolis_(coriolis)
+BarVortex < L, J > ::BarVortex (const Mesh & m, rp_t rp, coriolis_t coriolis, double tau,
+                                double sigma, double mu, double k1, double k2)
+		: SphereNorm < double > (m), m_ (m), l_ (m), j_ (m),
+		A_ (m.inner_size),
+		A2_ (2*m.inner_size),
+		bnd2_ (2*m.inner_size),
+		C1_ (m.inner_size),
+		C2_ (m.inner_size),
+		bnd_ (m.inner_size),
+		Ab_ (m.inner_size),
+		bndb_ (m.inner_size),
+		tau_ (tau), sigma_ (sigma), mu_ (mu), k1_ (k1), k2_ (k2), theta_ (SCHEME_THETA),
+		rp_ (rp), coriolis_ (coriolis)
 {
 	int sz = m_.size;
 	int os = m_.outer_size;
 	int rs = m_.inner_size;
 
-	lh_.resize(sz);
-	lh_x_.resize(rs);
-	lh_cos_y_.resize(rs);
-	u_x_.resize(rs);
-	u_cos_y_.resize(rs);
-	proj(&lh_[0], m_, coriolis);
+	lh_.resize (sz);
+	lh_x_.resize (rs);
+	lh_cos_y_.resize (rs);
+	u_x_.resize (rs);
+	u_cos_y_.resize (rs);
+	proj (&lh_[0], m_, coriolis);
 
-	j_.calc2_diff_x(&lh_x_[0], &lh_[0]);
-	j_.calc2_diff_x(&lh_cos_y_[0], &lh_[0]);
+	j_.calc2_diff_x (&lh_x_[0], &lh_[0]);
+	j_.calc2_diff_x (&lh_cos_y_[0], &lh_[0]);
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix(A_, m_, bv_private::integrate_cb < my_type > , this);
-	generate_boundary_matrix(bnd_, m_, bv_private::integrate_cb < my_type >, this);
+	generate_matrix (A_, m_, bv_private::integrate_cb < my_type > , this);
+	generate_boundary_matrix (bnd_, m_, bv_private::integrate_cb < my_type >, this);
 
-	generate_matrix(Ab_, m_, bv_private::integrate_backward_cb < my_type > , this);
-	generate_boundary_matrix(bndb_, m_, bv_private::integrate_backward_cb < my_type >, this);
+	generate_matrix (Ab_, m_, bv_private::integrate_backward_cb < my_type > , this);
+	generate_boundary_matrix (bndb_, m_, bv_private::integrate_backward_cb < my_type >, this);
 
-	generate_matrix(A2_, m_, bv_private::integrate_cb2 < my_type > , this);
-	generate_boundary_matrix(bnd2_, m_, bv_private::integrate_cb2 < my_type >, this);
-	generate_matrix(C1_, m_, bv_private::integrate_c1 < my_type > , this);
-	generate_matrix(C2_, m_, bv_private::integrate_c2 < my_type > , this);
+	generate_matrix (A2_, m_, bv_private::integrate_cb2 < my_type > , this);
+	generate_boundary_matrix (bnd2_, m_, bv_private::integrate_cb2 < my_type >, this);
+	generate_matrix (C1_, m_, bv_private::integrate_c1 < my_type > , this);
+	generate_matrix (C2_, m_, bv_private::integrate_c2 < my_type > , this);
 }
 
 template < typename L, typename J >
 void BarVortex < L, J > ::info()
 {
-	fprintf(stderr, "#tau:%.16lf\n", tau_);
-	fprintf(stderr, "#sigma:%.16lf\n", sigma_);
-	fprintf(stderr, "#mu:%.16lf\n", mu_);
-	fprintf(stderr, "#k1:%.16lf\n", k1_);
-	fprintf(stderr, "#k2:%.16lf\n", k2_);
-	fprintf(stderr, "#theta:%.16lf\n", theta_);
+	fprintf (stderr, "#tau:%.16lf\n", tau_);
+	fprintf (stderr, "#sigma:%.16lf\n", sigma_);
+	fprintf (stderr, "#mu:%.16lf\n", mu_);
+	fprintf (stderr, "#k1:%.16lf\n", k1_);
+	fprintf (stderr, "#k2:%.16lf\n", k2_);
+	fprintf (stderr, "#theta:%.16lf\n", theta_);
 }
 
 /*
@@ -385,50 +403,52 @@ void BarVortex < L, J > ::info()
  * L = Laplace
  */
 template < typename L, typename J >
-void BarVortex < L, J > ::calc(double * u1,
-							   const double * u, 
-							   const double * bnd_u,
-							   const double * bnd_w,
-							   double t)
+void BarVortex < L, J > ::calc (double * u1,
+                                const double * u,
+                                const double * bnd_u,
+                                const double * bnd_w,
+                                double t)
 {
 	int rs = m_.inner_size; // размерность внутренней области
 	int os = m_.outer_size; // размерность внешней области
 	int sz = m_.size;       // размерность полная
 
-	double nr0 = norm(u);
+	double nr0 = norm (u);
 
-	vector < double > w(sz);       // w = L(u)
-	vector < double > dw(sz);      // dw = L(w) = LL(u)
+	vector < double > w (sz);      // w = L(u)
+	vector < double > dw (sz);     // dw = L(w) = LL(u)
 	vector < double > FC (sz);      // правая часть
-	vector < double > FC1(rs);      // правая часть
+	vector < double > FC1 (rs);     // правая часть
 
 	// next
-	vector < double > u_n(sz);
-	vector < double > w_n(sz);
-	vector < double > u_n1(sz);
+	vector < double > u_n (sz);
+	vector < double > w_n (sz);
+	vector < double > u_n1 (sz);
 
 	// tmp
-	vector < double > tmp1(sz);
-	vector < double > tmp2(sz);
-	vector < double > tmp3(2*rs);
+	vector < double > tmp1 (sz);
+	vector < double > tmp2 (sz);
+	vector < double > tmp3 (2*rs);
 
 	// inner (!!!) jacobian
-	vector < double > jac(rs);
-	vector < double > jac1(rs);
-	vector < double > jac2(rs);
+	vector < double > jac (rs);
+	vector < double > jac1 (rs);
+	vector < double > jac2 (rs);
 
 	//
-	vector < double > F(rs);
-	vector < double > rp(2*rs);
-	vector < double > ans(2*rs);
+	vector < double > F (rs);
+	vector < double > rp (2*rs);
+	vector < double > ans (2*rs);
 
-	vector < double > total_bnd(2*rs);
-	if (bnd_w) {
-		memcpy(&total_bnd[0],  bnd_w, os);
+	vector < double > total_bnd (2*rs);
+	if (bnd_w)
+	{
+		memcpy (&total_bnd[0],  bnd_w, os);
 	}
 
-	if (bnd_u) {
-		memcpy(&total_bnd[os], bnd_u, os);
+	if (bnd_u)
+	{
+		memcpy (&total_bnd[os], bnd_u, os);
 	}
 
 	// генерируем правую часть
@@ -436,79 +456,83 @@ void BarVortex < L, J > ::calc(double * u1,
 	// - k1 J(0.5(u+u), 0.5(w+w)) - k2 J(0.5(u+u), l + h) + f(x, y)
 
 	// w = L (u)
-	l_.calc1(&w[0], &u[0], bnd_w);
+	l_.calc1 (&w[0], &u[0], bnd_w);
 
 	// dw = L (w)
-	l_.calc1(&dw[0], &w[0], 0);
+	l_.calc1 (&dw[0], &w[0], 0);
 
 	// w/dt + mu (1-theta) L w
-	vec_sum1(&FC[0], &w[0], &dw[0], 1.0 / tau_, 
-		mu_ * (1.0 - theta_), sz);
+	vec_sum1 (&FC[0], &w[0], &dw[0], 1.0 / tau_,
+	          mu_ * (1.0 - theta_), sz);
 
 	// w/dt + mu (1-theta) L w - \sigma (1-theta) w
-	vec_sum1(&FC[0], &FC[0], &w[0], 1.0, 
-		-sigma_ * (1.0 - theta_), sz);
+	vec_sum1 (&FC[0], &FC[0], &w[0], 1.0,
+	          -sigma_ * (1.0 - theta_), sz);
 
 #pragma omp parallel for
-	for (int i = 0; i < sz; ++i) {
+	for (int i = 0; i < sz; ++i)
+	{
 		int point = i;
 		double x  = m_.ps[point].x();
 		double y  = m_.ps[point].y();
 
-		if (rp_) {
-			FC[i] += rp_(x, y, t, mu_, sigma_);
+		if (rp_)
+		{
+			FC[i] += rp_ (x, y, t, mu_, sigma_);
 		}
 	}
 
-	u2p(&FC1[0], &FC[0], m_);
+	u2p (&FC1[0], &FC[0], m_);
 	// теперь прибавим часть якобиана
-	j_.calc2(&jac[0], &u[0], &lh_[0]);
-	vec_sum1(&FC1[0], &FC1[0], &jac[0], 1.0, -(1.0 - theta_), rs);
+	j_.calc2 (&jac[0], &u[0], &lh_[0]);
+	vec_sum1 (&FC1[0], &FC1[0], &jac[0], 1.0, - (1.0 - theta_), rs);
 
-	memcpy(&u_n[0], &u[0], sz * sizeof(double));
-	memcpy(&w_n[0], &w[0], sz * sizeof(double));
+	memcpy (&u_n[0], &u[0], sz * sizeof (double) );
+	memcpy (&w_n[0], &w[0], sz * sizeof (double) );
 
 	// в FC содержится правая часть, которая не меняется при итерациях!
 	double theta = theta_;
 
-	for (int it = 0; it < 1000; ++it) {
+	for (int it = 0; it < 1000; ++it)
+	{
 		//   k1 J(0.5(u+u), 0.5(w+w)) + k2 J(0.5(u+u), l + h)   =
 		// = J(0.5 (u+u), 0.5 k1 (w+w)) + J(0.5 (u+u), k2 (l + h)) =
 		// = J(0.5 (u+u), 0.5 k1 (w+w) + k2 (l + h))
 		// 0.5 k1 (w+w) + k2 (l + h) <- для вычисления Якобиана это надо знать и на границе!
 #if 0
-		vec_sum1(&tmp1[0], &w_n[0], &w[0], k1_ * theta,
-				 k1_ * (1.0 - theta), sz);
-		vec_sum2(&tmp1[0], &tmp1[0], &lh_[0], k2_, sz);
+		vec_sum1 (&tmp1[0], &w_n[0], &w[0], k1_ * theta,
+		          k1_ * (1.0 - theta), sz);
+		vec_sum2 (&tmp1[0], &tmp1[0], &lh_[0], k2_, sz);
 		// 0.5(u+u)
-		vec_sum1(&tmp2[0], &u_n[0], &u[0], theta,
-			1.0 - theta, sz);
+		vec_sum1 (&tmp2[0], &u_n[0], &u[0], theta,
+		          1.0 - theta, sz);
 		// - k1 J(0.5(u+u), 0.5(w+w)) - k2 J(0.5(u+u), l + h)
-		j_.calc2(&jac[0], &tmp2[0], &tmp1[0]);
+		j_.calc2 (&jac[0], &tmp2[0], &tmp1[0]);
 #endif
 		// 0.5(w+w)
 //		vec_sum1(&tmp1[0], &w_n[0], &w[0], k1_ * theta,
 //			k1_ * (1.0 - theta), sz);
 		// 0.5(u+u)
-		vec_sum1(&tmp2[0], &u_n[0], &u[0], theta,
-			1.0 - theta, sz);
+		vec_sum1 (&tmp2[0], &u_n[0], &u[0], theta,
+		          1.0 - theta, sz);
 //		j_.calc2(&jac1[0], &tmp2[0], &tmp1[0]);
 
 
 		// J(0.5(u+u), 0.5 w)
-		j_.calc2(&jac1[0], &tmp2[0], &w[0]);
+		j_.calc2 (&jac1[0], &tmp2[0], &w[0]);
 
-		j_.calc2_diff_x(&u_x_[0], &tmp2[0]);
-		j_.calc2_diff_cos_y(&u_cos_y_[0], &tmp2[0]);
+		j_.calc2_diff_x (&u_x_[0], &tmp2[0]);
+		j_.calc2_diff_cos_y (&u_cos_y_[0], &tmp2[0]);
 
 		// w/dt + mu (1-theta) L w  - \sigma (1-theta) w -
 		// - J(0.5(u+u), 0.5(w+w)) - J(0.5(u+u), l + h) + f(x, y)
 #pragma omp parallel for
-		for (int i = 0; i < rs; ++i) {
-		//	int point = m_.inner[i];
-		//	F[i] = FC[point]  - jac[i];
+		for (int i = 0; i < rs; ++i)
+		{
+			//	int point = m_.inner[i];
+			//	F[i] = FC[point]  - jac[i];
 			F[i] = FC1[i]  - k1_ * (1.0 - theta) * jac1[i];
-		//	F[i] = FC1[i]  - jac1[i];
+			//	F[i] = FC1[i]  - jac1[i];
 		}
 
 #if 1
@@ -524,132 +548,134 @@ void BarVortex < L, J > ::calc(double * u1,
 		// ...
 
 		Matrix A2_copy = A2_;
-		A2_copy.add_matrix2(C1_, &u_cos_y_[0]);
-		A2_copy.add_matrix2(C2_, &u_x_[0]);
+		A2_copy.add_matrix2 (C1_, &u_cos_y_[0]);
+		A2_copy.add_matrix2 (C2_, &u_x_[0]);
 
-		memset(&rp[0], 0, 2 * rs * sizeof(double));
+		memset (&rp[0], 0, 2 * rs * sizeof (double) );
 
 #if 0
 		bv_private::right_part_cb_data < my_type > data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
 		data2.F   = &F[0];
-		data2.BU  = bnd_u; 
-		data2.BW  = bnd_w; 
+		data2.BU  = bnd_u;
+		data2.BW  = bnd_w;
 		data2.d   = this;
 
-		generate_right_part(&rp[0], m_, 
-			bv_private::right_part_cb2 < my_type >, &data2);
+		generate_right_part (&rp[0], m_,
+		                     bv_private::right_part_cb2 < my_type >, &data2);
 #endif
 
 #if 1
-		memset(&tmp3[0], 0, 2 * rs * sizeof(double));
-		l_.idt_.mult_vector(&rp[0], &F[0]);
-		bnd2_.mult_vector(&tmp3[0], &total_bnd[0]);
-		vec_sum(&rp[0], &rp[0], &tmp3[0], 2 * rs);
+		memset (&tmp3[0], 0, 2 * rs * sizeof (double) );
+		l_.idt_.mult_vector (&rp[0], &F[0]);
+		bnd2_.mult_vector (&tmp3[0], &total_bnd[0]);
+		vec_sum (&rp[0], &rp[0], &tmp3[0], 2 * rs);
 #endif
 
-		A2_copy.solve(&ans[0], &rp[0]);
-		p2u(&w_n[0],  &ans[0],  bnd_w, m_);
-		p2u(&u_n1[0], &ans[rs], bnd_u, m_);
+		A2_copy.solve (&ans[0], &rp[0]);
+		p2u (&w_n[0],  &ans[0],  bnd_w, m_);
+		p2u (&u_n1[0], &ans[rs], bnd_u, m_);
 #endif
 
 #if 0
 		right_part_cb_data data2;
 		//генератор правой части учитывает то, что функция задана внутри!!!
 		data2.F   = &F[0];
-		data2.bnd = bnd; 
+		data2.bnd = bnd;
 		data2.d   = this;
 
-		generate_right_part(&rp[0], m_, 
-			right_part_cb, &data2);
+		generate_right_part (&rp[0], m_,
+		                     right_part_cb, &data2);
 #endif
 #if 0
-		memset(&rp[0], 0, rs * sizeof(double));
-		l_.idt_.mult_vector(&rp[0], &F[0]);
-		if (bnd_w) {
-			memset(&tmp1[0], 0, rs * sizeof(double));
-			bnd_.mult_vector(&tmp1[0], bnd_w);
-			vec_sum(&rp[0], &rp[0], &tmp1[0], (int)rp.size());
+		memset (&rp[0], 0, rs * sizeof (double) );
+		l_.idt_.mult_vector (&rp[0], &F[0]);
+		if (bnd_w)
+		{
+			memset (&tmp1[0], 0, rs * sizeof (double) );
+			bnd_.mult_vector (&tmp1[0], bnd_w);
+			vec_sum (&rp[0], &rp[0], &tmp1[0], (int) rp.size() );
 		}
 
 		// тут граничное условие на омега!
-		solve(&w_n[0], bnd_w, &rp[0], A_, m_);
+		solve (&w_n[0], bnd_w, &rp[0], A_, m_);
 		// а тут граничное условие на пси!
-		l_.solve(&u_n1[0], &w_n[0], bnd_u);
+		l_.solve (&u_n1[0], &w_n[0], bnd_u);
 #endif
 
 		//l_.solve(&u1[0], &w_n[0], bnd);
 		//phelm::smooth1(&u_n[0], &u1[0], m_);
 
-		double nr = dist(&u_n1[0], &u_n[0]);
+		double nr = dist (&u_n1[0], &u_n[0]);
 
-		u_n1.swap(u_n);
-		if (nr / nr0 < 1e-14 || isnan(nr)) {
+		u_n1.swap (u_n);
+		if (nr / nr0 < 1e-14 || isnan (nr) )
+		{
 			break;
 		}
 	}
-	memcpy(u1, &u_n[0], sz * sizeof(double));
+	memcpy (u1, &u_n[0], sz * sizeof (double) );
 	//phelm::smooth1(&u1[0], &u_n[0], m_);
 }
 
-double l_rp(double x, double y, double t, double sigma, double mu)
+double l_rp (double x, double y, double t, double sigma, double mu)
 {
-	return -9*cos(y+t)*
-		ipow(cos(x),3)*sin(x)+15*x*cos(y+t)*
-		ipow(cos(x),2)-20*x*cos(y+t)*
-		ipow(cos(x),4)-9*sigma*sin(y+t)*
-		ipow(cos(x),3)*sin(x)+15*sigma*sin(y+t)*
-		ipow(cos(x),2)*x-20*sigma*sin(y+t)*
-		ipow(cos(x),4)*x-360*mu*sin(y+t)*sin(x)*
-		ipow(cos(x),3)+390*mu*sin(y+t)*x*
-		ipow(cos(x),2)-400*mu*sin(y+t)*x*
-		ipow(cos(x),4)+147*mu*sin(y+t)*sin(x)*cos(x)-45*mu*sin(y+t)*x;
+	return -9*cos (y + t) *
+	       ipow (cos (x), 3) *sin (x) + 15*x*cos (y + t) *
+	       ipow (cos (x), 2) - 20*x*cos (y + t) *
+	       ipow (cos (x), 4) - 9*sigma*sin (y + t) *
+	       ipow (cos (x), 3) *sin (x) + 15*sigma*sin (y + t) *
+	       ipow (cos (x), 2) *x - 20*sigma*sin (y + t) *
+	       ipow (cos (x), 4) *x - 360*mu*sin (y + t) *sin (x) *
+	       ipow (cos (x), 3) + 390*mu*sin (y + t) *x*
+	       ipow (cos (x), 2) - 400*mu*sin (y + t) *x*
+	       ipow (cos (x), 4) + 147*mu*sin (y + t) *sin (x) *cos (x) - 45*mu*sin (y + t) *x;
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
-								const double * bnd_u,
-								const double * bnd_w,
-								double t)
+void BarVortex < L, J >::calc_L (double * u1, const double * u, const double * z,
+                                 const double * bnd_u,
+                                 const double * bnd_w,
+                                 double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int) m_.inner.size(); // размерность внутренней области
+	int sz = (int) m_.ps.size();   // размерность полная
 
-	vector < double > z_lapl(sz);
+	vector < double > z_lapl (sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1 (sz); //лаплас, умноженный на коэф
+	vector < double > pt2 (sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3 (sz); //якобиан, умноженный на коэф
 
-	l_.calc1(&z_lapl[0], z, bnd_w);
-	l_.calc1(&pt1[0], u, bnd_w); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1 (&z_lapl[0], z, bnd_w);
+	l_.calc1 (&pt1[0], u, bnd_w); //первая часть - лаплас, умноженный на коэф,
 
 	{
-		vector < double > jac1(sz);
-		vector < double > jac2(sz);
-		vector < double > jac3(sz);
+		vector < double > jac1 (sz);
+		vector < double > jac2 (sz);
+		vector < double > jac3 (sz);
 
-		j_.calc1(&jac1[0], u, &lh_[0], 0);
-		j_.calc1(&jac2[0], z, &pt1[0], 0);
-		j_.calc1(&jac3[0], u, &z_lapl[0], 0);
+		j_.calc1 (&jac1[0], u, &lh_[0], 0);
+		j_.calc1 (&jac2[0], z, &pt1[0], 0);
+		j_.calc1 (&jac3[0], u, &z_lapl[0], 0);
 
-		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
+		vec_sum2 (&pt3[0], &pt3[0], &jac1[0], k2_, sz);
+		vec_sum2 (&pt3[0], &pt3[0], &jac2[0], k1_, sz);
+		vec_sum2 (&pt3[0], &pt3[0], &jac3[0], k1_, sz);
 	}
 
-	vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
+	vec_mult_scalar (&pt3[0], &pt3[0], -1.0, sz);
 
-	l_.calc1(&pt2[0], &pt1[0], 0);
-	vec_mult_scalar(&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
+	l_.calc1 (&pt2[0], &pt1[0], 0);
+	vec_mult_scalar (&pt2[0], &pt2[0], (1. - theta_) * mu_, sz);
 
-	vec_mult_scalar(&pt1[0], &pt1[0], 
-		1.0 / tau_ - (1. - theta_) * sigma_, sz);
+	vec_mult_scalar (&pt1[0], &pt1[0],
+	                 1.0 / tau_ - (1. - theta_) * sigma_, sz);
 
-	memset(u1, 0, sz * sizeof(double));
-	vec_sum(u1, u1, &pt1[0], sz);
-	vec_sum(u1, u1, &pt2[0], sz);
-	vec_sum(u1, u1, &pt3[0], sz);
+	memset (u1, 0, sz * sizeof (double) );
+	vec_sum (u1, u1, &pt1[0], sz);
+	vec_sum (u1, u1, &pt2[0], sz);
+	vec_sum (u1, u1, &pt3[0], sz);
 
 	//@{test
 	/*
@@ -662,144 +688,147 @@ void BarVortex < L, J >::calc_L(double * u1, const double * u, const double * z,
 	//@}test
 
 	{
-		vector < double > tmp(rs);
-		vector < double > rp(rs);
-		u2p(&tmp[0], u1, m_);
-		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd_w) {
-			bnd_.mult_vector(&tmp[0], bnd_w);
-			vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
+		vector < double > tmp (rs);
+		vector < double > rp (rs);
+		u2p (&tmp[0], u1, m_);
+		l_.idt_.mult_vector (&rp[0], &tmp[0]);
+		if (bnd_w)
+		{
+			bnd_.mult_vector (&tmp[0], bnd_w);
+			vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
 		}
-		solve(&u1[0], bnd_w, &rp[0], A_, m_);
+		solve (&u1[0], bnd_w, &rp[0], A_, m_);
 	}
-	l_.solve(u1, u1, bnd_u);
+	l_.solve (u1, u1, bnd_u);
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::calc_L_1(double * u1,
-								  const double * u, const double * z,
-								  const double * bnd_u,
-								  const double * bnd_w,
-								  double t)
+void BarVortex < L, J >::calc_L_1 (double * u1,
+                                   const double * u, const double * z,
+                                   const double * bnd_u,
+                                   const double * bnd_w,
+                                   double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int) m_.inner.size(); // размерность внутренней области
+	int sz = (int) m_.ps.size();   // размерность полная
 
-	vector < double > z_lapl(sz);
+	vector < double > z_lapl (sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1 (sz); //лаплас, умноженный на коэф
+	vector < double > pt2 (sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3 (sz); //якобиан, умноженный на коэф
 
-	l_.calc1(&z_lapl[0], z, bnd_w);
-	l_.calc1(&pt1[0], u, bnd_w); //первая часть - лаплас, умноженный на коэф, 
+	l_.calc1 (&z_lapl[0], z, bnd_w);
+	l_.calc1 (&pt1[0], u, bnd_w); //первая часть - лаплас, умноженный на коэф,
 
 	{
-		vector < double > jac1(sz);
-		vector < double > jac2(sz);
-		vector < double > jac3(sz);
+		vector < double > jac1 (sz);
+		vector < double > jac2 (sz);
+		vector < double > jac3 (sz);
 
-		j_.calc1(&jac1[0], u, &lh_[0], 0);
-		j_.calc1(&jac2[0], z, &pt1[0], 0);
-		j_.calc1(&jac3[0], u, &z_lapl[0], 0);
+		j_.calc1 (&jac1[0], u, &lh_[0], 0);
+		j_.calc1 (&jac2[0], z, &pt1[0], 0);
+		j_.calc1 (&jac3[0], u, &z_lapl[0], 0);
 
-		vec_sum2(&pt3[0], &pt3[0], &jac1[0], k2_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac2[0], k1_, sz);
-		vec_sum2(&pt3[0], &pt3[0], &jac3[0], k1_, sz);
+		vec_sum2 (&pt3[0], &pt3[0], &jac1[0], k2_, sz);
+		vec_sum2 (&pt3[0], &pt3[0], &jac2[0], k1_, sz);
+		vec_sum2 (&pt3[0], &pt3[0], &jac3[0], k1_, sz);
 	}
 
 	//vec_mult_scalar(&pt3[0], &pt3[0], -1.0, sz);
 
-	l_.calc1(&pt2[0], &pt1[0], 0);
-	vec_mult_scalar(&pt2[0], &pt2[0], - theta_ * mu_, sz);
+	l_.calc1 (&pt2[0], &pt1[0], 0);
+	vec_mult_scalar (&pt2[0], &pt2[0], - theta_ * mu_, sz);
 
-	vec_mult_scalar(&pt1[0], &pt1[0], 
-		1.0 / tau_ + theta_ * sigma_, sz);
+	vec_mult_scalar (&pt1[0], &pt1[0],
+	                 1.0 / tau_ + theta_ * sigma_, sz);
 
-	vec_sum(u1, u1, &pt1[0], sz);
-	vec_sum(u1, u1, &pt2[0], sz);
-	vec_sum(u1, u1, &pt3[0], sz);
+	vec_sum (u1, u1, &pt1[0], sz);
+	vec_sum (u1, u1, &pt2[0], sz);
+	vec_sum (u1, u1, &pt3[0], sz);
 
 	{
-		vector < double > tmp(rs);
-		vector < double > rp(rs);
-		u2p(&tmp[0], u1, m_);
-		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd_w) {
-			bndb_.mult_vector(&tmp[0], bnd_w);
-			vec_sum(&rp[0], &rp[0], &tmp[0], rs);
+		vector < double > tmp (rs);
+		vector < double > rp (rs);
+		u2p (&tmp[0], u1, m_);
+		l_.idt_.mult_vector (&rp[0], &tmp[0]);
+		if (bnd_w)
+		{
+			bndb_.mult_vector (&tmp[0], bnd_w);
+			vec_sum (&rp[0], &rp[0], &tmp[0], rs);
 		}
-		solve(&u1[0], bnd_w, &rp[0], Ab_, m_);
+		solve (&u1[0], bnd_w, &rp[0], Ab_, m_);
 	}
-	l_.solve(u1, u1, bnd_u);
+	l_.solve (u1, u1, bnd_u);
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::calc_LT(double * v1, const double * v, const double * z,
-								 const double * bnd_u,
-								 const double * bnd_w, double t)
+void BarVortex < L, J >::calc_LT (double * v1, const double * v, const double * z,
+                                  const double * bnd_u,
+                                  const double * bnd_w, double t)
 {
-	int rs = (int)m_.inner.size(); // размерность внутренней области
-	int sz = (int)m_.ps.size();    // размерность полная
+	int rs = (int) m_.inner.size(); // размерность внутренней области
+	int sz = (int) m_.ps.size();   // размерность полная
 
-	vector < double > lz(sz);
+	vector < double > lz (sz);
 
-	vector < double > pt1(sz); //лаплас, умноженный на коэф
-	vector < double > pt2(sz); //лаплас в квадрате, умноженный на коэф
-	vector < double > pt3(sz); //якобиан, умноженный на коэф
+	vector < double > pt1 (sz); //лаплас, умноженный на коэф
+	vector < double > pt2 (sz); //лаплас в квадрате, умноженный на коэф
+	vector < double > pt3 (sz); //якобиан, умноженный на коэф
 
-	l_.calc1(&lz[0], z, bnd_w);
-	l_.solve(&v1[0], v, bnd_u);
+	l_.calc1 (&lz[0], z, bnd_w);
+	l_.solve (&v1[0], v, bnd_u);
 
 	{
-		vector < double > tmp(rs);
-		vector < double > rp(rs);
-		u2p(&tmp[0], v1, m_);
-		l_.idt_.mult_vector(&rp[0], &tmp[0]);
-		if (bnd_w) {
-			bnd_.mult_vector(&tmp[0], bnd_w);
-			vec_sum(&rp[0], &rp[0], &tmp[0], rs);
+		vector < double > tmp (rs);
+		vector < double > rp (rs);
+		u2p (&tmp[0], v1, m_);
+		l_.idt_.mult_vector (&rp[0], &tmp[0]);
+		if (bnd_w)
+		{
+			bnd_.mult_vector (&tmp[0], bnd_w);
+			vec_sum (&rp[0], &rp[0], &tmp[0], rs);
 		}
-		solve(&v1[0], bnd_w, &rp[0], A_, m_);
+		solve (&v1[0], bnd_w, &rp[0], A_, m_);
 	}
 
-	l_.calc1(&pt1[0], v1, bnd_w); //<- wtf ?
-	vec_mult_scalar(&pt1[0], &pt1[0], 
-		1.0 / tau_ - (1.0 - theta_) * sigma_, sz);
+	l_.calc1 (&pt1[0], v1, bnd_w); //<- wtf ?
+	vec_mult_scalar (&pt1[0], &pt1[0],
+	                 1.0 / tau_ - (1.0 - theta_) * sigma_, sz);
 
-	l_.calc1(&pt2[0], v1, bnd_w); //<- wtf ?
-	l_.calc1(&pt2[0], &pt2[0], 0);
+	l_.calc1 (&pt2[0], v1, bnd_w); //<- wtf ?
+	l_.calc1 (&pt2[0], &pt2[0], 0);
 
-	vec_mult_scalar(&pt2[0], &pt2[0], 
-		(1.0 - theta_) * mu_, sz);
+	vec_mult_scalar (&pt2[0], &pt2[0],
+	                 (1.0 - theta_) * mu_, sz);
 
 	{
 		// JT
 		double * h1 = &pt3[0];
-		vector < double > p_lapl(sz);
-		vector < double > tmp(sz);
+		vector < double > p_lapl (sz);
+		vector < double > tmp (sz);
 
-		j_.calc1t(&tmp[0], v1, &lh_[0], 0);
-		j_.calc1t(&p_lapl[0], z, v1, 0);
-		l_.calc1(&p_lapl[0], &p_lapl[0], 0);
-		j_.calc1t(h1, v1, &lz[0], 0);
+		j_.calc1t (&tmp[0], v1, &lh_[0], 0);
+		j_.calc1t (&p_lapl[0], z, v1, 0);
+		l_.calc1 (&p_lapl[0], &p_lapl[0], 0);
+		j_.calc1t (h1, v1, &lz[0], 0);
 
-		vec_sum1(h1, h1, &p_lapl[0], k1_, k1_, sz);
-		vec_sum2(h1, h1, &tmp[0], k2_, sz);
-		vec_mult_scalar(&h1[0], &h1[0], -1.0, sz);
+		vec_sum1 (h1, h1, &p_lapl[0], k1_, k1_, sz);
+		vec_sum2 (h1, h1, &tmp[0], k2_, sz);
+		vec_mult_scalar (&h1[0], &h1[0], -1.0, sz);
 	}
 
-	memset(v1, 0, sz * sizeof(double));
-	vec_sum(v1, v1, &pt1[0], sz);
-	vec_sum(v1, v1, &pt2[0], sz);
-	vec_sum(v1, v1, &pt3[0], sz);
-	set_bnd(v1, bnd_u, m_);
+	memset (v1, 0, sz * sizeof (double) );
+	vec_sum (v1, v1, &pt1[0], sz);
+	vec_sum (v1, v1, &pt2[0], sz);
+	vec_sum (v1, v1, &pt3[0], sz);
+	set_bnd (v1, bnd_u, m_);
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::S_step(double * Ans, const double * F)
+void BarVortex < L, J >::S_step (double * Ans, const double * F)
 {
-	calc(Ans, F, 0, 0, 0);
+	calc (Ans, F, 0, 0, 0);
 }
 
 /*
@@ -807,25 +836,25 @@ void BarVortex < L, J >::S_step(double * Ans, const double * F)
  * L = Laplace
  */
 template < typename L, typename J >
-void BarVortex < L, J >::L_step(double * Ans, const double * F, const double * z)
+void BarVortex < L, J >::L_step (double * Ans, const double * F, const double * z)
 {
-	vector < double > tmp(m_.ps.size());
-	calc_L(&tmp[0], F, z, 0, 0, 0);
-	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
+	vector < double > tmp (m_.ps.size() );
+	calc_L (&tmp[0], F, z, 0, 0, 0);
+	memcpy (Ans, &tmp[0], tmp.size() * sizeof (double) );
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::L_1_step(double * Ans, const double * F, const double * z)
+void BarVortex < L, J >::L_1_step (double * Ans, const double * F, const double * z)
 {
-	vector < double > tmp(m_.ps.size());
-	calc_L_1(&tmp[0], F, z, 0, 0, 0);
-	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
+	vector < double > tmp (m_.ps.size() );
+	calc_L_1 (&tmp[0], F, z, 0, 0, 0);
+	memcpy (Ans, &tmp[0], tmp.size() * sizeof (double) );
 }
 
 template < typename L, typename J >
-void BarVortex < L, J >::LT_step(double * Ans, const double * F, const double * z)
+void BarVortex < L, J >::LT_step (double * Ans, const double * F, const double * z)
 {
-	vector < double > tmp(m_.ps.size());
-	calc_LT(&tmp[0], F, z, 0, 0, 0);
-	memcpy(Ans, &tmp[0], tmp.size() * sizeof(double));
+	vector < double > tmp (m_.ps.size() );
+	calc_LT (&tmp[0], F, z, 0, 0, 0);
+	memcpy (Ans, &tmp[0], tmp.size() * sizeof (double) );
 }

@@ -40,7 +40,7 @@
 
 
 /**
- * @file 
+ * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  */
@@ -53,7 +53,8 @@
  *
  * This namespace contains all Phelm functions and classes.
  */
-namespace phelm {
+namespace phelm
+{
 
 /**
  * @defgroup main Mesh and mesh functions.
@@ -63,23 +64,24 @@ namespace phelm {
 /**
  * The Point class represents a 2-dimensional point on a plane.
  */
-struct Point {
+struct Point
+{
 	double x; ///< x coordinate
 	double y; ///< y coordinate
 
 	/** Default constructor. */
-	Point(): x(0), y(0) {}
+	Point() : x (0), y (0) {}
 	/**
 	 * The initialization of x1 and y1.
 	 * @param x1 - x coordinate
 	 * @param y1 - y coordinate
 	 */
-	Point(double x1, double y1): x(x1), y(y1) {}
+	Point (double x1, double y1) : x (x1), y (y1) {}
 	/**
 	 * The initialization of x[2] array.
 	 * @param x1 - array x1[2]
 	 */
-	Point(double *x1): x(x1[0]), y(x1[1]) {}
+	Point (double *x1) : x (x1[0]), y (x1[1]) {}
 
 	/**
 	 * Divide each coordinate by k.
@@ -88,7 +90,7 @@ struct Point {
 	 */
 	Point operator / (double k)
 	{
-		return Point(x / k, y / k);
+		return Point (x / k, y / k);
 	}
 
 	/**
@@ -98,7 +100,7 @@ struct Point {
 	 */
 	Point operator * (double k)
 	{
-		return Point(x * k, y * k);
+		return Point (x * k, y * k);
 	}
 };
 
@@ -111,14 +113,15 @@ struct Point {
  */
 inline Point operator + (const Point & p1, const Point & p2)
 {
-	return Point(p1.x + p2.x, p1.y + p2.y);
+	return Point (p1.x + p2.x, p1.y + p2.y);
 }
 
 /**
  * A point of a manifold can be included into multiple subdomains.
  * That class supports this.
  */
-struct MeshPoint {
+struct MeshPoint
+{
 	/**
 	 * p[i] local coordinates of point in subdomain i.
 	 * @todo what should we do if the point is included only in one subdomain
@@ -130,30 +133,33 @@ struct MeshPoint {
 	 * Default constructor.
 	 */
 	MeshPoint() {}
-	
+
 	/**
 	 * Initialization of x and y.
 	 * @param x - x coordinate
 	 * @param y - y coordinate
 	 */
-	MeshPoint(double x, double y) {
-		add(Point(x, y));
+	MeshPoint (double x, double y)
+	{
+		add (Point (x, y) );
 	}
 
 	/**
 	 * Initialization of array x[2].
 	 * @param x - array x[2]
 	 */
-	MeshPoint(double *x) {
-		add(Point(x));
+	MeshPoint (double *x)
+	{
+		add (Point (x) );
 	}
 
 	/**
 	 * Add local coordinates for next subdomain.
 	 * @param p1 - point in local coordinates of next subdomain.
 	 */
-	void add(const Point & p1) {
-		p.push_back(p1);
+	void add (const Point & p1)
+	{
+		p.push_back (p1);
 	}
 
 	/**
@@ -161,7 +167,8 @@ struct MeshPoint {
 	 * @param zone - sequence number of subdomain
 	 * @return x coordiante
 	 */
-	double x(int zone = 0) const {
+	double x (int zone = 0) const
+	{
 		return p[zone].x;
 	}
 
@@ -170,7 +177,8 @@ struct MeshPoint {
 	 * @param zone - a sequence number of subdomain
 	 * @return y coordiante
 	 */
-	double y(int zone = 0) const {
+	double y (int zone = 0) const
+	{
 		return p[zone].y;
 	}
 };
@@ -178,7 +186,8 @@ struct MeshPoint {
 /**
  * Triangle class.
  */
-struct Triangle {
+struct Triangle
+{
 	int p[3];  ///< point number
 	int z;     ///< zone number
 	std::vector < Polynom > phik; ///< basis functions
@@ -192,7 +201,7 @@ struct Triangle {
 	 * @param p3 - point 3
 	 * @param zone - subdomain number, the triangle belongs to that subdomain
 	 */
-	Triangle(int p1, int p2, int p3, int zone = 0)
+	Triangle (int p1, int p2, int p3, int zone = 0)
 	{
 		p[0] = p1;
 		p[1] = p2;
@@ -206,9 +215,9 @@ struct Triangle {
 	 * @param ps - mesh points
 	 * @return x coordinate
 	 */
-	double X(int i, const std::vector < MeshPoint > & ps) const 
+	double X (int i, const std::vector < MeshPoint > & ps) const
 	{
-		return ps[p[i]].x(z);
+		return ps[p[i]].x (z);
 	}
 
 	/**
@@ -217,38 +226,41 @@ struct Triangle {
 	 * @param ps - mesh points
 	 * @return y coordinate
 	 */
-	double Y(int i, const std::vector < MeshPoint > & ps) const 
+	double Y (int i, const std::vector < MeshPoint > & ps) const
 	{
-		return ps[p[i]].y(z);
+		return ps[p[i]].y (z);
 	}
 
 	/**
 	 * Initialize arrays x and y of mesh points array.
 	 * @param ps - mesh points
 	 */
-	void prepare(const std::vector < MeshPoint > & ps)
+	void prepare (const std::vector < MeshPoint > & ps)
 	{
 		std::vector < Polynom > & r = phik;
-		r.reserve(3);
+		r.reserve (3);
 
 		// p0
-		r.push_back((P2X - X(1, ps)) * (Y(2, ps) - Y(1, ps)) 
-			- (P2Y - Y(1, ps)) * (X(2, ps) - X(1, ps)));
+		r.push_back ( (P2X - X (1, ps) ) * (Y (2, ps) - Y (1, ps) )
+		              - (P2Y - Y (1, ps) ) * (X (2, ps) - X (1, ps) ) );
 		// p1
-		r.push_back((P2X - X(0, ps)) * (Y(2, ps) - Y(0, ps)) 
-			- (P2Y - Y(0, ps)) * (X(2, ps) - X(0, ps)));
+		r.push_back ( (P2X - X (0, ps) ) * (Y (2, ps) - Y (0, ps) )
+		              - (P2Y - Y (0, ps) ) * (X (2, ps) - X (0, ps) ) );
 		// p2
-		r.push_back((P2X - X(0, ps)) * (Y(1, ps) - Y(0, ps)) 
-			- (P2Y - Y(0, ps)) * (X(1, ps) - X(0, ps)));
+		r.push_back ( (P2X - X (0, ps) ) * (Y (1, ps) - Y (0, ps) )
+		              - (P2Y - Y (0, ps) ) * (X (1, ps) - X (0, ps) ) );
 
 		for (uint i = 0; i < 3; ++i)
 		{
-			r[i] /= r[i].apply(X(i, ps), Y(i, ps));
+			r[i] /= r[i].apply (X (i, ps), Y (i, ps) );
 		}
 
-		x[0] = X(0, ps); y[0] = Y(0, ps);
-		x[1] = X(1, ps); y[1] = Y(1, ps);
-		x[2] = X(2, ps); y[2] = Y(2, ps);
+		x[0] = X (0, ps);
+		y[0] = Y (0, ps);
+		x[1] = X (1, ps);
+		y[1] = Y (1, ps);
+		x[2] = X (2, ps);
+		y[2] = Y (2, ps);
 	}
 
 	/**
@@ -260,13 +272,18 @@ struct Triangle {
 		return phik;
 	}
 
-	int point_number(int p1) const
+	int point_number (int p1) const
 	{
-		if (p1 == p[0]) {
+		if (p1 == p[0])
+		{
 			return 0;
-		} else if (p1 == p[1]) {
+		}
+		else if (p1 == p[1])
+		{
 			return 1;
-		} else if (p1 == p[2]) {
+		}
+		else if (p1 == p[2])
+		{
 			return 2;
 		}
 		return -1;
@@ -277,23 +294,29 @@ struct Triangle {
 	 * @param p1 - point number
 	 * @return finite element
 	 */
-	const Polynom & elem1(int p1) const
+	const Polynom & elem1 (int p1) const
 	{
-		if (p1 == p[0]) {
+		if (p1 == p[0])
+		{
 			return phik[0];
-		} else if (p1 == p[1]) {
+		}
+		else if (p1 == p[1])
+		{
 			return phik[1];
-		} else if (p1 == p[2]) {
+		}
+		else if (p1 == p[2])
+		{
 			return phik[2];
 		}
-		return *((Polynom*)0);
+		return * ( (Polynom*) 0);
 	}
 };
 
 /**
  * Mesh class.
  */
-struct Mesh {
+struct Mesh
+{
 	typedef std::vector < Triangle > triangles_t;///<triangles container
 	typedef std::vector < MeshPoint > points_t;  ///<points container
 	typedef std::vector < int > points_flags_t;  ///<points properties container
@@ -329,7 +352,8 @@ struct Mesh {
 	int outer_size;
 	int size;
 
-	struct Device {
+	struct Device
+	{
 		ArrayDevice < int > inner;
 		ArrayDevice < int > outer;
 		ArrayDevice < int > p2io;
@@ -343,7 +367,7 @@ struct Mesh {
 	 * @param f - file
 	 * @return true if success
 	 */
-	bool load(FILE * f);
+	bool load (FILE * f);
 
 	/**
 	 * Prepare all of mesh triangles.
@@ -367,7 +391,7 @@ struct Mesh {
 /**
  * callback that converts local coordinates to global coordinates.
  */
-typedef double (* x_t)(double u, double v);
+typedef double (* x_t) (double u, double v);
 
 /**
  * Print a mesh function to file.
@@ -379,10 +403,10 @@ typedef double (* x_t)(double u, double v);
  * @param y (optional) local coordinates to global 'y' converter
  * @param z (optional) local coordinates to global 'z' converter
  */
-void print_function(FILE * to, double * ans, const Mesh & m, 
-					x_t x = 0, x_t y = 0, x_t z = 0);
-void print_function(FILE * to, float * ans, const Mesh & m,
-		x_t x = 0, x_t y = 0, x_t z = 0);
+void print_function (FILE * to, double * ans, const Mesh & m,
+                     x_t x = 0, x_t y = 0, x_t z = 0);
+void print_function (FILE * to, float * ans, const Mesh & m,
+                     x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
  * Print a mesh function to file.
@@ -394,8 +418,8 @@ void print_function(FILE * to, float * ans, const Mesh & m,
  * @param y (optional) local coordinates to global 'y' converter
  * @param z (optional) local coordinates to global 'z' converter
  */
-void print_function(const char * fname, double * ans, const Mesh & m, 
-					x_t x = 0, x_t y = 0, x_t z = 0);
+void print_function (const char * fname, double * ans, const Mesh & m,
+                     x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
  * Print the inner part of a mesh function to file.
@@ -407,10 +431,10 @@ void print_function(const char * fname, double * ans, const Mesh & m,
  * @param y (optional) local coordinates to global 'y' converter
  * @param z (optional) local coordinates to global 'z' converter
  */
-void print_inner_function(FILE * to, double * ans, const Mesh & m, 
-					x_t x = 0, x_t y = 0, x_t z = 0);
-void print_inner_function(FILE * to, float * ans, const Mesh & m, 
-					x_t x = 0, x_t y = 0, x_t z = 0);
+void print_inner_function (FILE * to, double * ans, const Mesh & m,
+                           x_t x = 0, x_t y = 0, x_t z = 0);
+void print_inner_function (FILE * to, float * ans, const Mesh & m,
+                           x_t x = 0, x_t y = 0, x_t z = 0);
 
 /**
  * Print the inner part of a mesh function to file.
@@ -422,8 +446,8 @@ void print_inner_function(FILE * to, float * ans, const Mesh & m,
  * @param y (optional) local coordinates to global 'y' converter
  * @param z (optional) local coordinates to global 'z' converter
  */
-void print_inner_function(const char * to, double * ans, const Mesh & m,
-		x_t x = 0, x_t y = 0, x_t z = 0);
+void print_inner_function (const char * to, double * ans, const Mesh & m,
+                           x_t x = 0, x_t y = 0, x_t z = 0);
 
 /** @} */ /* print */
 
@@ -445,9 +469,9 @@ void print_inner_function(const char * to, double * ans, const Mesh & m,
  * @param j2 - inner point number
  * @param user_data - user data
  */
-double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
-						 const Triangle & trk, const Mesh & m, int i1, int j1,
-						 int i2, int j2, void * user_data);
+double generic_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
+                          const Triangle & trk, const Mesh & m, int i1, int j1,
+                          int i2, int j2, void * user_data);
 
 /**
  * Calculate inner product of two basis functions on sphere.
@@ -461,9 +485,9 @@ double generic_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
  * @param j2 - inner point number
  * @param user_data - user data
  */
-double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
-						const Triangle & trk, const Mesh & m,
-						int i1, int j1, int i2, int j2, void * user_data);
+double sphere_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
+                         const Triangle & trk, const Mesh & m,
+                         int i1, int j1, int i2, int j2, void * user_data);
 
 /**
  * Fast mesh inner product calculator.
@@ -475,13 +499,13 @@ double sphere_scalar_cb(const Polynom & phi_i, const Polynom & phi_j,
  * @return (u, v)
  */
 template < typename T, typename Matrix >
-T fast_scalar(const T * u, const T * v,
-              const Mesh & m, Matrix & A)
+T fast_scalar (const T * u, const T * v,
+               const Mesh & m, Matrix & A)
 {
-	int sz = (int)m.ps.size();
-	Array < T, Allocator < T > > tmp(sz);
-	A.mult_vector(&tmp[0], v);
-	return vec_scalar2(u, &tmp[0], sz);
+	int sz = (int) m.ps.size();
+	Array < T, Allocator < T > > tmp (sz);
+	A.mult_vector (&tmp[0], v);
+	return vec_scalar2 (u, &tmp[0], sz);
 }
 
 /**
@@ -493,9 +517,9 @@ T fast_scalar(const T * u, const T * v,
  * @return ||u||
  */
 template < typename T, typename Matrix >
-T fast_norm(const T * u, const Mesh & m, Matrix & A)
+T fast_norm (const T * u, const Mesh & m, Matrix & A)
 {
-	return sqrt(fast_scalar(u, u, m, A));
+	return sqrt (fast_scalar (u, u, m, A) );
 }
 
 /**
@@ -508,13 +532,13 @@ T fast_norm(const T * u, const Mesh & m, Matrix & A)
  * @return distance between u and v
  */
 template < typename T, typename Matrix >
-T fast_dist(const T * u, const T * v,
-            const Mesh & m, Matrix & A)
+T fast_dist (const T * u, const T * v,
+             const Mesh & m, Matrix & A)
 {
-	int sz  = (int)m.ps.size(); // размерность
-	Array < T , Allocator < T > > diff(sz);
-	vec_diff(&diff[0], u, v, sz);
-	return fast_norm(&diff[0], m, A);
+	int sz  = (int) m.ps.size(); // размерность
+	Array < T , Allocator < T > > diff (sz);
+	vec_diff (&diff[0], u, v, sz);
+	return fast_norm (&diff[0], m, A);
 }
 
 /** @} */ /* scalar */
@@ -527,11 +551,11 @@ T fast_dist(const T * u, const T * v,
 
 /**
  * Function.
- * @param x - x coordinate 
+ * @param x - x coordinate
  * @param y - y coordinate
  * @return value
  */
-typedef double (* f_xy_t)(double x, double y);
+typedef double (* f_xy_t) (double x, double y);
 
 /**
  * Function.
@@ -540,7 +564,7 @@ typedef double (* f_xy_t)(double x, double y);
  * @param t - time
  * @return value
  */
-typedef double (* f_xyt_t)(double x, double y, double t);
+typedef double (* f_xyt_t) (double x, double y, double t);
 
 /**
  * Add boundary conditions to p.
@@ -550,8 +574,8 @@ typedef double (* f_xyt_t)(double x, double y, double t);
  * @param bnd - the value of u on the boundary mesh points
  * @param m - mesh
  */
-void p2u(double * u, const double * p, const double * bnd, const Mesh & m);
-void p2u(float * u, const float * p, const float * bnd, const Mesh & m);
+void p2u (double * u, const double * p, const double * bnd, const Mesh & m);
+void p2u (float * u, const float * p, const float * bnd, const Mesh & m);
 
 /**
  * Remove boundary conditions from u.
@@ -560,8 +584,8 @@ void p2u(float * u, const float * p, const float * bnd, const Mesh & m);
  * @param u - mesh function
  * @param m - mesh
  */
-void u2p(double * p, const double * u, const Mesh & m);
-void u2p(float * p, const float * u, const Mesh & m);
+void u2p (double * p, const double * u, const Mesh & m);
+void u2p (float * p, const float * u, const Mesh & m);
 
 /**
  * Project function f(x,y) to the mesh.
@@ -570,8 +594,8 @@ void u2p(float * p, const float * u, const Mesh & m);
  * @param mesh - the mesh
  * @param f - function f(x, y)
  */
-void proj(double * F, const Mesh & mesh, f_xy_t f);
-void proj(float * F, const Mesh & mesh, f_xy_t f);
+void proj (double * F, const Mesh & mesh, f_xy_t f);
+void proj (float * F, const Mesh & mesh, f_xy_t f);
 
 /**
  * Project function f(x,y) to the boundary of the mesh.
@@ -580,8 +604,8 @@ void proj(float * F, const Mesh & mesh, f_xy_t f);
  * @param m - the mesh
  * @param f - function f(x, y)
  */
-void proj_bnd(double * F, const Mesh & m, f_xy_t f);
-void proj_bnd(float * F, const Mesh & m, f_xy_t f);
+void proj_bnd (double * F, const Mesh & m, f_xy_t f);
+void proj_bnd (float * F, const Mesh & m, f_xy_t f);
 
 /**
  * Project function f(x,y,t) to the mesh.
@@ -591,8 +615,8 @@ void proj_bnd(float * F, const Mesh & m, f_xy_t f);
  * @param f - function f(x, y)
  * @param t - time
  */
-void proj(double * F, const Mesh & mesh, f_xyt_t f, double t);
-void proj(float * F, const Mesh & mesh, f_xyt_t f, double t);
+void proj (double * F, const Mesh & mesh, f_xyt_t f, double t);
+void proj (float * F, const Mesh & mesh, f_xyt_t f, double t);
 
 /**
  * Project function f(x,y,t) to the boundary of the mesh.
@@ -602,33 +626,33 @@ void proj(float * F, const Mesh & mesh, f_xyt_t f, double t);
  * @param f - function f(x, y)
  * @param t - time
  */
-void proj_bnd(double * F, const Mesh & m, f_xyt_t f, double t);
-void proj_bnd(float * F, const Mesh & m, f_xyt_t f, double t);
+void proj_bnd (double * F, const Mesh & m, f_xyt_t f, double t);
+void proj_bnd (float * F, const Mesh & m, f_xyt_t f, double t);
 
 /**
  * Project vector F1 to the boundary of the mesh.
  * Note for phelm_cu: this functions works with device memory.
  * @param F  - (output) the value of F1 on boundary points
  * @param m  - the mesh
- * @param F1 - mesh vector 
+ * @param F1 - mesh vector
  */
-void proj_bnd(double * F, const double * F1, const Mesh & m);
-void proj_bnd(float * F, const float * F1, const Mesh & m);
+void proj_bnd (double * F, const double * F1, const Mesh & m);
+void proj_bnd (float * F, const float * F1, const Mesh & m);
 
 /**
  * Set the boundary value of vector F.
  * Note for phelm_cu: this functions works with device memory.
  * @param F - (input/output) mesh vector
  * @param bnd - boundary value
- * @param m - mesh  
+ * @param m - mesh
  */
-void set_bnd(double * F, const double * bnd, const Mesh & m);
-void set_bnd(double * F, const float * bnd, const Mesh & m);
+void set_bnd (double * F, const double * bnd, const Mesh & m);
+void set_bnd (double * F, const float * bnd, const Mesh & m);
 
 /** @} */ /* proj */
 
-void smooth1(double * out, const double * in, const Mesh & m);
-void smooth2(double * out, const double * in, const Mesh & m);
+void smooth1 (double * out, const double * in, const Mesh & m);
+void smooth2 (double * out, const double * in, const Mesh & m);
 
 
 }

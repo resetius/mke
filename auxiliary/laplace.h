@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -65,15 +65,16 @@ using phelm::Polynom;
  * @param trk - integral is taken over that triangle
  * @param ps - mesh points
  */
-double laplace(const Polynom & phi_i, const Polynom & phi_j,
-		const Triangle & trk, const Mesh::points_t & ps);
+double laplace (const Polynom & phi_i, const Polynom & phi_j,
+                const Triangle & trk, const Mesh::points_t & ps);
 
 
 /**
  * Compute the laplacian on a flat domain
  */
 template < typename T >
-class Laplace {
+class Laplace
+{
 public:
 	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > Array;
@@ -81,10 +82,6 @@ public:
 	Matrix idt_;      // inner
 	Matrix laplace_;  // inner
 
-//	Matrix fidt_;     // full
-//	Matrix flaplace_; // full
-
-	Matrix bnd1_; // L^-1
 	Matrix bnd2_; // L^-1
 	Matrix bnd3_; // L
 	const Mesh & m_;
@@ -96,7 +93,7 @@ public:
 	 * Constructor.
 	 * @param m - mesh
 	 */
-	Laplace(const Mesh & m);
+	Laplace (const Mesh & m);
 
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
@@ -105,7 +102,7 @@ public:
 	 * @param F - vector F
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1(T * Ans, const T * F, const T * bnd);
+	void calc1 (T * Ans, const T * F, const T * bnd);
 
 	/**
 	 * Calculate the value of Laplace operator for F in the inner points of the mesh.
@@ -113,19 +110,19 @@ public:
 	 * @param Ans - the answer (the value of Laplace operator in the inner points)
 	 * @param F - vector F
 	 */
-	void calc2(T * Ans, const T * F);
+	void calc2 (T * Ans, const T * F);
 
 	/**
-	 * Solve Laplace equation.
- \f{eqnarray*}
- \Delta u &=& f(x, y) \\
-  \psi|_{\partial\Omega}&=&u_0
-  \f} 
+	 * Solve the Laplace equation.
+	\f{eqnarray*}
+	\Delta u &=& f(x, y) \\
+	\psi|_{\partial\Omega}&=&u_0
+	\f}
 	 * @param Ans - the answer
 	 * @param F - right part
 	 * @param bnd - boundary condition
 	 */
-	void solve(T * Ans, const T * F, const T * bnd);
+	void solve (T * Ans, const T * F, const T * bnd);
 };
 
 #include "impl/laplace_impl.h"

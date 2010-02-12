@@ -1,0 +1,4 @@
+--indent=tab
+--brackets=break
+--pad=oper
+--pad=paren-out

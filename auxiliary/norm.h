@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -54,7 +54,8 @@ using phelm::Mesh;
  * A fast spherical norm calculator.
  */
 template < typename T >
-class SphereNorm {
+class SphereNorm
+{
 public:
 	typedef phelm::Solver < T > Matrix;
 	const Mesh & m_; ///< mesh
@@ -64,9 +65,9 @@ public:
 	 * Constructor.
 	 * @param m - mesh
 	 */
-	SphereNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
+	SphereNorm (const Mesh & m) : m_ (m), NORM_ ( (int) m_.ps.size() )
 	{
-		phelm::generate_full_matrix(NORM_, m_, phelm::sphere_scalar_cb, (void*)0);
+		phelm::generate_full_matrix (NORM_, m_, phelm::sphere_scalar_cb, (void*) 0);
 	}
 
 	/**
@@ -75,9 +76,9 @@ public:
 	 * @param v - input vector
 	 * @return distance between u and v
 	 */
-	T dist(const T * u, const T * v)
+	T dist (const T * u, const T * v)
 	{
-		return phelm::fast_dist(u, v, m_, NORM_);
+		return phelm::fast_dist (u, v, m_, NORM_);
 	}
 
 	/**
@@ -85,9 +86,9 @@ public:
 	 * @param u - input vector
 	 * @return norm of v
 	 */
-	T norm(const T * u)
+	T norm (const T * u)
 	{
-		return phelm::fast_norm(u, m_, NORM_);
+		return phelm::fast_norm (u, m_, NORM_);
 	}
 
 	/**
@@ -96,9 +97,9 @@ public:
 	 * @param v - input vector
 	 * @return inner product of u and v
 	 */
-	T scalar(const T * u, const T * v)
+	T scalar (const T * u, const T * v)
 	{
-		return phelm::fast_scalar(u, v, m_, NORM_);
+		return phelm::fast_scalar (u, v, m_, NORM_);
 	}
 };
 
@@ -106,7 +107,8 @@ public:
  * A fast flat surface norm calculator.
  */
 template < typename T >
-class FlatNorm {
+class FlatNorm
+{
 public:
 	typedef phelm::Solver < T > Matrix;
 
@@ -117,10 +119,10 @@ public:
 	 * Constructor.
 	 * @param m - mesh
 	 */
-	FlatNorm(const Mesh & m): m_(m), NORM_((int)m_.ps.size()) 
+	FlatNorm (const Mesh & m) : m_ (m), NORM_ ( (int) m_.ps.size() )
 	{
-		phelm::generate_full_matrix(NORM_, m_, 
-			phelm::sphere_scalar_cb, (void*)0);
+		phelm::generate_full_matrix (NORM_, m_,
+		                             phelm::sphere_scalar_cb, (void*) 0);
 	}
 
 	/**
@@ -129,9 +131,9 @@ public:
 	 * @param v - input vector
 	 * @return distance between u and v
 	 */
-	T dist(const T * u, const T * v)
+	T dist (const T * u, const T * v)
 	{
-		return phelm::fast_dist(u, v, m_, NORM_);
+		return phelm::fast_dist (u, v, m_, NORM_);
 	}
 
 	/**
@@ -139,9 +141,9 @@ public:
 	 * @param u - input vector
 	 * @return norm of v
 	 */
-	T norm(const T * u)
+	T norm (const T * u)
 	{
-		return phelm::fast_norm(u, m_, NORM_);
+		return phelm::fast_norm (u, m_, NORM_);
 	}
 
 	/**
@@ -150,9 +152,9 @@ public:
 	 * @param v - input vector
 	 * @return inner product of u and v
 	 */
-	T scalar(const T * u, const T * v)
+	T scalar (const T * u, const T * v)
 	{
-		return phelm::fast_scalar(u, v, m_, NORM_);
+		return phelm::fast_scalar (u, v, m_, NORM_);
 	}
 };
 

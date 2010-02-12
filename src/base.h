@@ -51,7 +51,8 @@
 
 typedef unsigned int uint;
 
-namespace phelm {
+namespace phelm
+{
 
 void phelm_init();
 void phelm_shutdown();
@@ -70,7 +71,7 @@ struct Allocator: public std::allocator < T >
 };
 #else
 template < typename T >
-struct Allocator: public cuda_allocator < T > 
+struct Allocator: public cuda_allocator < T >
 {
 	Allocator() throw() {};
 	Allocator (const Allocator&) throw() {};

@@ -71,11 +71,12 @@
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
  \f}
- * where \f$J(\cdot,\cdot)\f$ is spherical jacobian and \f$\Delta\f$ is spherical 
+ * where \f$J(\cdot,\cdot)\f$ is spherical jacobian and \f$\Delta\f$ is spherical
  * Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
-class Baroclin: public SphereNorm < double > {
+class Baroclin: public SphereNorm < double >
+{
 	typedef phelm::Solver < double > Matrix;
 
 public:
@@ -91,8 +92,8 @@ public:
 	 * @param alpha - \f$\alpha\f$
 	 */
 	typedef double (*rp_t ) (double phi, double lambda, double t,
-	                double sigma, double mu, double sigma1,
-					double mu1, double alpha);
+	                         double sigma, double mu, double sigma1,
+	                         double mu1, double alpha);
 	/**
 	 * Coriolis.
 	 * l+h: coriolis function plus orographic function.
@@ -122,7 +123,7 @@ public:
 	 * Time discretization scheme parameter \f$\theta\f$.
 	 * The default value is 0.5 (Crank–Nicolson).
 	 */
-	double theta_; 
+	double theta_;
 
 private:
 	rp_t f_;
@@ -143,25 +144,25 @@ public:
 	 * @param mu1 - \f$\mu_1\f$
 	 * @param alpha - \f$\alpha\f$
 	 */
-	Baroclin(const Mesh & m, rp_t f, rp_t g, 
-		coriolis_t coriolis, double tau, 
-		double sigma, double mu, 
-		double sigma1, double mu1, double alpha);
+	Baroclin (const Mesh & m, rp_t f, rp_t g,
+	          coriolis_t coriolis, double tau,
+	          double sigma, double mu,
+	          double sigma1, double mu1, double alpha);
 
 	/**
 	 * Solve the two-dimensional baroclinic atmosphere equations.
- \f{eqnarray*}
-  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
-  + J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
-  - \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
-  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
-  + J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
-  - \mu \Delta^2 u_2
-    &-&\\
+	\f{eqnarray*}
+	\frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta u_1 + l + h)
+	+ J(u_2, \Delta u_2) + \frac{\sigma}{2} \Delta (u_1 - u_2)
+	- \mu \Delta^2 u_1 &=& f(\phi, \lambda)\\
+	\frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta u_2)
+	+ J(u_2, \Delta u_1 + l + h) + \frac{\sigma}{2} \Delta (u_1 + u_2)
+	- \mu \Delta^2 u_2
+	&-&\\
 	- \alpha^2 (\frac{\partial u_2}{\partial t} + J(u_1, u_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2 + g(\phi, \lambda)) &=& 0,
- \f}
+	\f}
 	 * @param u1  - output vector
 	 * @param u2  - output vector
 	 * @param u11 - input vector (previous time step)
@@ -169,28 +170,28 @@ public:
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
-	void calc(double * u11,  double * u21, 
-		const double * u1, const double * u2, 
-		const double * bnd, double t);
+	void calc (double * u11,  double * u21,
+	           const double * u1, const double * u2,
+	           const double * bnd, double t);
 
 	/**
 	 * Solve the linearized two-dimensional baroclinic atmosphere equations in a neibourhood of point (z1, z2)
- \f{eqnarray*}
-  \frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta z_1 + l + h) + J(z_1, \Delta u_1)
-  + J(z_2, \Delta u_2) + J(u_2, \Delta z_2) +
-  \frac{\sigma}{2} \Delta (u_1 - u_2)
-  - \mu \Delta^2 u_1 &=& 0\\
-  \frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta z_2) + J(z_1, \Delta u_2)
-  + J(u_2, \Delta z_1 + l + h) + J(z_2, \Delta u_1)
-  + \frac{\sigma}{2} \Delta (u_1 + u_2)
-  - \mu \Delta^2 u_2
-    &-&\\
-	- \alpha^2 (\frac{\partial u_2}{\partial t} 
-    + J(z_1, u_2) + J(u_1, z_2)
+	\f{eqnarray*}
+	\frac{\partial \Delta u_1}{\partial t} + J(u_1, \Delta z_1 + l + h) + J(z_1, \Delta u_1)
+	+ J(z_2, \Delta u_2) + J(u_2, \Delta z_2) +
+	\frac{\sigma}{2} \Delta (u_1 - u_2)
+	- \mu \Delta^2 u_1 &=& 0\\
+	\frac{\partial \Delta u_2}{\partial t} + J(u_1, \Delta z_2) + J(z_1, \Delta u_2)
+	+ J(u_2, \Delta z_1 + l + h) + J(z_2, \Delta u_1)
+	+ \frac{\sigma}{2} \Delta (u_1 + u_2)
+	- \mu \Delta^2 u_2
+	&-&\\
+	- \alpha^2 (\frac{\partial u_2}{\partial t}
+	+ J(z_1, u_2) + J(u_1, z_2)
 	- \mu_1 \Delta u_2
 	+ \sigma_1 u_2) &=& 0,
- \f}
- 
+	\f}
+
 	 * @param u1  - output vector
 	 * @param u2  - output vector
 	 * @param u11 - input vector (previous time step)
@@ -200,10 +201,10 @@ public:
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
-	void calc_L(double * u11, double * u21, 
-		const double * u1, const double * u2,
-		const double * z1, const double * z2,
-		const double * bnd, double t);
+	void calc_L (double * u11, double * u21,
+	             const double * u1, const double * u2,
+	             const double * z1, const double * z2,
+	             const double * bnd, double t);
 
 
 	/**
@@ -217,10 +218,10 @@ public:
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
-	void calc_L_1(double * u11, double * u21, 
-		const double * u1, const double * u2,
-		const double * z1, const double * z2,
-		const double * bnd, double t);
+	void calc_L_1 (double * u11, double * u21,
+	               const double * u1, const double * u2,
+	               const double * z1, const double * z2,
+	               const double * bnd, double t);
 
 	/**
 	 * Adjoint operator to calc_L.
@@ -235,13 +236,13 @@ public:
 	 * @param bnd - boundary condition
 	 * @param t   - time
 	 */
-	void calc_LT(double * u11, double * u21, 
-		const double * u1, const double * u2,
-		const double * z1, const double * z2,
-		const double * bnd, double t);
+	void calc_LT (double * u11, double * u21,
+	              const double * u1, const double * u2,
+	              const double * z1, const double * z2,
+	              const double * bnd, double t);
 
 	/**
-	 * Helper-function. 
+	 * Helper-function.
 	 * Call calc_L(u11, u21, u1, u2, z1, z2, 0, 0).
 	 * @param u1  - output value
 	 * @param u2  - output value
@@ -250,9 +251,9 @@ public:
 	 * @param z1  - vector z1
 	 * @param z2  - vector z2
 	 */
-	void L_step(double * u11, double * u21, 
-		const double * u1, const double * u2,
-		const double * z1, const double * z2);
+	void L_step (double * u11, double * u21,
+	             const double * u1, const double * u2,
+	             const double * z1, const double * z2);
 
 	/**
 	 * Helper-function.
@@ -264,9 +265,9 @@ public:
 	 * @param z1  - vector z1
 	 * @param z2  - vector z2
 	 */
-	void L_1_step(double * u11, double * u21, 
-		const double * u1, const double * u2,
-		const double * z1, const double * z2);
+	void L_1_step (double * u11, double * u21,
+	               const double * u1, const double * u2,
+	               const double * z1, const double * z2);
 
 	/**
 	 * Helper-function.
@@ -278,9 +279,9 @@ public:
 	 * @param z1  - vector z1
 	 * @param z2  - vector z2
 	 */
-	void LT_step(double * u11, double * u21, 
-		const double * u1, const double * u2,
-		const double * z1, const double * z2);
+	void LT_step (double * u11, double * u21,
+	              const double * u1, const double * u2,
+	              const double * z1, const double * z2);
 
 	void info();
 };

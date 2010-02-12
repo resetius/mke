@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -55,8 +55,8 @@ struct SphereChafeConfig
 	double mu_;    ///<\f$\mu\f$
 	double sigma_; ///<\f$\sigma\f$
 
-	SphereChafeConfig(double tau, double sigma, double mu): 
-		tau_(tau), mu_(mu), sigma_(sigma)
+	SphereChafeConfig (double tau, double sigma, double mu) :
+			tau_ (tau), mu_ (mu), sigma_ (sigma)
 	{
 	}
 };
@@ -67,7 +67,8 @@ struct SphereChafeConfig
  * \f$\Delta\f$ is Laplace operator on a sphere. @see SphereLaplace
  */
 template < typename T >
-class SphereChafe: public SphereChafeConfig {
+class SphereChafe: public SphereChafeConfig
+{
 private:
 	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > ArrayDevice;
@@ -85,19 +86,19 @@ public:
 	 * @param sigma - \f$\sigma\f$
 	 * @param mu - \f$\mu\f$
 	 */
-	SphereChafe(const Mesh & m, double tau, double sigma, double mu);
+	SphereChafe (const Mesh & m, double tau, double sigma, double mu);
 	~SphereChafe() {}
 
-/**
- * Solve Chafe-Infante equation on sphere.
- * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
- * @param Ans - output vector
- * @param X0 - intput vector (previous time step)
- * @param bnd - boundary condition
- * @param t - time
- */
-	void solve(T * Ans, const T * X0,
-						const T * bnd, double t);
+	/**
+	 * Solve Chafe-Infante equation on sphere.
+	 * \f$\frac{du}{dt} = \mu \Delta u - \sigma u + f (u)\f$
+	 * @param Ans - output vector
+	 * @param X0 - intput vector (previous time step)
+	 * @param bnd - boundary condition
+	 * @param t - time
+	 */
+	void solve (T * Ans, const T * X0,
+	            const T * bnd, double t);
 };
 
 #include "impl/schafe_impl.h"

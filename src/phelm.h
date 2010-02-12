@@ -4,7 +4,7 @@
 /*$Id$*/
 
 /**
- * @file 
+ * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
  *
@@ -14,7 +14,7 @@
  * @verbatim
   Copyright (c) 2009 Alexey Ozeritsky
   All rights reserved.
- 
+
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
@@ -33,7 +33,7 @@
      modules it contains.  It does not include source code for modules or
      files that typically accompany the major components of the operating
      system on which the executable file runs.
- 
+
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
   OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -45,15 +45,15 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   @endverbatim
- * If you want to use Phelm in closed-source software 
+ * If you want to use Phelm in closed-source software
  * contact me by sending email to aozeritsky@gmail.com.
  *
  * @mainpage Phelm Documentation
  * @section into_sec Introduction
  * This library is to solve partial differential equations.
  * It implements the Finite Element Method.
- * The library is able to solve partial differential equations 
- * on two-dimensional smooth manifolds. 
+ * The library is able to solve partial differential equations
+ * on two-dimensional smooth manifolds.
  *
  * To find the solution you need the following:
  * - triangulate the manifold;
@@ -61,13 +61,13 @@
  * - specify a local coordinate system in each subdomain;
  * - specify a function of surface integral in the local coordinates.
  *
- * The library already contains triangulation builders for spherical surfaces 
+ * The library already contains triangulation builders for spherical surfaces
  * and flat rectangular domains.
  *
- * The sample of the result of mesh builder functioning is given below: 
+ * The sample of the result of mesh builder functioning is given below:
  * @image html zones.png
  * In that case the sphere splits into 4 parts.
- * 
+ *
  * @section ex Usage examples
  * These examples demonstrate some tips on Phelm features.
     -# @ref test_laplace.cpp "Laplace equation on the flat domain"
@@ -98,7 +98,7 @@
     -# @ref test_chafe.cpp "Chafe-Infante equation on the sphere"
     -# @ref test_barvortex.cpp "The Barotropic vorticity equation on the sphere"
   \f{eqnarray*}
-  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
+  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi)
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi &=& f(\varphi, \lambda) \\
 	\psi|_{t=0}=\psi_0
   \f}
@@ -120,11 +120,11 @@
  *
  * @page Build
  * @section build_sec Build
- * Phelm uses GMRES method to solve linear equations. If you 
- * are not satisfied with the above solution, 
- * install UMFPACK or place UMFPACK sources in 
+ * Phelm uses GMRES method to solve linear equations. If you
+ * are not satisfied with the above solution,
+ * install UMFPACK or place UMFPACK sources in
  * /path-to-phelm/contrib/umfpack
- * 
+ *
  * @subsection Unix-like
  * @verbatim
   mkdir build-directory
@@ -142,11 +142,11 @@
  * @page Thanks
  * Special thanks to
  *  - Andrey Kornev for consultations, <br/>
- *  - Andrey Ivanchikov for initial idea and consultations. 
+ *  - Andrey Ivanchikov for initial idea and consultations.
  */
 
 /**
- * 
+ *
   @example test_laplace.cpp
   Laplace equation on a flat domain
   \f{eqnarray*}
@@ -181,7 +181,7 @@
   @example test_barvortex.cpp
   the Barotropic vorticity equation
   \f[
-  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi) 
+  \frac{\partial \Delta \varphi}{\partial t} + J(\psi, \Delta \psi)
     + J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
   \f]
   @example test_baroclin.cpp

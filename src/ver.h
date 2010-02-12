@@ -42,10 +42,11 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-const char * add_version_string(const char * const str);
+	const char * add_version_string (const char * const str);
 
 #ifdef __cplusplus
 }

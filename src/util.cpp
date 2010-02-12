@@ -54,7 +54,7 @@ VERSION ("$Id$");
 extern "C"
 {
 
-	double vec_find_min(const double * v, int n)
+	double vec_find_min (const double * v, int n)
 	{
 		double mn = v[0];
 		for (int i = 0; i < n; ++i)
@@ -64,7 +64,7 @@ extern "C"
 		return mn;
 	}
 
-	double vec_find_max(const double * v, int n)
+	double vec_find_max (const double * v, int n)
 	{
 		double mx = v[0];
 		for (int i = 0; i < n; ++i)
@@ -74,14 +74,15 @@ extern "C"
 		return mx;
 	}
 
-	void write_header(int argc, char ** argv, const char * mes)
+	void write_header (int argc, char ** argv, const char * mes)
 	{
-		fprintf(stderr, "#%s\n", mes);
-		fprintf(stderr, "#cmd:");
-		for (int i = 0; i < argc; ++i) {
-			fprintf(stderr, "%s ", argv[i]);
+		fprintf (stderr, "#%s\n", mes);
+		fprintf (stderr, "#cmd:");
+		for (int i = 0; i < argc; ++i)
+		{
+			fprintf (stderr, "%s ", argv[i]);
 		}
-		fprintf(stderr, "\n");
+		fprintf (stderr, "\n");
 	}
 
 #include "cnk_6.h"
@@ -240,7 +241,7 @@ extern "C"
 		return gauss_kronrod15 (x1, x3, (fx_t) f_1_cos, &data);
 	}
 
-	void burn(double secs)
+	void burn (double secs)
 	{
 		double t1 = get_full_time();
 #pragma omp parallel sections

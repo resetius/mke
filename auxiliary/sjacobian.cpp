@@ -42,427 +42,427 @@
 #include "util.h"
 #include "ver.h"
 
-VERSION("$Id$");
+VERSION ("$Id$");
 
 using namespace std;
 using namespace phelm;
 
-static double integrate_cos_func(double x, double y, Polynom * poly)
+static double integrate_cos_func (double x, double y, Polynom * poly)
 {
-	return cos(x) * poly->apply(x, y);
+	return cos (x) * poly->apply (x, y);
 }
 
-static double integrate_func(double x, double y, Polynom * poly)
+static double integrate_func (double x, double y, Polynom * poly)
 {
-	return poly->apply(x, y);
+	return poly->apply (x, y);
 }
 
-static double id_cb(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int point_i,
-		int point_j,
-		int i,
-		int j,
-		void *)
+static double id_cb (const Polynom & phi_i,
+                     const Polynom & phi_j,
+                     const Triangle & trk,
+                     const Mesh & m,
+                     int point_i,
+                     int point_j,
+                     int i,
+                     int j,
+                     void *)
 {
 	Polynom poly = phi_i * phi_j;
 	//return integrate_cos(poly, trk, m.ps);
-	return integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
+	return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
 }
 
-static double diff_1_rp(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int i, int j,
-		int, int,
-		const double * u)
+static double diff_1_rp (const Polynom & phi_i,
+                         const Polynom & phi_j,
+                         const Triangle & trk,
+                         const Mesh & m,
+                         int i, int j,
+                         int, int,
+                         const double * u)
 {
-	Polynom poly = diff(phi_j, 0) * phi_i;
+	Polynom poly = diff (phi_j, 0) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
-	double r = v * integrate_generic(trk, (fxy_t)integrate_func, &poly);
+	double r = v * integrate_generic (trk, (fxy_t) integrate_func, &poly);
 	return r;
 }
 
-static double diff_1_cos_rp(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int i, int j,
-		int, int,
-		const double * u)
+static double diff_1_cos_rp (const Polynom & phi_i,
+                             const Polynom & phi_j,
+                             const Triangle & trk,
+                             const Mesh & m,
+                             int i, int j,
+                             int, int,
+                             const double * u)
 {
-	Polynom poly = diff(phi_j, 0) * phi_i;
+	Polynom poly = diff (phi_j, 0) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
-	double r = v * integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
+	double r = v * integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
 	return r;
 }
 
-static double diff_2_rp(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int i, int j,
-		int, int,
-		const double * u)
+static double diff_2_rp (const Polynom & phi_i,
+                         const Polynom & phi_j,
+                         const Triangle & trk,
+                         const Mesh & m,
+                         int i, int j,
+                         int, int,
+                         const double * u)
 {
-	Polynom poly = diff(phi_j, 1) * phi_i;
+	Polynom poly = diff (phi_j, 1) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
-	double r = v * integrate_generic(trk, (fxy_t)integrate_func, &poly);
+	double r = v * integrate_generic (trk, (fxy_t) integrate_func, &poly);
 	return r;
 }
 
-static double diff_2_cos_rp(const Polynom & phi_i,
-		const Polynom & phi_j,
-		const Triangle & trk,
-		const Mesh & m,
-		int i, int j,
-		int, int,
-		const double * u)
+static double diff_2_cos_rp (const Polynom & phi_i,
+                             const Polynom & phi_j,
+                             const Triangle & trk,
+                             const Mesh & m,
+                             int i, int j,
+                             int, int,
+                             const double * u)
 {
-	Polynom poly = diff(phi_j, 1) * phi_i;
+	Polynom poly = diff (phi_j, 1) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
-	double r = v * integrate_generic(trk, (fxy_t)integrate_cos_func, &poly);
+	double r = v * integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
 	return r;
 }
 
-void SphereJacobian::calc2_1(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2_1 (double * Ans, const double * u, const double * v)
 {
-	int rs = (int)m_.inner.size();
-	int sz = (int)m_.ps.size();
-	int os = (int)m_.outer.size();
+	int rs = (int) m_.inner.size();
+	int sz = (int) m_.ps.size();
+	int os = (int) m_.outer.size();
 
 #if 1
-	vector < double > v_in(rs);
-	vector < double > u_in(rs);
-	vector < double > v_in_bnd(os);
-	vector < double > u_in_bnd(os);
+	vector < double > v_in (rs);
+	vector < double > u_in (rs);
+	vector < double > v_in_bnd (os);
+	vector < double > u_in_bnd (os);
 
-	vector < double > rp(rs);
+	vector < double > rp (rs);
 
-	vector < double > pt1(rs);
-	vector < double > pt2(rs);
-	vector < double > tmp(rs);
+	vector < double > pt1 (rs);
+	vector < double > pt2 (rs);
+	vector < double > tmp (rs);
 
-	u2p(&v_in[0], v, m_);
-	u2p(&u_in[0], u, m_);
-	proj_bnd(&v_in_bnd[0], v, m_);
-	proj_bnd(&u_in_bnd[0], u, m_);
+	u2p (&v_in[0], v, m_);
+	u2p (&u_in[0], u, m_);
+	proj_bnd (&v_in_bnd[0], v, m_);
+	proj_bnd (&u_in_bnd[0], u, m_);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
-	diff2_cos_.mult_vector(&tmp[0], &u_in[0]);
-	diff2_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt1[0], &rp[0]);
+	diff2_cos_.mult_vector (&tmp[0], &u_in[0]);
+	diff2_cos_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt1[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
-	diff1_.mult_vector(&tmp[0], &v_in[0]);
-	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+	diff1_.mult_vector (&tmp[0], &v_in[0]);
+	diff1_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt1[0], &pt1[0], &tmp[0], (int) pt1.size() );
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
-	diff1_cos_.mult_vector(&tmp[0], &u_in[0]);
-	diff1_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt2[0], &rp[0]);
+	diff1_cos_.mult_vector (&tmp[0], &u_in[0]);
+	diff1_cos_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
-	diff2_.mult_vector(&tmp[0], &v_in[0]);
-	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+	diff2_.mult_vector (&tmp[0], &v_in[0]);
+	diff2_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt2[0], &pt2[0], &tmp[0], (int) pt1.size() );
 
-	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+	vec_diff (Ans, &pt1[0], &pt2[0], (int) pt1.size() );
 #endif
 }
 
-void SphereJacobian::calc2_2(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2_2 (double * Ans, const double * u, const double * v)
 {
-	int rs = (int)m_.inner.size();
-	int sz = (int)m_.ps.size();
-	int os = (int)m_.outer.size();
+	int rs = (int) m_.inner.size();
+	int sz = (int) m_.ps.size();
+	int os = (int) m_.outer.size();
 
 #if 1
-	vector < double > v_in(rs);
-	vector < double > u_in(rs);
-	vector < double > v_in_bnd(os);
-	vector < double > u_in_bnd(os);
+	vector < double > v_in (rs);
+	vector < double > u_in (rs);
+	vector < double > v_in_bnd (os);
+	vector < double > u_in_bnd (os);
 
-	vector < double > rp(rs);
+	vector < double > rp (rs);
 
-	vector < double > pt1(rs);
-	vector < double > pt2(rs);
-	vector < double > tmp(rs);
+	vector < double > pt1 (rs);
+	vector < double > pt2 (rs);
+	vector < double > tmp (rs);
 
-	u2p(&v_in[0], v, m_);
-	u2p(&u_in[0], u, m_);
-	proj_bnd(&v_in_bnd[0], v, m_);
-	proj_bnd(&u_in_bnd[0], u, m_);
+	u2p (&v_in[0], v, m_);
+	u2p (&u_in[0], u, m_);
+	proj_bnd (&v_in_bnd[0], v, m_);
+	proj_bnd (&u_in_bnd[0], u, m_);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
-	diff2_.mult_vector(&tmp[0], &u_in[0]);
-	diff2_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt1[0], &rp[0]);
+	diff2_.mult_vector (&tmp[0], &u_in[0]);
+	diff2_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt1[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
-	diff1_cos_.mult_vector(&tmp[0], &v_in[0]);
-	diff1_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+	diff1_cos_.mult_vector (&tmp[0], &v_in[0]);
+	diff1_cos_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt1[0], &pt1[0], &tmp[0], (int) pt1.size() );
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
-	diff1_.mult_vector(&tmp[0], &u_in[0]);
-	diff1_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt2[0], &rp[0]);
+	diff1_.mult_vector (&tmp[0], &u_in[0]);
+	diff1_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
-	diff2_cos_.mult_vector(&tmp[0], &v_in[0]);
-	diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+	diff2_cos_.mult_vector (&tmp[0], &v_in[0]);
+	diff2_cos_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt2[0], &pt2[0], &tmp[0], (int) pt1.size() );
 
-	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+	vec_diff (Ans, &pt1[0], &pt2[0], (int) pt1.size() );
 #endif
 }
 
-void SphereJacobian::calc2_3(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2_3 (double * Ans, const double * u, const double * v)
 {
-	int rs = (int)m_.inner.size();
-	int sz = (int)m_.ps.size();
-	int os = (int)m_.outer.size();
+	int rs = (int) m_.inner.size();
+	int sz = (int) m_.ps.size();
+	int os = (int) m_.outer.size();
 
 #if 1
-	vector < double > v_in(rs);
-	vector < double > u_in(rs);
-	vector < double > v_in_bnd(os);
-	vector < double > u_in_bnd(os);
+	vector < double > v_in (rs);
+	vector < double > u_in (rs);
+	vector < double > v_in_bnd (os);
+	vector < double > u_in_bnd (os);
 
-	vector < double > rp(rs);
+	vector < double > rp (rs);
 
-	vector < double > pt1(rs);
-	vector < double > pt2(rs);
-	vector < double > tmp(rs);
+	vector < double > pt1 (rs);
+	vector < double > pt2 (rs);
+	vector < double > tmp (rs);
 
-	u2p(&v_in[0], v, m_);
-	u2p(&u_in[0], u, m_);
-	proj_bnd(&v_in_bnd[0], v, m_);
-	proj_bnd(&u_in_bnd[0], u, m_);
+	u2p (&v_in[0], v, m_);
+	u2p (&u_in[0], u, m_);
+	proj_bnd (&v_in_bnd[0], v, m_);
+	proj_bnd (&u_in_bnd[0], u, m_);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
-	diff2_cos_.mult_vector(&tmp[0], &u_in[0]);
-	diff2_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt1[0], &rp[0]);
+	diff2_cos_.mult_vector (&tmp[0], &u_in[0]);
+	diff2_cos_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt1[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
-	diff1_.mult_vector(&tmp[0], &v_in[0]);
-	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+	diff1_.mult_vector (&tmp[0], &v_in[0]);
+	diff1_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt1[0], &pt1[0], &tmp[0], (int) pt1.size() );
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
-	diff1_.mult_vector(&tmp[0], &u_in[0]);
-	diff1_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt2[0], &rp[0]);
+	diff1_.mult_vector (&tmp[0], &u_in[0]);
+	diff1_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
-	diff2_cos_.mult_vector(&tmp[0], &v_in[0]);
-	diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+	diff2_cos_.mult_vector (&tmp[0], &v_in[0]);
+	diff2_cos_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt2[0], &pt2[0], &tmp[0], (int) pt1.size() );
 
-	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+	vec_diff (Ans, &pt1[0], &pt2[0], (int) pt1.size() );
 #endif
 }
 
-void SphereJacobian::calc2_4(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2_4 (double * Ans, const double * u, const double * v)
 {
-	int rs = (int)m_.inner.size();
-	int sz = (int)m_.ps.size();
-	int os = (int)m_.outer.size();
+	int rs = (int) m_.inner.size();
+	int sz = (int) m_.ps.size();
+	int os = (int) m_.outer.size();
 
 #if 1
-	vector < double > v_in(rs);
-	vector < double > u_in(rs);
-	vector < double > v_in_bnd(os);
-	vector < double > u_in_bnd(os);
+	vector < double > v_in (rs);
+	vector < double > u_in (rs);
+	vector < double > v_in_bnd (os);
+	vector < double > u_in_bnd (os);
 
-	vector < double > rp(rs);
+	vector < double > rp (rs);
 
-	vector < double > pt1(rs);
-	vector < double > pt2(rs);
-	vector < double > tmp(rs);
+	vector < double > pt1 (rs);
+	vector < double > pt2 (rs);
+	vector < double > tmp (rs);
 
-	u2p(&v_in[0], v, m_);
-	u2p(&u_in[0], u, m_);
-	proj_bnd(&v_in_bnd[0], v, m_);
-	proj_bnd(&u_in_bnd[0], u, m_);
+	u2p (&v_in[0], v, m_);
+	u2p (&u_in[0], u, m_);
+	proj_bnd (&v_in_bnd[0], v, m_);
+	proj_bnd (&u_in_bnd[0], u, m_);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_cos_rp, (void*)u);
-	diff2_.mult_vector(&tmp[0], &u_in[0]);
-	diff2_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt1[0], &rp[0]);
+	diff2_.mult_vector (&tmp[0], &u_in[0]);
+	diff2_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt1[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_rp, (void*)v);
-	diff1_cos_.mult_vector(&tmp[0], &v_in[0]);
-	diff1_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt1[0], &pt1[0], &tmp[0], (int)pt1.size());
+	diff1_cos_.mult_vector (&tmp[0], &v_in[0]);
+	diff1_cos_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt1[0], &pt1[0], &tmp[0], (int) pt1.size() );
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_1_cos_rp, (void*)u);
-	diff1_cos_.mult_vector(&tmp[0], &u_in[0]);
-	diff1_cos_rp_.mult_vector(&rp[0], &u_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&pt2[0], &rp[0]);
+	diff1_cos_.mult_vector (&tmp[0], &u_in[0]);
+	diff1_cos_rp_.mult_vector (&rp[0], &u_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&pt2[0], &rp[0]);
 
 	//generate_right_part(&rp[0], m_, (right_part_cb_t)diff_2_rp, (void*)v);
-	diff2_.mult_vector(&tmp[0], &v_in[0]);
-	diff2_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
-	idt_.solve(&tmp[0], &rp[0]);
-	vec_mult(&pt2[0], &pt2[0], &tmp[0], (int)pt1.size());
+	diff2_.mult_vector (&tmp[0], &v_in[0]);
+	diff2_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&tmp[0], &rp[0]);
+	vec_mult (&pt2[0], &pt2[0], &tmp[0], (int) pt1.size() );
 
-	vec_diff(Ans, &pt1[0], &pt2[0], (int)pt1.size());
+	vec_diff (Ans, &pt1[0], &pt2[0], (int) pt1.size() );
 #endif
 }
 
-void SphereJacobian::calc2(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2 (double * Ans, const double * u, const double * v)
 {
 //	calc2_3(Ans, u, v);
 
-	int rs = (int)m_.inner.size();
-	vector < double > tmp(rs);
-	calc2_1(Ans,     u, v);
-	calc2_2(&tmp[0], u, v);
-	vec_sum(Ans, Ans, &tmp[0], rs);
-	calc2_3(&tmp[0], u, v);
-	vec_sum(Ans, Ans, &tmp[0], rs);
-	calc2_4(&tmp[0], u, v);
-	vec_sum(Ans, Ans, &tmp[0], rs);
-	vec_mult_scalar(Ans, Ans, 0.25, rs);
+	int rs = (int) m_.inner.size();
+	vector < double > tmp (rs);
+	calc2_1 (Ans,     u, v);
+	calc2_2 (&tmp[0], u, v);
+	vec_sum (Ans, Ans, &tmp[0], rs);
+	calc2_3 (&tmp[0], u, v);
+	vec_sum (Ans, Ans, &tmp[0], rs);
+	calc2_4 (&tmp[0], u, v);
+	vec_sum (Ans, Ans, &tmp[0], rs);
+	vec_mult_scalar (Ans, Ans, 0.25, rs);
 }
 
-void SphereJacobian::calc2_diff_x(double * Ans, const double * v)
+void SphereJacobian::calc2_diff_x (double * Ans, const double * v)
 {
 	int sz = m_.size;
 	int os = m_.outer_size;
 	int rs = m_.inner_size;
 
-	std::vector < double > v_in(rs);
-	std::vector < double > v_in_bnd(os);
-	std::vector < double > rp(rs);
-	std::vector < double > tmp(rs);
+	std::vector < double > v_in (rs);
+	std::vector < double > v_in_bnd (os);
+	std::vector < double > rp (rs);
+	std::vector < double > tmp (rs);
 
-	u2p(&v_in[0], &v[0], m_);
-	proj_bnd(&v_in_bnd[0], &v[0], m_);
+	u2p (&v_in[0], &v[0], m_);
+	proj_bnd (&v_in_bnd[0], &v[0], m_);
 
-	diff1_.mult_vector(&tmp[0], &v_in[0]);
-	diff1_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0], (int)rp.size());
-	idt_.solve(&Ans[0], &rp[0]);
+	diff1_.mult_vector (&tmp[0], &v_in[0]);
+	diff1_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&Ans[0], &rp[0]);
 }
 
-void SphereJacobian::calc2_diff_cos_y(double * Ans, const double * v)
+void SphereJacobian::calc2_diff_cos_y (double * Ans, const double * v)
 {
 	int sz = m_.size;
 	int os = m_.outer_size;
 	int rs = m_.inner_size;
 
-	std::vector < double > v_in(rs);
-	std::vector < double > v_in_bnd(os);
-	std::vector < double > rp(rs);
-	std::vector < double > tmp(rs);
+	std::vector < double > v_in (rs);
+	std::vector < double > v_in_bnd (os);
+	std::vector < double > rp (rs);
+	std::vector < double > tmp (rs);
 
-	u2p(&v_in[0], &v[0], m_);
-	proj_bnd(&v_in_bnd[0], &v[0], m_);
+	u2p (&v_in[0], &v[0], m_);
+	proj_bnd (&v_in_bnd[0], &v[0], m_);
 
-	diff2_cos_.mult_vector(&tmp[0], &v_in[0]);
-	diff2_cos_rp_.mult_vector(&rp[0], &v_in_bnd[0]);
-	vec_sum(&rp[0], &rp[0], &tmp[0],(int) rp.size());
-	idt_.solve(&Ans[0], &rp[0]);
+	diff2_cos_.mult_vector (&tmp[0], &v_in[0]);
+	diff2_cos_rp_.mult_vector (&rp[0], &v_in_bnd[0]);
+	vec_sum (&rp[0], &rp[0], &tmp[0], (int) rp.size() );
+	idt_.solve (&Ans[0], &rp[0]);
 }
 
-void SphereJacobian::calc2t(double * Ans, const double * u, const double * v)
+void SphereJacobian::calc2t (double * Ans, const double * u, const double * v)
 {
-	calc2(Ans, u, v);
-	vec_mult_scalar(Ans, Ans, -1.0, (int)m_.inner.size());
+	calc2 (Ans, u, v);
+	vec_mult_scalar (Ans, Ans, -1.0, (int) m_.inner.size() );
 }
 
 /*
  * J(u,v)=1/cos(phi) (du/d\la dv/d\phi - du/d\phi dv/d\la)
  */
-SphereJacobian::SphereJacobian(const Mesh & m): m_(m), 
-	idt_((int)m.inner.size()),
-	diff1_((int)m.inner.size()),
-	diff2_((int)m.inner.size()),
-	diff1_cos_((int)m.inner.size()),
-	diff2_cos_((int)m.inner.size()),
-	diff1_rp_((int)m.inner.size()),
-	diff2_rp_((int)m.inner.size()),
-	diff1_cos_rp_((int)m.inner.size()),
-	diff2_cos_rp_((int)m.inner.size()),
+SphereJacobian::SphereJacobian (const Mesh & m) : m_ (m),
+		idt_ ( (int) m.inner.size() ),
+		diff1_ ( (int) m.inner.size() ),
+		diff2_ ( (int) m.inner.size() ),
+		diff1_cos_ ( (int) m.inner.size() ),
+		diff2_cos_ ( (int) m.inner.size() ),
+		diff1_rp_ ( (int) m.inner.size() ),
+		diff2_rp_ ( (int) m.inner.size() ),
+		diff1_cos_rp_ ( (int) m.inner.size() ),
+		diff2_cos_rp_ ( (int) m.inner.size() ),
 
-	diff1_t_((int)m.inner.size()),
-	diff2_t_((int)m.inner.size()),
-	diff1_cos_t_((int)m.inner.size()),
-	diff2_cos_t_((int)m.inner.size()),
-	diff1_rp_t_((int)m.inner.size()),
-	diff2_rp_t_((int)m.inner.size()),
-	diff1_cos_rp_t_((int)m.inner.size()),
-	diff2_cos_rp_t_((int)m.inner.size())
+		diff1_t_ ( (int) m.inner.size() ),
+		diff2_t_ ( (int) m.inner.size() ),
+		diff1_cos_t_ ( (int) m.inner.size() ),
+		diff2_cos_t_ ( (int) m.inner.size() ),
+		diff1_rp_t_ ( (int) m.inner.size() ),
+		diff2_rp_t_ ( (int) m.inner.size() ),
+		diff1_cos_rp_t_ ( (int) m.inner.size() ),
+		diff2_cos_rp_t_ ( (int) m.inner.size() )
 {
-	generate_matrix(idt_, m, id_cb, (void*)0);
+	generate_matrix (idt_, m, id_cb, (void*) 0);
 
-	generate_matrix(diff1_, m_, diff_1_rp, (double*)0);
-	generate_matrix(diff2_, m_, diff_2_rp, (double*)0);
-	generate_matrix(diff1_cos_, m_, diff_1_cos_rp, (double*)0);
-	generate_matrix(diff2_cos_, m_, diff_2_cos_rp, (double*)0);
+	generate_matrix (diff1_, m_, diff_1_rp, (double*) 0);
+	generate_matrix (diff2_, m_, diff_2_rp, (double*) 0);
+	generate_matrix (diff1_cos_, m_, diff_1_cos_rp, (double*) 0);
+	generate_matrix (diff2_cos_, m_, diff_2_cos_rp, (double*) 0);
 
-	generate_boundary_matrix(diff1_rp_, m_, diff_1_rp, (double*)0);
-	generate_boundary_matrix(diff2_rp_, m_, diff_2_rp, (double*)0);
-	generate_boundary_matrix(diff1_cos_rp_, m_, diff_1_cos_rp, (double*)0);
-	generate_boundary_matrix(diff2_cos_rp_, m_, diff_2_cos_rp, (double*)0);
+	generate_boundary_matrix (diff1_rp_, m_, diff_1_rp, (double*) 0);
+	generate_boundary_matrix (diff2_rp_, m_, diff_2_rp, (double*) 0);
+	generate_boundary_matrix (diff1_cos_rp_, m_, diff_1_cos_rp, (double*) 0);
+	generate_boundary_matrix (diff2_cos_rp_, m_, diff_2_cos_rp, (double*) 0);
 
-	generate_matrix(diff1_t_, m_, diff_1_rp, (double*)0);
-	generate_matrix(diff2_t_, m_, diff_2_rp, (double*)0);
-	generate_matrix(diff1_cos_t_, m_, diff_1_cos_rp, (double*)0);
-	generate_matrix(diff2_cos_t_, m_, diff_2_cos_rp, (double*)0);
+	generate_matrix (diff1_t_, m_, diff_1_rp, (double*) 0);
+	generate_matrix (diff2_t_, m_, diff_2_rp, (double*) 0);
+	generate_matrix (diff1_cos_t_, m_, diff_1_cos_rp, (double*) 0);
+	generate_matrix (diff2_cos_t_, m_, diff_2_cos_rp, (double*) 0);
 
-	generate_boundary_matrix(diff1_rp_t_, m_, diff_1_rp, (double*)0);
-	generate_boundary_matrix(diff2_rp_t_, m_, diff_2_rp, (double*)0);
-	generate_boundary_matrix(diff1_cos_rp_t_, m_, diff_1_cos_rp, (double*)0);
-	generate_boundary_matrix(diff2_cos_rp_t_, m_, diff_2_cos_rp, (double*)0);
+	generate_boundary_matrix (diff1_rp_t_, m_, diff_1_rp, (double*) 0);
+	generate_boundary_matrix (diff2_rp_t_, m_, diff_2_rp, (double*) 0);
+	generate_boundary_matrix (diff1_cos_rp_t_, m_, diff_1_cos_rp, (double*) 0);
+	generate_boundary_matrix (diff2_cos_rp_t_, m_, diff_2_cos_rp, (double*) 0);
 }
 
-void SphereJacobian::calc1(double * Ans, const double * u, const double * v, const double * bnd)
+void SphereJacobian::calc1 (double * Ans, const double * u, const double * v, const double * bnd)
 {
-	vector < double > p1(m_.inner.size());
-	calc2(&p1[0], u, v);
-	p2u(Ans, &p1[0], bnd, m_);
+	vector < double > p1 (m_.inner.size() );
+	calc2 (&p1[0], u, v);
+	p2u (Ans, &p1[0], bnd, m_);
 }
 
-void SphereJacobian::calc1t(double * Ans, const double * u, const double * v, const double * bnd)
+void SphereJacobian::calc1t (double * Ans, const double * u, const double * v, const double * bnd)
 {
-	vector < double > p1(m_.inner.size());
-	calc2t(&p1[0], u, v);
-	p2u(Ans, &p1[0], bnd, m_);
+	vector < double > p1 (m_.inner.size() );
+	calc2t (&p1[0], u, v);
+	p2u (Ans, &p1[0], bnd, m_);
 }
 

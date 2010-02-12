@@ -36,12 +36,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
- * 
+ *
  * @section DESCRIPTION
  * The spherical jacobian.
  */
@@ -58,11 +58,12 @@ using phelm::Mesh;
 /**
  * Compute the jacobian on a sphere.
  \f[
- J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi} 
+ J(u,v) = \frac{1}{cos(\varphi)} (\frac{\partial u}{\partial \lambda}\frac{\partial v}{\partial \varphi}
  - \frac{\partial u}{\partial \varphi}\frac{\partial v}{\partial \lambda})
- \f] 
+ \f]
  */
-class SphereJacobian {
+class SphereJacobian
+{
 public:
 
 	typedef phelm::Solver < double > Matrix;
@@ -92,17 +93,17 @@ public:
 	 * Constructor.
 	 * @param m - mesh
 	 */
-	SphereJacobian(const Mesh & m);
+	SphereJacobian (const Mesh & m);
 
 	/**
 	 * Calculate J(u, v) in the inner points.
- 	 * Sets the value of boundary points from bnd.
+	  * Sets the value of boundary points from bnd.
 	 * @param Ans - the answer
 	 * @param u - vector u
 	 * @param v - vector v
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
+	void calc1 (double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
 	 * Calculate adjoint operator to J(u, v) (=-J(u, v))
@@ -112,7 +113,7 @@ public:
 	 * @param v - vector v
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
+	void calc1t (double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
 	 * Calculate J(u, v) in the inner points.
@@ -121,12 +122,12 @@ public:
 	 * @param u - vector u
 	 * @param v - vector v
 	 */
-	void calc2(double * Ans, const double * u, const double * v);
+	void calc2 (double * Ans, const double * u, const double * v);
 
-	void calc2_1(double * Ans, const double * u, const double * v);
-	void calc2_2(double * Ans, const double * u, const double * v);
-	void calc2_3(double * Ans, const double * u, const double * v);
-	void calc2_4(double * Ans, const double * u, const double * v);
+	void calc2_1 (double * Ans, const double * u, const double * v);
+	void calc2_2 (double * Ans, const double * u, const double * v);
+	void calc2_3 (double * Ans, const double * u, const double * v);
+	void calc2_4 (double * Ans, const double * u, const double * v);
 
 	/**
 	 * Calculate ajoint operator to J(u, v) (=-J(u, v))
@@ -134,17 +135,17 @@ public:
 	 * @param u - vector u
 	 * @param v - vector v
 	 */
-	void calc2t(double * Ans, const double * u, const double * v);
+	void calc2t (double * Ans, const double * u, const double * v);
 
 	/**
 	 * Calculate \f$ \frac{\partial u}{\partial x} \f$
 	 */
-	void calc2_diff_x(double * Ans, const double * v);
+	void calc2_diff_x (double * Ans, const double * v);
 
 	/**
 	 * Calculate \f$ \frac{1}{cos(y)}\frac{\partial u}{\partial y} \f$
 	 */
-	void calc2_diff_cos_y(double * Ans, const double * v);
+	void calc2_diff_cos_y (double * Ans, const double * v);
 };
 
 /** @} */

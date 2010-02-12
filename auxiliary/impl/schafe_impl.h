@@ -34,7 +34,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -44,17 +44,17 @@
 namespace SphereChafe_Private
 {
 
-double 
-schafe_integrate_cb( const Polynom & phi_i,
-                     const Polynom & phi_j, 
-                     const Triangle & trk,
-                     const Mesh & m,
-                     int point_i, int point_j,
-					 int, int, 
-                     SphereChafeConfig * d);
+double
+schafe_integrate_cb ( const Polynom & phi_i,
+                      const Polynom & phi_j,
+                      const Triangle & trk,
+                      const Mesh & m,
+                      int point_i, int point_j,
+                      int, int,
+                      SphereChafeConfig * d);
 
-double f(/*double u,*/ double x, double y, double t, 
-				double mu, double sigma);
+double f (/*double u,*/ double x, double y, double t,
+                        double mu, double sigma);
 
 
 template < typename T >
@@ -66,26 +66,29 @@ struct schafe_right_part_cb_data
 };
 
 template < typename T >
-double 
-schafe_right_part_cb( const Polynom & phi_i,
-                      const Polynom & phi_j,
-                      const Triangle & trk,
-                      const Mesh & m,
-                      int point_i, int point_j,
-					  int i, int j,
-                      schafe_right_part_cb_data < T > * d)
+double
+schafe_right_part_cb ( const Polynom & phi_i,
+                       const Polynom & phi_j,
+                       const Triangle & trk,
+                       const Mesh & m,
+                       int point_i, int point_j,
+                       int i, int j,
+                       schafe_right_part_cb_data < T > * d)
 {
 	const T * F = d->F;
 	double b;
 
-	if (m.ps_flags[point_j] == 1) { // на границе
+	if (m.ps_flags[point_j] == 1)   // на границе
+	{
 		int j0       = m.p2io[point_j];  //номер внешней точки
 		const T * bnd = d->bnd;
-		b = - (double)bnd[j0] * schafe_integrate_cb(phi_i, phi_j, 
-			trk, m, point_i, point_j, i, j, d->d);
+		b = - (double) bnd[j0] * schafe_integrate_cb (phi_i, phi_j,
+		        trk, m, point_i, point_j, i, j, d->d);
 		//b = 0.0;
-	} else {
-		b = (double)F[point_j] * integrate_cos(phi_i * phi_j, trk, m.ps);
+	}
+	else
+	{
+		b = (double) F[point_j] * integrate_cos (phi_i * phi_j, trk, m.ps);
 	}
 	return b;
 }
@@ -93,89 +96,91 @@ schafe_right_part_cb( const Polynom & phi_i,
 }
 
 template < typename T >
-SphereChafe < T > ::SphereChafe(const Mesh & m, double tau, double sigma, double mu)
-	: SphereChafeConfig(tau, sigma, mu), m_(m), laplace_(m), 
-	A_((int)m.inner.size()), bnd_((int)m.inner.size())
+SphereChafe < T > ::SphereChafe (const Mesh & m, double tau, double sigma, double mu)
+		: SphereChafeConfig (tau, sigma, mu), m_ (m), laplace_ (m),
+		A_ ( (int) m.inner.size() ), bnd_ ( (int) m.inner.size() )
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
 
-	generate_matrix(A_, m_, SphereChafe_Private::schafe_integrate_cb, this);
-	generate_boundary_matrix(bnd_, m_, SphereChafe_Private::schafe_integrate_cb, this);
+	generate_matrix (A_, m_, SphereChafe_Private::schafe_integrate_cb, this);
+	generate_boundary_matrix (bnd_, m_, SphereChafe_Private::schafe_integrate_cb, this);
 }
 
 /*
  * \f$\frac{du}{dt} = \mu \delta u - \sigma u + f (u)\f$
  */
 template < typename T >
-void SphereChafe < T > ::solve(T * Ans, const T * X0,
-						const T * bnd, double t)
+void SphereChafe < T > ::solve (T * Ans, const T * X0,
+                                const T * bnd, double t)
 {
-	int rs  = (int)m_.inner.size();
-	int os = (int)m_.outer.size();
-	int sz  = (int)m_.ps.size();
-	ArrayDevice u(rs);
-	ArrayDevice delta_u(rs);
+	int rs  = (int) m_.inner.size();
+	int os = (int) m_.outer.size();
+	int sz  = (int) m_.ps.size();
+	ArrayDevice u (rs);
+	ArrayDevice delta_u (rs);
 
-	ArrayHost   rp(rs);
-	ArrayDevice crp(rs);
+	ArrayHost   rp (rs);
+	ArrayDevice crp (rs);
 
 #if 0
 	// генерируем правую часть по ходу
-	ArrayDevice p(sz);
-	ArrayHost   hp(sz);
-	ArrayHost   hbnd(os); //TODO: remove
+	ArrayDevice p (sz);
+	ArrayHost   hp (sz);
+	ArrayHost   hbnd (os); //TODO: remove
 	if (bnd)
-		vec_copy_from_device(&hbnd[0], &bnd[0], os);
+		vec_copy_from_device (&hbnd[0], &bnd[0], os);
 #else
 	// используем предвычисленную правую часть
-	ArrayDevice tmp1(rs);
+	ArrayDevice tmp1 (rs);
 #endif
 
 	// генерируем правую часть
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 
-	u2p(&u[0], X0, m_);
-	laplace_.calc2(&delta_u[0], X0);
+	u2p (&u[0], X0, m_);
+	laplace_.calc2 (&delta_u[0], X0);
 
 	// u/dt + mu \Delta u / 2
-	vec_sum1(&delta_u[0], &u[0], &delta_u[0], (T)(1.0 / tau_), (T)(mu_ * 0.5), rs);
+	vec_sum1 (&delta_u[0], &u[0], &delta_u[0], (T) (1.0 / tau_), (T) (mu_ * 0.5), rs);
 
 	// u/dt + mu \Delta u / 2 - \sigma u / 2
-	vec_sum1(&delta_u[0], &delta_u[0], &u[0], (T)(1.0), (T)(-sigma_ * 0.5), rs);
+	vec_sum1 (&delta_u[0], &delta_u[0], &u[0], (T) (1.0), (T) (-sigma_ * 0.5), rs);
 
 	// u/dt + mu \Delta u / 2 - \sigma u / 2 + f(u)
 #pragma omp parallel for
-	for (int i = 0; i < rs; ++i) {
+	for (int i = 0; i < rs; ++i)
+	{
 		int point = m_.inner[i];
 		double x  = m_.ps[point].x();
 		double y  = m_.ps[point].y();
 
-		rp[i] = (T) SphereChafe_Private::f(/*u[i],*/ x, y, t, mu_, sigma_);
+		rp[i] = (T) SphereChafe_Private::f (/*u[i],*/ x, y, t, mu_, sigma_);
 	}
-	vec_copy_from_host(&crp[0], &rp[0], rs);
-	vec_sum(&u[0], &delta_u[0], &crp[0], rs);
+	vec_copy_from_host (&crp[0], &rp[0], rs);
+	vec_sum (&u[0], &delta_u[0], &crp[0], rs);
 
 #if 0
 	// генерируем правую часть по ходу
 	// правую часть на границе не знаем !
-	p2u(&p[0], &u[0], 0 /*bnd*/, m_);
+	p2u (&p[0], &u[0], 0 /*bnd*/, m_);
 
 	// TODO: убрать это !
-	vec_copy_from_device(&hp[0], &p[0], sz);
+	vec_copy_from_device (&hp[0], &p[0], sz);
 	SphereChafe_Private::schafe_right_part_cb_data < T > data2;
 	data2.F   = &hp[0];
 	data2.bnd = (bnd) ? &hbnd[0] : 0;
 	data2.d   = this;
-	generate_right_part(&rp[0], m_, 
-		SphereChafe_Private::schafe_right_part_cb < T >, &data2);
-	vec_copy_from_host(&crp[0], &rp[0], rs);
+	generate_right_part (&rp[0], m_,
+	                     SphereChafe_Private::schafe_right_part_cb < T >, &data2);
+	vec_copy_from_host (&crp[0], &rp[0], rs);
 #else
 	// используем предвычисленную правую часть
-	laplace_.idt_.mult_vector(&crp[0], &u[0]);
-	if (bnd) {
-		bnd_.mult_vector(&tmp1[0], bnd);
-		vec_sum(&crp[0], &crp[0], &tmp1[0], (int)rp.size());
+	laplace_.idt_.mult_vector (&crp[0], &u[0]);
+	if (bnd)
+	{
+		bnd_.mult_vector (&tmp1[0], bnd);
+		vec_sum (&crp[0], &crp[0], &tmp1[0], (int) rp.size() );
 	}
 #endif
 
@@ -183,5 +188,5 @@ void SphereChafe < T > ::solve(T * Ans, const T * X0,
 //	fprintf(stderr, "matrix:\n");A_.print();
 //	laplace_.print();
 
-	phelm::solve(Ans, bnd, &crp[0], A_, m_);
+	phelm::solve (Ans, bnd, &crp[0], A_, m_);
 }

@@ -33,54 +33,60 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace phelm_private_ 
+namespace phelm_private_
 {
-	template < typename Matrix >
-	void mat_add(Matrix & A, int i, int j, double a, bool transpose)
+template < typename Matrix >
+void mat_add (Matrix & A, int i, int j, double a, bool transpose)
+{
+	if (transpose)
 	{
-		if (transpose) {
-			A.add(j, i, (typename Matrix::data_type)a);
-		} else {
-			A.add(i, j, (typename Matrix::data_type)a);
-		}
+		A.add (j, i, (typename Matrix::data_type) a);
 	}
-
-	template < typename Matrix, typename Container >
-	void mat_add(Matrix & A, int i, int j, const Container & c, bool transpose)
+	else
 	{
-		typename Container::const_iterator b = c.begin();
-		typename Container::const_iterator e = c.end();
-		typename Container::const_iterator it;
-
-		if (transpose) {
-			for (it = b; it != e; ++it)
-			{
-				A.add(it->j, it->i, (typename Matrix::data_type)it->a);
-			}
-		} else {
-			for (it = b; it != e; ++it)
-			{
-				A.add(it->i, it->j, (typename Matrix::data_type)it->a);
-			}
-		}
+		A.add (i, j, (typename Matrix::data_type) a);
 	}
+}
 
-	template < typename T >
-	void vec_add(T * b, int i, double a)
+template < typename Matrix, typename Container >
+void mat_add (Matrix & A, int i, int j, const Container & c, bool transpose)
+{
+	typename Container::const_iterator b = c.begin();
+	typename Container::const_iterator e = c.end();
+	typename Container::const_iterator it;
+
+	if (transpose)
 	{
-		b[i] += (T) a;
-	}
-
-	template < typename T, typename Container >
-	void vec_add(T * b1, int i, const Container & c)
-	{
-		typename Container::const_iterator b = c.begin();
-		typename Container::const_iterator e = c.end();
-		typename Container::const_iterator it;
-
 		for (it = b; it != e; ++it)
 		{
-			b1[it->i] += (T)it->a;
+			A.add (it->j, it->i, (typename Matrix::data_type) it->a);
 		}
 	}
+	else
+	{
+		for (it = b; it != e; ++it)
+		{
+			A.add (it->i, it->j, (typename Matrix::data_type) it->a);
+		}
+	}
+}
+
+template < typename T >
+void vec_add (T * b, int i, double a)
+{
+	b[i] += (T) a;
+}
+
+template < typename T, typename Container >
+void vec_add (T * b1, int i, const Container & c)
+{
+	typename Container::const_iterator b = c.begin();
+	typename Container::const_iterator e = c.end();
+	typename Container::const_iterator it;
+
+	for (it = b; it != e; ++it)
+	{
+		b1[it->i] += (T) it->a;
+	}
+}
 };

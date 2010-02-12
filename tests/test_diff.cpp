@@ -6,15 +6,16 @@
 using namespace phelm;
 using namespace std;
 
-static bool cmp(double a, double b)
+static bool cmp (double a, double b)
 {
-	if (fabs(a - b) > 1e-14) {
+	if (fabs (a - b) > 1e-14)
+	{
 		return false;
 	}
 	return true;
 }
 
-static bool do_all(Mesh & m)
+static bool do_all (Mesh & m)
 {
 	int sz = m.size;
 	double v;
@@ -26,17 +27,18 @@ static bool do_all(Mesh & m)
 		{
 			int trk_i = m.adj[i][tk];
 			const Triangle & trk = m.tr[trk_i];
-			const Polynom & p = trk.elem1(i);
-			Polynom d = diff(p, 1);
+			const Polynom & p = trk.elem1 (i);
+			Polynom d = diff (p, 1);
 			int z = trk.z;
-			v = d.apply(m.ps[i].x(z), m.ps[i].y(z));
-			vals.push_back(v);
+			v = d.apply (m.ps[i].x (z), m.ps[i].y (z) );
+			vals.push_back (v);
 		}
 
-		for (int i = 0; i < (int)vals.size(); ++i) 
+		for (int i = 0; i < (int) vals.size(); ++i)
 		{
-			if (!cmp(v, vals[i])) {
-				fprintf(stderr, "%.16lf != %.16lf\n", v, vals[i]);
+			if (!cmp (v, vals[i]) )
+			{
+				fprintf (stderr, "%.16lf != %.16lf\n", v, vals[i]);
 				r = false;
 			}
 		}
@@ -44,15 +46,15 @@ static bool do_all(Mesh & m)
 	return r;
 }
 
-extern "C" int test_diff(int argc, char ** argv)
+extern "C" int test_diff (int argc, char ** argv)
 {
 	Mesh m;
 	bool r;
-	FILE * f = fopen(argv[1], "r");
-	m.load(f);
-	fclose(f);
-	r = do_all(m);
-	fprintf(stderr, "result = %d\n", (int)r);
+	FILE * f = fopen (argv[1], "r");
+	m.load (f);
+	fclose (f);
+	r = do_all (m);
+	fprintf (stderr, "result = %d\n", (int) r);
 	return !r;
 }
 

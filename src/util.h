@@ -36,7 +36,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
@@ -48,7 +48,8 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 	/**
@@ -60,154 +61,155 @@ extern "C" {
 #define inline __inline
 #endif
 
-/**
- * Power function.
- * @param x - value
- * @param p - power
- * @return the value of x raised to the power of p
- */
-inline double
-ipow(double x, int p)
-{
-	int i;
-	double r = 1;
-	for (i = 0; i < p; i++) {
-		r *= x;
+	/**
+	 * Power function.
+	 * @param x - value
+	 * @param p - power
+	 * @return the value of x raised to the power of p
+	 */
+	inline double
+	ipow (double x, int p)
+	{
+		int i;
+		double r = 1;
+		for (i = 0; i < p; i++)
+		{
+			r *= x;
+		}
+		return r;
 	}
-	return r;
-}
 
-/**
- * Take the integral of \f$x^k y^n\f$ over trapezoid.
- * y=k1x+b1 y=k2x+b2 - bounding lines. 
- * x belongs to segment [x1, x3].
- \f[
- \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n dx dy
- \f]
- * @param k - power
- * @param n - power
- * @param k1 - coefficient
- * @param b1 - coefficient
- * @param k2 - coefficient
- * @param b2 - coefficient
- * @param x1 - the begging of segment
- * @param x3 - the end of segment
- */
-double trapezoid_integral(int k, int n, 
-			 double k1, double b1, 
-			 double k2, double b2, 
-			 double x1, double x3);
+	/**
+	 * Take the integral of \f$x^k y^n\f$ over trapezoid.
+	 * y=k1x+b1 y=k2x+b2 - bounding lines.
+	 * x belongs to segment [x1, x3].
+	 \f[
+	 \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n dx dy
+	 \f]
+	 * @param k - power
+	 * @param n - power
+	 * @param k1 - coefficient
+	 * @param b1 - coefficient
+	 * @param k2 - coefficient
+	 * @param b2 - coefficient
+	 * @param x1 - the begging of segment
+	 * @param x3 - the end of segment
+	 */
+	double trapezoid_integral (int k, int n,
+	                           double k1, double b1,
+	                           double k2, double b2,
+	                           double x1, double x3);
 
-/**
- * Take the integral of \f$x^k y^n cos(x)\f$ over trapezoid.
- \f[
- \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n cos(x) dx dy
- \f]
- * @param k - power
- * @param n - power
- * @param k1 - coefficient
- * @param b1 - coefficient
- * @param k2 - coefficient
- * @param b2 - coefficient
- * @param x1 - the begging of segment
- * @param x3 - the end of segment
- */
-double trapezoid_integral_cos(int k, int n,
-	double k1, double b1,
-	double k2, double b2,
-	double x1, double x3);
+	/**
+	 * Take the integral of \f$x^k y^n cos(x)\f$ over trapezoid.
+	 \f[
+	 \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n cos(x) dx dy
+	 \f]
+	 * @param k - power
+	 * @param n - power
+	 * @param k1 - coefficient
+	 * @param b1 - coefficient
+	 * @param k2 - coefficient
+	 * @param b2 - coefficient
+	 * @param x1 - the begging of segment
+	 * @param x3 - the end of segment
+	 */
+	double trapezoid_integral_cos (int k, int n,
+	                               double k1, double b1,
+	                               double k2, double b2,
+	                               double x1, double x3);
 
-/**
- * Take the integral of \f$x^k y^n sin(x)\f$ over trapezoid.
- \f[
- \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n sin(x) dx dy
- \f]
- * @param k - power
- * @param n - power
- * @param k1 - coefficient
- * @param b1 - coefficient
- * @param k2 - coefficient
- * @param b2 - coefficient
- * @param x1 - the begging of segment
- * @param x3 - the end of segment
- */
-double trapezoid_integral_sin(int k, int n,
-	double k1, double b1,
-	double k2, double b2,
-	double x1, double x3);
+	/**
+	 * Take the integral of \f$x^k y^n sin(x)\f$ over trapezoid.
+	 \f[
+	 \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} x^k y ^n sin(x) dx dy
+	 \f]
+	 * @param k - power
+	 * @param n - power
+	 * @param k1 - coefficient
+	 * @param b1 - coefficient
+	 * @param k2 - coefficient
+	 * @param b2 - coefficient
+	 * @param x1 - the begging of segment
+	 * @param x3 - the end of segment
+	 */
+	double trapezoid_integral_sin (int k, int n,
+	                               double k1, double b1,
+	                               double k2, double b2,
+	                               double x1, double x3);
 
-/**
- * Take the integral of \f$x^k y^n / cos(x)\f$ over trapezoid.
- \f[
- \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} \frac{x^k y ^n}{cos(x)} dx dy
- \f]
- * @param k - power
- * @param n - power
- * @param k1 - coefficient
- * @param b1 - coefficient
- * @param k2 - coefficient
- * @param b2 - coefficient
- * @param x1 - the begging of segment
- * @param x3 - the end of segment
- */
-double trapezoid_integral_1_cos(int k, int n,
-	double k1, double b1,
-	double k2, double b2,
-	double x1, double x3);
+	/**
+	 * Take the integral of \f$x^k y^n / cos(x)\f$ over trapezoid.
+	 \f[
+	 \int_{x_1}^{x_3}\int_{k_1 x+b_1}^{k_2 x+b_2} \frac{x^k y ^n}{cos(x)} dx dy
+	 \f]
+	 * @param k - power
+	 * @param n - power
+	 * @param k1 - coefficient
+	 * @param b1 - coefficient
+	 * @param k2 - coefficient
+	 * @param b2 - coefficient
+	 * @param x1 - the begging of segment
+	 * @param x3 - the end of segment
+	 */
+	double trapezoid_integral_1_cos (int k, int n,
+	                                 double k1, double b1,
+	                                 double k2, double b2,
+	                                 double x1, double x3);
 
-/**
- * Returns the number of seconds since epoch.
- * @return the number of seconds since epoch.
- */
-double get_full_time();
+	/**
+	 * Returns the number of seconds since epoch.
+	 * @return the number of seconds since epoch.
+	 */
+	double get_full_time();
 
-/**
- * Function-callback that is passed to gauss_kronrod15.
- * @param x - function argument
- * @param data - user data
- * @return the value of f(x)
- */
-typedef double (*fx_t)(double x, void * data);
+	/**
+	 * Function-callback that is passed to gauss_kronrod15.
+	 * @param x - function argument
+	 * @param data - user data
+	 * @return the value of f(x)
+	 */
+	typedef double (*fx_t) (double x, void * data);
 
-/**
- * Gauss Kronrod quadrature formula.
- * http://en.wikipedia.org/wiki/Gauss-Kronrod_quadrature
- *
- * @param a
- * @param b
- * @param fm - function
- * @param data - the user data that are passed to the function
- * @return the integral of fm over the segment [a, b]
- */
-double gauss_kronrod15(double a, double b, fx_t fm, void * data);
+	/**
+	 * Gauss Kronrod quadrature formula.
+	 * http://en.wikipedia.org/wiki/Gauss-Kronrod_quadrature
+	 *
+	 * @param a
+	 * @param b
+	 * @param fm - function
+	 * @param data - the user data that are passed to the function
+	 * @return the integral of fm over the segment [a, b]
+	 */
+	double gauss_kronrod15 (double a, double b, fx_t fm, void * data);
 
-/**
- * Sets FPU exceptions.
- */
-void set_fpe_except();
+	/**
+	 * Sets FPU exceptions.
+	 */
+	void set_fpe_except();
 
-/**
- * writes header.
- */
-void write_header(int argc, char ** argv, const char * mes);
+	/**
+	 * writes header.
+	 */
+	void write_header (int argc, char ** argv, const char * mes);
 
-/**
- * burn loop.
- * @param secs - the number of seconds
- */
-void burn(double secs);
+	/**
+	 * burn loop.
+	 * @param secs - the number of seconds
+	 */
+	void burn (double secs);
 
-/**
- * Finds minimal element of vector.
- */
-double vec_find_min(const double * v, int n);
+	/**
+	 * Finds minimal element of vector.
+	 */
+	double vec_find_min (const double * v, int n);
 
-/**
- * Finds maximal element of vector.
- */
-double vec_find_max(const double * v, int n);
+	/**
+	 * Finds maximal element of vector.
+	 */
+	double vec_find_max (const double * v, int n);
 
-/** @} */
+	/** @} */
 
 #ifdef __cplusplus
 }
@@ -218,35 +220,42 @@ double vec_find_max(const double * v, int n);
 #ifdef WIN32
 #include <float.h>
 #define isnan _isnan
-inline bool isinf(double x)
+inline bool isinf (double x)
 {
-	int c = _fpclass(x);
+	int c = _fpclass (x);
 	return (c == _FPCLASS_NINF || c == _FPCLASS_PINF);
 }
 #endif
 
 /**
- * @ingroup misc 
+ * @ingroup misc
  * Timer class.
  */
-class Timer {
+class Timer
+{
 	double t1_;
 
 public:
 	/**
 	 * Default constructor.
 	 */
-	Timer(): t1_(get_full_time()) {}
+	Timer() : t1_ (get_full_time() ) {}
 
 	/**
-	 * @return the number of seconds from timer initialize or restart. 
+	 * @return the number of seconds from timer initialize or restart.
 	 */
-	double elapsed() { return (get_full_time() - t1_) / 100.0; }
+	double elapsed()
+	{
+		return (get_full_time() - t1_) / 100.0;
+	}
 
 	/**
 	 * Restart timer.
 	 */
-	void restart() { t1_ = get_full_time(); }
+	void restart()
+	{
+		t1_ = get_full_time();
+	}
 };
 
 

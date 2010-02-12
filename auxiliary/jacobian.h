@@ -36,12 +36,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 /**
  * @file
  * @author Alexey Ozeritsky <aozeritsky@gmail.com>
  * @version $Revision$
- * 
+ *
  * @section DESCRIPTION
  * The flat jacobian.
  */
@@ -58,11 +58,12 @@ using phelm::Mesh;
 /**
  * Compute the jacobian on a sphere.
  \f[
- J(u,v) = \frac{\partial u}{\partial y}\frac{\partial v}{\partial x} 
+ J(u,v) = \frac{\partial u}{\partial y}\frac{\partial v}{\partial x}
  - \frac{\partial u}{\partial x}\frac{\partial v}{\partial y}
  \f]
  */
-class Jacobian {
+class Jacobian
+{
 	typedef phelm::Solver < double > Matrix;
 	const Mesh & m_;
 	Matrix idt_;
@@ -83,17 +84,17 @@ public:
 	 * Constructor.
 	 * @param m - mesh
 	 */
-	Jacobian(const Mesh & m);
+	Jacobian (const Mesh & m);
 
 	/**
 	 * Calculate J(u, v) in the inner points.
- 	 * Sets the value of boundary points from bnd.
+	  * Sets the value of boundary points from bnd.
 	 * @param Ans - the answer
 	 * @param u - vector u
 	 * @param v - vector v
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1(double * Ans, const double * u, const double * v, const double * bnd);
+	void calc1 (double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
 	 * Calculate adjoint operator to J(u, v) (=-J(u, v))
@@ -103,7 +104,7 @@ public:
 	 * @param v - vector v
 	 * @param bnd - needed boundary condition
 	 */
-	void calc1t(double * Ans, const double * u, const double * v, const double * bnd);
+	void calc1t (double * Ans, const double * u, const double * v, const double * bnd);
 
 	/**
 	 * Calculate J(u, v) in the inner points.
@@ -112,7 +113,7 @@ public:
 	 * @param u - vector u
 	 * @param v - vector v
 	 */
-	void calc2(double * Ans, const double * u, const double * v);
+	void calc2 (double * Ans, const double * u, const double * v);
 
 	/**
 	 * Calculate ajoint operator to J(u, v) (=-J(u, v))
@@ -120,7 +121,7 @@ public:
 	 * @param u - vector u
 	 * @param v - vector v
 	 */
-	void calc2t(double * Ans, const double * u, const double * v);
+	void calc2t (double * Ans, const double * u, const double * v);
 };
 
 /** @} */

@@ -207,25 +207,30 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 		int block_dim = 900; //cache size = (block_dim * block_dim * 8)
 		int blocks = (n + block_dim - 1) / block_dim;
 
-#pragma omp for 
+#pragma omp for
 		for (int i = 0; i < n; ++i)
 		{
 			r[i] = 0;
 		}
-	
+
 		for (int l = 0; l < blocks; ++l )
 		{
-			int fl = n * l;	      fl /= blocks;
-			int ll = n * (l + 1); ll = ll / blocks - 1;
+			int fl = n * l;
+			fl /= blocks;
+			int ll = n * (l + 1);
+			ll = ll / blocks - 1;
 
-			for (int m = 0; m < blocks; ++m) {
-				int fm = n * l;	      fm /= blocks;
-				int lm = n * (l + 1); lm = lm / blocks - 1;
+			for (int m = 0; m < blocks; ++m)
+			{
+				int fm = n * l;
+				fm /= blocks;
+				int lm = n * (l + 1);
+				lm = lm / blocks - 1;
 
 				// blocks:
 				// R[fl] += A[fl, fm] * X[fl]
 
-#pragma omp for 
+#pragma omp for
 				for (int i = fl; i <= ll; ++i)
 				{
 					const T * ax = &A[i * n + fm];
@@ -247,7 +252,8 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 	for (int i = 0; i < n; ++i)
 	{
 		T s = 0.0;
-		for (int j = 0; j < n; ++j) {
+		for (int j = 0; j < n; ++j)
+		{
 			s += A[i * n + j] * x[j];
 		}
 		r[i] = s;
