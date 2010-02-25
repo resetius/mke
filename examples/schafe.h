@@ -101,6 +101,6 @@ public:
 	            const T * bnd, double t);
 };
 
-#include "impl/schafe_impl.h"
+#include "schafe_impl.h"
 
 #endif /* SCHAFE_H */

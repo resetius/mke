@@ -35,6 +35,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef CHAFE_H
+#error "do not include this file!"
+#endif
+
 namespace Chafe_Private
 {
 

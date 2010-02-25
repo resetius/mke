@@ -26,14 +26,6 @@ set(SOURCE
 	slaplace.cpp  # Spheric Laplace equations 
 	slaplace.h
 	impl/slaplace_impl.h
-
-	chafe.cpp     # Flat Chafe-Infante equation
-	chafe.h
-	impl/chafe_impl.h
-
-	schafe.cpp    # Spheric Chafe-Infante equation
-	schafe.h
-	impl/schafe_impl.h
 	)
 
 add_library(phelm_aux 

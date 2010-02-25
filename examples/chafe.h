@@ -101,6 +101,6 @@ public:
 	            const T * bnd, double t);
 };
 
-#include "impl/chafe_impl.h"
+#include "chafe_impl.h"
 
 #endif /* CHAFE_H */

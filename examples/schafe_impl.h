@@ -41,6 +41,10 @@
  * @version $Revision$
  */
 
+#ifndef SCHAFE_H
+#error "do not include this file!"
+#endif
+
 namespace SphereChafe_Private
 {
 
