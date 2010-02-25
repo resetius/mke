@@ -59,23 +59,8 @@
  * @{
  */
 
-/**
- * Solve the Barotropic vorticity equation.
- *
- \f[
- \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)
-    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
- \f]
- * where \f$J(\cdot,\cdot)\f$ is spherical jacobian operator
- * and \f$\Delta\f$ is spherical Laplace operator.
- * @see SphereJacobian, SphereLaplace
- */
-template < typename Laplace, typename Jacobian >
-class BarVortex: public SphereNorm < double >
+struct BarVortexConf
 {
-public:
-	typedef BarVortex < Laplace, Jacobian > my_type;
-
 	/**
 	 * Function of right part.
 	 * @param phi - \f$\varphi\f$
@@ -94,46 +79,53 @@ public:
 	 */
 	typedef double (*coriolis_t) (double phi, double lambda);
 
+	double tau;   ///< time step
+	double sigma; ///< \f$sigma\f$
+	double mu;    ///< \f$theta\f$
+	double k1;    ///< \f$k_1\f$
+	double k2;    ///< \f$k_2\f$
+
+	/**
+	 * Time discretization scheme parameter \f$\theta\f$.
+	 * The default value is 0.5 (Crank–Nicolson).
+	 */
+	double theta;
+
+	rp_t rp;
+	coriolis_t coriolis;
+};
+
+/**
+ * Solve the Barotropic vorticity equation.
+ *
+ \f[
+ \frac{\partial \Delta \varphi}{\partial t} + k_1 J(\psi, \Delta \psi)
+    + k_2 J(\psi, l + h) + \sigma \Delta \psi - \mu \Delta^2 \psi = f(\varphi, \lambda)
+ \f]
+ * where \f$J(\cdot,\cdot)\f$ is spherical jacobian operator
+ * and \f$\Delta\f$ is spherical Laplace operator.
+ * @see SphereJacobian, SphereLaplace
+ */
+template < typename Laplace, typename Jacobian >
+class BarVortex: public SphereNorm < double >
+{
+public:
+	typedef BarVortex < Laplace, Jacobian > my_type;
+
 private:
 	const Mesh & m_;
+	BarVortexConf conf_;
+
 	Laplace l_;
 	Jacobian j_;
 	Matrix A_;
 	Matrix bnd_;
-
-	Matrix A2_; // 2nx2n
-	Matrix bnd2_;
-	Matrix C1_;
-	Matrix C2_;
 
 	Matrix Ab_;   // for backward
 	Matrix bndb_; // for backward
 
 	std::vector < double > lh_; // l + h
 	std::vector < double > f_;  // f right part
-
-public:
-	double tau_;   ///< time step
-	double sigma_; ///< \f$sigma\f$
-	double mu_;    ///< \f$theta\f$
-	double k1_;    ///< \f$k_1\f$
-	double k2_;    ///< \f$k_2\f$
-
-	/**
-	 * Time discretization scheme parameter \f$\theta\f$.
-	 * The default value is 0.5 (Crank–Nicolson).
-	 */
-	double theta_;
-
-	std::vector < double > lh_x_;
-	std::vector < double > lh_cos_y_;
-
-	std::vector < double > u_x_;
-	std::vector < double > u_cos_y_;
-
-private:
-	rp_t rp_;
-	coriolis_t coriolis_;
 
 public:
 	/**
@@ -147,8 +139,7 @@ public:
 	 * @param k1 - \f$\k_1\f$
 	 * @param k2 - \f$\k_2\f$
 	 */
-	BarVortex (const Mesh & m, rp_t rp, coriolis_t coriolis, double tau, double sigma,
-	           double mu, double k1, double k2);
+	BarVortex (const Mesh & m, const BarVortexConf & conf);
 
 	/**
 	 * Write Parameters.

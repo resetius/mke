@@ -270,8 +270,16 @@ void test_barvortex_L (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	//SBarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
-	SBarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
+	BarVortexConf conf;
+	conf.rp = rp1;
+	conf.coriolis = coriolis; //zero_coriolis;
+	conf.tau = tau;
+	conf.sigma = sigma;
+	conf.mu = mu;
+	conf.k1 = 1.0;
+	conf.k2 = 1.0;
+
+	SBarVortex bv (m, conf);
 
 	vector < double > u (sz);
 	vector < double > z (sz);
@@ -401,7 +409,16 @@ void test_barvortex_stationar (const Mesh & m, int verbose, double T)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	SBarVortex bv (m, rp_stationar, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
+	BarVortexConf conf;
+	conf.rp = rp_stationar;
+	conf.coriolis = zero_coriolis;
+	conf.tau = tau;
+	conf.sigma = sigma;
+	conf.mu = mu;
+	conf.k1 = 1.0;
+	conf.k2 = 1.0;
+
+	SBarVortex bv (m, conf);
 
 	bv.info();
 	fprintf (stderr, "#rp:stationar1\n");
@@ -482,8 +499,16 @@ void test_barvortex (const Mesh & m, int verbose, double T)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	SBarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
-	//SBarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
+	BarVortexConf conf;
+	conf.rp = rp1;
+	conf.coriolis = zero_coriolis;
+	conf.tau = tau;
+	conf.sigma = sigma;
+	conf.mu = mu;
+	conf.k1 = 1.0;
+	conf.k2 = 1.0;
+
+	SBarVortex bv (m, conf);
 
 	vector < double > u (sz);
 	vector < double > bnd_u (std::max (os, 1) );
@@ -548,8 +573,16 @@ void test_barvortex_L2 (const Mesh & m)
 	double mu    = 8e-5;   //8e-5;
 	double sigma = 1.6e-2; //1.6e-2;
 
-	SBarVortex bv (m, rp1, zero_coriolis, tau, sigma, mu, 1.0, 1.0);
-	//SBarVortex bv (m, rp, coriolis, tau, sigma, mu, 1.0, 1.0);
+	BarVortexConf conf;
+	conf.rp = rp1;
+	conf.coriolis = zero_coriolis;
+	conf.tau = tau;
+	conf.sigma = sigma;
+	conf.mu = mu;
+	conf.k1 = 1.0;
+	conf.k2 = 1.0;
+
+	SBarVortex bv (m, conf);
 
 	vector < double > u (sz);
 	vector < double > u1 (sz);
@@ -642,7 +675,16 @@ void test_dymnikov_196 (const Mesh & m)
 	double mu    = 1250;
 	double sigma = 5e-8; //1.6e-2;
 
-	SBarVortex bv (m, dymnikov_196_rp, dymnikov_196_coriolis, tau, sigma, mu, 0.0, 1.0);
+	BarVortexConf conf;
+	conf.rp = dymnikov_196_rp;
+	conf.coriolis = dymnikov_196_coriolis;
+	conf.tau = tau;
+	conf.sigma = sigma;
+	conf.mu = mu;
+	conf.k1 = 0.0;
+	conf.k2 = 1.0;
+
+	SBarVortex bv (m, conf);
 
 	vector < double > u (sz);
 	vector < double > bnd_u (std::max (os, 1) );
@@ -749,8 +791,16 @@ void test_kornev1 (const Mesh & m)
 //	sigma = sigma * T0;
 //	mu    = 10e-2*sigma;
 
-	SBarVortex bv (m, kornev1_rp, kornev1_coriolis, tau, sigma, mu, k1, k2);
-//	SBarVortex bv (m, kornev1_rp, zero_coriolis, tau, sigma, mu, k1, k2);
+	BarVortexConf conf;
+	conf.rp = kornev1_rp;
+	conf.coriolis = kornev1_coriolis;
+	conf.tau = tau;
+	conf.sigma = sigma;
+	conf.mu = mu;
+	conf.k1 = k1;
+	conf.k2 = k2;
+
+	SBarVortex bv (m, conf);
 
 	bv.info();
 	fprintf (stderr, "#rp:kornev1\n");
