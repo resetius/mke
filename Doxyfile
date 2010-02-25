@@ -571,7 +571,6 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = src \
-                         auxiliary \
                          examples
 
 # This tag can be used to specify the character encoding of the source files 

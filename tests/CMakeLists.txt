@@ -1,7 +1,7 @@
 project(phelm CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
-include_directories(../src ../auxiliary)
+include_directories(../src)
 link_directories(../lib)
 
 create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp)
@@ -9,9 +9,9 @@ create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.
 add_executable(test_small ${small_tests})
 add_executable(test_solver test_solver.cpp)
 
-target_link_libraries(test_small phelm phelm_aux ${MATH} ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_small phelm ${MATH} ${UMFPACK} ${SUPERLU})
 
-target_link_libraries(test_solver phelm phelm_aux ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_solver phelm ${UMFPACK} ${SUPERLU})
 
 if (OPENMP_FOUND)
 set_target_properties(test_small PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})

@@ -1,7 +1,7 @@
 project(phelm_examples CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "../bin")
-include_directories(../src ../auxiliary)
+include_directories(../src)
 link_directories(../lib)
 
 create_test_sourcelist(test_chafe_source test_chafe_driver.cpp test_chafe.cpp test_schafe.cpp)
@@ -25,13 +25,13 @@ add_executable(test_jacobian test_jacobian.cpp)
 add_executable(test_barvortex test_barvortex.cpp barvortex.h barvortex_impl.h)
 add_executable(test_baroclin test_baroclin.cpp baroclin.cpp baroclin.h)
 
-target_link_libraries(test_laplace phelm phelm_aux ${UMFPACK} ${SUPERLU})
-target_link_libraries(test_chafe phelm_aux phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_laplace phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_chafe phelm ${UMFPACK} ${SUPERLU})
 
-target_link_libraries(test_system_laplace phelm phelm_aux ${UMFPACK} ${SUPERLU})
-target_link_libraries(test_jacobian phelm_aux phelm ${UMFPACK} ${SUPERLU})
-target_link_libraries(test_barvortex phelm_aux phelm ${UMFPACK} ${SUPERLU})
-target_link_libraries(test_baroclin phelm_aux phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_system_laplace phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_jacobian phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_barvortex phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(test_baroclin phelm ${UMFPACK} ${SUPERLU})
 
 if (OPENMP_FOUND)
 set_target_properties(test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})

@@ -20,7 +20,6 @@ endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
 add_subdirectory(contrib)
 add_subdirectory(src)
-add_subdirectory(auxiliary)
 add_subdirectory(utils)
 add_subdirectory(tests)
 add_subdirectory(examples)

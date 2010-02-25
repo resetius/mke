@@ -24,7 +24,23 @@ set(SOURCE
 	gmres.cpp
 	polynom.h
 	solver.h
-	util.h)
+	util.h
+	norm.h
+	
+	laplace.cpp
+	laplace.h
+	impl/laplace_impl.h
+
+	slaplace.cpp
+	slaplace.h
+	impl/slaplace_impl.h
+
+	jacobian.cpp
+	jacobian.h
+
+	sjacobian.cpp
+	sjacobian.h
+	)
 
 
 add_library(phelm 
@@ -49,5 +65,4 @@ cuda_add_library(phelm_cu
 	)
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)
-
 
