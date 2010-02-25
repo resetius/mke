@@ -39,7 +39,6 @@
 #include <vector>
 #include <math.h>
 
-#include "barvortex.h"
 #include "util.h"
 #include "ver.h"
 
@@ -47,6 +46,10 @@ VERSION ("$Id$");
 
 using namespace std;
 using namespace phelm;
+
+#ifndef BARVORTEX_H
+#error "do not include this file!"
+#endif
 
 namespace bv_private
 {

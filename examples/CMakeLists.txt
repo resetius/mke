@@ -22,8 +22,8 @@ add_executable(test_chafe ${test_chafe_source}
 
 add_executable(test_system_laplace test_system_laplace.cpp)
 add_executable(test_jacobian test_jacobian.cpp)
-add_executable(test_barvortex test_barvortex.cpp)
-add_executable(test_baroclin test_baroclin.cpp)
+add_executable(test_barvortex test_barvortex.cpp barvortex.h barvortex_impl.h)
+add_executable(test_baroclin test_baroclin.cpp baroclin.cpp baroclin.h)
 
 target_link_libraries(test_laplace phelm phelm_aux ${UMFPACK} ${SUPERLU})
 target_link_libraries(test_chafe phelm_aux phelm ${UMFPACK} ${SUPERLU})

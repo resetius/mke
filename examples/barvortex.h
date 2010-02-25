@@ -239,7 +239,7 @@ public:
 typedef BarVortex < SphereLaplace < double > , SphereJacobian > SBarVortex; //!<spheric barvortex
 typedef BarVortex < Laplace < double > , Jacobian > FBarVortex;   //!<flat barvortex
 
-#include "impl/barvortex_impl.h"
+#include "barvortex_impl.h"
 
 /** @} */
 

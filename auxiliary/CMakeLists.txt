@@ -6,12 +6,6 @@ set(LIBRARY_OUTPUT_PATH "../lib")
 set(SOURCE
 	norm.h        # Norm and dot-product helpers
 
-	baroclin.cpp  # The two-dimensional baroclinic atmosphere equations  on a sphere
-	baroclin.h  
-
-	impl/barvortex_impl.h # The Barotropic vorticity equation
-	barvortex.h  
-
 	sjacobian.cpp # Spheric Jacobian
 	sjacobian.h
 
