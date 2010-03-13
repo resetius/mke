@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,13 +89,13 @@ template < typename T >
 void SphereLaplace < T >::solve (T * Ans,
                                  const T * F, const T * bnd)
 {
-	//ïîêà èñïîëüçóåì ïåðâûé ïîðÿäîê
+
 	int sz  = (int) m_.ps.size();
 	int ntr = (int) m_.tr.size();
-	int rs  = (int) m_.inner.size();    //ðàçìåðíîñòü
+	int rs  = (int) m_.inner.size(); 
 
-	ArrayDevice  b (rs);     // ïðàâàÿ ÷àñòü
-	ArrayDevice  x (rs);     // îòâåò
+	ArrayDevice  b (rs); 
+	ArrayDevice  x (rs); 
 
 	Timer full;
 #if 0

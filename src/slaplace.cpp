@@ -75,9 +75,12 @@ static double integrate_1_cos_func (double x, double y, Polynom * poly)
 static double laplace1 (const Polynom & phi_i, const Polynom & phi_j,
                         const Triangle & trk, const Mesh::points_t & ps)
 {
-	Polynom poly = diff (phi_i, 0) * diff (phi_j, 0);
-//	return integrate_cos(poly, trk, ps);
-	return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
+	Polynom poly1 = diff (phi_i, 0) * diff (phi_j, 0);
+	Polynom poly2 = phi_i * phi_j;
+
+//	return -integrate_cos(poly, trk, ps);
+	return -integrate_generic (trk, (fxy_t) integrate_cos_func, &poly1)
+		+ integrate_boundary(trk, (fxy_t) integrate_cos_func, &poly2);
 }
 
 /*
@@ -86,15 +89,18 @@ static double laplace1 (const Polynom & phi_i, const Polynom & phi_j,
 static double laplace2 (const Polynom & phi_i, const Polynom & phi_j,
                         const Triangle & trk, const Mesh::points_t & ps)
 {
-	Polynom poly = diff (phi_i, 1) * diff (phi_j, 1);
-//	return integrate_1_cos(poly, trk, ps);
-	return integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly);
+	Polynom poly1 = diff (phi_i, 1) * diff (phi_j, 1);
+	Polynom poly2 = phi_i * phi_j;
+
+//	return -integrate_1_cos(poly, trk, ps);
+	return -integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly1)
+		+ integrate_boundary(trk, (fxy_t) integrate_1_cos_func, &poly2);
 }
 
 double slaplace (const Polynom & phi_i, const Polynom & phi_j,
                  const Triangle & trk, const Mesh::points_t & ps)
 {
-	return - (laplace1 (phi_i, phi_j, trk, ps) + laplace2 (phi_i, phi_j, trk, ps) );
+	return (laplace1 (phi_i, phi_j, trk, ps) + laplace2 (phi_i, phi_j, trk, ps) );
 }
 
 struct slaplace_right_part_cb_data
