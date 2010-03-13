@@ -340,18 +340,29 @@ double integrate_1_cos (const Polynom & p, const Triangle & tr, const vector < M
 struct mybind2d
 {
 	fxy_t func;
-	double v;
+
+	double k1;
+	double b1;
+
+	double k2;
+	double b2;
+
 	void * data;
 
-	mybind2d(fxy_t func, double v, void * data):
-		func (func), v (v), data (data)
+	mybind2d(fxy_t func, double k1, double b1, double k2, double b2, void * data):
+		func (func), k1 (k1), b1(b1), k2(k2), b2(b2), data (data)
 	{
+	}
+
+	double apply(double x)
+	{
+		return func(x, k2 * x + b2, data) - func(x, k1 * x + b1, data);
 	}
 };
 
 static double boundary_func (double x, mybind2d * b)
 {
-	return b->func(x, b->v, b->data);
+	return b->apply(x);
 }
 
 double
@@ -439,13 +450,9 @@ integrate_boundary (const Triangle & tr, fxy_t func, void * data)
 		k3 = (y3 - y1) / (x3 - x1);
 		b3 = (y1 * x3 - x1 * y3) / (x3 - x1);
 
-		// int [x1, x3][k1 x + b1, k3 x + b3]
-		mybind2d bb1(func, k3 * x3 + b3, data);
-		double p1 = gauss_kronrod15(x1, x3, (fx_t)boundary_func, &bb1);
-
-		mybind2d bb2(func, k1 * x1 + b1, data);
-		double p2 = gauss_kronrod15(x1, x3, (fx_t)boundary_func, &bb2);
-		int1 = p1 - p2;
+		// int [k1 x + b1, k3 x + b3][x1, x3] dy dx
+		mybind2d bb(func, k1, b1, k3, b3, data);
+		int1 = gauss_kronrod15(x1, x3, (fx_t)boundary_func, &bb);
 	}
 	else
 	{
@@ -458,12 +465,8 @@ integrate_boundary (const Triangle & tr, fxy_t func, void * data)
 		b2 = (y3 * x2 - x3 * y2) / (x2 - x3);
 
 		// int [x3, x2][k1 x + b1, k2 x + b2]
-		mybind2d bb1(func, k2 * x2 + b2, data);
-		double p1 = gauss_kronrod15(x3, x2, (fx_t)boundary_func, &bb1);
-
-		mybind2d bb2(func, k1 * x3 + b1, data);
-		double p2 = gauss_kronrod15(x3, x2, (fx_t)boundary_func, &bb2);
-		int1 = p1 - p2;
+		mybind2d bb(func, k1, b1, k2, b2, data);
+		int1 = gauss_kronrod15(x3, x2, (fx_t)boundary_func, &bb);
 	}
 	else
 	{
