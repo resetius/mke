@@ -76,11 +76,11 @@ static double laplace1 (const Polynom & phi_i, const Polynom & phi_j,
                         const Triangle & trk, const Mesh::points_t & ps)
 {
 	Polynom poly1 = diff (phi_i, 0) * diff (phi_j, 0);
-	Polynom poly2 = phi_i * phi_j;
+	Polynom poly2 = diff (phi_i, 0) * phi_i * phi_j;
 
 //	return -integrate_cos(poly, trk, ps);
 	return -integrate_generic (trk, (fxy_t) integrate_cos_func, &poly1)
-		//+ integrate_boundary(trk, (fxy_t) integrate_cos_func, &poly2)
+		+ integrate_boundary_y(trk, (fxy_t) integrate_cos_func, &poly2)
 		;
 }
 
@@ -95,7 +95,7 @@ static double laplace2 (const Polynom & phi_i, const Polynom & phi_j,
 
 //	return -integrate_1_cos(poly, trk, ps);
 	return -integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly1)
-		+ integrate_boundary(trk, (fxy_t) integrate_1_cos_func, &poly2);
+		+ integrate_boundary_x(trk, (fxy_t) integrate_1_cos_func, &poly2);
 }
 
 double slaplace (const Polynom & phi_i, const Polynom & phi_j,
