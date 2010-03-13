@@ -354,15 +354,25 @@ struct mybind2d
 	{
 	}
 
-	double apply(double x)
+	double apply_x(double x)
 	{
 		return func(x, k2 * x + b2, data) - func(x, k1 * x + b1, data);
 	}
+
+	double apply_y(double y)
+	{
+		return func(k2 * y + b2, y, data) - func(k1 * y + b1, y, data);
+	}
 };
 
-static double boundary_func (double x, mybind2d * b)
+static double boundary_func_x (double x, mybind2d * b)
 {
-	return b->apply(x);
+	return b->apply_x(x);
+}
+
+static double boundary_func_y (double y, mybind2d * b)
+{
+	return b->apply_y(y);
 }
 
 double
@@ -452,7 +462,7 @@ integrate_boundary (const Triangle & tr, fxy_t func, void * data)
 
 		// int [k1 x + b1, k3 x + b3][x1, x3] dy dx
 		mybind2d bb(func, k1, b1, k3, b3, data);
-		int1 = gauss_kronrod15(x1, x3, (fx_t)boundary_func, &bb);
+		int1 = gauss_kronrod15(x1, x3, (fx_t)boundary_func_x, &bb);
 	}
 	else
 	{
@@ -466,7 +476,7 @@ integrate_boundary (const Triangle & tr, fxy_t func, void * data)
 
 		// int [x3, x2][k1 x + b1, k2 x + b2]
 		mybind2d bb(func, k1, b1, k2, b2, data);
-		int1 = gauss_kronrod15(x3, x2, (fx_t)boundary_func, &bb);
+		int2 = gauss_kronrod15(x3, x2, (fx_t)boundary_func_x, &bb);
 	}
 	else
 	{
