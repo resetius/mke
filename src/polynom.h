@@ -232,6 +232,12 @@ double integrate_sin (const Polynom & p, const Triangle & t,
 double integrate_1_cos (const Polynom & p, const Triangle & t,
                         const std::vector < MeshPoint > & ps);
 
+double
+integrate_boundary_x (const Triangle & tr, fxy_t func, void * data);
+
+double
+integrate_boundary_y (const Triangle & tr, fxy_t func, void * data);
+
 /**
  * A product of polynom p1 by polynom p2.
  *

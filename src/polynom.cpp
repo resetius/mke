@@ -337,6 +337,272 @@ double integrate_1_cos (const Polynom & p, const Triangle & tr, const vector < M
 	return integrate_ (p, tr, ps, trapezoid_integral_1_cos);
 }
 
+struct mybind2d
+{
+	fxy_t func;
+
+	double k1;
+	double b1;
+
+	double k2;
+	double b2;
+
+	void * data;
+
+	mybind2d(fxy_t func, double k1, double b1, double k2, double b2, void * data):
+		func (func), k1 (k1), b1(b1), k2(k2), b2(b2), data (data)
+	{
+	}
+
+	double apply_x(double x)
+	{
+		return func(x, k2 * x + b2, data) - func(x, k1 * x + b1, data);
+	}
+
+	double apply_y(double y)
+	{
+		return func(k2 * y + b2, y, data) - func(k1 * y + b1, y, data);
+	}
+};
+
+static double boundary_func_x (double x, mybind2d * b)
+{
+	return b->apply_x(x);
+}
+
+static double boundary_func_y (double y, mybind2d * b)
+{
+	return b->apply_y(y);
+}
+
+double
+integrate_boundary_x (const Triangle & tr, fxy_t func, void * data)
+{
+	double k1, b1, k2, b2, k3, b3, t;
+
+	double x1, x2, x3;
+	double y1, y2, y3;
+
+	double int1 = 0.0, int2 = 0.0;
+
+	x1 = tr.x[0];
+	x2 = tr.x[1];
+	x3 = tr.x[2];
+	y1 = tr.y[0];
+	y2 = tr.y[1];
+	y3 = tr.y[2];
+
+	if (x1 <= x2 && x2 <= x3)
+	{
+		t = x2;
+		x2 = x3;
+		x3 = t;
+		t = y2;
+		y2 = y3;
+		y3 = t;
+	}
+	else if (x2 <= x1 && x1 <= x3)
+	{
+		t = x1;
+		x1 = x2;
+		x2 = t;
+		t = x2;
+		x2 = x3;
+		x3 = t;
+
+		t = y1;
+		y1 = y2;
+		y2 = t;
+		t = y2;
+		y2 = y3;
+		y3 = t;
+	}
+	else if (x2 <= x3 && x3 <= x1)
+	{
+		t = x1;
+		x1 = x2;
+		x2 = t;
+		t = y1;
+		y1 = y2;
+		y2 = t;
+	}
+	else if (x3 <= x1 && x1 <= x2)
+	{
+		t = x1;
+		x1 = x3;
+		x3 = t;
+		t = y1;
+		y1 = y3;
+		y3 = t;
+	}
+	else if (x3 <= x2 && x2 <= x1)
+	{
+		t = x1;
+		x1 = x3;
+		x3 = t;
+		t = x2;
+		x2 = x3;
+		x3 = t;
+
+		t = y1;
+		y1 = y3;
+		y3 = t;
+		t = y2;
+		y2 = y3;
+		y3 = t;
+	}
+
+	k1 = (y2 - y1) / (x2 - x1);
+	b1 = (y1 * x2 - x1 * y2) / (x2 - x1);
+
+	if (fabs (x1 - x3) > 1e-15)
+	{
+		k3 = (y3 - y1) / (x3 - x1);
+		b3 = (y1 * x3 - x1 * y3) / (x3 - x1);
+
+		// int [k1 x + b1, k3 x + b3][x1, x3] dy dx
+		mybind2d bb(func, k1, b1, k3, b3, data);
+		int1 = gauss_kronrod15(x1, x3, (fx_t)boundary_func_x, &bb);
+	}
+	else
+	{
+		int1 = 0;
+	}
+
+	if (fabs (x3 - x2) > 1e-15)
+	{
+		k2 = (y2 - y3) / (x2 - x3);
+		b2 = (y3 * x2 - x3 * y2) / (x2 - x3);
+
+		// int [x3, x2][k1 x + b1, k2 x + b2]
+		mybind2d bb(func, k1, b1, k2, b2, data);
+		int2 = gauss_kronrod15(x3, x2, (fx_t)boundary_func_x, &bb);
+	}
+	else
+	{
+		int2 = 0;
+	}
+
+	if (y3 >= y1 && y3 >= y2) return int1 + int2;
+	else if (y3 <= y1 && y3 <= y2) return -int1 - int2;
+	else if (y3 >= k1 * x3 + b1) return int1 + int2;
+	else return -int1 - int2;
+}
+
+double
+integrate_boundary_y (const Triangle & tr, fxy_t func, void * data)
+{
+	double k1, b1, k2, b2, k3, b3, t;
+
+	double x1, x2, x3;
+	double y1, y2, y3;
+
+	double int1 = 0.0, int2 = 0.0;
+
+	x1 = tr.y[0];
+	x2 = tr.y[1];
+	x3 = tr.y[2];
+	y1 = tr.x[0];
+	y2 = tr.x[1];
+	y3 = tr.x[2];
+
+	if (x1 <= x2 && x2 <= x3)
+	{
+		t = x2;
+		x2 = x3;
+		x3 = t;
+		t = y2;
+		y2 = y3;
+		y3 = t;
+	}
+	else if (x2 <= x1 && x1 <= x3)
+	{
+		t = x1;
+		x1 = x2;
+		x2 = t;
+		t = x2;
+		x2 = x3;
+		x3 = t;
+
+		t = y1;
+		y1 = y2;
+		y2 = t;
+		t = y2;
+		y2 = y3;
+		y3 = t;
+	}
+	else if (x2 <= x3 && x3 <= x1)
+	{
+		t = x1;
+		x1 = x2;
+		x2 = t;
+		t = y1;
+		y1 = y2;
+		y2 = t;
+	}
+	else if (x3 <= x1 && x1 <= x2)
+	{
+		t = x1;
+		x1 = x3;
+		x3 = t;
+		t = y1;
+		y1 = y3;
+		y3 = t;
+	}
+	else if (x3 <= x2 && x2 <= x1)
+	{
+		t = x1;
+		x1 = x3;
+		x3 = t;
+		t = x2;
+		x2 = x3;
+		x3 = t;
+
+		t = y1;
+		y1 = y3;
+		y3 = t;
+		t = y2;
+		y2 = y3;
+		y3 = t;
+	}
+
+	k1 = (y2 - y1) / (x2 - x1);
+	b1 = (y1 * x2 - x1 * y2) / (x2 - x1);
+
+	if (fabs (x1 - x3) > 1e-15)
+	{
+		k3 = (y3 - y1) / (x3 - x1);
+		b3 = (y1 * x3 - x1 * y3) / (x3 - x1);
+
+		// int [k1 x + b1, k3 x + b3][x1, x3] dy dx
+		mybind2d bb(func, k1, b1, k3, b3, data);
+		int1 = gauss_kronrod15(x1, x3, (fx_t)boundary_func_y, &bb);
+	}
+	else
+	{
+		int1 = 0;
+	}
+
+	if (fabs (x3 - x2) > 1e-15)
+	{
+		k2 = (y2 - y3) / (x2 - x3);
+		b2 = (y3 * x2 - x3 * y2) / (x2 - x3);
+
+		// int [x3, x2][k1 x + b1, k2 x + b2]
+		mybind2d bb(func, k1, b1, k2, b2, data);
+		int2 = gauss_kronrod15(x3, x2, (fx_t)boundary_func_y, &bb);
+	}
+	else
+	{
+		int2 = 0;
+	}
+
+	if (y3 >= y1 && y3 >= y2) return int1 + int2;
+	else if (y3 <= y1 && y3 <= y2) return -int1 - int2;
+	else if (y3 >= k1 * x3 + b1) return int1 + int2;
+	else return -int1 - int2;
+}
+
 extern "C" double cubature7 (double x1, double y1, double x2, double y2, double x3, double y3, fxy_t f, void * d);
 
 double integrate_generic (const Triangle & tr, fxy_t f, void * data)
