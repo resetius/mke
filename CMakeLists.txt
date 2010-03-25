@@ -18,6 +18,10 @@ find_package(NETCDF)
 include(CommonDefinitions)
 endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
+if (EXISTS "${CMAKE_CURRENT_BINARY_DIR}/settings.cmake")
+	include(${CMAKE_CURRENT_BINARY_DIR}/settings.cmake)
+endif()
+
 add_subdirectory(contrib)
 add_subdirectory(src)
 add_subdirectory(utils)

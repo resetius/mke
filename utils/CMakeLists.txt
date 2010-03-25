@@ -8,6 +8,7 @@ endif (NETCDF_FOUND AND BISON_FOUND)
 set(EXECUTABLE_OUTPUT_PATH "../bin")
 set(LIBRARY_OUTPUT_PATH "../lib")
 
+include_directories(".")
 add_library(mesh_builder mesh_builder.cpp)
 add_executable(sphere icosahedron.cpp)
 add_executable(rectangle rectangle.cpp)

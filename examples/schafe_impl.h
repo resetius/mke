@@ -118,6 +118,7 @@ template < typename T >
 void SphereChafe < T > ::solve (T * Ans, const T * X0,
                                 const T * bnd, double t)
 {
+	using namespace phelm;
 	int rs  = (int) m_.inner.size();
 	int os = (int) m_.outer.size();
 	int sz  = (int) m_.ps.size();

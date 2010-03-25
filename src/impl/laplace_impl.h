@@ -72,6 +72,7 @@ laplace_integrate_cb ( const Polynom & phi_i,
 template < typename T >
 void Laplace < T >::solve (T * Ans, const T * F, const T * bnd)
 {
+	using namespace phelm;
 	//пока используем первый порядок
 	int sz  = (int) m_.ps.size();
 	int ntr = (int) m_.tr.size();
@@ -106,6 +107,7 @@ Laplace < T >::Laplace (const Mesh & m) : m_ (m),
 template < typename T >
 void Laplace < T > ::calc2 (T * Ans, const T * F)
 {
+	using namespace phelm;
 	int rs = (int) m_.inner.size();
 	int os = (int) m_.outer.size();
 	int sz = (int) m_.ps.size();

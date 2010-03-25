@@ -89,6 +89,7 @@ template < typename T >
 void SphereLaplace < T >::solve (T * Ans,
                                  const T * F, const T * bnd)
 {
+	using namespace phelm;
 	//ïîêà èñïîëüçóåì ïåðâûé ïîðÿäîê
 	int sz  = (int) m_.ps.size();
 	int ntr = (int) m_.tr.size();
@@ -144,6 +145,8 @@ SphereLaplace < T > ::SphereLaplace (const Mesh & m) : m_ (m),
 template < typename T >
 void SphereLaplace < T > ::calc2 (T * Ans, const T * F)
 {
+	using namespace phelm;
+
 #if 0
 	vector < double > rp (m_.inner.size() );
 
