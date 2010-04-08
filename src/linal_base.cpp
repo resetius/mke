@@ -200,7 +200,7 @@ void vec_print (const float * A, int n)
 template < typename T >
 void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
-#if 0
+#if 1
 
 #pragma omp parallel
 	{

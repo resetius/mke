@@ -259,6 +259,8 @@ int main (int argc, char * argv[])
 			}
 
 			int threads = atoi (argv[i + 1]);
+
+			fprintf(stderr, "threads=%d\n", threads);
 			set_num_threads (threads);
 		}
 		if (!strcmp (argv[i], "--double") || !strcmp (argv[i], "-d") )
