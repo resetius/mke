@@ -7,15 +7,20 @@
 #include "gmres.h"
 #include "util.h"
 #include "solver.h"
+#include "phelm.h"
+#include "laplace.h"
 
 using namespace phelm;
 using namespace std;
 
 void usage (const char * n)
 {
-	fprintf (stderr, "%s [--threads|-t n] [--double|-d] [--task] [--dim] [--iters]\n", n);
+	fprintf (stderr, "%s [--threads|-t n] [--double|-d] \
+[--task] [--dim] [--iters] [--mesh] [--operator]\n", n);
 	fprintf (stderr, "--threads n - sets the number of threads\n");
 	fprintf (stderr, "--double - use double or float ? \n");
+	fprintf (stderr, "--mesh - mesh for mult_sparse \n");
+	fprintf (stderr, "--operator - operator for mult_sparse \n");
 	fprintf (stderr, "--task - all\n"
 	         "mult_dense\n"
 	         "mult_sparse\n"
@@ -160,8 +165,20 @@ bool test_solve (int n, int iters)
 	return ret;
 }
 
+template < typename M, typename V >
+void mult_loop(V & x1, M & M1, V & b, int iters)
+{
+	Timer t;
+	t.restart();
+	for (int k = 0; k < iters; ++k)
+	{
+		M1.mult_vector (&x1[0], &b[0]);
+	}
+	fprintf (stdout, "M1 mult_vector: %lf\n", t.elapsed() );
+}
+
 template < typename T >
-bool test_mult (int n, int iters)
+bool test_mult (int n, int iters, const Mesh & m, const string & operator_name)
 {
 	int i, j = 0;
 	if (n <= 0)     n     = 320000;
@@ -176,24 +193,25 @@ bool test_mult (int n, int iters)
 	vector < T > v (n);
 	fprintf (stderr, "n=%d, iters=%d\n", n, iters);
 
-	/* матрицу записываем по строкам! */
-	SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1 (n);
-	init_matrix (M1, n);
-
 	for (i = 0; i < n; ++i)
 	{
 		b[i] = 1;
 	}
 
-	Timer t;
-
-	t.restart();
-
-	for (int k = 0; k < iters; ++k)
-	{
-		M1.mult_vector (&x1[0], &b[0]);
+	if (operator_name.empty()) {
+		/* матрицу записываем по строкам! */
+		SparseSolver  < T, StoreELL < T , Allocator > , StoreELL < T , Allocator > > M1 (n);
+		init_matrix (M1, n);
+		mult_loop(x1, M1, b, iters);
+	} else {
+		if (operator_name == "laplace") {
+			Laplace < T > lapl(m);
+			mult_loop(x1, lapl.laplace_, b, iters);
+		} else {
+			fprintf(stderr, "unknown operator name %s\n", operator_name.c_str());
+			usage(0);
+		}
 	}
-	fprintf (stdout, "M1 mult_vector: %lf\n", t.elapsed() );
 
 	return ret;
 }
@@ -240,6 +258,11 @@ bool test_simple_mult (int n, int iters)
 
 int main (int argc, char * argv[])
 {
+	Mesh mesh;
+
+	string operator_name;
+	string mesh_file;
+
 	bool result        = true;
 	bool use_double    = false;
 	bool mult_dense    = false;
@@ -305,6 +328,36 @@ int main (int argc, char * argv[])
 
 			iters = atoi (argv[i + 1]);
 		}
+		if (!strcmp (argv[i], "--operator"))
+		{
+			if (i == argc - 1)
+			{
+				usage (argv[0]);
+			}
+
+			operator_name = argv[i + 1];
+		}
+		if (!strcmp (argv[i], "--mesh"))
+		{
+			if (i == argc - 1)
+			{
+				usage (argv[0]);
+			}
+
+			FILE * f = fopen(argv[i + 1], "rb");
+			if (!f) {
+				usage(argv[0]);
+			}
+
+			mesh.load(f);
+
+			fclose(f);
+
+			if (mesh.ps.empty() )
+			{
+				usage (argv[0]);
+			}
+		}
 		if (!strcmp (argv[i], "--help") || !strcmp (argv[i], "-h") )
 		{
 			usage (argv[0]);
@@ -335,7 +388,7 @@ int main (int argc, char * argv[])
 			if (mult_sparse)
 			{
 				t.restart();
-				result &= test_mult < double > (dim, iters);
+				result &= test_mult < double > (dim, iters, mesh, operator_name);
 				fprintf (stderr, "test_mult < double > (): %lf, %d\n", t.elapsed(), (int) result);
 			}
 
@@ -360,7 +413,7 @@ int main (int argc, char * argv[])
 			if (mult_sparse)
 			{
 				t.restart();
-				result &= test_mult < float > (dim, iters);
+				result &= test_mult < float > (dim, iters, mesh, operator_name);
 				fprintf (stderr, "test_mult < float > (): %lf, %d\n", t.elapsed(), (int) result);
 			}
 
