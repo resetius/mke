@@ -73,34 +73,35 @@ void build_rectangle(double x, double y, double w, double h, vector < Triangle >
 	}
 }
 
-void print_mesh(double x, double y, double w, double h, const vector < Triangle > & mesh, vector < Point > & points)
+void print_mesh(FILE * f, double x, double y, double w, double h, 
+		const vector < Triangle > & mesh, vector < Point > & points)
 {
 	for (vector < Point >::const_iterator it = points.begin();
 		it != points.end(); ++it)
 	{
-		fprintf(stdout, "%.16lf %.16lf\n", it->x, it->y);
+		fprintf(f, "%.16lf %.16lf\n", it->x, it->y);
 	}
-	fprintf(stdout, "# triangles\n");
+	fprintf(f, "# triangles\n");
 
 	for (vector < Triangle >::const_iterator it = mesh.begin();
 		it != mesh.end(); ++it)
 	{
-		fprintf(stdout, "%d %d %d\n", it->v1 + 1, it->v2 + 1, it->v3 + 1);
+		fprintf(f, "%d %d %d\n", it->v1 + 1, it->v2 + 1, it->v3 + 1);
 	}
-	fprintf(stdout, "# boundary\n");
+	fprintf(f, "# boundary\n");
 
 	for (size_t i = 0; i < points.size(); ++i) {
 		if (fabs(points[i].x - x) < 1e-15 || fabs(points[i].y - y) < 1e-15
 				|| fabs(points[i].x - x - w) < 1e-15 || fabs(points[i].y - y - h) < 1e-15)
 		{
-			fprintf(stdout, "%lu \n", i + 1);
+			fprintf(f, "%lu \n", i + 1);
 		}
 	}
 }
 
 void usage(const char * name)
 {
-	fprintf(stderr, "usage: %s x y w h iters\n", name);
+	fprintf(stderr, "usage: %s x y w h iters [output.txt]\n", name);
 	exit(1);
 }
 
@@ -121,8 +122,17 @@ int main(int argc, char * argv[])
 	fprintf(stderr, "x, y, w, h = %lf, %lf, %lf, %lf\n", x, y, w, h);
 	fprintf(stderr, "iterations = %d\n", iters);
 
+	FILE * f = stdout;
+	if (argc > 6) {
+		f = fopen(argv[6], "wb");
+		if (!f) {
+			fprintf(stderr, "cannot open %s\n", argv[6]);
+			usage(argv[0]);
+		}
+	}
+	
 	build_rectangle(x, y, w, h, mesh, points);
 	iterate_mesh(mesh, points, iters, flat_projector);
-	print_mesh(x, y, w, h, mesh, points);
+	print_mesh(f, x, y, w, h, mesh, points);
 }
 
