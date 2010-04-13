@@ -230,8 +230,8 @@ struct Graph
 
 	void print(FILE * f, int w, int h)
 	{
-		int blocks_x = w;
-		int blocks_y = h;
+		int blocks_x = n / ((n + w - 1) / w);
+		int blocks_y = n / ((n + h - 1) / h);
 
 		fprintf(f, "P1\n");
 		fprintf(f, "%d %d\n", blocks_x, blocks_y);
