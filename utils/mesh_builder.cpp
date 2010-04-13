@@ -209,3 +209,185 @@ void filter_mesh(vector < Triangle > & mesh,
 	new_mesh.swap(mesh);
 	new_points.swap(points);
 }
+
+struct Graph
+{
+	vector < set < int > > data;
+	int n;
+
+	Graph(): n(0) {}
+
+	void resize(int n1)
+	{
+		n = n1;
+		data.resize(n);
+	}
+
+	void adj(int i, int j)
+	{
+		data[i].insert(j);
+	}
+
+	void print(FILE * f, int w, int h)
+	{
+		int blocks_x = (n + w - 1) / w;
+		int blocks_y = (n + h - 1) / h;
+
+		fprintf(f, "P1\n");
+		fprintf(f, "%d %d\n", blocks_x, blocks_y);
+
+		for (int y = 0; y < blocks_y; ++y) {
+			int fl = n * y;
+			fl /= blocks_y;
+			int ll = n * (y + 1);
+			ll = ll / blocks_y - 1;
+
+			for (int x = 0; x < blocks_x; ++x) {
+				int fm = n * x;
+				fm /= blocks_x;
+				int lm = n * (x + 1);
+				lm = lm / blocks_x - 1;
+
+				bool flag = false;
+
+				for (int i = fl; i <= ll; ++i) {
+					for (int j = fm; j <= lm; ++j) {
+						if (data[i].find(j) != data[i].end()) {
+							flag = true;
+							goto ok;
+						}
+					}
+				}
+
+ok:
+				fprintf(stderr, "%d ", (int)flag);
+			}
+			fprintf(stderr, "\n");
+		}
+	}
+};
+
+struct Mesh
+{
+	typedef std::vector < Triangle > triangles_t;///<triangles container
+	typedef std::vector < Point >     points_t;  ///<points container
+	typedef std::vector < int > points_flags_t;  ///<points properties container
+
+	triangles_t tr; ///<triangles array
+	points_t ps;    ///<points array
+
+	/**
+	 * Properties array/
+	 *  - 0 - inner point
+	 *  - 1 - boundary point
+	 */
+	points_flags_t ps_flags;
+
+	/**
+	 * mapping: point -> triangle in point.
+	 */
+	std::vector < std::vector < int > > adj;
+	/**
+	 * Sequence numbers of inner points.
+	 */
+	std::vector < int > inner;
+	/**
+	 * Sequence numbers of boundary points.
+	 */
+	std::vector < int > outer;
+	/**
+	 * mapping: global point number -> inner point number or outer point number.
+	 */
+	std::vector < int > p2io;
+
+	void load(std::vector < Triangle > & tri,
+		vector < Point > & points,
+		vector < int > & boundary)
+	{
+		tr = tri;
+		ps = points;
+
+		adj.resize(ps.size());
+		ps_flags.resize(ps.size());
+
+		for (int tid = 0; tid < (int)tri.size(); ++tid) {
+			Triangle & t = tri[tid];
+			adj[t.v1].push_back(tid);
+			adj[t.v2].push_back(tid);
+			adj[t.v3].push_back(tid);
+		}
+
+		for (int i = 0; i < (int)boundary.size(); ++i) {
+			ps_flags[boundary[i]] = 1;
+		}
+
+		for (int i = 0; i < (int)ps.size(); ++i)
+		{
+			if (ps_flags[i] == 0)
+			{
+				p2io[i] = (int) inner.size();
+				inner.push_back (i);
+			}
+			else if (ps_flags[i] == 1)
+			{
+				p2io[i] = (int) outer.size();
+				outer.push_back (i);
+			}
+		}
+	}
+
+	void generate_graph(Graph & g)
+	{
+		int rs  = (int) inner.size();    // размерность
+		g.resize(rs);
+
+		for (int i = 0; i < rs; ++i)   // номер строки
+		{
+			// по внутренним точкам
+			int p = inner[i];
+
+			for (int tk = 0; tk < (int)adj[p].size(); ++tk)
+			{
+				// по треугольникам в точке
+				int trk_i = adj[p][tk];
+				const Triangle & t = tr[trk_i];
+
+				if (ps_flags[t.v1] == 0) {
+					g.adj(i, p2io[t.v1]);
+				}
+
+				if (ps_flags[t.v2] == 0) {
+					g.adj(i, p2io[t.v2]);
+				}
+
+				if (ps_flags[t.v2] == 0) {
+					g.adj(i, p2io[t.v2]);
+				}
+			}
+		}
+	}
+};
+
+void reorder_mesh(std::vector < Triangle > & tri,
+	vector < Point > & points,
+	vector < int > & boundary)
+{
+	Mesh mesh;
+	mesh.load(tri, points, boundary);
+}
+
+void vizualize_adj(vector < Triangle > & tri,
+	vector < Point > & points,
+	vector < int > & boundary, 
+	FILE * f,
+	int w,
+	int h)
+{
+	if (!f) return;
+
+	Mesh mesh;
+	Graph g;
+	mesh.load(tri, points, boundary);
+	mesh.generate_graph(g);
+	g.print(f, w, h);
+}

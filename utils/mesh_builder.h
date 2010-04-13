@@ -83,4 +83,15 @@ void filter_mesh(std::vector < Triangle > & mesh,
 				 std::vector < int > & boundary,
 				 filter_condition what);
 
+void reorder_mesh(std::vector < Triangle > & mesh,
+	std::vector < Point > & points,
+	std::vector < int > & boundary);
+
+void vizualize_adj(std::vector < Triangle > & tri,
+	std::vector < Point > & points,
+	std::vector < int > & boundary, 
+	FILE * f,
+	int w,
+	int h);
+
 #endif /* MESH_BUILDER_H */

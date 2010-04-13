@@ -134,7 +134,7 @@ void generate_matrix (Matrix & A, const Mesh & m,
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
 		{
-			// по треугольника в точке
+			// по треугольникам в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
 			const std::vector < Polynom > & phik = trk.elem1();
