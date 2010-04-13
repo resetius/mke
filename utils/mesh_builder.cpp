@@ -309,6 +309,7 @@ struct Mesh
 
 		adj.resize(ps.size());
 		ps_flags.resize(ps.size());
+		p2io.resize(ps.size());
 
 		for (int tid = 0; tid < (int)tri.size(); ++tid) {
 			Triangle & t = tri[tid];
