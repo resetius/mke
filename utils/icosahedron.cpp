@@ -491,7 +491,7 @@ void print_mesh(const vector < Triangle > & mesh,
 
 void usage(const char * name)
 {
-	fprintf(stderr, "usage: %s --type [full|half] --coord [local|global] --iter [number]\n", name);
+	fprintf(stderr, "usage: %s --type [full|half] --coord [local|global] --iter [number] --adj [adj.pgm]\n", name);
 	fprintf(stderr, "--type\n"
 			"   full -- fulsphere\n"
 			"   half -- hemisphere\n"
@@ -501,6 +501,8 @@ void usage(const char * name)
 			"   global -- (x,y,z)\n"
 			"--iter\n"
 			"   number -- number of iterations\n"
+			"--adj\n"
+			"   file.pgm\n -- vizualize mesh structure"
 			" \n\n"
 			" You can use Vizualizer 3D v3.2 or higher to vizualize this data\n"
 			" You must remove boundary section from the output \n"
@@ -512,6 +514,7 @@ void usage(const char * name)
 int main(int argc, char * argv[])
 {
 	int iters = 0;
+	FILE * f = 0;
 
 	/**
 	 * 0 - full sphere
@@ -568,6 +571,15 @@ int main(int argc, char * argv[])
 			} else if (!strcmp(argv[i + 1], "global")) {
 				local = false;
 			} else {
+				usage(argv[0]);
+			}
+		} else if (!strcmp(argv[i], "--adj")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			f = fopen(argv[i + 1], "wb");
+			if (!f) {
 				usage(argv[0]);
 			}
 		} else if (!strcmp(argv[i], "--iter")) {
@@ -629,6 +641,10 @@ int main(int argc, char * argv[])
 	iterate_mesh(mesh, points, iters, project);
 	filter_mesh(mesh, points, boundary, ok);
 	print_mesh(mesh, points, boundary, type, local);
+
+	if (f) {
+		vizualize_adj(mesh, points, boundary, f, 600, 600);
+	}
 	return 0;
 }
 
