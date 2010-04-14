@@ -454,7 +454,7 @@ struct Mesh
 					g.adj(i, p2io[t.v2]);
 				}
 
-				if (ps_flags[t.v2] == 0) {
+				if (ps_flags[t.v3] == 0) {
 					g.adj(i, p2io[t.v3]);
 				}
 			}
