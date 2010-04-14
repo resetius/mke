@@ -232,35 +232,25 @@ struct Graph
 	{
 		int blocks_x = n / ((n + w - 1) / w);
 		int blocks_y = n / ((n + h - 1) / h);
+		vector < bool > p(blocks_x * blocks_y);
 
 		fprintf(f, "P1\n");
 		fprintf(f, "%d %d\n", blocks_x, blocks_y);
 
+#pragma omp parallel for
+		for (int i = 0; i < n; ++i) {
+			for (set < int > ::iterator it = data[i].begin();
+					it != data[i].end(); ++it)
+			{
+				int y = i * blocks_y / n;
+				int x = *it * blocks_x / n;
+				p[y * blocks_x + x] = true;
+			}
+		}
+
 		for (int y = 0; y < blocks_y; ++y) {
-			int fl = n * y;
-			fl /= blocks_y;
-			int ll = n * (y + 1);
-			ll = ll / blocks_y - 1;
-
 			for (int x = 0; x < blocks_x; ++x) {
-				int fm = n * x;
-				fm /= blocks_x;
-				int lm = n * (x + 1);
-				lm = lm / blocks_x - 1;
-
-				bool flag = false;
-
-				for (int i = fl; i <= ll; ++i) {
-					for (int j = fm; j <= lm; ++j) {
-						if (data[i].find(j) != data[i].end()) {
-							flag = true;
-							goto ok;
-						}
-					}
-				}
-
-ok:
-				fprintf(f, "%d ", (int)flag);
+				fprintf(f, "%d ", (int)p[y * blocks_x + x]);
 			}
 			fprintf(f, "\n");
 		}
@@ -392,3 +382,4 @@ void vizualize_adj(vector < Triangle > & tri,
 	mesh.generate_graph(g);
 	g.print(f, w, h);
 }
+
