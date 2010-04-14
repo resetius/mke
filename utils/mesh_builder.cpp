@@ -232,6 +232,19 @@ public:
 		data[i].insert(j);
 	}
 
+	void symmetric_test()
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			for (set < int >::iterator n = data[i].begin(); n != data[i].end(); ++n)
+			{
+				if (data[*n].find(i) == data[*n].end()) {
+					assert(0);
+				}
+			}
+		}
+	}
+
 	void rcm()
 	{
 		vector < multimap < int, int > > sorted1; // node->[neighbors], neighbor: degree->node
@@ -241,6 +254,8 @@ public:
 		sorted1.resize(n);
 		sorted.resize(n);
 		order.resize(n);
+
+		symmetric_test();
 
 		for (int i = 0; i < n; ++i)
 		{
