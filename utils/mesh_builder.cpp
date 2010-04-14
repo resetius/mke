@@ -440,7 +440,7 @@ struct Mesh
 				}
 
 				if (ps_flags[t.v2] == 0) {
-					g.adj(i, p2io[t.v2]);
+					g.adj(i, p2io[t.v3]);
 				}
 			}
 		}
