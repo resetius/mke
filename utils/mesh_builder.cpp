@@ -234,7 +234,7 @@ public:
 
 	void rcm()
 	{
-		vector < map < int, int > > sorted1; // node->[neighbors], neighbor: degree->node
+		vector < multimap < int, int > > sorted1; // node->[neighbors], neighbor: degree->node
 		vector < list < int > > sorted;
 		vector < int > visited;
 		vector < int > order; // old_id -> new_id
@@ -246,7 +246,7 @@ public:
 		{
 			for (set < int >::iterator n = data[i].begin(); n != data[i].end(); ++n)
 			{
-				sorted1[i][data[*n].size()] = *n;
+				sorted1[i].insert(make_pair((int)data[*n].size(), *n));
 			}
 
 			order[i] = -1;
@@ -254,7 +254,8 @@ public:
 
 		for (int i = 0; i < n; ++i)
 		{
-			for (map < int, int >::iterator n = sorted1[i].begin(); n != sorted1[i].end(); ++n)
+			for (multimap < int, int >::iterator n = sorted1[i].begin(); 
+				n != sorted1[i].end(); ++n)
 			{
 				sorted[i].push_back(n->second);
 			}
