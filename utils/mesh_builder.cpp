@@ -35,8 +35,11 @@
  */
 
 #include <math.h>
+#include <assert.h>
+
 #include <map>
 #include <set>
+#include <list>
 
 #include "mesh_builder.h"
 
@@ -210,11 +213,12 @@ void filter_mesh(vector < Triangle > & mesh,
 	new_points.swap(points);
 }
 
-struct Graph
+class Graph
 {
 	vector < set < int > > data;
 	int n;
 
+public:
 	Graph(): n(0) {}
 
 	void resize(int n1)
@@ -226,6 +230,89 @@ struct Graph
 	void adj(int i, int j)
 	{
 		data[i].insert(j);
+	}
+
+	void rcm()
+	{
+		vector < map < int, int > > sorted1; // node->[neighbors], neighbor: degree->node
+		vector < list < int > > sorted;
+		vector < int > visited;
+		vector < int > order; // old_id -> new_id
+		sorted1.resize(n);
+		sorted.resize(n);
+		order.resize(n);
+
+		for (int i = 0; i < n; ++i)
+		{
+			for (set < int >::iterator n = data[i].begin(); n != data[i].end(); ++n)
+			{
+				sorted1[i][data[*n].size()] = *n;
+			}
+
+			order[i] = -1;
+		}
+
+		for (int i = 0; i < n; ++i)
+		{
+			for (map < int, int >::iterator n = sorted1[i].begin(); n != sorted1[i].end(); ++n)
+			{
+				sorted[i].push_back(n->second);
+			}
+		}
+
+		int v = 0;
+		int k = 0;
+		list < int > vertices;
+
+again:
+		vertices.push_back(v);
+
+		do
+		{
+			// print node
+
+			v = vertices.front();
+			vertices.pop_front();
+
+			if (order[v] != -1) {
+				continue;
+			}
+
+			order[v]   = k++;
+			list < int > & neighbours = sorted[v];
+			list < int > unvisited;
+
+			for (list < int >::iterator it = neighbours.begin();
+					it != neighbours.end(); ++it)
+			{
+				if (order[*it] < 0) {
+					unvisited.push_back(*it);
+				}
+			}
+
+			unvisited.swap(neighbours);
+			vertices.insert(vertices.end(), neighbours.begin(), neighbours.end());
+		} while (!vertices.empty());
+
+		for (int i = 0; i < n; ++i)
+		{
+			if (order[i] == -1) {
+				v = i;
+				goto again;
+			}
+		}
+
+		vector < set < int > > new_data;
+		new_data.resize(n);
+
+		for (int i = 0; i < n; ++i) {
+			for (set < int > ::iterator it = data[i].begin(); it != data[i].end(); ++it)
+			{
+				new_data[order[i]].insert(order[*it]);
+			}
+		}
+
+		new_data.swap(data);
 	}
 
 	void print(FILE * f, int w, int h)
@@ -380,6 +467,7 @@ void vizualize_adj(vector < Triangle > & tri,
 	Graph g;
 	mesh.load(tri, points, boundary);
 	mesh.generate_graph(g);
+	g.rcm();
 	g.print(f, w, h);
 }
 
