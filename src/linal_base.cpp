@@ -200,11 +200,9 @@ void vec_print (const float * A, int n)
 template < typename T >
 void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
-#if 1
-
 #pragma omp parallel
 	{
-		int block_dim = 900; //cache size = (block_dim * block_dim * 8)
+		int block_dim = 400; //cache size = (block_dim * block_dim * 8)
 		int blocks = (n + block_dim - 1) / block_dim;
 
 #pragma omp for
@@ -222,9 +220,9 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 
 			for (int m = 0; m < blocks; ++m)
 			{
-				int fm = n * l;
+				int fm = n * m;
 				fm /= blocks;
-				int lm = n * (l + 1);
+				int lm = n * (m + 1);
 				lm = lm / blocks - 1;
 
 				// blocks:
@@ -243,22 +241,9 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 					}
 					r[i] += s;
 				}
-#pragma omp barrier
 			}
 		}
 	}
-#else
-#pragma omp parallel for
-	for (int i = 0; i < n; ++i)
-	{
-		T s = 0.0;
-		for (int j = 0; j < n; ++j)
-		{
-			s += A[i * n + j] * x[j];
-		}
-		r[i] = s;
-	}
-#endif
 }
 
 void mat_mult_vector (double * r, const double * A, const double * x, int n)
@@ -269,6 +254,31 @@ void mat_mult_vector (double * r, const double * A, const double * x, int n)
 void mat_mult_vector (float * r, const float * A, const float * x, int n)
 {
 	mat_mult_vector_ (r, A, x, n);
+}
+
+template < typename T >
+void mat_mult_vector_stupid_ (T * r, const T * A, const T * x, int n)
+{
+#pragma omp parallel for
+	for (int i = 0; i < n; ++i)
+	{
+		T s = 0.0;
+		for (int j = 0; j < n; ++j)
+		{
+			s += A[i * n + j] * x[j];
+		}
+		r[i] = s;
+	}
+}
+
+void mat_mult_vector_stupid (double * r, const double * A, const double * x, int n)
+{
+	mat_mult_vector_stupid_ (r, A, x, n);
+}
+
+void mat_mult_vector_stupid (float * r, const float * A, const float * x, int n)
+{
+	mat_mult_vector_stupid_ (r, A, x, n);
 }
 
 template < typename T >

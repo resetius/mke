@@ -119,6 +119,24 @@ void mat_mult_vector (double * r, const double * A, const double * x, int n);
 void mat_mult_vector (float * r, const float * A, const float * x, int n);
 
 /**
+ * Product of NxN matrix and vector (stupid algorithm)
+ * @param r - output vector, r = Ax
+ * @param A - intput matrix
+ * @param x - input vector
+ * @param n - dimension of matrix and vector
+ */
+void mat_mult_vector_stupid (double * r, const double * A, const double * x, int n);
+
+/**
+ * Product of NxN matrix and vector (stupid algorithm)
+ * @param r - output vector, r = Ax
+ * @param A - intput matrix
+ * @param x - input vector
+ * @param n - dimension of matrix and vector
+ */
+void mat_mult_vector_stupid (float * r, const float * A, const float * x, int n);
+
+/**
  * CSR matrix multiplication: r = A x
  * @param r - output vector
  * @param Ap -

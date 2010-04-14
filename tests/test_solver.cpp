@@ -219,7 +219,8 @@ bool test_mult (int n, int iters, const Mesh & m, const string & operator_name)
 template < typename T >
 bool test_simple_mult (int n, int iters)
 {
-	int i, j = 0;
+	int i, j = 0, k;
+	double mx = 0;
 	if (n <= 0)     n     = 10000;
 	if (iters <= 0) iters = 100;
 
@@ -234,8 +235,22 @@ bool test_simple_mult (int n, int iters)
 	fprintf (stderr, "n=%d, iters=%d\n", n, iters);
 
 	/* матрицу записываем по строкам! */
-	SimpleSolver  < T > M1 (n);
-	init_matrix2 (M1, n);
+	vector < T > M1 (n*n);
+
+	srand(time(0));
+	for (i = 0; i < n; ++i)
+	{
+		for (j = 0; j < n; ++j)
+		{
+			//if (i > j) {
+			//	M1[i * n + j] = 1;
+			//} else if (i < j) {
+			//	M1[i * n + j] = 2;
+			//}
+			//M1[i * n + j] = (double)rand() / (double)RAND_MAX;
+			M1[i * n + j] = 1. / (double) (i + j + 1);
+		}
+	}
 
 	for (i = 0; i < n; ++i)
 	{
@@ -246,11 +261,23 @@ bool test_simple_mult (int n, int iters)
 
 	t.restart();
 
-	for (int k = 0; k < iters; ++k)
+	for (k = 0; k < iters; ++k)
 	{
-		M1.mult_vector (&x1[0], &b[0]);
+		mat_mult_vector (&x1[0], &M1[0], &b[0], n);
 	}
 	fprintf (stdout, "M1 (simple) mult_vector: %lf\n", t.elapsed() );
+#if 0 
+	mat_mult_vector_stupid(&x2[0], &M1[0], &b[0], n);
+
+	for (i = 0; i < n; ++i) {
+		double a = fabs(x2[i] - x1[i]);
+		if (mx < a) {
+			mx = a;
+		}
+		fprintf(stderr, "%.16lf %.16lf\n", x1[i], x2[i]);
+	}
+	fprintf(stderr, "diff = %.16le\n", mx);
+#endif
 
 	return ret;
 
