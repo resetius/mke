@@ -37,6 +37,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <vector>
 #include <map>
@@ -109,7 +110,7 @@ void print_mesh(FILE * f, double x, double y, double w, double h,
 
 void usage(const char * name)
 {
-	fprintf(stderr, "usage: %s x y w h iters [output.txt] [output.pgm]\n", name);
+	fprintf(stderr, "usage: %s x y w h iters [-o output.txt] [-pgm output.pgm] [-nosort]\n", name);
 	exit(1);
 }
 
@@ -128,31 +129,46 @@ int main(int argc, char * argv[])
 	double w  = atof(argv[3]);
 	double h  = atof(argv[4]);
 	int iters = atoi(argv[5]);
+	bool sort = true;
+
 	fprintf(stderr, "x, y, w, h = %lf, %lf, %lf, %lf\n", x, y, w, h);
 	fprintf(stderr, "iterations = %d\n", iters);
 
 	FILE * f1 = stdout;
 	FILE * f2 = 0;
-	if (argc > 6) {
-		f1 = fopen(argv[6], "wb");
-		if (!f1) {
-			fprintf(stderr, "cannot open %s\n", argv[6]);
-			usage(argv[0]);
-		}
-	}
 
-	if (argc > 7) {
-		f2 = fopen(argv[7], "wb");
-		if (!f2) {
-			fprintf(stderr, "cannot open %s\n", argv[6]);
-			usage(argv[0]);
+	for (int i = 6; i < argc; ++i) {
+		if (!strcmp(argv[i], "-o")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			f1 = fopen(argv[i + 1], "wb");
+			if (!f1) {
+				fprintf(stderr, "cannot open %s\n", argv[6]);
+				usage(argv[0]);
+			}
+		} else if (!strcmp(argv[i], "-pgm")) {
+			if (i == argc - 1) {
+				usage(argv[0]);
+			}
+
+			f2 = fopen(argv[i + 1], "wb");
+			if (!f2) {
+				fprintf(stderr, "cannot open %s\n", argv[6]);
+				usage(argv[0]);
+			}
+		} else if (!strcmp(argv[i], "-nosort")) {
+			sort = false;
 		}
 	}
 
 	build_rectangle(x, y, w, h, mesh, points);
 	iterate_mesh(mesh, points, iters, flat_projector);
 	make_boundary(x, y, w, h, points, boundary);
-	reorder_mesh(mesh, points, boundary);
+	if (sort) {
+		reorder_mesh(mesh, points, boundary);
+	}
 	print_mesh(f1, x, y, w, h, mesh, points, boundary);
 
 	fclose(f1);
