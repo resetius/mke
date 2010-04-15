@@ -7,8 +7,7 @@ link_directories(../lib)
 create_test_sourcelist(test_chafe_source test_chafe_driver.cpp test_chafe.cpp test_schafe.cpp)
 create_test_sourcelist(test_laplace_source test_laplace_driver.cpp test_laplace.cpp test_slaplace.cpp)
 
-add_executable(test_laplace ${test_laplace_source})
-add_executable(test_chafe ${test_chafe_source}
+set(chafe_source
 	# Spheric Chafe-Infante equation
 	schafe.cpp
 	schafe.h
@@ -17,8 +16,10 @@ add_executable(test_chafe ${test_chafe_source}
 	# Flat Chafe-Infante equation
 	chafe.cpp
 	chafe.h
-	chafe_impl.h
-	)
+	chafe_impl.h)
+
+add_executable(test_laplace ${test_laplace_source})
+add_executable(test_chafe ${test_chafe_source} ${chafe_source})
 
 add_executable(test_system_laplace test_system_laplace.cpp)
 add_executable(test_jacobian test_jacobian.cpp)
@@ -45,12 +46,12 @@ endif (OPENMP_FOUND)
 
 if (CUDA_FOUND)
 	cuda_add_executable(test_laplace_cu ${test_laplace_source})
-	target_link_libraries(test_laplace_cu phelm_cu phelm_aux_cu ${UMFPACK})
+	target_link_libraries(test_laplace_cu phelm_cu ${UMFPACK})
 	cuda_add_cublas_to_target(test_laplace_cu)
 	set_target_properties(test_laplace_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 
-	cuda_add_executable(test_chafe_cu ${test_chafe_source})
-	target_link_libraries(test_chafe_cu phelm_cu phelm_aux_cu ${UMFPACK})
+	cuda_add_executable(test_chafe_cu ${test_chafe_source} ${chafe_source})
+	target_link_libraries(test_chafe_cu phelm_cu ${UMFPACK})
 	cuda_add_cublas_to_target(test_chafe_cu)
 	set_target_properties(test_chafe_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 
