@@ -328,23 +328,27 @@ double v(double x, double y, double z)
 	return v1;
 }
 
-void print_mesh(const vector < Triangle > & mesh,
-				vector < Point > & points,
-				vector < int > & boundary,
-				int type, bool local)
+void print_mesh(FILE * f, const vector < Triangle > & mesh,
+                vector < Point > & points,
+                vector < int > & boundary,
+                int type, bool local)
 {
-	fprintf(stdout, "#points:%lu\n", points.size());
-	fprintf(stdout, "#triangles:%lu\n", mesh.size());
-	fprintf(stdout, "# zone1 ; zone2 ; zone 3; ... \n");
+	if (!f) {
+		goto gen_boundary_only;
+	}
+
+	fprintf(f, "#points:%lu\n", points.size());
+	fprintf(f, "#triangles:%lu\n", mesh.size());
+	fprintf(f, "# zone1 ; zone2 ; zone 3; ... \n");
 	if (local) {
-		fprintf(stdout, "# u = theta  [-pi/2, pi/2]\n"
+		fprintf(f, "# u = theta  [-pi/2, pi/2]\n"
 				"# v = lambda [0, 2pi]\n"
 				"# x = cos u cos v \n"
 				"# y = cos u sin v \n"
 				"# z = sin u \n"
 				"# u v \n");
 	} else {
-		fprintf(stdout, "# x y z \n");
+		fprintf(f, "# x y z \n");
 	}
 
 	for (vector < Point >::const_iterator it = points.begin();
@@ -364,34 +368,34 @@ void print_mesh(const vector < Triangle > & mesh,
 		if (local) {
 			double u_ = u(x, y, z), v_ = v(x, y, z);
 			// zone 1
-			fprintf(stdout, "%.16lf %.16lf ", u_, v_);
+			fprintf(f, "%.16lf %.16lf ", u_, v_);
 			// zone 2
 			u_ = u(-x, -y, z); v_ = v(-x, -y, z);
-			fprintf(stdout, " ; %.16lf %.16lf ", u_, v_);
+			fprintf(f, " ; %.16lf %.16lf ", u_, v_);
 
 			if (type == 0 || type == 1 || type == 4) {
 				// zone 3
 				u_ = u(x, -z, y);
 				v_ = v(x, -z, y);
-				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_);
+				fprintf(f, " ; %.16lf %.16lf ", u_, v_);
 
 				// zone 4
 				u_ = u(x, z, -y);
 				v_ = v(x, z, -y);
-				fprintf(stdout, " ; %.16lf %.16lf ", u_, v_);
+				fprintf(f, " ; %.16lf %.16lf ", u_, v_);
 			}
 
-			fprintf(stdout, "\n");
+			fprintf(f, "\n");
 		} else {
-			fprintf(stdout, "%.16lf %.16lf %.16lf\n", x, y, z);
+			fprintf(f, "%.16lf %.16lf %.16lf\n", x, y, z);
 		}
 	}
-	fprintf(stdout, "# triangles %lu \n", mesh.size());
+	fprintf(f, "# triangles %lu \n", mesh.size());
 
 	for (vector < Triangle >::const_iterator it = mesh.begin();
 		it != mesh.end(); ++it)
 	{
-		fprintf(stdout, "%d %d %d ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
+		fprintf(f, "%d %d %d ", it->v1 + 1, it->v2 + 1, it->v3 + 1);
 		if (type != 5) {
 			double x1, y1, z1, x2, y2, z2, x3, y3, z3;
 			double u1, v1, u2, v2, u3, v3;
@@ -420,33 +424,34 @@ void print_mesh(const vector < Triangle > & mesh,
 			if (type == 0 || type == 1 || type == 4) {
 				if (z1 > 0.9 || z2 > 0.9 || z3 > 0.9) {
 					// in zone 4
-					fprintf(stdout, " ; 4 ");
+					fprintf(f, " ; 4 ");
 				} else if (z1 < -0.9 || z2 < -0.9 || z3 < -0.9) {
 					// in zone 3
-					fprintf(stdout, " ; 3 ");
+					fprintf(f, " ; 3 ");
 				} else
 				if (   v1 < M_PI_2 || v2  < M_PI_2 || v2 < M_PI_2
 					|| v1 > 1.5 * M_PI || v2  > 1.5 * M_PI || v2 > 1.5 * M_PI)
 				{
 					// in zone 2
-					fprintf(stdout, " ; 2 ");
+					fprintf(f, " ; 2 ");
 				}
 			} else if (type != 2) {
 				if (   v1 < M_PI_2 || v2  < M_PI_2 || v2 < M_PI_2
 					|| v1 > 1.5 * M_PI || v2  > 1.5 * M_PI || v2 > 1.5 * M_PI)
 				{
 					// in zone 2
-					fprintf(stdout, " ; 2 ");
+					fprintf(f, " ; 2 ");
 				}
 			}
 		}
 
-		fprintf(stdout, "\n");
+		fprintf(f, "\n");
 	}
 
+gen_boundary_only:
 	if (type == 1 || type == 2 || type == 0 || type == 5)
 	{
-		fprintf(stdout, "# boundary \n");
+		if (f) fprintf(f, "# boundary \n");
 		for (size_t i = 0; i < points.size(); ++i) {
 			double x = points[i].x;
 			double y = points[i].y;
@@ -456,35 +461,41 @@ void print_mesh(const vector < Triangle > & mesh,
 				fabs(z + 1.0) < 1e-14)
 			{
 				// south pole
-				fprintf(stdout, "%lu \n", i + 1);
+				if (f) fprintf(f, "%lu \n", i + 1);
+				else boundary.push_back(i);
 			}
 
 			if (type == 1 || type == 2) {
 				if (fabs(points[i].z) < 1e-15) {
-					fprintf(stdout, "%lu \n", i + 1);
+					if (f) fprintf(f, "%lu \n", i + 1);
+					else boundary.push_back(i);
 				} else if (type == 2) {
 					// u <- 0,pi/4
 					// v <- 0,pi
 					if (fabs(u(x, y, z) - M_PI / 4.0) < 1e-15) {
-						fprintf(stdout, "%lu \n", i + 1);
+						if (f) fprintf(f, "%lu \n", i + 1);
+						else boundary.push_back(i);
 					} else if (fabs(v(x, y, z)) < 1e-15) {
-						fprintf(stdout, "%lu \n", i + 1);
+						if (f) fprintf(f, "%lu \n", i + 1);
+						else boundary.push_back(i);
 					} else if (fabs(v(x, y, z) - M_PI) < 1e-15) {
-						fprintf(stdout, "%lu \n", i + 1);
+						if (f) fprintf(f, "%lu \n", i + 1);
+						else boundary.push_back(i);
 					}
 				}
 			} else if (type == 5) {
 				if (fabs(u(x, y, z) - M_PI / 10) < 1e-14 ||
-					fabs(u(x, y, z) + M_PI / 10) < 1e-14)
+				    fabs(u(x, y, z) + M_PI / 10) < 1e-14)
 				{
-					fprintf(stdout, "%lu \n", i + 1);
+					if (f) fprintf(f, "%lu \n", i + 1);
+					else boundary.push_back(i);
 				}
 			}
 		}
-	} else if (!boundary.empty()) {
-		fprintf(stdout, "# boundary %lu \n", boundary.size());
+	} else if (!boundary.empty() && f) {
+		fprintf(f, "# boundary %lu \n", boundary.size());
 		for (size_t i = 0; i < boundary.size(); ++i) {
-			fprintf(stdout, "%d \n", boundary[i] + 1);
+			fprintf(f, "%d \n", boundary[i] + 1);
 		}
 	}
 }
@@ -514,15 +525,17 @@ void usage(const char * name)
 int main(int argc, char * argv[])
 {
 	int iters = 0;
-	FILE * f = 0;
+	FILE * f  = stdout;
+	FILE * f2 = 0;
 
 	/**
 	 * 0 - full sphere
 	 * 1 - hemisphere
 	 * 2 - test
 	 */
-	int type  = 0;
+	int type   = 0;
 	bool local = false;
+	bool sort  = true;
 
 	for (int i = 0; i < argc; ++i) {
 		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "--h"))
@@ -578,8 +591,8 @@ int main(int argc, char * argv[])
 				usage(argv[0]);
 			}
 
-			f = fopen(argv[i + 1], "wb");
-			if (!f) {
+			f2 = fopen(argv[i + 1], "wb");
+			if (!f2) {
 				usage(argv[0]);
 			}
 		} else if (!strcmp(argv[i], "--iter")) {
@@ -588,15 +601,17 @@ int main(int argc, char * argv[])
 			}
 
 			iters = atoi(argv[i + 1]);
+		} else if (!strcmp(argv[i], "--nosort")) {
+			sort = false;
 		}
 	}
 
-	fprintf(stdout, "#cmd:");
+	fprintf(f, "#cmd:");
 	for (int i = 0; i < argc; ++i) {
-		fprintf(stdout, "%s ", argv[i]);
+		fprintf(f, "%s ", argv[i]);
 	}
-	fprintf(stdout, "\n");
-	fprintf(stdout, "#build:$Id$\n");
+	fprintf(f, "\n");
+	fprintf(f, "#build:$Id$\n");
 
 	vector < Triangle > mesh;
 	vector < Point >  points;
@@ -640,10 +655,14 @@ int main(int argc, char * argv[])
 	normalize_mesh(mesh, points, project);
 	iterate_mesh(mesh, points, iters, project);
 	filter_mesh(mesh, points, boundary, ok);
-	print_mesh(mesh, points, boundary, type, local);
+	if (sort) {
+		print_mesh(0, mesh, points, boundary, type, local);
+		reorder_mesh(mesh, points, boundary);
+	}
+	print_mesh(f, mesh, points, boundary, type, local);
 
-	if (f) {
-		vizualize_adj(mesh, points, boundary, f, 600, 600);
+	if (f2) {
+		vizualize_adj(mesh, points, boundary, f2, 600, 600);
 	}
 	return 0;
 }

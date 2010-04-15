@@ -9,6 +9,7 @@
 #include "solver.h"
 #include "phelm.h"
 #include "laplace.h"
+#include "slaplace.h"
 
 using namespace phelm;
 using namespace std;
@@ -206,6 +207,9 @@ bool test_mult (int n, int iters, const Mesh & m, const string & operator_name)
 	} else {
 		if (operator_name == "laplace") {
 			Laplace < T > lapl(m);
+			mult_loop(x1, lapl.laplace_, b, iters);
+		} else if (operator_name == "slaplace") {
+			SphereLaplace < T > lapl(m);
 			mult_loop(x1, lapl.laplace_, b, iters);
 		} else {
 			fprintf(stderr, "unknown operator name %s\n", operator_name.c_str());
