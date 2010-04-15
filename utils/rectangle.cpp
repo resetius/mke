@@ -152,7 +152,7 @@ int main(int argc, char * argv[])
 	build_rectangle(x, y, w, h, mesh, points);
 	iterate_mesh(mesh, points, iters, flat_projector);
 	make_boundary(x, y, w, h, points, boundary);
-//	reorder_mesh(mesh, points, boundary);
+	reorder_mesh(mesh, points, boundary);
 	print_mesh(f1, x, y, w, h, mesh, points, boundary);
 
 	fclose(f1);

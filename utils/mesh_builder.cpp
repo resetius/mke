@@ -245,6 +245,7 @@ public:
 		}
 	}
 
+	// returns new inner (!) order
 	vector < int > rcm()
 	{
 		vector < multimap < int, int > > sorted1; // node->[neighbors], neighbor: degree->node
@@ -462,6 +463,24 @@ struct Mesh
 			}
 		}
 	}
+
+	vector < int > full_order(const vector < int > & inner_order)
+	{
+		vector < int > ret(ps.size());
+		int outer = inner.size();
+		for (int i = 0; i < ps.size(); ++i)
+		{
+			if (ps_flags[i] == 0) // inner point
+			{
+				ret[i] = inner_order[p2io[i]];
+			}
+			else // outer point
+			{
+				ret[i] = outer++;
+			}
+		}
+		return ret;
+	}
 };
 
 void reorder_mesh(std::vector < Triangle > & tri,
@@ -475,7 +494,7 @@ void reorder_mesh(std::vector < Triangle > & tri,
 	Graph g;
 	mesh.load(tri, points, boundary);
 	mesh.generate_graph(g);
-	order = g.rcm();
+	order = mesh.full_order(g.rcm());
 
 	for (int i = 0; i < (int)boundary.size(); ++i)
 	{
