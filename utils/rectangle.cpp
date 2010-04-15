@@ -73,9 +73,20 @@ void build_rectangle(double x, double y, double w, double h, vector < Triangle >
 	}
 }
 
+void make_boundary(double x, double y, double w, double h, vector < Point > & points, vector < int > & boundary)
+{
+	for (size_t i = 0; i < points.size(); ++i) {
+		if (fabs(points[i].x - x) < 1e-15 || fabs(points[i].y - y) < 1e-15
+				|| fabs(points[i].x - x - w) < 1e-15 || fabs(points[i].y - y - h) < 1e-15)
+		{
+			boundary.push_back(i);
+		}
+	}
+}
+
+
 void print_mesh(FILE * f, double x, double y, double w, double h, 
-		const vector < Triangle > & mesh, vector < Point > & points,
-		vector < int > & boundary)
+		const vector < Triangle > & mesh, vector < Point > & points, vector < int > & boundary)
 {
 	for (vector < Point >::const_iterator it = points.begin();
 		it != points.end(); ++it)
@@ -91,14 +102,8 @@ void print_mesh(FILE * f, double x, double y, double w, double h,
 	}
 	fprintf(f, "# boundary\n");
 
-	for (size_t i = 0; i < points.size(); ++i) {
-		if (fabs(points[i].x - x) < 1e-15 || fabs(points[i].y - y) < 1e-15
-				|| fabs(points[i].x - x - w) < 1e-15 || fabs(points[i].y - y - h) < 1e-15)
-		{
-			fprintf(f, "%lu \n", i + 1);
-
-			boundary.push_back(i);
-		}
+	for (size_t i = 0; i < boundary.size(); ++i) {
+		fprintf(f, "%lu \n", boundary[i] + 1);
 	}
 }
 
@@ -146,6 +151,8 @@ int main(int argc, char * argv[])
 
 	build_rectangle(x, y, w, h, mesh, points);
 	iterate_mesh(mesh, points, iters, flat_projector);
+	make_boundary(x, y, w, h, points, boundary);
+//	reorder_mesh(mesh, points, boundary);
 	print_mesh(f1, x, y, w, h, mesh, points, boundary);
 
 	fclose(f1);

@@ -245,7 +245,7 @@ public:
 		}
 	}
 
-	void rcm()
+	vector < int > rcm()
 	{
 		vector < multimap < int, int > > sorted1; // node->[neighbors], neighbor: degree->node
 		vector < list < int > > sorted;
@@ -329,6 +329,8 @@ again:
 		}
 
 		new_data.swap(data);
+
+		return order;
 	}
 
 	void print(FILE * f, int w, int h)
@@ -466,8 +468,34 @@ void reorder_mesh(std::vector < Triangle > & tri,
 	vector < Point > & points,
 	vector < int > & boundary)
 {
+	vector < int > order;
+	vector < Point > new_points;
+
 	Mesh mesh;
+	Graph g;
 	mesh.load(tri, points, boundary);
+	mesh.generate_graph(g);
+	order = g.rcm();
+
+	for (int i = 0; i < (int)boundary.size(); ++i)
+	{
+		boundary[i] = order[boundary[i]];
+	}
+
+	for (int i = 0; i < (int)tri.size(); ++i)
+	{
+		Triangle & t = tri[i];
+		t.v1 = order[t.v1];
+		t.v2 = order[t.v2];
+		t.v3 = order[t.v3];
+	}
+
+	new_points.resize(points.size());
+	for (int i = 0; i < (int)points.size(); ++i)
+	{
+		new_points[order[i]] = points[i];
+	}
+	points.swap(new_points);
 }
 
 void vizualize_adj(vector < Triangle > & tri,
@@ -483,7 +511,6 @@ void vizualize_adj(vector < Triangle > & tri,
 	Graph g;
 	mesh.load(tri, points, boundary);
 	mesh.generate_graph(g);
-	g.rcm();
 	g.print(f, w, h);
 }
 

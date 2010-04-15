@@ -46,6 +46,7 @@ struct Point {
 
 	Point(double x1, double y1, double z1) : x(x1), y(y1), z(z1) {}
 	Point(double * x1) : x(x1[0]), y(x1[1]), z(x1[2]) {}
+	Point(): x(0), y(0), z(0) {}
 };
 
 inline Point operator + (const Point & a, const Point & b)
