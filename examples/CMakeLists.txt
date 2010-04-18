@@ -1,8 +1,8 @@
 project(phelm_examples CXX C)
 
-set(EXECUTABLE_OUTPUT_PATH "../bin")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+
 include_directories(../src)
-link_directories(../lib)
 
 create_test_sourcelist(test_chafe_source test_chafe_driver.cpp test_chafe.cpp test_schafe.cpp)
 create_test_sourcelist(test_laplace_source test_laplace_driver.cpp test_laplace.cpp test_slaplace.cpp)

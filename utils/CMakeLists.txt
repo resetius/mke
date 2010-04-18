@@ -5,8 +5,9 @@ if (NETCDF_FOUND AND BISON_FOUND)
 	set (BUILD_NETCDF 1)
 endif (NETCDF_FOUND AND BISON_FOUND)
 
-set(EXECUTABLE_OUTPUT_PATH "../bin")
-set(LIBRARY_OUTPUT_PATH "../lib")
+
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 include_directories(".")
 add_library(mesh_builder mesh_builder.cpp)

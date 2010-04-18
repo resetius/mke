@@ -3,7 +3,7 @@ project(core CXX C)
 include_directories(/usr/include/suitesparse/)
 include_directories(.)
 
-set(LIBRARY_OUTPUT_PATH "../lib")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 set(SOURCE 
 	phelm.cpp 
