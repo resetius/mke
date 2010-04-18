@@ -7,6 +7,25 @@
 #ifndef F2C_INCLUDE
 #define F2C_INCLUDE
 
+#ifdef __alpha__
+
+typedef int integer;
+typedef unsigned uinteger;
+typedef char *address;
+typedef short int shortint;
+typedef float real;
+typedef double doublereal;
+typedef struct { real r, i; } complex;
+typedef struct { doublereal r, i; } doublecomplex;
+typedef int logical;
+typedef short int shortlogical;
+typedef char logical1;
+typedef char integer1;
+
+
+
+#else
+
 typedef long int integer;
 typedef unsigned long int uinteger;
 typedef char *address;
@@ -26,6 +45,8 @@ typedef unsigned long long ulongint;	/* system-dependent */
 #define qbit_set(a,b)	((a) |  ((ulongint)1 << (b)))
 #endif
 
+#endif /* __alpha__ */
+
 #define TRUE_ (1)
 #define FALSE_ (0)
 
@@ -42,9 +63,21 @@ typedef short flag;
 typedef short ftnlen;
 typedef short ftnint;
 #else
+
+#ifdef __alpha__
+
+typedef int flag;
+typedef int ftnlen;
+typedef int ftnint;
+
+#else
+
 typedef long int flag;
 typedef long int ftnlen;
 typedef long int ftnint;
+
+#endif /* __alpha__ */
+
 #endif
 
 /*external read, write*/
