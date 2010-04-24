@@ -218,6 +218,8 @@ extern "C"
 #ifdef __cplusplus
 
 #ifdef WIN32
+#ifndef ISINF
+#define ISINF
 #include <float.h>
 #define isnan _isnan
 inline bool isinf (double x)
@@ -225,6 +227,7 @@ inline bool isinf (double x)
 	int c = _fpclass (x);
 	return (c == _FPCLASS_NINF || c == _FPCLASS_PINF);
 }
+#endif
 #endif
 
 /**
