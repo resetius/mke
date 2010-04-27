@@ -22,8 +22,8 @@ function read_errors(f)
 end
 
 function run_test(path, tp)
-	local exe1 = path .. "/test_barvortex"
-	local exe2 = path .. "/sphere --type "  .. tp
+	local exe1 = path .. "/mke_test_barvortex"
+	local exe2 = path .. "/mke_mesh_sphere --type "  .. tp
 	print("run in " .. path)
 	os.execute(exe2 .. " --coord local --iter 4 > ss4.txt")
 	local e11 = read_errors(io.popen(exe1 .. " -f ss4.txt --task jacobian", "r"))
