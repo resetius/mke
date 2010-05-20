@@ -438,6 +438,8 @@ typedef Array < double, Allocator < double > > vec;
 int check_device_supports_double();
 
 void set_num_threads (int threads);
+int get_num_threads ();
+int get_my_id();
 
 /**
  * @}

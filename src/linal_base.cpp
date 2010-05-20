@@ -64,6 +64,24 @@ void set_num_threads (int threads)
 #endif
 }
 
+int get_num_threads ()
+{
+#ifdef _OPENMP
+	return omp_get_num_threads();
+#else
+	return 1;
+#endif
+}
+
+int get_my_id ()
+{
+#ifdef _OPENMP
+	return omp_get_thread_num();
+#else
+	return 1;
+#endif
+}
+
 /**
  * Gauss
  * Copyright (c) 2009 Andrey Kornev, Andrey Ivanchikov, Alexey Ozeritsky
@@ -202,45 +220,38 @@ void mat_mult_vector_ (T * r, const T * A, const T * x, int n)
 {
 #pragma omp parallel
 	{
-		int block_dim = 400; //cache size = (block_dim * block_dim * 8)
-		int blocks = (n + block_dim - 1) / block_dim;
+		int procs  = get_num_threads();
+		int blocks = procs;
+		int id     = get_my_id();
+		int f_row  = n * id;
+		f_row /= procs;
+		int l_row  = n * (id + 1);
+		l_row = l_row / procs - 1;
+		int m = id;
 
-#pragma omp for
-		for (int i = 0; i < n; ++i)
+		for (int i = f_row; i <= l_row; ++i)
 		{
 			r[i] = 0;
 		}
 
-		for (int l = 0; l < blocks; ++l )
+		for (int block = 0; block < blocks; ++block, m = (m + 1) % blocks)
 		{
-			int fl = n * l;
-			fl /= blocks;
-			int ll = n * (l + 1);
-			ll = ll / blocks - 1;
+			int fm = n * m;
+			fm /= blocks;
+			int lm = n * (m + 1);
+			lm = lm / blocks - 1;
 
-			for (int m = 0; m < blocks; ++m)
+			for (int i = f_row; i <= l_row; ++i)
 			{
-				int fm = n * m;
-				fm /= blocks;
-				int lm = n * (m + 1);
-				lm = lm / blocks - 1;
+				T s = 0.0;
+				const T * ax = &A[i * n + fm];
+				const T * xx = &x[fm];
 
-				// blocks:
-				// R[fl] += A[fl, fm] * X[fl]
-
-#pragma omp for
-				for (int i = fl; i <= ll; ++i)
+				for (int j = fm; j <= lm; ++j)
 				{
-					const T * ax = &A[i * n + fm];
-					const T * xx = &x[fm];
-
-					T s = 0.0;
-					for (int j = fm; j <= lm; ++j)
-					{
-						s += *ax++ * *xx++;
-					}
-					r[i] += s;
+					s += *ax++ * *xx++;
 				}
+				r[i] += s;
 			}
 		}
 	}
