@@ -58,26 +58,8 @@ void phelm_init();
 void phelm_shutdown();
 void phelm_sync();
 
-/**
- * @ingroup misc
- * allocator.
- */
-#ifndef GPGPU
-template < typename T >
-struct Allocator: public std::allocator < T >
-{
-	Allocator() throw() {};
-	Allocator (const Allocator&) throw() {};
-};
-#else
-template < typename T >
-struct Allocator: public cuda_allocator < T >
-{
-	Allocator() throw() {};
-	Allocator (const Allocator&) throw() {};
-};
-#endif
-
 }
+
+#include "allocator.h"
 
 #endif /* PHELM_BASE_H */

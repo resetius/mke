@@ -5,7 +5,7 @@ import re
 from popen2 import popen2
 
 # example
-# python test_scale.py "./bin/test_solver --task mult_dense -d --iters 100 --dim %d -t %d" "100,5000"
+# python test_scale.py "./bin/mke_test_solver --task mult_dense -d --iters 100 --dim %d -t %d" "100,5000"
 
 cmd = sys.argv[1]
 dims = sys.argv[2]
