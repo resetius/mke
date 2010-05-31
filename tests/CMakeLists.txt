@@ -2,6 +2,7 @@ project(phelm CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 include_directories(../src)
+include_directories(${LINAL_HOME}/src)
 
 create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp)
 

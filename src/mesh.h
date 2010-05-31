@@ -312,6 +312,8 @@ struct Triangle
 	}
 };
 
+using namespace linal;
+
 /**
  * Mesh class.
  */

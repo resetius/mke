@@ -50,6 +50,7 @@
 
 namespace phelm
 {
+	using namespace linal;
 
 /**
  * @defgroup generators Finite element matrix generators.

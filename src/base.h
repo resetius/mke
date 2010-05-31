@@ -45,10 +45,6 @@
 
 #include <vector>
 
-#ifdef GPGPU
-#include "gpu/alloc_cu.h"
-#endif
-
 typedef unsigned int uint;
 
 namespace phelm
@@ -60,6 +56,5 @@ void phelm_sync();
 
 }
 
-#include "allocator.h"
-
 #endif /* PHELM_BASE_H */
+
