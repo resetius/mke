@@ -243,6 +243,8 @@ extern "C"
 
 	void burn (double secs)
 	{
+		return;
+	
 		double t1 = get_full_time();
 #pragma omp parallel sections
 		{
