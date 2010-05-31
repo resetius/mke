@@ -404,7 +404,7 @@ int main (int argc, char * argv[])
 		fprintf (stderr, "has double: %d\n", has_double);
 
 		Timer t;
-		burn (1.0);
+		//burn (1.0);
 		t.restart();
 		if (use_double && has_double)
 		{
