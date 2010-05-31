@@ -1,6 +1,7 @@
 project(core CXX C)
 
 include_directories(/usr/include/suitesparse/)
+include_directories(${LINAL_HOME}/src)
 include_directories(.)
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
@@ -15,8 +16,6 @@ set(SOURCE
 	base.h
 	generators.h
 	impl/generators_impl.h
-	gmres.h
-	gmres.cpp
 	polynom.h
 	util.h
 	norm.h
