@@ -42,16 +42,6 @@ add_test(test_jacobian_test ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_j
 add_test(test_jacobian_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_jacobian.lua ${EXECUTABLE_OUTPUT_PATH} test2)
 
 if (CUDA_FOUND)
-	cuda_add_executable(test_gpu_reduction test_gpu_reduction.cpp)
-	target_link_libraries(test_gpu_reduction phelm_cu ${LINAL_CUDA_LIBS})
-	cuda_add_cublas_to_target(test_gpu_reduction)
-	set_target_properties(test_gpu_reduction PROPERTIES COMPILE_FLAGS "-DGPGPU")
-
-	if (OPENMP_FOUND)
-		set_target_properties(test_gpu_reduction PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-	endif (OPENMP_FOUND)
-
-	add_test(mke_test_gpu_reduction ${EXECUTABLE_OUTPUT_PATH}/mke_test_gpu_reduction)
 	add_test(mke_test_laplace_cu ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_laplace.lua ${EXECUTABLE_OUTPUT_PATH} mke_test_laplace_cu)
 endif (CUDA_FOUND)
 
