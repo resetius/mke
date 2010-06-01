@@ -10,6 +10,8 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 include_directories(".")
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(mesh_builder mesh_builder.cpp)
 add_executable(mke_mesh_sphere icosahedron.cpp)
 add_executable(mke_mesh_rectangle rectangle.cpp)
@@ -21,7 +23,7 @@ target_link_libraries(mke_mesh_rectangle mesh_builder)
 if (BUILD_NETCDF)
 	set (netcdf_source netcdf_reader.cpp)
 	bison_target(netcdf_parser netcdf_cmd.ypp ${CMAKE_CURRENT_BINARY_DIR}/netcdf_cmd.cpp)
-	add_executable(netcdf_reader ${netcdf_source} ${BISON_netcdf_parser_OUTPUTS})
+	add_executable(netcdf_reader ${BISON_netcdf_parser_OUTPUTS} ${netcdf_source})
 	target_link_libraries(netcdf_reader ${NETCDF_LIBRARIES})
 endif (BUILD_NETCDF)
 
