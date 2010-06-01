@@ -3,7 +3,7 @@ project(phelm_examples CXX C)
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
 include_directories(../src)
-include_directories(${LINAL_HOME}/src)
+include_directories(${LINAL_INCLUDE})
 
 create_test_sourcelist(test_chafe_source test_chafe_driver.cpp test_chafe.cpp test_schafe.cpp)
 create_test_sourcelist(test_laplace_source test_laplace_driver.cpp test_laplace.cpp test_slaplace.cpp)
@@ -27,13 +27,13 @@ add_executable(mke_test_jacobian test_jacobian.cpp)
 add_executable(mke_test_barvortex test_barvortex.cpp barvortex.h barvortex_impl.h)
 add_executable(mke_test_baroclin test_baroclin.cpp baroclin.cpp baroclin.h)
 
-target_link_libraries(mke_test_laplace phelm ${UMFPACK} ${SUPERLU})
-target_link_libraries(mke_test_chafe phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(mke_test_laplace phelm ${LINAL_LIBS})
+target_link_libraries(mke_test_chafe phelm ${LINAL_LIBS})
 
-target_link_libraries(mke_test_system_laplace phelm ${UMFPACK} ${SUPERLU})
-target_link_libraries(mke_test_jacobian phelm ${UMFPACK} ${SUPERLU})
-target_link_libraries(mke_test_barvortex phelm ${UMFPACK} ${SUPERLU})
-target_link_libraries(mke_test_baroclin phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(mke_test_system_laplace phelm ${LINAL_LIBS})
+target_link_libraries(mke_test_jacobian phelm ${LINAL_LIBS})
+target_link_libraries(mke_test_barvortex phelm ${LINAL_LIBS})
+target_link_libraries(mke_test_baroclin phelm ${LINAL_LIBS})
 
 if (OPENMP_FOUND)
 set_target_properties(mke_test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
@@ -47,12 +47,12 @@ endif (OPENMP_FOUND)
 
 if (CUDA_FOUND)
 	cuda_add_executable(mke_test_laplace_cu ${test_laplace_source})
-	target_link_libraries(mke_test_laplace_cu phelm_cu ${UMFPACK})
+	target_link_libraries(mke_test_laplace_cu phelm_cu ${LINAL_CUDA_LIBS})
 	cuda_add_cublas_to_target(mke_test_laplace_cu)
 	set_target_properties(mke_test_laplace_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 
 	cuda_add_executable(mke_test_chafe_cu ${test_chafe_source} ${chafe_source})
-	target_link_libraries(mke_test_chafe_cu phelm_cu ${UMFPACK})
+	target_link_libraries(mke_test_chafe_cu phelm_cu ${LINAL_CUDA_LIBS})
 	cuda_add_cublas_to_target(mke_test_chafe_cu)
 	set_target_properties(mke_test_chafe_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
 

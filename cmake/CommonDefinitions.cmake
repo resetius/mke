@@ -3,4 +3,5 @@ if (MSVC)
 endif (MSVC)
 
 add_definitions(${OpenMP_C_FLAGS})
+add_definitions(${LINAL_DEFINES})
 

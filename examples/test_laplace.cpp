@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace phelm;
+using namespace linal;
 
 static void usage (const char * name)
 {
@@ -229,7 +230,7 @@ int test_laplace (int argc, char *argv[])
 
 	mesh.info();
 
-	phelm_init();
+	linal_init();
 
 	Timer t;
 	try
@@ -254,7 +255,7 @@ int test_laplace (int argc, char *argv[])
 
 	fprintf (stderr, "elapsed: %lf\n", t.elapsed() );
 
-	phelm_shutdown();
+	linal_shutdown();
 	return 0;
 }
 

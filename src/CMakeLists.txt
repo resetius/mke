@@ -1,7 +1,6 @@
 project(core CXX C)
 
-include_directories(/usr/include/suitesparse/)
-include_directories(${LINAL_HOME}/src)
+include_directories(${LINAL_INCLUDE})
 include_directories(.)
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
@@ -13,7 +12,6 @@ set(SOURCE
 	util.cpp
 	quadrature.c
 	phelm.h
-	base.h
 	generators.h
 	impl/generators_impl.h
 	polynom.h

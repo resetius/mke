@@ -13,6 +13,7 @@
 #include "slaplace.h"
 
 using namespace phelm;
+using namespace linal;
 using namespace std;
 
 void usage (const char * n)
@@ -398,7 +399,7 @@ int main (int argc, char * argv[])
 
 	try
 	{
-		phelm_init();
+		linal_init();
 
 		int has_double = check_device_supports_double();
 		fprintf (stderr, "has double: %d\n", has_double);
@@ -458,7 +459,7 @@ int main (int argc, char * argv[])
 		}
 		fprintf (stderr, "elapsed: %lf\n", t.elapsed() );
 
-		phelm_shutdown();
+		linal_shutdown();
 	}
 	catch (const std::exception & e)
 	{

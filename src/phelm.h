@@ -203,14 +203,13 @@
 #include <stdio.h>
 #include <vector>
 
-#include "base.h"
 #include "polynom.h"
 #include "solver.h"
 #include "mesh.h"
 #include "generators.h"
 
 #define PHELM_VERSION    2
-#define PHELM_PATCHLEVEL 0
+#define PHELM_PATCHLEVEL 1
 #define PHELM_SUBLEVEL   0
 
 #endif /* MKE_H */

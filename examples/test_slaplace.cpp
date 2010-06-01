@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace phelm;
+using namespace linal;
 
 static void usage (const char * name)
 {
@@ -251,6 +252,8 @@ int test_slaplace (int argc, char *argv[])
 
 	mesh.info();
 	Timer t;
+	linal_init();
+
 	try
 	{
 		if (check_device_supports_double() && use_double)
@@ -273,7 +276,7 @@ int test_slaplace (int argc, char *argv[])
 
 	fprintf (stderr, "elapsed: %lf\n", t.elapsed() );
 
-	phelm_shutdown();
+	linal_shutdown();
 
 	return 0;
 }

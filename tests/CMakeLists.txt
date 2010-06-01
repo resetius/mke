@@ -2,16 +2,16 @@ project(phelm CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 include_directories(../src)
-include_directories(${LINAL_HOME}/src)
+include_directories(${LINAL_INCLUDE})
 
 create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp)
 
 add_executable(mke_test_small ${small_tests})
 add_executable(mke_test_solver test_solver.cpp)
 
-target_link_libraries(mke_test_small phelm ${MATH} ${UMFPACK} ${SUPERLU})
+target_link_libraries(mke_test_small phelm ${MATH} ${LINAL_LIBS})
 
-target_link_libraries(mke_test_solver phelm ${UMFPACK} ${SUPERLU})
+target_link_libraries(mke_test_solver phelm ${MATH} ${LINAL_LIBS})
 
 if (OPENMP_FOUND)
 set_target_properties(mke_test_small PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
