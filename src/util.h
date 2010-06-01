@@ -62,24 +62,6 @@ extern "C"
 #endif
 
 	/**
-	 * Power function.
-	 * @param x - value
-	 * @param p - power
-	 * @return the value of x raised to the power of p
-	 */
-	inline double
-	ipow (double x, int p)
-	{
-		int i;
-		double r = 1;
-		for (i = 0; i < p; i++)
-		{
-			r *= x;
-		}
-		return r;
-	}
-
-	/**
 	 * Take the integral of \f$x^k y^n\f$ over trapezoid.
 	 * y=k1x+b1 y=k2x+b2 - bounding lines.
 	 * x belongs to segment [x1, x3].
@@ -158,12 +140,6 @@ extern "C"
 	                                 double x1, double x3);
 
 	/**
-	 * Returns the number of seconds since epoch.
-	 * @return the number of seconds since epoch.
-	 */
-	double get_full_time();
-
-	/**
 	 * Function-callback that is passed to gauss_kronrod15.
 	 * @param x - function argument
 	 * @param data - user data
@@ -184,11 +160,6 @@ extern "C"
 	double gauss_kronrod15 (double a, double b, fx_t fm, void * data);
 
 	/**
-	 * Sets FPU exceptions.
-	 */
-	void set_fpe_except();
-
-	/**
 	 * writes header.
 	 */
 	void write_header (int argc, char ** argv, const char * mes);
@@ -199,72 +170,13 @@ extern "C"
 	 */
 	void burn (double secs);
 
-	/**
-	 * Finds minimal element of vector.
-	 */
-	double vec_find_min (const double * v, int n);
-
-	/**
-	 * Finds maximal element of vector.
-	 */
-	double vec_find_max (const double * v, int n);
-
 	/** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#ifdef __cplusplus
-
-#ifdef WIN32
-#ifndef ISINF
-#define ISINF
-#include <float.h>
-#define isnan _isnan
-inline bool isinf (double x)
-{
-	int c = _fpclass (x);
-	return (c == _FPCLASS_NINF || c == _FPCLASS_PINF);
-}
-#endif
-#endif
-
-/**
- * @ingroup misc
- * Timer class.
- */
-class Timer
-{
-	double t1_;
-
-public:
-	/**
-	 * Default constructor.
-	 */
-	Timer() : t1_ (get_full_time() ) {}
-
-	/**
-	 * @return the number of seconds from timer initialize or restart.
-	 */
-	double elapsed()
-	{
-		return (get_full_time() - t1_) / 100.0;
-	}
-
-	/**
-	 * Restart timer.
-	 */
-	void restart()
-	{
-		t1_ = get_full_time();
-	}
-};
-
-
-#include "linal.h"
-
-#endif
+#include "linal_util.h"
 
 #endif /* UTIL_H */
 
