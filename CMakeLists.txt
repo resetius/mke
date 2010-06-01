@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8.0)
 project(phelm CXX C)
 
-if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR) # <- root project
-set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Common)
 include(CTest)
 include(Testing)
@@ -17,7 +16,6 @@ include(CommonDefinitions)
 if (EXISTS "${CMAKE_CURRENT_BINARY_DIR}/settings.cmake")
 	include(${CMAKE_CURRENT_BINARY_DIR}/settings.cmake)
 endif()
-endif (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 
 add_subdirectory(src)
 add_subdirectory(utils)

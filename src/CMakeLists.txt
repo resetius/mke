@@ -43,10 +43,10 @@ if (CUDA_FOUND)
 cuda_add_library(phelm_cu
 	${SOURCE}
 	gpu/proj_cuda.cpp
-	gpu/alloc_cu.h
 	gpu/shmem.h
 	gpu/texture.h
 	gpu/phelm.cu
 	)
 set_target_properties(phelm_cu PROPERTIES COMPILE_FLAGS "-DGPGPU -I${CUDA_TOOLKIT_ROOT_DIR}/include")
 endif (CUDA_FOUND)
+

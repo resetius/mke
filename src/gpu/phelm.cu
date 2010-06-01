@@ -35,7 +35,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "linal_cuda.h"
+#include "gpu/linal_cuda.h"
 #include "ver.h"
 
 VERSION("$Id$");
