@@ -43,7 +43,7 @@ add_test(test_jacobian_test2 ${LUA} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/test_
 
 if (CUDA_FOUND)
 	cuda_add_executable(test_gpu_reduction test_gpu_reduction.cpp)
-	target_link_libraries(test_gpu_reduction phelm_cu)
+	target_link_libraries(test_gpu_reduction phelm_cu ${LINAL_CUDA_LIBS})
 	cuda_add_cublas_to_target(test_gpu_reduction)
 	set_target_properties(test_gpu_reduction PROPERTIES COMPILE_FLAGS "-DGPGPU")
 

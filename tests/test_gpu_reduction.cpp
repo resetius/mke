@@ -3,6 +3,7 @@
 #include "phelm.h"
 
 using namespace phelm;
+using namespace linal;
 
 bool cmp (double a, double b, int n)
 {
@@ -65,7 +66,7 @@ bool test_reduction (int n)
 int main()
 {
 	bool ret = true;
-	phelm_init();
+	linal_init();
 	fprintf (stderr, "first\n");
 	for (int i = 1025; i < 10000 && ret; ++i)
 	{
@@ -76,7 +77,7 @@ int main()
 	{
 		ret &= test_reduction < float > (i);
 	}
-	phelm_shutdown();
+	linal_shutdown();
 
 	if (!ret)
 	{
@@ -84,3 +85,4 @@ int main()
 	}
 	return 0;
 }
+
