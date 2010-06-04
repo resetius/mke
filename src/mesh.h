@@ -657,6 +657,48 @@ void smooth1 (double * out, const double * in, const Mesh & m);
 void smooth2 (double * out, const double * in, const Mesh & m);
 
 
+/**
+ * Solve the system with A matrix (Ax=rp).
+ * (Helper function)
+ * The function founds an answer on the inner part of the domain
+ * and then sets boundary value of the answer to bnd
+ *
+ * @param answer - the answer
+ * @param bnd - boundary
+ * @param rp - right part
+ * @param A - the matrix of the system
+ * @param m - mesh
+ */
+template < typename T, typename Matrix, typename Mesh >
+void solve (T * answer, const T * bnd,
+            T * rp, Matrix & A, const Mesh & m)
+{
+        int sz  = (int) m.ps.size();
+        int rs  = (int) m.inner.size();    // размерность
+        Array < T, Allocator < T > > x (rs);     // ответ
+        solve2 (&x[0], rp, A, m);
+        p2u (answer, &x[0], bnd, m);
+}
+
+/**
+ * Solve the system with A matrix (Ax=rp).
+ * (Helper function)
+ * Found an answer on the inner part of the domain.
+ *
+ * @param answer the answer
+ * @param rp the right part
+ * @param A the matrix of the system
+ * @param m the mesh
+ */
+template < typename T, typename Matrix, typename Mesh >
+void solve2 (T * answer, T * rp, Matrix & A, const Mesh & m)
+{
+        int sz  = (int) m.ps.size();
+        int rs  = (int) m.inner.size();    // размерность
+        A.solve (answer, &rp[0]);
+}
+
 }
 
 #endif /* MESH_H */
+
