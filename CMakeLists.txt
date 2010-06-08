@@ -20,8 +20,8 @@ endif()
 
 add_subdirectory_if_exists(linal)
 
-if (NOT LINAL_HOME)
-	message(FATAL "linal library not found")
+if (NOT LINAL_INCLUDE)
+	message(FATAL_ERROR "linal library not found")
 endif ()
 
 add_subdirectory(src)
