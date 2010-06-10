@@ -10,15 +10,19 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 include_directories(".")
+include_directories(${LINAL_INCLUDE})
+include_directories("../src")
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(mesh_builder mesh_builder.cpp)
 add_executable(mke_mesh_sphere icosahedron.cpp)
 add_executable(mke_mesh_rectangle rectangle.cpp)
 add_executable(mke_topo30_mesh srtm2mesh.cpp)
+add_executable(mke_dump_operator_matrix dump_operator_matrix.cpp)
 
 target_link_libraries(mke_mesh_sphere mesh_builder)
 target_link_libraries(mke_mesh_rectangle mesh_builder)
+target_link_libraries(mke_dump_operator_matrix phelm ${LINAL_LIBS})
 
 if (BUILD_NETCDF)
 	set (netcdf_source netcdf_reader.cpp)
@@ -31,6 +35,7 @@ if (OPENMP_FOUND)
 set_target_properties(mke_mesh_sphere PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_mesh_rectangle PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_topo30_mesh PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(mke_dump_operator_matrix PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 
 if (BUILD_NETCDF)
 set_target_properties(netcdf_reader PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
