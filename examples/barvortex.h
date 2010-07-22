@@ -3,7 +3,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009, 2010 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,15 +106,17 @@ struct BarVortexConf
  * and \f$\Delta\f$ is spherical Laplace operator.
  * @see SphereJacobian, SphereLaplace
  */
-template < typename Laplace, typename Jacobian >
-class BarVortex: public SphereNorm < double >
+template < typename Laplace, typename Jacobian, typename Norm >
+class BarVortex: public Norm
 {
 public:
-	typedef BarVortex < Laplace, Jacobian > my_type;
+	typedef BarVortex < Laplace, Jacobian, Norm > my_type;
+	typedef typename Norm::Matrix Matrix;
+	typedef BarVortexConf conf_t;
 
 private:
 	const Mesh & m_;
-	BarVortexConf conf_;
+	conf_t conf_;
 
 	Laplace l_;
 	Jacobian j_;
@@ -236,11 +238,12 @@ public:
 };
 
 
-typedef BarVortex < SphereLaplace < double > , SphereJacobian > SBarVortex; //!<spheric barvortex
-typedef BarVortex < Laplace < double > , Jacobian > FBarVortex;   //!<flat barvortex
+typedef BarVortex < SphereLaplace < double > , SphereJacobian, SphereNorm < double > > SBarVortex; //!<spheric barvortex
+typedef BarVortex < Laplace < double > , Jacobian, FlatNorm < double > > FBarVortex;   //!<flat barvortex
 
 #include "barvortex_impl.h"
 
 /** @} */
 
 #endif /* BARVORTEX_H */
+

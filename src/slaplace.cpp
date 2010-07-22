@@ -95,7 +95,7 @@ static double laplace2 (const Polynom & phi_i, const Polynom & phi_j,
 
 //	return -integrate_1_cos(poly, trk, ps);
 	return -integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly1)
-		+ integrate_boundary_x(trk, (fxy_t) integrate_1_cos_func, &poly2);
+		+ integrate_boundary_x(trk, (fxy_t) integrate_1_cos_func, &poly2); // << ?
 }
 
 double slaplace (const Polynom & phi_i, const Polynom & phi_j,

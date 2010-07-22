@@ -684,7 +684,7 @@ void test_dymnikov_196 (const Mesh & m)
 	conf.k1 = 0.0;
 	conf.k2 = 1.0;
 
-	SBarVortex bv (m, conf);
+	FBarVortex bv (m, conf);
 
 	vector < double > u (sz);
 	vector < double > bnd_u (std::max (os, 1) );

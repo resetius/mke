@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009, 2010 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,17 +54,6 @@ using namespace phelm;
 namespace bv_private
 {
 
-static double integrate_cos_func (double x, double y, Polynom * poly)
-{
-	return cos (x) * poly->apply (x, y);
-}
-
-template < typename A, typename B, typename C >
-double my_integrate_cos (const A & poly, B & trk, C & points)
-{
-	return integrate_generic (trk, (fxy_t) integrate_cos_func, (void*) &poly);
-}
-
 template < typename BV >
 double
 integrate_cb ( const Polynom & phi_i,
@@ -73,7 +62,7 @@ integrate_cb ( const Polynom & phi_i,
                const Mesh & m,
                int point_i, int point_j,
                int i, int j,
-               const BV * d)
+               const typename BV::conf_t * d)
 {
 	double tau   = d->tau;
 	double mu    = d->mu;
@@ -81,10 +70,10 @@ integrate_cb ( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = my_integrate_cos (phi_i * phi_j, trk, m.ps);
+	pt1  = BV::integrate (phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau + sigma * d->theta;
 
-	pt2  =  slaplace (phi_j, phi_i, trk, m.ps);
+	pt2  =  BV::laplace (phi_j, phi_i, trk, m.ps);
 	pt2 *= - d->theta * mu;
 
 	return pt1 + pt2;
@@ -98,7 +87,7 @@ integrate_backward_cb ( const Polynom & phi_i,
                         const Mesh & m,
                         int point_i, int point_j,
                         int i, int j,
-                        const BV * d)
+                        const typename BV::conf_t * d)
 {
 	double tau   = d->tau;
 	double mu    = d->mu;
@@ -106,10 +95,10 @@ integrate_backward_cb ( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = my_integrate_cos (phi_i * phi_j, trk, m.ps);
+	pt1  = BV::integrate (phi_i * phi_j, trk, m.ps);
 	pt1 *= 1.0 / tau - sigma * (1.0 - d->theta);
 
-	pt2  =  slaplace (phi_j, phi_i, trk, m.ps);
+	pt2  =  BV::laplace (phi_j, phi_i, trk, m.ps);
 	pt2 *= (1.0 - d->theta) * mu;
 
 	return pt1 + pt2;
@@ -117,9 +106,9 @@ integrate_backward_cb ( const Polynom & phi_i,
 
 }
 
-template < typename L, typename J >
-BarVortex < L, J > ::BarVortex (const Mesh & m, const BarVortexConf & conf)
-		: SphereNorm < double > (m), m_ (m), conf_(conf), l_ (m), j_ (m),
+template < typename L, typename J, typename N >
+BarVortex < L, J, N > ::BarVortex (const Mesh & m, const BarVortexConf & conf)
+		: N (m), m_ (m), conf_(conf), l_ (m), j_ (m),
 		A_ (m.inner_size),
 		bnd_ (m.inner_size),
 		Ab_ (m.inner_size),
@@ -134,15 +123,15 @@ BarVortex < L, J > ::BarVortex (const Mesh & m, const BarVortexConf & conf)
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix (A_, m_, bv_private::integrate_cb < BarVortexConf > , &conf);
-	generate_boundary_matrix (bnd_, m_, bv_private::integrate_cb < BarVortexConf >, &conf);
+	generate_matrix (A_, m_, bv_private::integrate_cb < BarVortex > , &conf);
+	generate_boundary_matrix (bnd_, m_, bv_private::integrate_cb < BarVortex >, &conf);
 
-	generate_matrix (Ab_, m_, bv_private::integrate_backward_cb < BarVortexConf > , &conf);
-	generate_boundary_matrix (bndb_, m_, bv_private::integrate_backward_cb < BarVortexConf >, &conf);
+	generate_matrix (Ab_, m_, bv_private::integrate_backward_cb < BarVortex > , &conf);
+	generate_boundary_matrix (bndb_, m_, bv_private::integrate_backward_cb < BarVortex >, &conf);
 }
 
-template < typename L, typename J >
-void BarVortex < L, J > ::info()
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N > ::info()
 {
 	fprintf (stderr, "#tau:%.16lf\n", conf_.tau);
 	fprintf (stderr, "#sigma:%.16lf\n", conf_.sigma);
@@ -156,8 +145,8 @@ void BarVortex < L, J > ::info()
  * d L(phi)/dt + k1 J(psi, L(psi)) + k2 J(psi, l + h) + sigma L(psi) - mu LL(psi) = f(phi, la)
  * L = Laplace
  */
-template < typename L, typename J >
-void BarVortex < L, J > ::calc (double * u1,
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N > ::calc (double * u1,
                                 const double * u,
                                 const double * bnd_u,
                                 const double * bnd_w,
@@ -167,7 +156,7 @@ void BarVortex < L, J > ::calc (double * u1,
 	int os = m_.outer_size; // размерность внешней области
 	int sz = m_.size;       // размерность полная
 
-	double nr0 = norm (u);
+	double nr0 = N::norm (u);
 
 	double k1 = conf_.k1;
 	double k2 = conf_.k2;
@@ -285,7 +274,7 @@ void BarVortex < L, J > ::calc (double * u1,
 		// а тут граничное условие на пси!
 		l_.solve (&u_n1[0], &w_n[0], bnd_u);
 
-		double nr = dist (&u_n1[0], &u_n[0]);
+		double nr = N::dist (&u_n1[0], &u_n[0]);
 
 		u_n1.swap (u_n);
 		if (nr / nr0 < 1e-14 || isnan (nr) )
@@ -311,8 +300,8 @@ double l_rp (double x, double y, double t, double sigma, double mu)
 	       ipow (cos (x), 4) + 147*mu*sin (y + t) *sin (x) *cos (x) - 45*mu*sin (y + t) *x;
 }
 
-template < typename L, typename J >
-void BarVortex < L, J >::calc_L (double * u1, const double * u, const double * z,
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::calc_L (double * u1, const double * u, const double * z,
                                  const double * bnd_u,
                                  const double * bnd_w,
                                  double t)
@@ -387,8 +376,8 @@ void BarVortex < L, J >::calc_L (double * u1, const double * u, const double * z
 	l_.solve (u1, u1, bnd_u);
 }
 
-template < typename L, typename J >
-void BarVortex < L, J >::calc_L_1 (double * u1,
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::calc_L_1 (double * u1,
                                    const double * u, const double * z,
                                    const double * bnd_u,
                                    const double * bnd_w,
@@ -454,8 +443,8 @@ void BarVortex < L, J >::calc_L_1 (double * u1,
 	l_.solve (u1, u1, bnd_u);
 }
 
-template < typename L, typename J >
-void BarVortex < L, J >::calc_LT (double * v1, const double * v, const double * z,
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::calc_LT (double * v1, const double * v, const double * z,
                                   const double * bnd_u,
                                   const double * bnd_w, double t)
 {
@@ -523,8 +512,8 @@ void BarVortex < L, J >::calc_LT (double * v1, const double * v, const double * 
 	set_bnd (v1, bnd_u, m_);
 }
 
-template < typename L, typename J >
-void BarVortex < L, J >::S_step (double * Ans, const double * F)
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::S_step (double * Ans, const double * F)
 {
 	calc (Ans, F, 0, 0, 0);
 }
@@ -533,24 +522,24 @@ void BarVortex < L, J >::S_step (double * Ans, const double * F)
  * d L(psi)/dt + J(psi, L(z)) + J(z, L(psi)) + J(psi, l + h) + sigma L(psi) - mu LL(psi) = 0
  * L = Laplace
  */
-template < typename L, typename J >
-void BarVortex < L, J >::L_step (double * Ans, const double * F, const double * z)
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::L_step (double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp (m_.ps.size() );
 	calc_L (&tmp[0], F, z, 0, 0, 0);
 	memcpy (Ans, &tmp[0], tmp.size() * sizeof (double) );
 }
 
-template < typename L, typename J >
-void BarVortex < L, J >::L_1_step (double * Ans, const double * F, const double * z)
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::L_1_step (double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp (m_.ps.size() );
 	calc_L_1 (&tmp[0], F, z, 0, 0, 0);
 	memcpy (Ans, &tmp[0], tmp.size() * sizeof (double) );
 }
 
-template < typename L, typename J >
-void BarVortex < L, J >::LT_step (double * Ans, const double * F, const double * z)
+template < typename L, typename J, typename N >
+void BarVortex < L, J, N >::LT_step (double * Ans, const double * F, const double * z)
 {
 	vector < double > tmp (m_.ps.size() );
 	calc_LT (&tmp[0], F, z, 0, 0, 0);

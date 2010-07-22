@@ -3,7 +3,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky
+/* Copyright (c) 2009, 2010 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,8 @@
 
 #include "phelm.h"
 #include "solver.h"
+#include "slaplace.h"
+#include "laplace.h"
 
 using phelm::Mesh;
 
@@ -100,6 +102,21 @@ public:
 	T scalar (const T * u, const T * v)
 	{
 		return phelm::fast_scalar (u, v, m_, NORM_);
+	}
+
+	static double laplace(const Polynom & phi_i,
+	                      const Polynom & phi_j,
+	                      const Triangle & trk,
+                              const Mesh::points_t & ps)
+	{
+		return slaplace(phi_i, phi_j, trk, ps);
+	}
+
+	static double integrate(const Polynom & phi,
+	                        const Triangle & trk,
+	                        const Mesh::points_t & ps)
+	{
+		return integrate_cos(phi, trk, ps);
 	}
 };
 
@@ -156,6 +173,22 @@ public:
 	{
 		return phelm::fast_scalar (u, v, m_, NORM_);
 	}
+
+	static double laplace(const Polynom & phi_i,
+	                      const Polynom & phi_j,
+	                      const Triangle & trk,
+	                      const Mesh::points_t & ps)
+	{
+		return laplace(phi_i, phi_j, trk, ps);
+	}
+
+	static double integrate(const Polynom & phi,
+	                        const Triangle & trk,
+	                        const Mesh::points_t & ps)
+	{
+		return integrate(phi, trk, ps);
+	}
 };
 
 #endif /* NORM_H */
+
