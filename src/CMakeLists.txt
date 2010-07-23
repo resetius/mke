@@ -4,6 +4,7 @@ include_directories(${LINAL_INCLUDE})
 include_directories(.)
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
+add_definitions(${LINAL_DEFINES})
 
 set(SOURCE 
 	phelm.cpp 

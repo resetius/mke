@@ -179,14 +179,14 @@ public:
 	                      const Triangle & trk,
 	                      const Mesh::points_t & ps)
 	{
-		return laplace(phi_i, phi_j, trk, ps);
+		return ::laplace(phi_i, phi_j, trk, ps);
 	}
 
 	static double integrate(const Polynom & phi,
 	                        const Triangle & trk,
 	                        const Mesh::points_t & ps)
 	{
-		return integrate(phi, trk, ps);
+		return phelm::integrate(phi, trk, ps);
 	}
 };
 
