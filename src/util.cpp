@@ -48,6 +48,8 @@
 
 #include "util.h"
 #include "ver.h"
+#include "timer.h"
+#include "pow.h"
 
 VERSION ("$Id$");
 
@@ -222,8 +224,6 @@ extern "C"
 
 	void burn (double secs)
 	{
-		return;
-	
 		double t1 = get_full_time();
 #pragma omp parallel sections
 		{

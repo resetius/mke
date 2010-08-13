@@ -176,7 +176,5 @@ extern "C"
 }
 #endif
 
-#include "linal_util.h"
-
 #endif /* UTIL_H */
 

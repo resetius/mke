@@ -43,6 +43,10 @@
 
 #include "mesh_builder.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 using namespace std;
 
 void sphere_orto_projector(Point & p)
