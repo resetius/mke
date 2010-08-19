@@ -45,6 +45,7 @@
  * mesh-vectors inner-product, mesh-vectors distance.
  */
 
+#include <math.h>
 #include "solver.h"
 #include "util.h"
 
