@@ -72,11 +72,10 @@ double laplace (const Polynom & phi_i, const Polynom & phi_j,
 /**
  * Compute the laplacian on a flat domain
  */
-template < typename T >
+template < typename T, typename Matrix = phelm::Solver < T > >
 class Laplace
 {
 public:
-	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > Array;
 
 	Matrix idt_;      // inner

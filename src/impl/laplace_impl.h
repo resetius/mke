@@ -69,8 +69,8 @@ laplace_integrate_cb ( const Polynom & phi_i,
                        void * user_data);
 }
 
-template < typename T >
-void Laplace < T >::solve (T * Ans, const T * F, const T * bnd)
+template < typename T, typename Matrix >
+void Laplace < T, Matrix >::solve (T * Ans, const T * F, const T * bnd)
 {
 	using namespace phelm;
 	//пока используем первый порядок
@@ -92,8 +92,8 @@ void Laplace < T >::solve (T * Ans, const T * F, const T * bnd)
 	phelm::solve (Ans, bnd, &b[0], laplace_, m_);
 }
 
-template < typename T >
-Laplace < T >::Laplace (const Mesh & m) : m_ (m),
+template < typename T, typename Matrix >
+Laplace < T, Matrix >::Laplace (const Mesh & m) : m_ (m),
 		idt_ ( (int) m.inner.size() ), laplace_ ( (int) m.inner.size() ),
 		bnd2_ ( (int) m.inner.size() ),
 		bnd3_ ( (int) m.inner.size() )
@@ -104,8 +104,8 @@ Laplace < T >::Laplace (const Mesh & m) : m_ (m),
 	generate_boundary_matrix (bnd3_, m_, Laplace_Private::laplace_integrate_cb, (void*) 0);
 }
 
-template < typename T >
-void Laplace < T > ::calc2 (T * Ans, const T * F)
+template < typename T, typename Matrix >
+void Laplace < T, Matrix > ::calc2 (T * Ans, const T * F)
 {
 	using namespace phelm;
 	int rs = (int) m_.inner.size();
@@ -132,8 +132,8 @@ void Laplace < T > ::calc2 (T * Ans, const T * F)
  * Если этот оператор Лапласа входит в праву часть уравнения, то
  * напишите 0 вместо границы.
  */
-template < typename T >
-void Laplace < T > ::calc1 (T * Ans, const T * F, const T * bnd)
+template < typename T, typename Matrix >
+void Laplace < T, Matrix > ::calc1 (T * Ans, const T * F, const T * bnd)
 {
 	Array out (m_.inner.size() );
 	calc2 (&out[0], F);

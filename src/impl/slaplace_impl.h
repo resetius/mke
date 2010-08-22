@@ -85,8 +85,8 @@ laplace_bnd2_cb ( const Polynom & phi_i,
 
 }
 
-template < typename T >
-void SphereLaplace < T >::solve (T * Ans,
+template < typename T, typename Matrix >
+void SphereLaplace < T, Matrix >::solve (T * Ans,
                                  const T * F, const T * bnd)
 {
 	using namespace phelm;
@@ -129,8 +129,8 @@ void SphereLaplace < T >::solve (T * Ans,
 #endif
 }
 
-template < typename T >
-SphereLaplace < T > ::SphereLaplace (const Mesh & m) : m_ (m),
+template < typename T, typename Matrix >
+SphereLaplace < T, Matrix > ::SphereLaplace (const Mesh & m) : m_ (m),
 		idt_ ( (int) m.inner.size() ),
 		laplace_ ( (int) m.inner.size() ), bnd1_ ( (int) m.inner.size() ), bnd2_ ( (int) m.inner.size() ),
 		bnd3_ ( (int) m.inner.size() )
@@ -142,8 +142,8 @@ SphereLaplace < T > ::SphereLaplace (const Mesh & m) : m_ (m),
 	generate_boundary_matrix (bnd3_, m_, SphereLaplace_Private::slaplace_integrate_cb, (void*) 0);
 }
 
-template < typename T >
-void SphereLaplace < T > ::calc2 (T * Ans, const T * F)
+template < typename T, typename Matrix >
+void SphereLaplace < T, Matrix > ::calc2 (T * Ans, const T * F)
 {
 	using namespace phelm;
 
@@ -171,8 +171,8 @@ void SphereLaplace < T > ::calc2 (T * Ans, const T * F)
 //	vec_mult_scalar(Ans, Ans, (T)(1.0 / 6371.3 / 6371.3), rs); // divide R^2
 }
 
-template < typename T >
-void SphereLaplace < T > ::calc1 (T * Ans, const T * F, const T * bnd)
+template < typename T, typename Matrix >
+void SphereLaplace < T, Matrix > ::calc1 (T * Ans, const T * F, const T * bnd)
 {
 	ArrayDevice p1 (m_.inner.size() );
 

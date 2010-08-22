@@ -57,11 +57,10 @@ using phelm::Polynom;
   \frac{1}{cos^2\varphi}\frac{\partial^2}{\partial\lambda^2}\psi
  \f]
  */
-template < typename T >
+template < typename T, typename Matrix = phelm::Solver < T > >
 class SphereLaplace
 {
 public:
-	typedef phelm::Solver < T > Matrix;
 	typedef phelm::ArrayDevice < T > ArrayDevice;
 	typedef phelm::ArrayHost < T > ArrayHost;
 	Matrix idt_;

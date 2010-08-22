@@ -17,11 +17,13 @@ using namespace std;
 
 void usage (const char * n)
 {
-	fprintf (stderr, "%s [--double|-d] [--mesh] [--operator]\n", n);
+	fprintf (stderr, "%s [--double|-d] [--mesh] [--operator] [--store] [-o file]\n", n);
 	fprintf (stderr, "--threads n - sets the number of threads\n");
 	fprintf (stderr, "--double - use double or float ? \n");
 	fprintf (stderr, "--mesh - mesh \n");
 	fprintf (stderr, "--operator - operator \n");
+	fprintf (stderr, "--store ELL/CSR - store format  \n");
+	fprintf (stderr, "-o file - output file \n");
 	exit (-1);
 }
 
@@ -36,19 +38,19 @@ void dump (const string & filename, Matrix & m)
 	}
 }
 
-template < typename T >
+template < typename T, typename Matrix >
 void dump_operator_matrix (const string & filename, const Mesh & m, const string & operator_name)
 {
 	/* матрицу записываем по строкам! */
 
 	if (operator_name == "laplace")
 	{
-		Laplace < T > lapl (m);
+		Laplace < T, Matrix > lapl (m);
 		dump (filename, lapl.laplace_);
 	}
 	else if (operator_name == "slaplace")
 	{
-		SphereLaplace < T > lapl (m);
+		SphereLaplace < T, Matrix > lapl (m);
 		dump (filename, lapl.laplace_);
 	}
 	else
@@ -67,6 +69,7 @@ int main (int argc, char * argv[])
 	string filename;
 	string operator_name;
 	string mesh_file;
+	string store = "CSR";
 
 	for (int i = 0; i < argc; ++i)
 	{
@@ -113,6 +116,22 @@ int main (int argc, char * argv[])
 			}
 			filename = argv[i + 1];
 		}
+		if (!strcmp (argv[i], "--store")) {
+			if (i == argc - 1)
+			{
+				usage (argv[0]);
+			}
+
+			if (!(
+				!strcmp(argv[i + 1], "CSR") ||
+				!strcmp(argv[i + 1], "ELL")
+				))
+			{
+				usage (argv[0]);
+			}
+
+			store = argv[i + 1];
+		}
 		if (!strcmp (argv[i], "--help") || !strcmp (argv[i], "-h") )
 		{
 			usage (argv[0]);
@@ -123,11 +142,23 @@ int main (int argc, char * argv[])
 	{
 		if (use_double)
 		{
-			dump_operator_matrix < double > (filename, mesh, operator_name);
+			if (store == "CSR") {
+				dump_operator_matrix < double, SparseSolver < double, StoreCSR < double , Allocator > > > 
+					(filename, mesh, operator_name);
+			} else {
+				dump_operator_matrix < double, SparseSolver < double, StoreELL < double , Allocator > > > 
+					(filename, mesh, operator_name);
+			}
 		}
 		else
 		{
-			dump_operator_matrix < float > (filename, mesh, operator_name);
+			if (store == "CSR") {
+				dump_operator_matrix < float, SparseSolver < float, StoreCSR < float , Allocator > > > 
+					(filename, mesh, operator_name);
+			} else {
+				dump_operator_matrix < float, SparseSolver < float, StoreELL < float , Allocator > > > 
+					(filename, mesh, operator_name);
+			}
 		}
 	}
 	catch (const std::exception & e)
