@@ -103,7 +103,8 @@ chafe_right_part_cb (  const Polynom & phi_i,
 template < typename T >
 Chafe < T > ::Chafe (const Mesh & m, double tau, double sigma, double mu)
 		: ChafeConfig (tau, sigma, mu), m_ (m), laplace_ (m),
-		A_ ( (int) m.inner.size() ), bnd_ ( (int) m.inner.size() )
+		A_ ( (int) m.inner.size() ), bnd_ ( (int) m.inner.size() ),
+		idp_(m_.inner.size()), idh_(m_.inner.size())
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
@@ -121,11 +122,15 @@ void Chafe < T > ::solve (T * Ans, const T * X0,
 	int rs  = (int) m_.inner.size();
 	int os = (int) m_.outer.size();
 	int sz  = (int) m_.ps.size();
-	ArrayDevice u (rs);
-	ArrayDevice delta_u (rs);
 
-	ArrayHost   rp (rs);
-	ArrayDevice crp (rs);
+	typename ArrayPool < ArrayDevice > :: Checkpoint cp1(idp_); // size = rs
+	typename ArrayPool < ArrayHost > :: Checkpoint cp2(idh_); // size = rs
+
+	ArrayDevice & u = idp_.create();
+	ArrayDevice & delta_u = idp_.create();
+
+	ArrayHost   & rp = idh_.create();
+	ArrayDevice & crp = idp_.create();
 
 #if 0
 	// генерируем правую часть по ходу
@@ -136,7 +141,7 @@ void Chafe < T > ::solve (T * Ans, const T * X0,
 		vec_copy_from_device (&hbnd[0], &bnd[0], os);
 #else
 	// используем предвычисленную правую часть
-	ArrayDevice tmp1 (rs);
+	ArrayDevice & tmp1 = idp_.create();
 #endif
 
 	// генерируем правую часть

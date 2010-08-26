@@ -77,6 +77,8 @@ private:
 	Laplace < T > laplace_; /* Лапласиан */
 	Matrix A_;        /* Матрица левой части */
 	Matrix bnd_;
+	ArrayPool < ArrayDevice > idp_; //inner device array pool
+	ArrayPool < ArrayHost > idh_; //inner host array pool
 
 public:
 	/**
