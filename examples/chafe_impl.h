@@ -104,7 +104,7 @@ template < typename T >
 Chafe < T > ::Chafe (const Mesh & m, double tau, double sigma, double mu)
 		: ChafeConfig (tau, sigma, mu), m_ (m), laplace_ (m),
 		A_ ( (int) m.inner.size() ), bnd_ ( (int) m.inner.size() ),
-		idp_(m_.inner.size()), idh_(m_.inner.size())
+		idp_((int)m_.inner.size()), idh_((int)m_.inner.size())
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
