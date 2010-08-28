@@ -47,7 +47,7 @@ void chafe_calc (Mesh & mesh)
 {
 	int sz = (int) mesh.ps.size();
 	int os = (int) mesh.outer.size();
-	int rs = (int) mesh.outer.size();
+	int rs = (int) mesh.inner.size();
 
 	int i, steps = 1000;
 	double tau   = 0.001; //r5 => h = 0.03
@@ -158,8 +158,8 @@ int test_chafe (int argc, char *argv[])
 	linal_init();
 
 	Timer t;
-	try
-	{
+//	try
+//	{
 		if (check_device_supports_double() && use_double)
 		{
 			fprintf (stderr, "using double\n");
@@ -170,11 +170,11 @@ int test_chafe (int argc, char *argv[])
 			fprintf (stderr, "using float\n");
 			chafe_calc < float > (mesh);
 		}
-	}
-	catch (const std::exception & e)
-	{
-		fprintf (stderr, "exception: %s\n", e.what() );
-	}
+//	}
+//	catch (const std::exception & e)
+//	{
+//		fprintf (stderr, "exception: %s\n", e.what() );
+//	}
 	fprintf (stderr, "elapsed: %lf\n", t.elapsed() );
 
 	linal_shutdown();

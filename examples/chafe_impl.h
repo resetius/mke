@@ -126,10 +126,14 @@ void Chafe < T > ::solve (T * Ans, const T * X0,
 	typename ArrayPool < ArrayDevice > :: Checkpoint cp1(idp_); // size = rs
 	typename ArrayPool < ArrayHost > :: Checkpoint cp2(idh_); // size = rs
 
+	//ArrayDevice u(rs);
+	//ArrayDevice delta_u(rs);
+
 	ArrayDevice & u = idp_.create();
 	ArrayDevice & delta_u = idp_.create();
 
 	ArrayHost   & rp = idh_.create();
+	//ArrayDevice crp(rs);
 	ArrayDevice & crp = idp_.create();
 
 #if 0
@@ -141,6 +145,7 @@ void Chafe < T > ::solve (T * Ans, const T * X0,
 		vec_copy_from_device (&hbnd[0], &bnd[0], os);
 #else
 	// используем предвычисленную правую часть
+	//ArrayDevice tmp1(rs);
 	ArrayDevice & tmp1 = idp_.create();
 #endif
 
