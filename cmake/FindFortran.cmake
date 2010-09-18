@@ -1,3 +1,5 @@
+if (NOT _FINDFORTRAN_)
+
 set (ICC_PATTERN ".*icpc.*")
 
 if (NOT WIN32)
@@ -19,3 +21,6 @@ endif (NOT WIN32)
 
 message(STATUS "Fortran library: ${FLIB}")
 
+set (_FINDFORTRAN_ TRUE)
+
+endif ()

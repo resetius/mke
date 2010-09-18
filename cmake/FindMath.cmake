@@ -1,3 +1,5 @@
+if (NOT _FINDMATH_)
+
 if (MSVC)
 	set(MATH "")
 else (MSVC)
@@ -6,3 +8,5 @@ endif (MSVC)
 
 message(STATUS "Math library: ${MATH}")
 
+set (_FINDMATH_ TRUE)
+endif ()
