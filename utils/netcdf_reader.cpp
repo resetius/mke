@@ -1,5 +1,9 @@
 #include <sstream>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <stdlib.h>
+#include <vector>
 
 #include "netcdf_cmd.h"
 #include "netcdf_cmd.hpp"
@@ -14,9 +18,9 @@ void CMD_Parser::help()
 			"\t-info -att name -- attribute 'name' info\n"
 			"\t-info -var name -- variable 'name' info\n"
 			"\t-file name -- sets netcdf file name\n"
-			"\t-dump -file fname -var name \n"
+			"\t-dump [-text] -file fname -var name \n"
 			"\t      -- dumps variable 'name' to file 'fname'\n"
-			"\t-dump -file fname -var name -dim dn1 from total ..\n"
+			"\t-dump [-text] -file fname -var name -dim dn1 from total ..\n"
 			"\t      -- dumps variable 'name' to file 'fname' \n"
 			"\t      -- and sets dimentions boundaries\n",
 			argv_[0]
@@ -185,13 +189,37 @@ void CMD_Parser::info_att(NcAtt * att)
 	fprintf(stdout, "\t%s\n", str.str().c_str());
 }
 
-template < typename T >
-void get_and_write(int count, const long * counts, FILE * f, NcVar * var)
+template < typename T, typename Stream >
+T * write_to_stream(int dim, int count, T * d, const long * counts, int dims, Stream & stream)
 {
-	T * d = new T[count];
-	var->get(d, counts);
-	fwrite(d, sizeof(T), count, f);
-	delete [] d;
+	if (dim == dims - 1) {
+		for (int i = 0; i < counts[dim]; ++i) {
+			stream << fixed << setw(20) << setprecision(16);
+			stream << *d++ << " ";
+		}
+		return d;
+	} else {
+		for (int i = 0; i < counts[dim]; ++i) {
+			d = write_to_stream(dim+1, count, d, counts, dims, stream);
+			stream << "\n";
+		}
+		return d;
+	}
+}
+
+template < typename T, typename Stream >
+void get_and_write(int count, const long * counts, int dims, Stream & stream, 
+		NcVar * var, bool text)
+{
+	int stride = counts[dims-1];
+	vector < T > d (count);
+	var->get(&d[0], counts);
+
+	if (text) {
+		write_to_stream(0, count, &d[0], counts, dims, stream);
+	} else {
+		stream.write((const char*)&d[0], count * sizeof(T));
+	}
 }
 
 void CMD_Parser::dump(const char * to, const char * what)
@@ -199,8 +227,8 @@ void CMD_Parser::dump(const char * to, const char * what)
 	check_file();
 
 	NcVar * var = f_->get_var(what);
-	long from[]  = {0, 0, 0, 0, 0};
-	long total[] = {0, 0, 0, 0, 0}; // set to max!!!
+	long from[]  = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	long total[] = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // set to max!!!
 
 	if (!var) {
 		fprintf(stderr, "variable not found!\n");
@@ -211,7 +239,7 @@ void CMD_Parser::dump(const char * to, const char * what)
 
 	int dims  = var->num_dims();
 	int elems = 1;
-	for (int i = 0; i < dims & i < 5; ++i) {
+	for (int i = 0; i < dims & i < sizeof(from) / sizeof(long); ++i) {
 		NcDim * dim = var->get_dim(i);
 		if (dim) {
 			Slice fake(f_, dim->name(), -1, -1);
@@ -232,33 +260,36 @@ void CMD_Parser::dump(const char * to, const char * what)
 
 	var->set_cur(from);
 	
-	FILE * f = fopen(to, "wb");
+	filebuf fb;
+	fb.open (to, ios::out);
+	ostream os(&fb);
+
 	NcType type = var->type();
 	switch (type) {
 	case ncByte:
-		get_and_write < ncbyte > (elems, total, f, var);
+		get_and_write < ncbyte > (elems, total, dims, os, var, text_);
 		break;
 	case ncChar:
-		get_and_write < char > (elems, total, f, var);
+		get_and_write < char > (elems, total, dims, os, var, text_);
 		break;
 	case ncShort:
-		get_and_write < short > (elems, total, f, var);
+		get_and_write < short > (elems, total, dims, os, var, text_);
 		break;
 	case ncLong:
-		get_and_write < long > (elems, total, f, var);
+		get_and_write < long > (elems, total, dims, os, var, text_);
 		break;
 	case ncFloat:
-		get_and_write < float > (elems, total, f, var);
+		get_and_write < float > (elems, total, dims, os, var, text_);
 		break;
 	case ncDouble:
-		get_and_write < double > (elems, total, f, var);
+		get_and_write < double > (elems, total, dims, os, var, text_);
 		break;
 	default:
 		fprintf(stderr, "unknown type!\n");
 		exit(-1);
 		break;
 	}
-	fclose(f);
+	fb.close();
 }
 
 void CMD_Parser::add_slice(const char * dim)
@@ -298,6 +329,10 @@ int CMD_Parser::next()
 	else if (!strcmp (argv_[cur_], "-file") )
 	{
 		ans = FLE;
+	}
+	else if (!strcmp (argv_[cur_], "-text") )
+	{
+		ans = TXT;
 	}
 	else if (!strcmp (argv_[cur_], "-dump") )
 	{
