@@ -104,7 +104,7 @@ void print_mesh(FILE * f, double x, double y, double w, double h,
 	fprintf(f, "# boundary\n");
 
 	for (size_t i = 0; i < boundary.size(); ++i) {
-		fprintf(f, "%lu \n", boundary[i] + 1);
+		fprintf(f, "%lu \n", (unsigned long)(boundary[i] + 1));
 	}
 }
 
