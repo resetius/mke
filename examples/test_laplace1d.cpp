@@ -7,6 +7,7 @@
 #include "util.h"
 
 using namespace std;
+using namespace linal;
 
 static double func(double x)
 {
@@ -22,24 +23,43 @@ static void calc_lapl()
 {
 }
 
+static double fx(double x, double * d)
+{
+	//return (x - d->xl) * (-x + d->xc);
+	// dx, dx
+	return *d;
+}
+
 struct fx_data
 {
 	double xl;
 	double xc;
+	double xr;
+	int type;
 };
 
-static double fx(double x, struct fx_data * d)
+static double fx2(double x, struct fx_data * d)
 {
-	//return (x - d->xl) * (-x + d->xc);
-	// dx, dx
-	return -1.0;
+	switch (d->type) {
+	case 0:
+		return (x - d->xl) * (x - d->xl);
+	case 1:
+		return (-x + d->xr) * (-x + d->xr);
+	case 2:
+		return (x - d->xl) * (-x + d->xc);
+	case 3:
+		return (-x + d->xr) * (x - d->xc);
+	default:
+		throw "error";
+	}
+	return 0.0;
 }
 
 static void solve_lapl()
 {
 	double x0  = -2.0;
 	double x1  =  2.0;
-	int points =  5; // including edges
+	int points =  99; // including edges
 	int rs     = points - 2; // inner points
 	double dx  = (x1 - x0) / (points - 1);
 
@@ -48,6 +68,7 @@ static void solve_lapl()
 		linal::StoreCSR < double , linal::Allocator > > A(rs);
 	vector < double > rp(rs);
 	vector < double > ans(rs);
+	vector < double > rans(rs);
 
 	// inner points
 	for (int i = 0; i < rs; ++i) {
@@ -57,45 +78,76 @@ static void solve_lapl()
 		double xl = (p - 1) * dx + x0;
 		double xr = (p + 1) * dx + x0;
 		double a;
+		double b;
 
-		rp[i] = - lapl_func(xc);
+		fx_data data;
+		data.xc = xc;
+		data.xl = xl;
+		data.xr = xr;
+
+		rans[i] = func(xc);
+		rp[i] = 0; // - lapl_func(xc);
 
 		// left:   x - xl; /
 		// right: -x + xr; \
 		// left left:   -x + xc; \
 		// right right:  x - xc; /
 
-		int p2 = p - 1;
+		int p2 = p;
 		int j  = p2 - 1;
+		double k;
 
-		struct fx_data data;
-		data.xc = xc;
-		data.xl = xl;
+		k = 1.0;
+		a  = gauss_kronrod15(xl, xc, (fx_t)fx, &k);
+		a += gauss_kronrod15(xc, xr, (fx_t)fx, &k);
+		A.add(i, j, a);
 
-		a = gauss_kronrod15(xl, xc, (fx_t)fx, &data);
+		// b = int (x - xl) (x + xl)
+		data.type = 0;
+		b  = gauss_kronrod15(xl, xc, (fx_t)fx2, &data);
+		rp[i] += -lapl_func(xc) * b;
+		// b = int (-x + xr) (-x + xr)
+		data.type = 1;
+		b  = gauss_kronrod15(xc, xr, (fx_t)fx2, &data);
+		rp[i] += -lapl_func(xc) * b;
 
+		p2 = p - 1;
+		j  = p2 - 1;
+		k  = -1.0;
+
+		a  = gauss_kronrod15(xl, xc, (fx_t)fx, &k);
 		if (j >= 0) {
 			A.add(i, j, a);
 		} else {
 		//	rp[i] += func(xc) * a;
 		}
 
+		data.type = 2;
+		b  = gauss_kronrod15(xl, xc, (fx_t)fx2, &data);
+		rp[i] += -lapl_func(xl) * b;
+
 		p2 = p + 1;
 		j  = p2 - 1;
 
-		data.xc = xr;
-		data.xl = xc;
-		a = gauss_kronrod15(xc, xr, (fx_t)fx, &data);
+		a = gauss_kronrod15(xc, xr, (fx_t)fx, &k);
 		if (j < rs) {
 			A.add(i, j, a);
 		} else {
 		//	rp[i] += func(xc) * a;
 		}
+
+		data.type = 3;
+		b  = gauss_kronrod15(xc, xr, (fx_t)fx2, &data);
+		rp[i] += -lapl_func(xr) * b;
 	}
 
 	A.solve(&ans[0], &rp[0]);
-	A.print(stderr);
+//	A.print(stderr);
 
+	vec_diff(&rans[0], &rans[0], &ans[0], rs);
+	double nr = vec_norm2(&rans[0], rs);
+
+	fprintf(stderr, "norm = %.16le\n", nr);
 	fprintf(stderr, "done\n");
 }
 
