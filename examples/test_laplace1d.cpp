@@ -11,12 +11,15 @@ using namespace linal;
 
 static double func(double x)
 {
-	return 4 - x * x;
+	//return 4 - x * x;
+	return x * x;
 }
 
 static double lapl_func(double x)
 {
-	return -2.0;
+	//return -2.0;
+
+	return 2.0;
 }
 
 static void calc_lapl()
@@ -59,7 +62,7 @@ static void solve_lapl()
 {
 	double x0  = -2.0;
 	double x1  =  2.0;
-	int points =  99; // including edges
+	int points =  5; // including edges
 	int rs     = points - 2; // inner points
 	double dx  = (x1 - x0) / (points - 1);
 
@@ -119,7 +122,7 @@ static void solve_lapl()
 		if (j >= 0) {
 			A.add(i, j, a);
 		} else {
-		//	rp[i] += func(xc) * a;
+			rp[i] -= func(xl) * a;
 		}
 
 		data.type = 2;
@@ -133,7 +136,7 @@ static void solve_lapl()
 		if (j < rs) {
 			A.add(i, j, a);
 		} else {
-		//	rp[i] += func(xc) * a;
+			rp[i] -= func(xr) * a;
 		}
 
 		data.type = 3;
