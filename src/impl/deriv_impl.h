@@ -50,17 +50,17 @@ namespace deriv_impl
 }
 
 template < typename T >
-Deriv::Deriv (const Mesh & m): m_(m), idt_(m.size)
+Deriv < T > ::Deriv (const Mesh & m): m_(m), idt_(m.size)
 {
-	generate_full_matrix (idt_, m, id_cb, (void*) 0);
+	generate_full_matrix (idt_, m, deriv_impl::id_cb, (void*) 0);
 }
 
 template < typename T >
-void Deriv::calc_x(double * Ans, const double * u)
+void Deriv < T > ::calc_x(T * Ans, const T * u)
 {
 }
 
 template < typename T >
-void Deriv::calc_y(double * Ans, const double * u)
+void Deriv < T > ::calc_y(T * Ans, const T * u)
 {
 }

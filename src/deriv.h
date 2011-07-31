@@ -30,6 +30,7 @@
  */
 
 #include "solver.h"
+#include "mesh.h"
 
 using phelm::Mesh;
 
@@ -58,14 +59,14 @@ public:
 	 * @param Ans - the answer
 	 * @param u - vector u
 	 */
-	void calc_x(double * Ans, const double * u);
+	void calc_x(T * Ans, const T * u);
 
 	/**
 	 * Calculate derivative u'y
 	 * @param Ans - the answer
 	 * @param u - vector u
 	 */
-	void calc_y(double * Ans, const double * u);
+	void calc_y(T * Ans, const T * u);
 };
 
 /** @} */

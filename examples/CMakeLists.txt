@@ -30,9 +30,11 @@ add_executable(mke_test_barvortex test_barvortex.cpp barvortex.h barvortex_impl.
 add_executable(mke_test_baroclin test_baroclin.cpp baroclin.cpp baroclin.h)
 
 add_executable(mke_test_laplace1d test_laplace1d.cpp)
+add_executable(mke_test_deriv test_deriv.cpp)
 
 target_link_libraries(mke_test_laplace phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_laplace1d phelm ${LINAL_LIBS})
+target_link_libraries(mke_test_deriv phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_chafe phelm ${LINAL_LIBS})
 
 target_link_libraries(mke_test_system_laplace phelm ${LINAL_LIBS})
@@ -43,6 +45,7 @@ target_link_libraries(mke_test_baroclin phelm ${LINAL_LIBS})
 if (OPENMP_FOUND)
 set_target_properties(mke_test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_laplace1d PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
+set_target_properties(mke_test_deriv PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 
 set_target_properties(mke_test_system_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
