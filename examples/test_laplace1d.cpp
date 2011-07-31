@@ -12,19 +12,24 @@ using namespace linal;
 static double func(double x)
 {
 	//return 4 - x * x;
-	return x * x;
+	//return x * x + x + 1;
+	return x;
 }
 
 static double lapl_func(double x)
 {
 	//return -2.0;
 
-	return 2.0;
+	//return 2.0;
+
+	return 0.0;
 }
 
 static double deriv_func(double x)
 {
-	return 2.0 * x;
+	//return 2.0 * x + 1;
+
+	return 1;
 }
 
 static double fx(double x, double * d)
@@ -102,6 +107,7 @@ static void calc_lapl()
 
 		rp[i] = 0.0;
 		
+		// используем ненормированный базис, поэтому умножаем на dx*dx
 		if (i == 0) {
 			rp[i] += -deriv_func(x0) * dx * dx;
 		}
