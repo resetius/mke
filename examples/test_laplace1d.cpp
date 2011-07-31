@@ -22,6 +22,11 @@ static double lapl_func(double x)
 	return 2.0;
 }
 
+static double deriv_func(double x)
+{
+	return 2.0 * x;
+}
+
 static double fx(double x, double * d)
 {
 	//return (x - d->xl) * (-x + d->xc);
@@ -58,20 +63,21 @@ static void calc_lapl()
 {
 	double x0  = -2.0;
 	double x1  =  2.0;
-	int points =  5; // including edges
+	int points =  9; // including edges
 	int rs     = points - 2; // inner points
+	int n      = points;
 	double dx  = (x1 - x0) / (points - 1);
 
 	linal::SparseSolver < double, 
 		linal::StoreCSR < double , linal::Allocator > , 
-		linal::StoreCSR < double , linal::Allocator > > A(rs);
-	vector < double > rp(rs);
-	vector < double > ans(rs);
-	vector < double > rans(rs);
+		linal::StoreCSR < double , linal::Allocator > > A(n);
+	vector < double > rp(n);
+	vector < double > ans(n);
+	vector < double > rans(n);
 
-	// inner points
-	for (int i = 0; i < rs; ++i) {
-		int p = i + 1;
+
+	for (int i = 0; i < n; ++i) {
+		int p = i;
 
 		double xc = p * dx + x0;
 		double xl = (p - 1) * dx + x0;
@@ -79,9 +85,13 @@ static void calc_lapl()
 		double a;
 		double b;
 
-		int p2 = p;
-		int j  = p2 - 1;
+		int p2;
+		int j;
 		double k;
+
+		// middle
+		p2 = p;
+		j  = p2;
 
 		fx_data data;
 		data.xc = xc;
@@ -90,47 +100,84 @@ static void calc_lapl()
 
 		rans[i] = lapl_func(xc);
 
+		rp[i] = 0.0;
+		
+		if (i == 0) {
+			rp[i] += -deriv_func(x0) * dx * dx;
+		}
+		if (i == n - 1) {
+			rp[i] += +deriv_func(x1) * dx * dx;
+		}
+		
 		k  = 1.0;
-		b  = gauss_kronrod15(xl, xc, (fx_t)fx, &k);
-		b += gauss_kronrod15(xc, xr, (fx_t)fx, &k);
-		rp[i] = -func(xc) * b;
+		b  = 0;
+		if (i > 0) {
+			b  = gauss_kronrod15(xl, xc, (fx_t)fx, &k);
+		}
+		if (i < n - 1) {
+			b += gauss_kronrod15(xc, xr, (fx_t)fx, &k);
+		}
+		rp[i] += -func(xc) * b;
 
-		data.type = 0;
-		a  = gauss_kronrod15(xl, xc, (fx_t)fx2, &data);
-		A.add(i, j, a);
-		data.type = 1;
-		a  = gauss_kronrod15(xc, xr, (fx_t)fx2, &data);
-		A.add(i, j, a);
+		if (i > 0) {
+			data.type = 0;
+			a  = gauss_kronrod15(xl, xc, (fx_t)fx2, &data);
+			A.add(i, j, a);
+		}
+		if (i < n - 1) {
+			data.type = 1;
+			a  = gauss_kronrod15(xc, xr, (fx_t)fx2, &data);
+			A.add(i, j, a);
+		}
 
+		// left
 		p2 = p - 1;
-		j  = p2 - 1;
+		j  = p2;
 		k  = -1.0;
 
-		b  = gauss_kronrod15(xl, xc, (fx_t)fx, &k);
-		rp[i] += -func(xl) * b;
-
-		data.type = 2;
-		a  = gauss_kronrod15(xl, xc, (fx_t)fx2, &data);
-		if (j >= 0) {
-			A.add(i, j, a);
-		} else {
+		if (i > 0) {
+			b  = gauss_kronrod15(xl, xc, (fx_t)fx, &k);
+			rp[i] += -func(xl) * b;
 		}
 
+		if (i > 0) {
+			data.type = 2;
+			a  = gauss_kronrod15(xl, xc, (fx_t)fx2, &data);
+			A.add(i, j, a);
+		}
+
+		// right
 		p2 = p + 1;
-		j  = p2 - 1;
+		j  = p2;
 
-		b = gauss_kronrod15(xc, xr, (fx_t)fx, &k);
-		rp[i] += -func(xr) * b;
-
-		data.type = 3;
-		a  = gauss_kronrod15(xc, xr, (fx_t)fx2, &data);
-		if (j < rs) {
-			A.add(i, j, a);
-		} else {
+		if (i < n - 1) {
+			b = gauss_kronrod15(xc, xr, (fx_t)fx, &k);
+			rp[i] += -func(xr) * b;
 		}
+
+		if (i < n - 1) {
+			data.type = 3;
+			a  = gauss_kronrod15(xc, xr, (fx_t)fx2, &data);
+			A.add(i, j, a);
+		}
+
+//		A.prepare(true);
+//		A.print(stderr);
+//		fprintf(stderr, "\n");
 	}
 
+	A.prepare(true);
 	A.print(stderr);
+//	rp[0]             = 0.5120;
+//	rp[rp.size() - 1] = 0.5120;
+
+//	rp[0]             = 0.125;
+//	rp[rp.size() - 1] = 0.125;
+	/*
+	for (int i = 1; i < rp.size() - 1; ++i) {
+		rp[i] += 3.0;
+	}
+	*/
 	A.solve(&ans[0], &rp[0]);
 
 	fprintf(stderr, "done\n");
