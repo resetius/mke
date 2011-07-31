@@ -27,7 +27,10 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <vector>
+
 #include "phelm.h"
+#include "array.h"
 
 namespace deriv_impl 
 {
@@ -35,7 +38,8 @@ namespace deriv_impl
 	using namespace std;
 	using namespace phelm;
 
-	inline double id_cb (const Polynom & phi_i,
+	inline double id_cb (
+		const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
 		const Mesh & m,
@@ -47,20 +51,69 @@ namespace deriv_impl
 	{
 		return integrate (phi_i * phi_j, trk, m.ps);
 	}
+
+	template < typename T >
+	struct diff_cb
+	{
+		int var_;
+
+		diff_cb(int var): var_(var) {}
+
+		double operator () ( 
+			const Polynom & phi_i,
+			const Polynom & phi_j,
+			const Triangle & trk,
+			const Mesh & m,
+			int point_i,
+			int point_j,
+			int i,
+			int j,
+			const T * u) const
+		{
+			if (u) {
+				Polynom poly = diff (phi_i, var_) * phi_j;
+				double r = integrate(poly, trk, m.ps);
+				r *= -u[point_j];
+				if (m.ps_flags[point_j] == 1) {
+					r += u[point_j] * 
+							integrate(diff(phi_j * phi_i, var_),
+								trk, m.ps);
+				}
+				return r;
+			} else {
+				Polynom poly = diff (phi_j, var_) * phi_i;
+				double r = integrate(poly, trk, m.ps);
+				return r;
+			}
+		}
+	};
 }
 
 template < typename T >
-Deriv < T > ::Deriv (const Mesh & m): m_(m), idt_(m.size)
+Deriv < T > ::Deriv (const Mesh & m): 
+	m_(m), 
+	diff_x_(m.size), 
+	diff_y_(m.size)
 {
-	generate_full_matrix (idt_, m, deriv_impl::id_cb, (void*) 0);
+	generate_full_matrix (diff_x_, m, deriv_impl::diff_cb<T>(0), (T*) 0);
+	generate_full_matrix (diff_y_, m, deriv_impl::diff_cb<T>(1), (T*) 0);
 }
 
 template < typename T >
 void Deriv < T > ::calc_x(T * Ans, const T * u)
 {
+	//ArrayHost < T > rp(m_.size);
+	std::vector < T > rp(m_.size);
+	generate_full_right_part(&rp[0], m_, deriv_impl::diff_cb<T>(0), u);
+	diff_x_.prepare(true);
+	diff_x_.print(stderr);
+	diff_x_.solve(&Ans[0], &rp[0]);
 }
 
 template < typename T >
 void Deriv < T > ::calc_y(T * Ans, const T * u)
 {
+	std::vector < T > rp(m_.size);
+	generate_full_right_part(&rp[0], m_, deriv_impl::diff_cb<T>(1), u);
+	diff_x_.solve(&Ans[0], &rp[0]);
 }

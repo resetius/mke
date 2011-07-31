@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /* $Id$ */
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2011 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -270,8 +270,8 @@ void generate_right_part (T * b, const Mesh & m,
  * @see generic_scalar_cb, sphere_scalar_cb
  * @param user_data - user data
  */
-template < typename Functor, typename Data >
-void generate_full_right_part (double * b, const Mesh & m,
+template < typename T, typename Functor, typename Data >
+void generate_full_right_part (T * b, const Mesh & m,
                                Functor right_part_cb,
                                Data user_data)
 {

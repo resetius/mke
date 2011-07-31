@@ -42,10 +42,16 @@ using phelm::Mesh;
 template < typename T >
 class Deriv
 {
-	typedef phelm::Solver < T > Matrix;
+//	typedef phelm::Solver < T > Matrix;
+
+	typedef linal::SparseSolver < T, 
+		linal::StoreCSR < T , linal::Allocator > , 
+		linal::StoreCSR < T , linal::Allocator > > Matrix;
+
 	const Mesh & m_;
 
-	Matrix idt_;
+	Matrix diff_x_;
+	Matrix diff_y_;
 
 public:
 	/**
