@@ -70,21 +70,15 @@ namespace deriv_impl
 			int j,
 			const T * u) const
 		{
-			if (u) {
-				Polynom poly = diff (phi_i, var_) * phi_j;
-				double r = integrate(poly, trk, m.ps);
-				r *= -u[point_j];
-				if (m.ps_flags[point_j] == 1) {
-					r += u[point_j] * 
-							integrate(diff(phi_j * phi_i, var_),
-								trk, m.ps);
-				}
-				return r;
-			} else {
-				Polynom poly = diff (phi_j, var_) * phi_i;
-				double r = integrate(poly, trk, m.ps);
-				return r;
-			}
+			Polynom poly = diff (phi_j, var_) * phi_i;
+			double r = integrate(poly, trk, m.ps);
+			r *= u[point_j];
+			/*if (m.ps_flags[point_j] == 1) {
+				r += u[point_j] * 
+					integrate(diff(phi_j * phi_i, var_),
+					trk, m.ps);
+			}*/
+			return r;
 		}
 	};
 }
@@ -92,11 +86,9 @@ namespace deriv_impl
 template < typename T >
 Deriv < T > ::Deriv (const Mesh & m): 
 	m_(m), 
-	diff_x_(m.size), 
-	diff_y_(m.size)
+	idt_(m.size)
 {
-	generate_full_matrix (diff_x_, m, deriv_impl::diff_cb<T>(0), (T*) 0);
-	generate_full_matrix (diff_y_, m, deriv_impl::diff_cb<T>(1), (T*) 0);
+	generate_full_matrix (idt_, m, deriv_impl::id_cb, (void*) 0);
 }
 
 template < typename T >
@@ -105,9 +97,7 @@ void Deriv < T > ::calc_x(T * Ans, const T * u)
 	//ArrayHost < T > rp(m_.size);
 	std::vector < T > rp(m_.size);
 	generate_full_right_part(&rp[0], m_, deriv_impl::diff_cb<T>(0), u);
-	diff_x_.prepare(true);
-	diff_x_.print(stderr);
-	diff_x_.solve(&Ans[0], &rp[0]);
+	idt_.solve(&Ans[0], &rp[0]);
 }
 
 template < typename T >
@@ -115,5 +105,5 @@ void Deriv < T > ::calc_y(T * Ans, const T * u)
 {
 	std::vector < T > rp(m_.size);
 	generate_full_right_part(&rp[0], m_, deriv_impl::diff_cb<T>(1), u);
-	diff_x_.solve(&Ans[0], &rp[0]);
+	idt_.solve(&Ans[0], &rp[0]);
 }

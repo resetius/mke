@@ -19,12 +19,12 @@ static double func(double x, double y)
 
 static double func_x(double x, double y)
 {
-	return 2 * x + y * y;
+	return 2 * x;
 }
 
 static double func_y(double x, double y)
 {
-	return x * x + 2 * y;
+	return 2 * y;
 }
 
 template < typename T >

@@ -50,8 +50,7 @@ class Deriv
 
 	const Mesh & m_;
 
-	Matrix diff_x_;
-	Matrix diff_y_;
+	Matrix idt_;
 
 public:
 	/**
