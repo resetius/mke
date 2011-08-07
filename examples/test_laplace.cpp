@@ -22,21 +22,21 @@ static void usage (const char * name)
 	exit (1);
 }
 
-static double rp (double x, double y)
+static double func_lapl (double x, double y)
 {
 	//return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y);
-	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;
+	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x + 1;
 }
 
-static double ans (double x, double y)
+static double func (double x, double y)
 {
-	//return sin(M_PI * x) * sin(M_PI * y);// + 1.0;
-	return x * (x - 1) * y * (y - 1);// + 1.0;
+	//return sin(M_PI * x) * sin(M_PI * y) + 10.0;
+	return x * (x - 1) * y * (y - 1) + x * x;
 }
 
 static double bnd (double x, double y)
 {
-	return ans (x, y);
+	return func (x, y);
 	//return 0.0;
 	//return 1.0;
 }
@@ -63,7 +63,7 @@ void test_invert (Mesh & mesh)
 
 	std::vector < T > F (sz);
 	std::vector < T > B (os);
-	std::vector < T > Ans (sz);
+	std::vector < T > func1 (sz);
 	std::vector < T > rans (sz);
 
 	vector cF (sz);
@@ -71,8 +71,8 @@ void test_invert (Mesh & mesh)
 	vector cAns (sz);
 	vector crans (sz);
 
-	proj (&F[0], mesh, rp);
-	proj (&rans[0], mesh, ans);
+	proj (&F[0], mesh, func_lapl);
+	proj (&rans[0], mesh, func);
 	proj_bnd (&B[0], mesh, bnd);
 
 	vec_copy_from_host (&cF[0], &F[0], sz);
@@ -84,14 +84,14 @@ void test_invert (Mesh & mesh)
 	fprintf (stderr, "l -> %lf\n", t.elapsed() );
 	l.solve (&cAns[0], &cF[0], &cB[0]);
 
-	vec_copy_from_device (&Ans[0], &cAns[0], sz);
+	vec_copy_from_device (&func1[0], &cAns[0], sz);
 
 	{
 		FILE * f = fopen ("lu_1_real.txt", "w");
 		print_function (f, &rans[0], mesh);
 		fclose (f);
 		f = fopen ("lu_1_calc.txt", "w");
-		print_function (f, &Ans[0], mesh);
+		print_function (f, &func1[0], mesh);
 		fclose (f);
 	}
 
@@ -123,10 +123,10 @@ void test_laplace (Mesh & mesh)
 
 	fprintf (stderr, "prepare ... \n");
 
-	proj (&U[0], mesh, ans);
-	proj (&LU[0], mesh, rp);
-	proj_bnd (&B1[0], mesh, rp);
-	proj_bnd (&B2[0], mesh, ans);
+	proj (&U[0], mesh, func);
+	proj (&LU[0], mesh, func_lapl);
+	proj_bnd (&B1[0], mesh, func_lapl);
+	proj_bnd (&B2[0], mesh, func);
 
 	vec_copy_from_host (&cU[0], &U[0], sz);
 	vec_copy_from_host (&cLU[0], &LU[0], sz);

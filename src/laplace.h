@@ -78,6 +78,8 @@ class Laplace
 public:
 	typedef phelm::ArrayDevice < T > Array;
 
+	Matrix idt_full_;
+
 	Matrix idt_;      // inner
 	Matrix laplace_;  // inner
 

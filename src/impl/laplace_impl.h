@@ -67,6 +67,49 @@ laplace_integrate_cb ( const Polynom & phi_i,
                        int point_j,
                        int, int,
                        void * user_data);
+
+
+template < typename T >
+double
+laplace_rp_cb ( const Polynom & phi_i,
+                const Polynom & phi_j,
+                const Triangle & trk,
+                const Mesh & m,
+                int point_i,
+                int point_j,
+                int, int,
+                const T * u)
+{
+	double r = -laplace (phi_i, phi_j, trk, m.ps);
+	
+	if (m.ps_flags[point_j] == 1) {
+		double b = 0;
+		b += integrate(diff(diff(phi_j, 0) * phi_i, 0), trk, m.ps);
+		b += integrate(diff(diff(phi_j, 1) * phi_i, 1), trk, m.ps);
+		r += b;
+	}
+	
+	r *= u[point_j];
+	return r;
+}
+
+}
+
+template < typename T, typename Matrix >
+Laplace < T, Matrix >::Laplace (const Mesh & m) : 
+	m_ (m),
+	idt_full_ ( m.size ), 
+	idt_ ( m.inner_size ), 
+	laplace_ ( m.inner_size ),
+	bnd2_ ( m.inner_size ),
+	bnd3_ ( m.inner_size )
+{
+	generate_full_matrix (idt_full_, m, Laplace_Private::id_cb, (void*) 0);
+
+	generate_matrix (idt_, m, Laplace_Private::id_cb, (void*) 0);
+	generate_matrix (laplace_, m, Laplace_Private::laplace_integrate_cb, (void*) 0);
+	generate_boundary_matrix (bnd2_, m_, Laplace_Private::laplace_bnd2_cb, (void*) 0);
+	generate_boundary_matrix (bnd3_, m_, Laplace_Private::laplace_integrate_cb, (void*) 0);
 }
 
 template < typename T, typename Matrix >
@@ -90,18 +133,6 @@ void Laplace < T, Matrix >::solve (T * Ans, const T * F, const T * bnd)
 	}
 
 	phelm::solve (Ans, bnd, &b[0], laplace_, m_);
-}
-
-template < typename T, typename Matrix >
-Laplace < T, Matrix >::Laplace (const Mesh & m) : m_ (m),
-		idt_ ( (int) m.inner.size() ), laplace_ ( (int) m.inner.size() ),
-		bnd2_ ( (int) m.inner.size() ),
-		bnd3_ ( (int) m.inner.size() )
-{
-	generate_matrix (idt_, m, Laplace_Private::id_cb, (void*) 0);
-	generate_matrix (laplace_, m, Laplace_Private::laplace_integrate_cb, (void*) 0);
-	generate_boundary_matrix (bnd2_, m_, Laplace_Private::laplace_bnd2_cb, (void*) 0);
-	generate_boundary_matrix (bnd3_, m_, Laplace_Private::laplace_integrate_cb, (void*) 0);
 }
 
 template < typename T, typename Matrix >
@@ -135,9 +166,16 @@ void Laplace < T, Matrix > ::calc2 (T * Ans, const T * F)
 template < typename T, typename Matrix >
 void Laplace < T, Matrix > ::calc1 (T * Ans, const T * F, const T * bnd)
 {
-	Array out (m_.inner.size() );
-	calc2 (&out[0], F);
-	p2u (Ans, &out[0], bnd, m_);
+//	Array out (m_.inner.size() );
+//	calc2 (&out[0], F);
+//	p2u (Ans, &out[0], bnd, m_);
+
+	Array rp(m_.size);
+	generate_full_right_part(&rp[0], m_, 
+		Laplace_Private::laplace_rp_cb<T>, F);
+
+	idt_full_.print(stderr);
+	idt_full_.solve(&Ans[0], &rp[0]);
 }
 
 #endif /* LAPL_PRIVATE_H */
