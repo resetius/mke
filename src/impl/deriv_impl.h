@@ -83,16 +83,16 @@ namespace deriv_impl
 	};
 }
 
-template < typename T >
-Deriv < T > ::Deriv (const Mesh & m): 
+template < typename T, typename Matrix >
+Deriv < T, Matrix > ::Deriv (const Mesh & m): 
 	m_(m), 
 	idt_(m.size)
 {
 	generate_full_matrix (idt_, m, deriv_impl::id_cb, (void*) 0);
 }
 
-template < typename T >
-void Deriv < T > ::calc_x(T * Ans, const T * u)
+template < typename T, typename Matrix >
+void Deriv < T, Matrix > ::calc_x(T * Ans, const T * u)
 {
 	//ArrayHost < T > rp(m_.size);
 	std::vector < T > rp(m_.size);
@@ -100,10 +100,11 @@ void Deriv < T > ::calc_x(T * Ans, const T * u)
 	idt_.solve(&Ans[0], &rp[0]);
 }
 
-template < typename T >
-void Deriv < T > ::calc_y(T * Ans, const T * u)
+template < typename T, typename Matrix >
+void Deriv < T, Matrix > ::calc_y(T * Ans, const T * u)
 {
 	std::vector < T > rp(m_.size);
 	generate_full_right_part(&rp[0], m_, deriv_impl::diff_cb<T>(1), u);
 	idt_.solve(&Ans[0], &rp[0]);
 }
+

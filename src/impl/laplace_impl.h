@@ -3,7 +3,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009, 2010 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2011 Alexey Ozeritsky (Алексей Озерицкий)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,8 @@ Laplace < T, Matrix >::Laplace (const Mesh & m) :
 	idt_ ( m.inner_size ), 
 	laplace_ ( m.inner_size ),
 	bnd2_ ( m.inner_size ),
-	bnd3_ ( m.inner_size )
+	bnd3_ ( m.inner_size ),
+	d_(m)
 {
 	generate_full_matrix (idt_full_, m, Laplace_Private::id_cb, (void*) 0);
 
@@ -166,16 +167,29 @@ void Laplace < T, Matrix > ::calc2 (T * Ans, const T * F)
 template < typename T, typename Matrix >
 void Laplace < T, Matrix > ::calc1 (T * Ans, const T * F, const T * bnd)
 {
-//	Array out (m_.inner.size() );
-//	calc2 (&out[0], F);
-//	p2u (Ans, &out[0], bnd, m_);
+	/*
+	Array dx(m_.size);
+	Array dy(m_.size);
 
+	d_.calc_x(&dx[0], F);
+	d_.calc_x(&dx[0], &dx[0]);
+	d_.calc_y(&dy[0], F);
+	d_.calc_y(&dy[0], &dy[0]);
+	vec_sum(Ans, &dx[0], &dy[0], m_.size);
+	*/
+
+	Array out (m_.inner.size() );
+	calc2 (&out[0], F);
+	p2u (Ans, &out[0], bnd, m_);
+
+	/*
 	Array rp(m_.size);
 	generate_full_right_part(&rp[0], m_, 
 		Laplace_Private::laplace_rp_cb<T>, F);
 
 	idt_full_.print(stderr);
 	idt_full_.solve(&Ans[0], &rp[0]);
+	*/
 }
 
 #endif /* LAPL_PRIVATE_H */

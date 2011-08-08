@@ -39,15 +39,9 @@ using phelm::Mesh;
  * @{
  */
 
-template < typename T >
+template < typename T, typename Matrix = phelm::Solver < T > >
 class Deriv
 {
-//	typedef phelm::Solver < T > Matrix;
-
-	typedef linal::SparseSolver < T, 
-		linal::StoreCSR < T , linal::Allocator > , 
-		linal::StoreCSR < T , linal::Allocator > > Matrix;
-
 	const Mesh & m_;
 
 	Matrix idt_;
@@ -79,3 +73,4 @@ public:
 #include "impl/deriv_impl.h"
 
 #endif /* DERIV_H */
+

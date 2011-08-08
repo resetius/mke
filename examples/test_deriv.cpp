@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "deriv.h"
 #include "linal.h"
 #include "phelm.h"

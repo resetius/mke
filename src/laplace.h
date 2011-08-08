@@ -47,6 +47,7 @@
 
 #include "mesh.h"
 #include "solver.h"
+#include "deriv.h"
 
 using phelm::Mesh;
 using phelm::Triangle;
@@ -86,6 +87,8 @@ public:
 	Matrix bnd2_; // L^-1
 	Matrix bnd3_; // L
 	const Mesh & m_;
+
+	Deriv < T > d_;
 
 	void init_boundary_vectors();
 
