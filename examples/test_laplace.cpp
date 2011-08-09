@@ -25,13 +25,13 @@ static void usage (const char * name)
 static double func_lapl (double x, double y)
 {
 	//return -2.0 * M_PI * M_PI * sin(M_PI * x) * sin(M_PI * y);
-	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x + 2;
+	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x;// + 2;
 }
 
 static double func (double x, double y)
 {
 	//return sin(M_PI * x) * sin(M_PI * y) + 10.0;
-	return x * (x - 1) * y * (y - 1) + x * x;
+	return x * (x - 1) * y * (y - 1);// + x * x;
 }
 
 static double bnd (double x, double y)
