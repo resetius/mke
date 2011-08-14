@@ -107,12 +107,17 @@ void SphereLaplace < T, Matrix >::solve (T * Ans,
 #endif
 
 #if 1
+//	fprintf(stderr, "stage0\n"); vec_print(stderr, F, m_.size, "%8.3le ");
 	u2p (&x[0], F, m_);
+//	fprintf(stderr, "stage1\n"); vec_print(stderr, &x[0], rs, "%8.3le ");
 	idt_.mult_vector (&b[0], &x[0]);
+//	fprintf(stderr, "stage2\n"); vec_print(stderr, &b[0], rs, "%8.3le ");
 	if (bnd)
 	{
 		bnd2_.mult_vector (&x[0], bnd);
+//		fprintf(stderr, "stage3\n"); vec_print(stderr, &x[0], rs, "%8.3le ");
 		vec_sum (&b[0], &b[0], &x[0], (int) x.size() );
+//		fprintf(stderr, "stage4\n"); vec_print(stderr, &b[0], rs, "%8.3le ");
 	}
 //	vector < double > tmp(m_.outer.size()); // not necessary !
 //	proj_bnd(&tmp[0], F, m_);           // not necessary !

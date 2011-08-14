@@ -78,10 +78,10 @@ static double laplace1 (const Polynom & phi_i, const Polynom & phi_j,
 	Polynom poly1 = diff (phi_i, 0) * diff (phi_j, 0);
 	Polynom poly2 = diff (phi_i, 0) * phi_i * phi_j;
 
-//	return -integrate_cos(poly, trk, ps);
-	return -integrate_generic (trk, (fxy_t) integrate_cos_func, &poly1)
-		+ integrate_boundary_y(trk, (fxy_t) integrate_cos_func, &poly2)
-		;
+	return -integrate_cos(poly1, trk, ps);
+//	return -integrate_generic (trk, (fxy_t) integrate_cos_func, &poly1)
+//		+ integrate_boundary_y(trk, (fxy_t) integrate_cos_func, &poly2)
+//		;
 }
 
 /*
@@ -93,9 +93,9 @@ static double laplace2 (const Polynom & phi_i, const Polynom & phi_j,
 	Polynom poly1 = diff (phi_i, 1) * diff (phi_j, 1);
 	Polynom poly2 = diff (phi_i, 1) * phi_j;
 
-//	return -integrate_1_cos(poly, trk, ps);
-	return -integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly1)
-		+ integrate_boundary_x(trk, (fxy_t) integrate_1_cos_func, &poly2); // << ?
+	return -integrate_1_cos(poly1, trk, ps);
+//	return -integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly1)
+//		+ integrate_boundary_x(trk, (fxy_t) integrate_1_cos_func, &poly2); // << ?
 }
 
 double slaplace (const Polynom & phi_i, const Polynom & phi_j,
@@ -151,8 +151,8 @@ laplace_bnd1_cb ( const Polynom & phi_i,
                   void * d)
 {
 	Polynom poly = phi_i * phi_j;
-	//return integrate_cos(poly, trk, m.ps);
-	return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
+	return integrate_cos(poly, trk, m.ps);
+	//return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
 }
 
 double
@@ -165,7 +165,7 @@ laplace_bnd2_cb ( const Polynom & phi_i,
                   int, int,
                   void * )
 {
-	return -slaplace (phi_i, phi_j, trk, m.ps);
+	return -slaplace (phi_j, phi_i, trk, m.ps);
 }
 
 double
