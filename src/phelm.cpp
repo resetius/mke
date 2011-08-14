@@ -220,7 +220,7 @@ bool Mesh::load (FILE * f)
 			goto bad;
 		}
 
-		Triangle t (n1, n2, n3, z);
+		Triangle t (n1, n2, n3, ps, z);
 		tid = (int) tr.size();
 		tr.push_back (t);
 		if ( (int) adj.size() <= n1) adj.resize (n1 + 1);
@@ -298,12 +298,6 @@ bad:
 
 void Mesh::prepare()
 {
-	triangles_t::iterator it, b = tr.begin(), e = tr.end();
-	for (it = b; it != e; ++it)
-	{
-		it->prepare (ps);
-	}
-
 	inner_size = (int) inner.size();
 	outer_size = (int) outer.size();
 	size       = (int) ps.size();
@@ -488,16 +482,18 @@ void print_function (const char * fname, double * ans, const Mesh & m,
 	}
 }
 
-double generic_scalar_cb (const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
+double generic_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
+                          const Triangle & trk, int z,
                           const Mesh & m, int, int, int, int, void * )
 {
-	return integrate (phi_i * phi_j, trk, m.ps);
+	return integrate (phi_i * phi_j, trk, z);
 }
 
-double sphere_scalar_cb (const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk,
+double sphere_scalar_cb (const Polynom & phi_i, const Polynom & phi_j, 
+                         const Triangle & trk, int z,
                          const Mesh & m, int, int, int, int, void * user_data)
 {
-	return integrate_cos (phi_i * phi_j, trk, m.ps);
+	return integrate_cos (phi_i * phi_j, trk, z);
 }
 
 template < typename T >

@@ -189,10 +189,14 @@ struct MeshPoint
 struct Triangle
 {
 	int p[3];  ///< point number
-	int z;     ///< zone number
-	std::vector < Polynom > phik; ///< basis functions
-	double x[3]; ///< vertices x coordinates
-	double y[3]; ///< vertices y coordinates
+	int z;     ///< default zone number
+
+	typedef Polynom elem_t;
+	typedef std::vector < Polynom > basis_t;
+
+	const std::vector < MeshPoint > & ps;
+
+	mutable std::vector < basis_t > phik; ///< basis functions in zone 
 
 	/**
 	 * Initialization of point numbers and subdomain number.
@@ -201,77 +205,83 @@ struct Triangle
 	 * @param p3 - point 3
 	 * @param zone - subdomain number, the triangle belongs to that subdomain
 	 */
-	Triangle (int p1, int p2, int p3, int zone = 0)
+	Triangle (
+		int p1, int p2, int p3, 
+		const std::vector < MeshPoint > & ps, 
+		int zone = 0)
+		:
+		z (zone),
+		ps (ps)
 	{
 		p[0] = p1;
 		p[1] = p2;
 		p[2] = p3;
-		z    = zone;
+		phik.reserve(10); // max 10 zones
 	}
 
 	/**
 	 * Returns vertex x coordinate.
 	 * @param i - vertex number (from 0 to 2)
+	 * @param z - subdomain
 	 * @param ps - mesh points
 	 * @return x coordinate
 	 */
-	double X (int i, const std::vector < MeshPoint > & ps) const
+	double x (int i, int z) const
 	{
+		assert(z < (int)phik.size());
 		return ps[p[i]].x (z);
 	}
 
 	/**
 	 * Returns vertex y coordinate.
 	 * @param i - vertex number (from 0 to 2)
+	 * @param z - subdomain
 	 * @param ps - mesh points
 	 * @return y coordinate
 	 */
-	double Y (int i, const std::vector < MeshPoint > & ps) const
+	double y (int i, int z) const
 	{
+		assert(z < (int)phik.size());
 		return ps[p[i]].y (z);
 	}
 
+private:
 	/**
 	 * Initialize arrays x and y of mesh points array.
 	 * @param ps - mesh points
 	 */
-	void prepare (const std::vector < MeshPoint > & ps)
+	basis_t prepare_basis (int z) const
 	{
-		std::vector < Polynom > & r = phik;
+		basis_t r;
 		r.reserve (3);
 
 		// p0
-		r.push_back ( (P2X - X (1, ps) ) * (Y (2, ps) - Y (1, ps) )
-		              - (P2Y - Y (1, ps) ) * (X (2, ps) - X (1, ps) ) );
+		r.push_back ( (P2X - x (1, z) ) * (y (2, z) - y (1, z) )
+		            - (P2Y - y (1, z) ) * (x (2, z) - x (1, z) ) );
 		// p1
-		r.push_back ( (P2X - X (0, ps) ) * (Y (2, ps) - Y (0, ps) )
-		              - (P2Y - Y (0, ps) ) * (X (2, ps) - X (0, ps) ) );
+		r.push_back ( (P2X - x (0, z) ) * (y (2, z) - y (0, z) )
+		            - (P2Y - y (0, z) ) * (x (2, z) - x (0, z) ) );
 		// p2
-		r.push_back ( (P2X - X (0, ps) ) * (Y (1, ps) - Y (0, ps) )
-		              - (P2Y - Y (0, ps) ) * (X (1, ps) - X (0, ps) ) );
+		r.push_back ( (P2X - x (0, z) ) * (y (1, z) - y (0, z) )
+		            - (P2Y - y (0, z) ) * (x (1, z) - x (0, z) ) );
 
 		for (uint i = 0; i < 3; ++i)
 		{
-			r[i] /= r[i].apply (X (i, ps), Y (i, ps) );
+			r[i] /= r[i].apply (x (i, z), y (i, z) );
 		}
 
+		/*
 		x[0] = X (0, ps);
 		y[0] = Y (0, ps);
 		x[1] = X (1, ps);
 		y[1] = Y (1, ps);
 		x[2] = X (2, ps);
 		y[2] = Y (2, ps);
+		*/
+		return r;
 	}
 
-	/**
-	 * Returns first order finite elements.
-	 * @return first order finite elements
-	 */
-	const std::vector < Polynom > & elem1() const
-	{
-		return phik;
-	}
-
+public:
 	int point_number (int p1) const
 	{
 		if (p1 == p[0])
@@ -290,12 +300,35 @@ struct Triangle
 	}
 
 	/**
+	 * Returns first order finite elements.
+	 * @return first order finite elements
+	 */
+	const std::vector < Polynom > & elem1(int zone) const
+	{
+		if (zone < 0) {
+			zone = z;
+		}
+
+		if ((int)phik.size() < zone + 1) {
+			phik.resize((size_t)(zone + 1));
+		}
+
+		if (phik[zone].empty()) {
+			phik[zone] = prepare_basis(zone);
+		}
+
+		return phik[zone];
+	}
+
+	/**
 	 * Returns finite element in point p1.
 	 * @param p1 - point number
 	 * @return finite element
 	 */
-	const Polynom & elem1 (int p1) const
+	const Polynom & elem1 (int p1, int zone) const
 	{
+		const basis_t & phik = elem1(zone);
+
 		if (p1 == p[0])
 		{
 			return phik[0];
@@ -464,6 +497,7 @@ void print_inner_function (const char * to, double * ans, const Mesh & m,
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - triangle
+ * @param z - subdomain number
  * @param m - mesh
  * @param i1 - point number
  * @param j1 - point number
@@ -472,7 +506,8 @@ void print_inner_function (const char * to, double * ans, const Mesh & m,
  * @param user_data - user data
  */
 double generic_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
-                          const Triangle & trk, const Mesh & m, int i1, int j1,
+                          const Triangle & trk, int z,
+                          const Mesh & m, int i1, int j1,
                           int i2, int j2, void * user_data);
 
 /**
@@ -480,6 +515,7 @@ double generic_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - triangle
+ * @param z - subdomain number
  * @param m - mesh
  * @param i1 - point number
  * @param j1 - point number
@@ -488,7 +524,7 @@ double generic_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
  * @param user_data - user data
  */
 double sphere_scalar_cb (const Polynom & phi_i, const Polynom & phi_j,
-                         const Triangle & trk, const Mesh & m,
+                         const Triangle & trk, int z, const Mesh & m,
                          int i1, int j1, int i2, int j2, void * user_data);
 
 /**

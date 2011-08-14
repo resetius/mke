@@ -32,14 +32,13 @@ static void test_simple()
 	ps.push_back (p1);
 	ps.push_back (p2);
 	ps.push_back (p3);
-	Triangle t1 (0, 1, 2);
-	t1.prepare (ps);
+	Triangle t1 (0, 1, 2, ps);
 	Polynom p = (P2X - 1) * (P2Y - 2);
 	fprintf (stderr, "triangle : [0, 0]-[1, 0]-[1, 1]\n");
 	fprintf (stderr, "(x - 1) (y - 2) = ");
 	p.print();
 	//-> 0.291(6)
-	a = integrate (p, t1, ps);
+	a = integrate (p, t1, 0);
 	fprintf (stderr, "integral (x - 1) (y - 2) = %.16lf\n", a);
 	check (a, 0.2916666666666666);
 
@@ -63,8 +62,7 @@ static void test_simple3()
 	ps.push_back (p1);
 	ps.push_back (p2);
 	ps.push_back (p3);
-	Triangle t1 (0, 1, 2);
-	t1.prepare (ps);
+	Triangle t1 (0, 1, 2, ps);
 
 	Polynom p = (P2X - 1) * (P2Y - 2);
 
@@ -72,15 +70,15 @@ static void test_simple3()
 	fprintf (stderr, "(x - 1) (y - 2) = ");
 	p.print();
 
-	fprintf (stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", integrate_cos (p, t1, ps) );
+	fprintf (stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", integrate_cos (p, t1, 0) );
 	ans = (4.0 * sin (1.) - 9.0 * cos (1.) ) / 2.0 + 1.0;
 	fprintf (stderr, "double ans = %.16lf\n", ans);
 
-	fprintf (stderr, "integral (x - 1) (y - 2) sin x = %.16lf\n", integrate_sin (p, t1, ps) );
+	fprintf (stderr, "integral (x - 1) (y - 2) sin x = %.16lf\n", integrate_sin (p, t1, 0) );
 	ans = 5.0 - (9.0 * sin (1.) + 4.0 * cos (1.) ) / 2.0;
 	fprintf (stderr, "double ans = %.16lf\n", ans);
 
-	fprintf (stderr, "integral (x - 1) (y - 2) / cos x = %.16lf\n", integrate_1_cos (p, t1, ps) );
+	fprintf (stderr, "integral (x - 1) (y - 2) / cos x = %.16lf\n", integrate_1_cos (p, t1, 0) );
 
 	fprintf (stderr, "done\n");
 }
@@ -154,9 +152,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S1 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S1 = integrate_cos (p, t1, 0);
 
 		fprintf (stderr, "S1 = %.16lf\n", S1);
 		check (S1, 0.0761204674887130);
@@ -168,9 +165,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S3 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S3 = integrate_cos (p, t1, 0);
 
 		fprintf (stderr, "S3 = %.16lf\n", S3);
 		check (S3, 0.0761204674887130);
@@ -182,9 +178,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S4 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S4 = integrate_cos (p, t1, 0);
 
 		fprintf (stderr, "S4 = %.16lf\n", S4);
 		check (S4, 0.0741589649823731);
@@ -196,9 +191,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S2 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S2 = integrate_cos (p, t1, 0);
 		//S2 = 0.460075592;
 
 		fprintf (stderr, "S2 = %.16lf\n", S2);
@@ -219,9 +213,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S1 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S1 = integrate_cos (p, t1, 0);
 
 		fprintf (stderr, "S1 = %.16lf\n", S1);
 		check (S1, 0.0761204674887130);
@@ -233,9 +226,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S3 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S3 = integrate_cos (p, t1, 0);
 
 		fprintf (stderr, "S3 = %.16lf\n", S3);
 		check (S3, 0.0664933188536525);
@@ -247,9 +239,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S4 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S4 = integrate_cos (p, t1, 0);
 
 		fprintf (stderr, "S4 = %.16lf\n", S4);
 		check (S4, 0.0741589649823731);
@@ -261,9 +252,8 @@ static void test_sphere_area()
 		ps.push_back (p1);
 		ps.push_back (p2);
 		ps.push_back (p3);
-		Triangle t1 (0, 1, 2);
-		t1.prepare (ps);
-		S2 = integrate_cos (p, t1, ps);
+		Triangle t1 (0, 1, 2, ps);
+		S2 = integrate_cos (p, t1, 0);
 		//S2 = 0.460075592;
 
 		fprintf (stderr, "S2 = %.16lf\n", S2);

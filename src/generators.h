@@ -132,15 +132,16 @@ void generate_matrix (Matrix & A, const Mesh & m,
 	for (int i = 0; i < rs; ++i)   // номер строки
 	{
 		// по внутренним точкам
-		int p = m.inner[i];
+		int p    = m.inner[i];
+		int zone = m.tr[m.adj[p][0]].z;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
 		{
 			// по треугольникам в точке
 			int trk_i = m.adj[p][tk];
-			const Triangle & trk    = m.tr[trk_i];
-			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1 (p);
+			const Triangle & trk           = m.tr[trk_i];
+			const Triangle::basis_t & phik = trk.elem1(zone);
+			const Polynom & phi_i          = trk.elem1 (p, zone);
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0)
 			{
@@ -154,7 +155,7 @@ void generate_matrix (Matrix & A, const Mesh & m,
 				else
 				{
 					mat_add (A, i, j,
-					         integrate_cb (phi_i, phik[i0], trk,
+					         integrate_cb (phi_i, phik[i0], trk, zone,
 					                       m, p, p2, i, j, user_data), transpose);
 				}
 			}
@@ -187,19 +188,20 @@ void generate_full_matrix (Matrix & A, const Mesh & m,
 //#pragma omp parallel for
 	for (int p = 0; p < sz; ++p)
 	{
+		int zone = m.tr[m.adj[p][0]].z;
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
 		{
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1 (p);
+			const std::vector < Polynom > & phik = trk.elem1(zone);
+			const Polynom & phi_i           = trk.elem1 (p, zone);
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0)
 			{
 				int p2   = m.tr[trk_i].p[i0];
 				mat_add (A, p, p2,
-				         integrate_cb (phi_i, phik[i0], trk, m,
+				         integrate_cb (phi_i, phik[i0], trk, zone, m,
 				                       p, p2, p, p2, user_data), transpose);
 			}
 		}
@@ -235,6 +237,7 @@ void generate_right_part (T * b, const Mesh & m,
 	{
 		// по внутренним точкам
 		int p = m.inner[i];
+		int zone = m.tr[m.adj[p][0]].z;
 		b[i]  = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
@@ -242,8 +245,8 @@ void generate_right_part (T * b, const Mesh & m,
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1 (p);
+			const std::vector < Polynom > & phik = trk.elem1(zone);
+			const Polynom & phi_i           = trk.elem1 (p, zone);
 
 			// если граница не меняется по времени, то надо делать отдельный callback
 			// для вычисления постоянной поправки к правой части?
@@ -253,7 +256,7 @@ void generate_right_part (T * b, const Mesh & m,
 				int p2   = m.tr[trk_i].p[i0];
 				vec_add (b, i,
 				         right_part_cb (phi_i, phik[i0],
-				                        trk, m, p, p2, i, m.p2io[p2], user_data) );
+				                        trk, zone, m, p, p2, i, m.p2io[p2], user_data) );
 			}
 		}
 	}
@@ -287,6 +290,7 @@ void generate_full_right_part (T * b, const Mesh & m,
 #pragma omp parallel for
 	for (int p = 0; p < sz; ++p)
 	{
+		int zone = m.tr[m.adj[p][0]].z;
 		b[p]  = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
@@ -294,8 +298,8 @@ void generate_full_right_part (T * b, const Mesh & m,
 			// по треугольника в точке
 			int trk_i = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1 (p);
+			const std::vector < Polynom > & phik = trk.elem1(zone);
+			const Polynom & phi_i           = trk.elem1 (p, zone);
 
 			// если граница не меняется по времени, то надо делать отдельный callback
 			// для вычисления постоянной поправки к правой части?
@@ -305,7 +309,7 @@ void generate_full_right_part (T * b, const Mesh & m,
 				int p2   = m.tr[trk_i].p[i0];
 				vec_add (b, p,
 				         right_part_cb (phi_i, phik[i0],
-				                        trk, m, p, p2, p, p2, user_data) );
+				                        trk, zone, m, p, p2, p, p2, user_data) );
 			}
 		}
 	}
@@ -337,14 +341,15 @@ void generate_boundary_matrix (Matrix & A, const Mesh & m,
 	{
 		// по внешним точкам
 		int p2 = m.outer[j];
+		int zone = m.tr[m.adj[p2][0]].z;
 
 		for (uint tk = 0; tk < m.adj[p2].size(); ++tk)
 		{
 			// по треугольникам в точке
 			int trk_j = m.adj[p2][tk];
 			const Triangle & trk    = m.tr[trk_j];
-			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_j           = trk.elem1 (p2);
+			const std::vector < Polynom > & phik = trk.elem1(zone);
+			const Polynom & phi_j           = trk.elem1 (p2, zone);
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0)
 			{
@@ -360,7 +365,7 @@ void generate_boundary_matrix (Matrix & A, const Mesh & m,
 					int i = m.p2io[p];
 					mat_add (A, i, j,
 					         right_part_cb (phik[i0], phi_j,
-					                        trk, m, p, p2, i, j, user_data), transpose);
+					                        trk, zone, m, p, p2, i, j, user_data), transpose);
 				}
 			}
 		}
@@ -390,6 +395,7 @@ void convolution (double * ans, const double * u, const double * v,
 	{
 		// по всем точкам
 		int p = i;
+		int zone = m.tr[m.adj[p][0]].z;
 		ans[i] = 0.0;
 
 		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
@@ -397,14 +403,14 @@ void convolution (double * ans, const double * u, const double * v,
 			// по треугольникам в точке
 			int trk_i               = m.adj[p][tk];
 			const Triangle & trk    = m.tr[trk_i];
-			const std::vector < Polynom > & phik = trk.elem1();
-			const Polynom & phi_i           = trk.elem1 (p);
+			const std::vector < Polynom > & phik = trk.elem1(zone);
+			const Polynom & phi_i           = trk.elem1 (p, zone);
 
 			for (uint i0 = 0; i0 < phik.size(); ++i0)
 			{
 				int j  = trk.p[i0];
 				ans[i] += u[i] * v[j] *
-				          cb (phi_i, phik[i0], trk, m, i, j, i, j, user_data);
+				          cb (phi_i, phik[i0], trk, zone, m, i, j, i, j, user_data);
 				//cb(phik[i0], phi_i, trk, m, i, j, i, j, user_data);
 			}
 		}

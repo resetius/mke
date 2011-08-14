@@ -60,6 +60,7 @@ static double integrate_func (double x, double y, Polynom * poly)
 static double id_cb (const Polynom & phi_i,
                      const Polynom & phi_j,
                      const Triangle & trk,
+                     int z,
                      const Mesh & m,
                      int point_i,
                      int point_j,
@@ -69,12 +70,12 @@ static double id_cb (const Polynom & phi_i,
 {
 	Polynom poly = phi_i * phi_j;
 	//return integrate_cos(poly, trk, m.ps);
-	return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
+	return integrate_generic (trk, z, (fxy_t) integrate_cos_func, &poly);
 }
 
 static double diff_1_rp (const Polynom & phi_i,
                          const Polynom & phi_j,
-                         const Triangle & trk,
+                         const Triangle & trk, int z,
                          const Mesh & m,
                          int i, int j,
                          int, int,
@@ -83,13 +84,13 @@ static double diff_1_rp (const Polynom & phi_i,
 	Polynom poly = diff (phi_j, 0) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
-	double r = v * integrate_generic (trk, (fxy_t) integrate_func, &poly);
+	double r = v * integrate_generic (trk, z, (fxy_t) integrate_func, &poly);
 	return r;
 }
 
 static double diff_1_cos_rp (const Polynom & phi_i,
                              const Polynom & phi_j,
-                             const Triangle & trk,
+                             const Triangle & trk, int z,
                              const Mesh & m,
                              int i, int j,
                              int, int,
@@ -98,13 +99,13 @@ static double diff_1_cos_rp (const Polynom & phi_i,
 	Polynom poly = diff (phi_j, 0) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
-	double r = v * integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
+	double r = v * integrate_generic (trk, z, (fxy_t) integrate_cos_func, &poly);
 	return r;
 }
 
 static double diff_2_rp (const Polynom & phi_i,
                          const Polynom & phi_j,
-                         const Triangle & trk,
+                         const Triangle & trk, int z,
                          const Mesh & m,
                          int i, int j,
                          int, int,
@@ -113,13 +114,13 @@ static double diff_2_rp (const Polynom & phi_i,
 	Polynom poly = diff (phi_j, 1) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
-	double r = v * integrate_generic (trk, (fxy_t) integrate_func, &poly);
+	double r = v * integrate_generic (trk, z, (fxy_t) integrate_func, &poly);
 	return r;
 }
 
 static double diff_2_cos_rp (const Polynom & phi_i,
                              const Polynom & phi_j,
-                             const Triangle & trk,
+                             const Triangle & trk, int z,
                              const Mesh & m,
                              int i, int j,
                              int, int,
@@ -128,7 +129,7 @@ static double diff_2_cos_rp (const Polynom & phi_i,
 	Polynom poly = diff (phi_j, 1) * phi_i;
 	double v = (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
-	double r = v * integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
+	double r = v * integrate_generic (trk, z, (fxy_t) integrate_cos_func, &poly);
 	return r;
 }
 

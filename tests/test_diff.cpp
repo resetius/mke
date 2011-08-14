@@ -23,11 +23,12 @@ static bool do_all (Mesh & m)
 	for (int i = 0; i < sz; ++i)
 	{
 		vector < double > vals;
+		int zone = m.tr[m.adj[i][0]].z;
 		for (uint tk = 0; tk < m.adj[i].size(); ++tk)
 		{
 			int trk_i = m.adj[i][tk];
 			const Triangle & trk = m.tr[trk_i];
-			const Polynom & p = trk.elem1 (i);
+			const Polynom & p = trk.elem1 (i, zone);
 			Polynom d = diff (p, 1);
 			int z = trk.z;
 			v = d.apply (m.ps[i].x (z), m.ps[i].y (z) );

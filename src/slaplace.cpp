@@ -73,12 +73,12 @@ static double integrate_1_cos_func (double x, double y, Polynom * poly)
  * laplace1 = (1 / cos phi d / d phi phi_i, cos phi d / phi phi_j)
  */
 static double laplace1 (const Polynom & phi_i, const Polynom & phi_j,
-                        const Triangle & trk, const Mesh::points_t & ps)
+                        const Triangle & trk, int z)
 {
 	Polynom poly1 = diff (phi_i, 0) * diff (phi_j, 0);
 	Polynom poly2 = diff (phi_i, 0) * phi_i * phi_j;
 
-	return -integrate_cos(poly1, trk, ps);
+	return -integrate_cos(poly1, trk, z);
 //	return -integrate_generic (trk, (fxy_t) integrate_cos_func, &poly1)
 //		+ integrate_boundary_y(trk, (fxy_t) integrate_cos_func, &poly2)
 //		;
@@ -88,20 +88,20 @@ static double laplace1 (const Polynom & phi_i, const Polynom & phi_j,
  * laplace2 = (1 / cos phi d / d lambda phi_i, 1 / cos phi d / d lambda phi_j)
  */
 static double laplace2 (const Polynom & phi_i, const Polynom & phi_j,
-                        const Triangle & trk, const Mesh::points_t & ps)
+                        const Triangle & trk, int z)
 {
 	Polynom poly1 = diff (phi_i, 1) * diff (phi_j, 1);
 	Polynom poly2 = diff (phi_i, 1) * phi_j;
 
-	return -integrate_1_cos(poly1, trk, ps);
+	return -integrate_1_cos(poly1, trk, z);
 //	return -integrate_generic (trk, (fxy_t) integrate_1_cos_func, &poly1)
 //		+ integrate_boundary_x(trk, (fxy_t) integrate_1_cos_func, &poly2); // << ?
 }
 
 double slaplace (const Polynom & phi_i, const Polynom & phi_j,
-                 const Triangle & trk, const Mesh::points_t & ps)
+                 const Triangle & trk, int z)
 {
-	return (laplace1 (phi_i, phi_j, trk, ps) + laplace2 (phi_i, phi_j, trk, ps) );
+	return (laplace1 (phi_i, phi_j, trk, z) + laplace2 (phi_i, phi_j, trk, z) );
 }
 
 struct slaplace_right_part_cb_data
@@ -144,6 +144,7 @@ double
 laplace_bnd1_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
                   const Triangle & trk,
+                  int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
@@ -151,7 +152,7 @@ laplace_bnd1_cb ( const Polynom & phi_i,
                   void * d)
 {
 	Polynom poly = phi_i * phi_j;
-	return integrate_cos(poly, trk, m.ps);
+	return integrate_cos(poly, trk, z);
 	//return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
 }
 
@@ -159,32 +160,35 @@ double
 laplace_bnd2_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
                   const Triangle & trk,
+                  int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
                   int, int,
                   void * )
 {
-	return -slaplace (phi_j, phi_i, trk, m.ps);
+	return -slaplace (phi_j, phi_i, trk, z);
 }
 
 double
 slaplace_integrate_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
                         const Triangle & trk,
+				    int z,
                         const Mesh & m,
                         int point_i,
                         int point_j,
                         int, int,
                         void * user_data)
 {
-	double a = slaplace (phi_j, phi_i, trk, m.ps);
+	double a = slaplace (phi_j, phi_i, trk, z);
 	return a;
 }
 
 double id_cb (const Polynom & phi_i,
               const Polynom & phi_j,
               const Triangle & trk,
+              int z,
               const Mesh & m,
               int point_i,
               int point_j,
@@ -192,8 +196,8 @@ double id_cb (const Polynom & phi_i,
               void *)
 {
 	Polynom poly = phi_i * phi_j;
-	//return integrate_cos(poly, trk, m.ps);
-	return integrate_generic (trk, (fxy_t) integrate_cos_func, &poly);
+	return integrate_cos(poly, trk, z);
+	//return integrate_generic (trk, z, (fxy_t) integrate_cos_func, &poly);
 }
 
 }
@@ -201,6 +205,7 @@ double id_cb (const Polynom & phi_i,
 static double lp_rp (const Polynom & phi_i,
                      const Polynom & phi_j,
                      const Triangle & trk,
+                     int z,
                      const Mesh & m,
                      int point_i,
                      int point_j,
@@ -208,7 +213,7 @@ static double lp_rp (const Polynom & phi_i,
                      slaplace_right_part_cb_data * d)
 {
 	const double * F = d->F;
-	double b = F[point_j] * slaplace (phi_j, phi_i, trk, m.ps);;
+	double b = F[point_j] * slaplace (phi_j, phi_i, trk, z);;
 #if 0
 	if (m.ps_flags[point_j] == 1 && d->bnd)   // на границе
 	{

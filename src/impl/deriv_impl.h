@@ -42,6 +42,7 @@ namespace deriv_impl
 		const Polynom & phi_i,
 		const Polynom & phi_j,
 		const Triangle & trk,
+		int z,
 		const Mesh & m,
 		int point_i,
 		int point_j,
@@ -49,7 +50,7 @@ namespace deriv_impl
 		int j,
 		void *)
 	{
-		return integrate (phi_i * phi_j, trk, m.ps);
+		return integrate (phi_i * phi_j, trk, z);
 	}
 
 	template < typename T >
@@ -63,6 +64,7 @@ namespace deriv_impl
 			const Polynom & phi_i,
 			const Polynom & phi_j,
 			const Triangle & trk,
+			int z,
 			const Mesh & m,
 			int point_i,
 			int point_j,
@@ -71,7 +73,7 @@ namespace deriv_impl
 			const T * u) const
 		{
 			Polynom poly = diff (phi_j, var_) * phi_i;
-			double r = integrate(poly, trk, m.ps);
+			double r = integrate(poly, trk, z);
 			r *= u[point_j];
 			/*if (m.ps_flags[point_j] == 1) {
 				r += u[point_j] * 

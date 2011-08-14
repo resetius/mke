@@ -45,7 +45,7 @@ namespace SphereLaplace_Private
 {
 double id_cb (const Polynom & phi_i,
               const Polynom & phi_j,
-              const Triangle & trk,
+              const Triangle & trk, int z,
               const Mesh & m,
               int point_i,
               int point_j,
@@ -56,7 +56,7 @@ double id_cb (const Polynom & phi_i,
 double
 slaplace_integrate_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        const Triangle & trk,
+                        const Triangle & trk, int z,
                         const Mesh & m,
                         int point_i,
                         int point_j,
@@ -66,7 +66,7 @@ slaplace_integrate_cb ( const Polynom & phi_i,
 double
 laplace_bnd1_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
-                  const Triangle & trk,
+                  const Triangle & trk, int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
@@ -76,7 +76,7 @@ laplace_bnd1_cb ( const Polynom & phi_i,
 double
 laplace_bnd2_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
-                  const Triangle & trk,
+                  const Triangle & trk, int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
@@ -140,7 +140,7 @@ SphereLaplace < T, Matrix > ::SphereLaplace (const Mesh & m) : m_ (m),
 		laplace_ ( (int) m.inner.size() ), bnd1_ ( (int) m.inner.size() ), bnd2_ ( (int) m.inner.size() ),
 		bnd3_ ( (int) m.inner.size() )
 {
-  using namespace SphereLaplace_Private;
+	using namespace SphereLaplace_Private;
 	generate_matrix (idt_, m, id_cb, (void*) 0);
 	generate_matrix (laplace_, m, slaplace_integrate_cb, (void*) 0);
 	generate_boundary_matrix (bnd1_, m_, laplace_bnd1_cb, (void*) 0);

@@ -51,7 +51,7 @@ namespace SphereChafe_Private
 double
 schafe_integrate_cb ( const Polynom & phi_i,
                       const Polynom & phi_j,
-                      const Triangle & trk,
+                      const Triangle & trk, int z,
                       const Mesh & m,
                       int point_i, int point_j,
                       int, int,
@@ -73,7 +73,7 @@ template < typename T >
 double
 schafe_right_part_cb ( const Polynom & phi_i,
                        const Polynom & phi_j,
-                       const Triangle & trk,
+                       const Triangle & trk, int z,
                        const Mesh & m,
                        int point_i, int point_j,
                        int i, int j,
@@ -87,12 +87,12 @@ schafe_right_part_cb ( const Polynom & phi_i,
 		int j0       = m.p2io[point_j];  //номер внешней точки
 		const T * bnd = d->bnd;
 		b = - (double) bnd[j0] * schafe_integrate_cb (phi_i, phi_j,
-		        trk, m, point_i, point_j, i, j, d->d);
+		        trk, z, m, point_i, point_j, i, j, d->d);
 		//b = 0.0;
 	}
 	else
 	{
-		b = (double) F[point_j] * integrate_cos (phi_i * phi_j, trk, m.ps);
+		b = (double) F[point_j] * integrate_cos (phi_i * phi_j, trk, z);
 	}
 	return b;
 }

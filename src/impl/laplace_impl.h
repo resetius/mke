@@ -43,6 +43,7 @@ namespace Laplace_Private
 double id_cb (const Polynom & phi_i,
               const Polynom & phi_j,
               const Triangle & trk,
+              int z,
               const Mesh & m,
               int point_i, int point_j,
               int, int,
@@ -52,6 +53,7 @@ double
 laplace_bnd2_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
                   const Triangle & trk,
+                  int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
@@ -62,6 +64,7 @@ double
 laplace_integrate_cb ( const Polynom & phi_i,
                        const Polynom & phi_j,
                        const Triangle & trk, /* номер треугольника */
+                       int z,
                        const Mesh & m,
                        int point_i,
                        int point_j,
@@ -74,18 +77,19 @@ double
 laplace_rp_cb ( const Polynom & phi_i,
                 const Polynom & phi_j,
                 const Triangle & trk,
+                int z,
                 const Mesh & m,
                 int point_i,
                 int point_j,
                 int, int,
                 const T * u)
 {
-	double r = -laplace (phi_i, phi_j, trk, m.ps);
+	double r = -laplace (phi_i, phi_j, trk, z);
 	
 	if (m.ps_flags[point_j] == 1) {
 		double b = 0;
-		b += integrate(diff(diff(phi_j, 0) * phi_i, 0), trk, m.ps);
-		b += integrate(diff(diff(phi_j, 1) * phi_i, 1), trk, m.ps);
+		b += integrate(diff(diff(phi_j, 0) * phi_i, 0), trk, z);
+		b += integrate(diff(diff(phi_j, 1) * phi_i, 1), trk, z);
 		r += b;
 	}
 	

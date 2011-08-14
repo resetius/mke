@@ -180,12 +180,11 @@ Polynom diff (const Polynom & p, int i);
   \int_t p(x,y) dx dy
  \f]
  * @relates Polynom
- * @param p  - the polynom
- * @param t  - the triangle
- * @param ps - the mesh points
+ * @param p  - polynom
+ * @param t  - triangle
+ * @param z  - subdomain number
  */
-double integrate (const Polynom & p, const Triangle & t,
-                  const std::vector < MeshPoint > & ps);
+double integrate (const Polynom & p, const Triangle & t, int z);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -194,15 +193,14 @@ double integrate (const Polynom & p, const Triangle & t,
  \f]
  *
  * @relates Polynom
- * @param p  - the polynom
- * @param t  - the triangle
- * @param ps - the mesh points
+ * @param p  - polynom
+ * @param t  - triangle
+ * @param z  - subdomain number
  */
-double integrate_cos (const Polynom & p, const Triangle & t,
-                      const std::vector < MeshPoint > & ps);
+double integrate_cos (const Polynom & p, const Triangle & t, int z);
 
 typedef double (*fxy_t) (double x, double y, void * data);
-double integrate_generic (const Triangle & t, fxy_t f, void * data);
+double integrate_generic (const Triangle & t, int z, fxy_t f, void * data);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -211,12 +209,11 @@ double integrate_generic (const Triangle & t, fxy_t f, void * data);
  \f]
  *
  * @relates Polynom
- * @param p  - the polynom
- * @param t  - the triangle
- * @param ps - the mesh points
+ * @param p  - polynom
+ * @param t  - triangle
+ * @param z  - subdomain number
  */
-double integrate_sin (const Polynom & p, const Triangle & t,
-                      const std::vector < MeshPoint > & ps);
+double integrate_sin (const Polynom & p, const Triangle & t, int z);
 
 /**
  * Takes the integral of Polynom over the Triangle t.
@@ -229,14 +226,13 @@ double integrate_sin (const Polynom & p, const Triangle & t,
  * @param t  - the triangle
  * @param ps - the mesh points
  */
-double integrate_1_cos (const Polynom & p, const Triangle & t,
-                        const std::vector < MeshPoint > & ps);
+double integrate_1_cos (const Polynom & p, const Triangle & t, int z);
 
 double
-integrate_boundary_x (const Triangle & tr, fxy_t func, void * data);
+integrate_boundary_x (const Triangle & tr, int z, fxy_t func, void * data);
 
 double
-integrate_boundary_y (const Triangle & tr, fxy_t func, void * data);
+integrate_boundary_y (const Triangle & tr, int z, fxy_t func, void * data);
 
 /**
  * A product of polynom p1 by polynom p2.

@@ -58,7 +58,7 @@ template < typename BV >
 double
 integrate_cb ( const Polynom & phi_i,
                const Polynom & phi_j,
-               const Triangle & trk,
+               const Triangle & trk, int z,
                const Mesh & m,
                int point_i, int point_j,
                int i, int j,
@@ -70,10 +70,10 @@ integrate_cb ( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = BV::integrate (phi_i * phi_j, trk, m.ps);
+	pt1  = BV::integrate (phi_i * phi_j, trk, z);
 	pt1 *= 1.0 / tau + sigma * d->theta;
 
-	pt2  =  BV::laplace (phi_j, phi_i, trk, m.ps);
+	pt2  =  BV::laplace (phi_j, phi_i, trk, z);
 	pt2 *= - d->theta * mu;
 
 	return pt1 + pt2;
@@ -83,7 +83,7 @@ template < typename BV >
 double
 integrate_backward_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        const Triangle & trk,
+                        const Triangle & trk, int z,
                         const Mesh & m,
                         int point_i, int point_j,
                         int i, int j,
@@ -95,10 +95,10 @@ integrate_backward_cb ( const Polynom & phi_i,
 
 	double pt1, pt2;
 
-	pt1  = BV::integrate (phi_i * phi_j, trk, m.ps);
+	pt1  = BV::integrate (phi_i * phi_j, trk, z);
 	pt1 *= 1.0 / tau - sigma * (1.0 - d->theta);
 
-	pt2  =  BV::laplace (phi_j, phi_i, trk, m.ps);
+	pt2  =  BV::laplace (phi_j, phi_i, trk, z);
 	pt2 *= (1.0 - d->theta) * mu;
 
 	return pt1 + pt2;
