@@ -218,6 +218,16 @@ struct Triangle
 		p[2] = p3;
 		phik.reserve(10); // max 10 zones
 	}
+ 
+	Triangle (const Triangle & other):
+		z(other.z),
+		ps(other.ps),
+		phik(other.phik)
+	{
+		p[0] = other.p[0];
+		p[1] = other.p[1];
+		p[2] = other.p[2];
+	}
 
 	/**
 	 * Returns vertex x coordinate.
