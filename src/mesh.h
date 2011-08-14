@@ -229,6 +229,18 @@ struct Triangle
 		p[2] = other.p[2];
 	}
 
+	Triangle & operator = (const Triangle & other)
+	{
+		// do not change ps link
+		assert(&ps == &other.ps);
+		z = other.z;
+		phik = other.phik;
+		p[0] = other.p[0];
+		p[1] = other.p[1];
+		p[2] = other.p[2];
+		return *this;
+	}
+
 	/**
 	 * Returns vertex x coordinate.
 	 * @param i - vertex number (from 0 to 2)
