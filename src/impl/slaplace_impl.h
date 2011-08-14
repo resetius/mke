@@ -135,11 +135,12 @@ SphereLaplace < T, Matrix > ::SphereLaplace (const Mesh & m) : m_ (m),
 		laplace_ ( (int) m.inner.size() ), bnd1_ ( (int) m.inner.size() ), bnd2_ ( (int) m.inner.size() ),
 		bnd3_ ( (int) m.inner.size() )
 {
-	generate_matrix (idt_, m, SphereLaplace_Private::id_cb, (void*) 0);
-	generate_matrix (laplace_, m, SphereLaplace_Private::slaplace_integrate_cb, (void*) 0);
-	generate_boundary_matrix (bnd1_, m_, SphereLaplace_Private::laplace_bnd1_cb, (void*) 0);
-	generate_boundary_matrix (bnd2_, m_, SphereLaplace_Private::laplace_bnd2_cb, (void*) 0);
-	generate_boundary_matrix (bnd3_, m_, SphereLaplace_Private::slaplace_integrate_cb, (void*) 0);
+  using namespace SphereLaplace_Private;
+	generate_matrix (idt_, m, id_cb, (void*) 0);
+	generate_matrix (laplace_, m, slaplace_integrate_cb, (void*) 0);
+	generate_boundary_matrix (bnd1_, m_, laplace_bnd1_cb, (void*) 0);
+	generate_boundary_matrix (bnd2_, m_, laplace_bnd2_cb, (void*) 0);
+	generate_boundary_matrix (bnd3_, m_, slaplace_integrate_cb, (void*) 0);
 }
 
 template < typename T, typename Matrix >
