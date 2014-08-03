@@ -51,7 +51,7 @@ using namespace phelm;
 static elements_t
 integrate_cb ( const Polynom & phi_i,
                const Polynom & phi_j,
-               const Triangle & trk,
+               const Triangle & trk, int z,
                const Mesh & m,
                int point_i, int point_j,
                int i, int j,
@@ -60,7 +60,7 @@ integrate_cb ( const Polynom & phi_i,
 static elements_t
 integrate_backward_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        const Triangle & trk,
+                        const Triangle & trk, int z,
                         const Mesh & m,
                         int point_i, int point_j,
                         int i, int j,
@@ -101,7 +101,7 @@ struct right_part_cb_data
 elements_t
 integrate_cb ( const Polynom & phi_i,
                const Polynom & phi_j,
-               const Triangle & trk,
+               const Triangle & trk, int z,
                const Mesh & m,
                int point_i, int point_j,
                int i, int j,
@@ -131,8 +131,8 @@ integrate_cb ( const Polynom & phi_i,
 	 * 4: w2 - L(u2) = 0
 	 */
 
-	double a = integrate_cos (phi_i * phi_j, trk, m.ps);
-	double b = slaplace (phi_j, phi_i, trk, m.ps);
+	double a = integrate_cos (phi_i * phi_j, trk, z);
+	double b = slaplace (phi_j, phi_i, trk, z);
 	r.reserve (8);
 	// 1:
 	// w1 / dt + 0.5 theta * sigma w1 - theta mu L(w1)
@@ -164,7 +164,7 @@ integrate_cb ( const Polynom & phi_i,
 elements_t
 integrate_backward_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        const Triangle & trk,
+                        const Triangle & trk, int z,
                         const Mesh & m,
                         int point_i, int point_j,
                         int i, int j,
@@ -194,8 +194,8 @@ integrate_backward_cb ( const Polynom & phi_i,
 	 * 4: w2 - L(u2) = 0
 	 */
 
-	double a = integrate_cos (phi_i * phi_j, trk, m.ps);
-	double b = slaplace (phi_j, phi_i, trk, m.ps);
+	double a = integrate_cos (phi_i * phi_j, trk, z);
+	double b = slaplace (phi_j, phi_i, trk, z);
 	r.reserve (8);
 	// 1:
 	// w1 / dt - 0.5 (1.0-theta) * sigma w1 + (1.0-theta) mu L(w1)
@@ -227,7 +227,7 @@ integrate_backward_cb ( const Polynom & phi_i,
 static elements_t
 right_part_cb ( const Polynom & phi_i,
                 const Polynom & phi_j,
-                const Triangle & trk,
+                const Triangle & trk, int z,
                 const Mesh & m,
                 int point_i, int point_j,
                 int i, int j,
@@ -242,7 +242,7 @@ right_part_cb ( const Polynom & phi_i,
 	{
 		int j0        = m.p2io[point_j]; //номер внешней точки
 		elements_t r1 = integrate_cb (phi_i, phi_j,
-		                              trk, m, point_i, point_j, i, j, d->d);
+		                              trk, z, m, point_i, point_j, i, j, d->d);
 		double rp[] = {0, 0, 0, 0};
 		for (elements_t::iterator it = r1.begin(); it != r1.end(); ++it)
 		{
@@ -310,7 +310,7 @@ right_part_cb ( const Polynom & phi_i,
 	}
 	else
 	{
-		double a = integrate_cos (phi_i * phi_j, trk, m.ps);
+		double a = integrate_cos (phi_i * phi_j, trk, z);
 		// F
 		r.push_back (Element (i, j, F[m.p2io[point_j]] * a) );
 		// G
@@ -324,7 +324,7 @@ right_part_cb ( const Polynom & phi_i,
 static elements_t
 right_part_backward_cb ( const Polynom & phi_i,
                          const Polynom & phi_j,
-                         const Triangle & trk,
+                         const Triangle & trk, int z,
                          const Mesh & m,
                          int point_i, int point_j,
                          int i, int j,
@@ -339,7 +339,7 @@ right_part_backward_cb ( const Polynom & phi_i,
 	{
 		int j0        = m.p2io[point_j]; //номер внешней точки
 		elements_t r1 = integrate_backward_cb (phi_i, phi_j,
-		                                       trk, m, point_i, point_j, i, j, d->d);
+		                                       trk, z, m, point_i, point_j, i, j, d->d);
 		double rp[] = {0, 0, 0, 0};
 		for (elements_t::iterator it = r1.begin(); it != r1.end(); ++it)
 		{
@@ -407,7 +407,7 @@ right_part_backward_cb ( const Polynom & phi_i,
 	}
 	else
 	{
-		double a = integrate_cos (phi_i * phi_j, trk, m.ps);
+		double a = integrate_cos (phi_i * phi_j, trk, z);
 		// F
 		r.push_back (Element (i, j, F[m.p2io[point_j]] * a) );
 		// G

@@ -113,10 +113,10 @@ public:
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - integral is taken over that triangle
- * @param ps - mesh points
+ * @param z - subdomain number
  */
 double slaplace (const Polynom & phi_i, const Polynom & phi_j,
-                 const Triangle & trk, const Mesh::points_t & ps);
+                 const Triangle & trk, int z);
 
 
 #include "impl/slaplace_impl.h"

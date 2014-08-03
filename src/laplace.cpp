@@ -61,11 +61,11 @@ struct laplace_right_part_cb_data
 };
 
 double
-laplace (const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, const Mesh::points_t & ps)
+laplace (const Polynom & phi_i, const Polynom & phi_j, const Triangle & trk, int z)
 {
 	Polynom poly = diff (phi_j, 0) * diff (phi_i, 0)
 	               + diff (phi_j, 1) * diff (phi_i, 1);
-	double d1 = -integrate(poly, trk, ps);
+	double d1 = -integrate(poly, trk, z);
 	return d1;
 }
 
@@ -76,37 +76,40 @@ double
 laplace_bnd2_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
                   const Triangle & trk,
+			   int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
                   int, int,
                   void * )
 {
-	return -laplace (phi_i, phi_j, trk, m.ps);
+	return -laplace (phi_i, phi_j, trk, z);
 }
 
 double id_cb (const Polynom & phi_i,
               const Polynom & phi_j,
               const Triangle & trk,
+		    int z,
               const Mesh & m,
               int point_i, int point_j,
               int, int,
               void *)
 {
-	return integrate (phi_i * phi_j, trk, m.ps);
+	return integrate (phi_i * phi_j, trk, z);
 }
 
 double
 laplace_integrate_cb ( const Polynom & phi_i,
                        const Polynom & phi_j,
-                       const Triangle & trk, /* номер треугольника */
+                       const Triangle & trk,
+				   int z,
                        const Mesh & m,
                        int point_i,
                        int point_j,
                        int, int,
                        void * user_data)
 {
-	return laplace (phi_i, phi_j, trk, m.ps);
+	return laplace (phi_i, phi_j, trk, z);
 }
 
 } /* namespace */

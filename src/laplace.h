@@ -47,6 +47,7 @@
 
 #include "mesh.h"
 #include "solver.h"
+#include "deriv.h"
 
 using phelm::Mesh;
 using phelm::Triangle;
@@ -63,10 +64,10 @@ using phelm::Polynom;
  * @param phi_i - basis function
  * @param phi_j - basis function
  * @param trk - integral is taken over that triangle
- * @param ps - mesh points
+ * @param z - subdomain number
  */
 double laplace (const Polynom & phi_i, const Polynom & phi_j,
-                const Triangle & trk, const Mesh::points_t & ps);
+                const Triangle & trk, int z);
 
 
 /**
@@ -78,12 +79,16 @@ class Laplace
 public:
 	typedef phelm::ArrayDevice < T > Array;
 
+	Matrix idt_full_;
+
 	Matrix idt_;      // inner
 	Matrix laplace_;  // inner
 
 	Matrix bnd2_; // L^-1
 	Matrix bnd3_; // L
 	const Mesh & m_;
+
+	Deriv < T > d_;
 
 	void init_boundary_vectors();
 

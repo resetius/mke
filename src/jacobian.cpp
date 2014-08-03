@@ -50,6 +50,7 @@ using namespace phelm;
 static double id_cb (const Polynom & phi_i,
                      const Polynom & phi_j,
                      const Triangle & trk,
+                     int z,
                      const Mesh & m,
                      int point_i,
                      int point_j,
@@ -57,12 +58,13 @@ static double id_cb (const Polynom & phi_i,
                      int j,
                      void *)
 {
-	return integrate (phi_i * phi_j, trk, m.ps);
+	return integrate (phi_i * phi_j, trk, z);
 }
 
 static double diff_1_rp (const Polynom & phi_i,
                          const Polynom & phi_j,
                          const Triangle & trk,
+                         int z,
                          const Mesh & m,
                          int i, int j,
                          int, int,
@@ -70,13 +72,14 @@ static double diff_1_rp (const Polynom & phi_i,
 {
 	Polynom poly = diff (phi_j, 0) * phi_i;
 	double v = (u) ? u[j] : 1;
-	double r = v * integrate (poly, trk, m.ps);
+	double r = v * integrate (poly, trk, z);
 	return r;
 }
 
 static double diff_2_rp (const Polynom & phi_i,
                          const Polynom & phi_j,
                          const Triangle & trk,
+                         int z,
                          const Mesh & m,
                          int i, int j,
                          int, int,
@@ -84,7 +87,7 @@ static double diff_2_rp (const Polynom & phi_i,
 {
 	Polynom poly = diff (phi_j, 1) * phi_i;
 	double v = (u) ? u[j] : 1;
-	double r = v * integrate (poly, trk, m.ps);
+	double r = v * integrate (poly, trk, z);
 	return r;
 }
 

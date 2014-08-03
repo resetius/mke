@@ -185,7 +185,7 @@ typedef double (*t_int) (int, int, double, double, double, double, double, doubl
 
 template < typename T >
 double
-integrate1 (const Polynom & p, const T & tr, t_int trapezoid)
+integrate1 (const Polynom & p, const T & tr, int z, t_int trapezoid)
 {
 	double k1, b1, k2, b2, k3, b3, t;
 
@@ -195,12 +195,12 @@ integrate1 (const Polynom & p, const T & tr, t_int trapezoid)
 
 	double int1 = 0.0, int2 = 0.0;
 
-	x1 = tr.x[0];
-	x2 = tr.x[1];
-	x3 = tr.x[2];
-	y1 = tr.y[0];
-	y2 = tr.y[1];
-	y3 = tr.y[2];
+	x1 = tr.x(0, z);
+	x2 = tr.x(1, z);
+	x3 = tr.x(2, z);
+	y1 = tr.y(0, z);
+	y2 = tr.y(1, z);
+	y3 = tr.y(2, z);
 
 	if (x1 <= x2 && x2 <= x3)
 	{
@@ -312,29 +312,29 @@ integrate1 (const Polynom & p, const T & tr, t_int trapezoid)
 	else return -int1 - int2;
 }
 
-static double integrate_ (const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps, t_int trapezoid)
+static double integrate_ (const Polynom & p, const Triangle & tr, int z, t_int trapezoid)
 {
-	return integrate1 (p, tr, trapezoid);
+	return integrate1 (p, tr, z, trapezoid);
 }
 
-double integrate (const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
+double integrate (const Polynom & p, const Triangle & tr, int z)
 {
-	return integrate_ (p, tr, ps, trapezoid_integral);
+	return integrate_ (p, tr, z, trapezoid_integral);
 }
 
-double integrate_cos (const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
+double integrate_cos (const Polynom & p, const Triangle & tr, int z)
 {
-	return integrate_ (p, tr, ps, trapezoid_integral_cos);
+	return integrate_ (p, tr, z, trapezoid_integral_cos);
 }
 
-double integrate_sin (const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
+double integrate_sin (const Polynom & p, const Triangle & tr, int z)
 {
-	return integrate_ (p, tr, ps, trapezoid_integral_sin);
+	return integrate_ (p, tr, z, trapezoid_integral_sin);
 }
 
-double integrate_1_cos (const Polynom & p, const Triangle & tr, const vector < MeshPoint > & ps)
+double integrate_1_cos (const Polynom & p, const Triangle & tr, int z)
 {
-	return integrate_ (p, tr, ps, trapezoid_integral_1_cos);
+	return integrate_ (p, tr, z, trapezoid_integral_1_cos);
 }
 
 struct mybind2d
@@ -376,7 +376,7 @@ static double boundary_func_y (double y, mybind2d * b)
 }
 
 double
-integrate_boundary_x (const Triangle & tr, fxy_t func, void * data)
+integrate_boundary_x (const Triangle & tr, int z, fxy_t func, void * data)
 {
 	double k1, b1, k2, b2, k3, b3, t;
 
@@ -385,12 +385,12 @@ integrate_boundary_x (const Triangle & tr, fxy_t func, void * data)
 
 	double int1 = 0.0, int2 = 0.0;
 
-	x1 = tr.x[0];
-	x2 = tr.x[1];
-	x3 = tr.x[2];
-	y1 = tr.y[0];
-	y2 = tr.y[1];
-	y3 = tr.y[2];
+	x1 = tr.x(0, z);
+	x2 = tr.x(1, z);
+	x3 = tr.x(2, z);
+	y1 = tr.y(0, z);
+	y2 = tr.y(1, z);
+	y3 = tr.y(2, z);
 
 	if (x1 <= x2 && x2 <= x3)
 	{
@@ -490,7 +490,7 @@ integrate_boundary_x (const Triangle & tr, fxy_t func, void * data)
 }
 
 double
-integrate_boundary_y (const Triangle & tr, fxy_t func, void * data)
+integrate_boundary_y (const Triangle & tr, int z, fxy_t func, void * data)
 {
 	double k1, b1, k2, b2, k3, b3, t;
 
@@ -499,12 +499,12 @@ integrate_boundary_y (const Triangle & tr, fxy_t func, void * data)
 
 	double int1 = 0.0, int2 = 0.0;
 
-	x1 = tr.y[0];
-	x2 = tr.y[1];
-	x3 = tr.y[2];
-	y1 = tr.x[0];
-	y2 = tr.x[1];
-	y3 = tr.x[2];
+	x1 = tr.y(0, z);
+	x2 = tr.y(1, z);
+	x3 = tr.y(2, z);
+	y1 = tr.x(0, z);
+	y2 = tr.x(1, z);
+	y3 = tr.x(2, z);
 
 	if (x1 <= x2 && x2 <= x3)
 	{
@@ -605,10 +605,10 @@ integrate_boundary_y (const Triangle & tr, fxy_t func, void * data)
 
 extern "C" double cubature7 (double x1, double y1, double x2, double y2, double x3, double y3, fxy_t f, void * d);
 
-double integrate_generic (const Triangle & tr, fxy_t f, void * data)
+double integrate_generic (const Triangle & tr, int z, fxy_t f, void * data)
 {
-	double x1 = tr.x[0], x2 = tr.x[1], x3 = tr.x[2];
-	double y1 = tr.y[0], y2 = tr.y[1], y3 = tr.y[2];
+	double x1 = tr.x(0, z), x2 = tr.x(1, z), x3 = tr.x(2, z);
+	double y1 = tr.y(0, z), y2 = tr.y(1, z), y3 = tr.y(2, z);
 	return cubature7 (x1, y1, x2, y2, x3, y3, f, data);
 }
 

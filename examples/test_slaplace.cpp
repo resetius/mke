@@ -22,7 +22,7 @@ static void usage (const char * name)
 	exit (1);
 }
 
-static double rp (double x, double y)
+static double func_lapl (double x, double y)
 {
 	//return -6.0 * sin(y) * sin(2.0 * x);
 
@@ -52,7 +52,7 @@ static double rp (double x, double y)
 	return ans;
 }
 
-static double ans (double x, double y)
+static double func (double x, double y)
 {
 	//return sin(y) * sin(2.0 * x);
 
@@ -68,7 +68,7 @@ static double ans (double x, double y)
 
 static double bnd (double x, double y)
 {
-	return ans (x, y);
+	return func (x, y);
 }
 
 static double nr2 (double * a, double * b, int n)
@@ -115,8 +115,8 @@ void test_invert (const Mesh & mesh)
 
 	SphereNorm < T > nr (mesh);
 
-	proj (&F[0], mesh, rp);
-	proj (&rans[0], mesh, ans);
+	proj (&F[0], mesh, func_lapl);
+	proj (&rans[0], mesh, func);
 	proj_bnd (&B[0], mesh, bnd);
 
 	vec_copy_from_host (&cF[0],    &F[0], sz);
@@ -169,10 +169,10 @@ void test_laplace (const Mesh & mesh)
 
 	SphereNorm < T > nr (mesh);
 
-	proj (&U[0], mesh, ans);
-	proj (&LU[0], mesh, rp);
-	proj_bnd (&B1[0], mesh, rp);
-	proj_bnd (&B2[0], mesh, ans);
+	proj (&U[0], mesh, func);
+	proj (&LU[0], mesh, func_lapl);
+	proj_bnd (&B1[0], mesh, func_lapl);
+	proj_bnd (&B2[0], mesh, func);
 
 	vec_copy_from_host (&cU[0], &U[0], sz);
 	vec_copy_from_host (&cLU[0], &LU[0], sz);

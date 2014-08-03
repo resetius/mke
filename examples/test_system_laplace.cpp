@@ -45,7 +45,7 @@ double g (double x, double y)
 static elements_t
 laplace_integrate_cb ( const Polynom & phi_i,
                        const Polynom & phi_j,
-                       const Triangle & trk,
+                       const Triangle & trk, int z,
                        const Mesh & m,
                        int point_i, int point_j,
                        int i, int j,
@@ -55,13 +55,13 @@ laplace_integrate_cb ( const Polynom & phi_i,
 	elements_t r;
 	double a;
 
-	a = laplace (phi_i, phi_j, trk, m.ps);
+	a = laplace (phi_i, phi_j, trk, z);
 	// Delta u
 	r.push_back (Element (i,      j,      a) );
 	// Delta v
 	r.push_back (Element (i + rs, j + rs, a) );
 
-	a = integrate (phi_i * phi_j, trk, m.ps);
+	a = integrate (phi_i * phi_j, trk, z);
 	// v
 	r.push_back (Element (i,      j + rs, a) );
 	// u
@@ -81,7 +81,7 @@ struct laplace_right_part_cb_data
 static elements_t
 laplace_right_part_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        const Triangle & trk,
+                        const Triangle & trk, int z,
                         const Mesh & m,
                         int point_i, int point_j,
                         int i, int j,
@@ -97,15 +97,15 @@ laplace_right_part_cb ( const Polynom & phi_i,
 		int j0       = m.p2io[point_j];
 		const double * BU = d->BU;
 		const double * BV = d->BV;
-		double a = laplace (phi_i, phi_j, trk, m.ps);
-		double b = integrate (phi_i * phi_j, trk, m.ps);
+		double a = laplace (phi_i, phi_j, trk, z);
+		double b = integrate (phi_i * phi_j, trk, z);
 
 		r.push_back (Element (i,      j, - (BU[j0] * a + BV[j0] * b) ) );
 		r.push_back (Element (i + rs, j, - (BV[j0] * a + BU[j0] * b) ) );
 	}
 	else
 	{
-		double a = integrate (phi_i * phi_j, trk, m.ps);
+		double a = integrate (phi_i * phi_j, trk, z);
 		// F
 		r.push_back (Element (i,      j, F[point_j] * a) );
 		// G

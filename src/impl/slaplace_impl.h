@@ -45,7 +45,7 @@ namespace SphereLaplace_Private
 {
 double id_cb (const Polynom & phi_i,
               const Polynom & phi_j,
-              const Triangle & trk,
+              const Triangle & trk, int z,
               const Mesh & m,
               int point_i,
               int point_j,
@@ -56,7 +56,7 @@ double id_cb (const Polynom & phi_i,
 double
 slaplace_integrate_cb ( const Polynom & phi_i,
                         const Polynom & phi_j,
-                        const Triangle & trk,
+                        const Triangle & trk, int z,
                         const Mesh & m,
                         int point_i,
                         int point_j,
@@ -66,7 +66,7 @@ slaplace_integrate_cb ( const Polynom & phi_i,
 double
 laplace_bnd1_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
-                  const Triangle & trk,
+                  const Triangle & trk, int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
@@ -76,7 +76,7 @@ laplace_bnd1_cb ( const Polynom & phi_i,
 double
 laplace_bnd2_cb ( const Polynom & phi_i,
                   const Polynom & phi_j,
-                  const Triangle & trk,
+                  const Triangle & trk, int z,
                   const Mesh & m,
                   int point_i,
                   int point_j,
@@ -107,12 +107,17 @@ void SphereLaplace < T, Matrix >::solve (T * Ans,
 #endif
 
 #if 1
+//	fprintf(stderr, "stage0\n"); vec_print(stderr, F, m_.size, "%8.3le ");
 	u2p (&x[0], F, m_);
+//	fprintf(stderr, "stage1\n"); vec_print(stderr, &x[0], rs, "%8.3le ");
 	idt_.mult_vector (&b[0], &x[0]);
+//	fprintf(stderr, "stage2\n"); vec_print(stderr, &b[0], rs, "%8.3le ");
 	if (bnd)
 	{
 		bnd2_.mult_vector (&x[0], bnd);
+//		fprintf(stderr, "stage3\n"); vec_print(stderr, &x[0], rs, "%8.3le ");
 		vec_sum (&b[0], &b[0], &x[0], (int) x.size() );
+//		fprintf(stderr, "stage4\n"); vec_print(stderr, &b[0], rs, "%8.3le ");
 	}
 //	vector < double > tmp(m_.outer.size()); // not necessary !
 //	proj_bnd(&tmp[0], F, m_);           // not necessary !
@@ -135,11 +140,12 @@ SphereLaplace < T, Matrix > ::SphereLaplace (const Mesh & m) : m_ (m),
 		laplace_ ( (int) m.inner.size() ), bnd1_ ( (int) m.inner.size() ), bnd2_ ( (int) m.inner.size() ),
 		bnd3_ ( (int) m.inner.size() )
 {
-	generate_matrix (idt_, m, SphereLaplace_Private::id_cb, (void*) 0);
-	generate_matrix (laplace_, m, SphereLaplace_Private::slaplace_integrate_cb, (void*) 0);
-	generate_boundary_matrix (bnd1_, m_, SphereLaplace_Private::laplace_bnd1_cb, (void*) 0);
-	generate_boundary_matrix (bnd2_, m_, SphereLaplace_Private::laplace_bnd2_cb, (void*) 0);
-	generate_boundary_matrix (bnd3_, m_, SphereLaplace_Private::slaplace_integrate_cb, (void*) 0);
+	using namespace SphereLaplace_Private;
+	generate_matrix (idt_, m, id_cb, (void*) 0);
+	generate_matrix (laplace_, m, slaplace_integrate_cb, (void*) 0);
+	generate_boundary_matrix (bnd1_, m_, laplace_bnd1_cb, (void*) 0);
+	generate_boundary_matrix (bnd2_, m_, laplace_bnd2_cb, (void*) 0);
+	generate_boundary_matrix (bnd3_, m_, slaplace_integrate_cb, (void*) 0);
 }
 
 template < typename T, typename Matrix >

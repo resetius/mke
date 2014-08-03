@@ -12,7 +12,7 @@
  * @section LICENSE
  *
  * @verbatim
-  Copyright (c) 2009 Alexey Ozeritsky
+  Copyright (c) 2009-2011 Alexey Ozeritsky
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without

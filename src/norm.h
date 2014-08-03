@@ -106,17 +106,16 @@ public:
 
 	static double laplace(const Polynom & phi_i,
 	                      const Polynom & phi_j,
-	                      const Triangle & trk,
-                              const Mesh::points_t & ps)
+	                      const Triangle & trk, int z)
 	{
-		return slaplace(phi_i, phi_j, trk, ps);
+		return slaplace(phi_i, phi_j, trk, z);
 	}
 
 	static double integrate(const Polynom & phi,
 	                        const Triangle & trk,
-	                        const Mesh::points_t & ps)
+	                        int z)
 	{
-		return integrate_cos(phi, trk, ps);
+		return integrate_cos(phi, trk, z);
 	}
 };
 
@@ -176,17 +175,15 @@ public:
 
 	static double laplace(const Polynom & phi_i,
 	                      const Polynom & phi_j,
-	                      const Triangle & trk,
-	                      const Mesh::points_t & ps)
+	                      const Triangle & trk, int z)
 	{
-		return ::laplace(phi_i, phi_j, trk, ps);
+		return ::laplace(phi_i, phi_j, trk, z);
 	}
 
 	static double integrate(const Polynom & phi,
-	                        const Triangle & trk,
-	                        const Mesh::points_t & ps)
+	                        const Triangle & trk, int z)
 	{
-		return phelm::integrate(phi, trk, ps);
+		return phelm::integrate(phi, trk, z);
 	}
 };
 

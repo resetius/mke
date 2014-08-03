@@ -18,7 +18,10 @@ set(SOURCE
 	polynom.h
 	util.h
 	norm.h
-	
+
+	deriv.h
+	impl/deriv_impl.h
+
 	laplace.cpp
 	laplace.h
 	impl/laplace_impl.h
