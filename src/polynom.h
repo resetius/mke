@@ -50,6 +50,8 @@
 #include <string>
 #include <string.h>
 
+#include <algorithm>
+
 typedef unsigned int uint;
 
 namespace phelm
