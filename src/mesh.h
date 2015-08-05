@@ -184,6 +184,7 @@ struct MeshPoint
 	 */
 	double x (int zone = 0) const
 	{
+		assert(zone < (int) p.size());
 		return p[zone].x;
 	}
 
@@ -194,6 +195,7 @@ struct MeshPoint
 	 */
 	double y (int zone = 0) const
 	{
+		assert(zone < (int) p.size());
 		return p[zone].y;
 	}
 };
@@ -265,7 +267,6 @@ struct Triangle
 	 */
 	double x (int i, int z) const
 	{
-		assert(z < (int)phik.size());
 		return ps[p[i]].x (z);
 	}
 
@@ -278,7 +279,6 @@ struct Triangle
 	 */
 	double y (int i, int z) const
 	{
-		assert(z < (int)phik.size());
 		return ps[p[i]].y (z);
 	}
 
