@@ -18,6 +18,7 @@ set(SOURCE
 	polynom.h
 	util.h
 	norm.h
+	mesh.h
 
 	deriv.h
 	impl/deriv_impl.h
