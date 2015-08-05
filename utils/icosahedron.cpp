@@ -365,10 +365,12 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 		 * y = cos u sin v
 		 * z = sin u
 		 */
+		fprintf(f, "%.16lf %.16lf %.16lf\n", x, y, z);
+
 		if (local) {
 			double u_ = u(x, y, z), v_ = v(x, y, z);
 			// zone 1
-			fprintf(f, "%.16lf %.16lf ", u_, v_);
+			fprintf(f, " ; %.16lf %.16lf ", u_, v_);
 			// zone 2
 			u_ = u(-x, -y, z); v_ = v(-x, -y, z);
 			fprintf(f, " ; %.16lf %.16lf ", u_, v_);
@@ -386,8 +388,6 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 			}
 
 			fprintf(f, "\n");
-		} else {
-			fprintf(f, "%.16lf %.16lf %.16lf\n", x, y, z);
 		}
 	}
 	fprintf(f, "# triangles %lu \n", mesh.size());

@@ -161,7 +161,7 @@ bool Mesh::load (FILE * f)
 	// points
 	do
 	{
-		double x, y;
+		double x, y, z;
 		const char * sep = ";";
 		char * str;
 
@@ -169,13 +169,29 @@ bool Mesh::load (FILE * f)
 			break;
 
 		MeshPoint p;
+		bool pr_isset = false;
 
 		for (str = strtok (s, sep); str; str = strtok (0, sep) )
 		{
 			x = 0;
 			y = 0;
-			sscanf (str, "%lf%lf", &x, &y);
-			p.add (Point (x, y) );
+
+			int i = sscanf(str, "%lf%lf%lf", &x, &y, &z);
+			switch (i) {
+			case 3:
+				p.pr = Point3(x, y, z);
+				pr_isset = true;
+				break;
+			case 2:
+				p.add(Point(x, y));
+				break;
+			default:
+				abort();
+			}
+		}
+
+		if (!pr_isset) {
+			p.pr = Point3(p.x(0), p.y(0), 0);
 		}
 
 		ps.push_back (p);

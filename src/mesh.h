@@ -104,6 +104,17 @@ struct Point
 	}
 };
 
+/**/
+struct Point3 {
+	double x;
+	double y;
+	double z;
+
+	Point3() : x(0), y(0), z(0) {}
+
+	Point3(double x, double y, double z) : x(x), y(y), z(z) {}
+};
+
 /**
  * Sum of two points.
  * @relates Point
@@ -122,6 +133,12 @@ inline Point operator + (const Point & p1, const Point & p2)
  */
 struct MeshPoint
 {
+	/**
+	 * global coordinates
+	 * TODO: Rn
+	 */
+	Point3 pr;
+
 	/**
 	 * p[i] local coordinates of point in subdomain i.
 	 * @todo what should we do if the point is included only in one subdomain
