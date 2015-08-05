@@ -65,69 +65,6 @@ double z_ (double u, double v)
 	return sin (u);
 }
 
-void build_icosahedron(vector < Triangle > & r, vector < Point > & p)
-{
-	double t = (1.0 + sqrt(5.0)) / 2.0;
-
-	double points[][3] = {
-		{t, 1.0, 0.0},
-		{-t, 1.0, 0.0},
-		{t, -1.0, 0.0},
-
-		{-t, -1.0, 0.0},
-		{1.0, 0.0, t},
-		{1.0, 0.0, -t},
-
-		{-1.0, 0.0, t},
-		{-1.0, 0.0, -t},
-		{0.0, t, 1.0},
-
-		{0.0, -t, 1.0},
-		{0.0, t, -1.0},
-		{0.0, -t, -1.0},
-	};
-
-	int triangles[][3] = {
-		{0, 8,  4},
-		{1, 10, 7},
-		{2, 9,  11},
-		{7, 3,  1},
-
-		{0, 5,  10},
-		{3, 9,  6},
-		{3, 11, 9},
-		{8, 6,  4},
-
-		{2, 4, 9},
-		{3, 7, 11},
-		{4, 2, 0},
-		{9, 4, 6},
-
-		{2,  11, 5},
-		{0,  10, 8},
-		{5,  0,  2},
-		{10, 5,  7},
-
-		{1,  6, 8},
-		{1,  8, 10},
-		{6,  1, 3},
-		{11, 7, 5},
-	};
-
-	int v = 12;
-	int f = 20;
-	int i;
-
-	for (i = 0; i < f; ++i) {
-		Triangle t1(triangles[i][0], triangles[i][1], triangles[i][2]);
-		r.push_back(t1);
-	}
-
-	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
-	}
-}
-
 void build_test2(vector < Triangle > & r, vector < Point > & p)
 {
 	double t = (1.0 + sqrt(5.0)) / 2.0;

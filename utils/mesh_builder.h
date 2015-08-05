@@ -75,6 +75,8 @@ void sphere_orto_projector(Point & p);
 void sphere_z_projector(Point & p);
 void flat_projector(Point & p);
 
+void build_icosahedron(std::vector < Triangle > & r, std::vector < Point > & p);
+
 void normalize_mesh(std::vector < Triangle > & mesh, std::vector < Point > & points, surface_projector project);
 void iterate_mesh(std::vector < Triangle > & mesh, std::vector < Point > & points, int iterations, surface_projector project);
 

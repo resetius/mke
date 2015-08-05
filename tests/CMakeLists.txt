@@ -2,13 +2,14 @@ project(phelm CXX C)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 include_directories(../src)
+include_directories(../utils)
 include_directories(${LINAL_INCLUDE})
 
-create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp)
+create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp test_triag_rotate.cpp)
 
 add_executable(mke_test_small ${small_tests})
 
-target_link_libraries(mke_test_small phelm ${MATH} ${LINAL_LIBS})
+target_link_libraries(mke_test_small phelm ${MATH} ${LINAL_LIBS} mesh_builder)
 
 if (OPENMP_FOUND)
 set_target_properties(mke_test_small PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
@@ -17,6 +18,7 @@ endif (OPENMP_FOUND)
 # TODO: check lua version (>= 5.3)
 find_program(LUA lua)
 
+add_test(mke_test_polynom ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_triag_rotate)
 add_test(mke_test_polynom ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_polynom)
 add_test(mke_test_quadrature ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_quadrature)
 add_test(mke_test_integrate ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_integrate)
