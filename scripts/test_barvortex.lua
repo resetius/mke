@@ -13,7 +13,7 @@ function read_errors(f)
 	local e3 = nil
 
 	for line in f:lines() do
-		e1 = extract(e1, line, "bv: norm ([0-9]*\.[0-9]*[eE]?[-+][0-9]*)")
+		e1 = extract(e1, line, "bv: norm ([0-9]*.[0-9]*[eE]?[-+][0-9]*)")
 	end
 
 	print ("e1", e1)

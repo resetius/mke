@@ -14,11 +14,8 @@ if (OPENMP_FOUND)
 set_target_properties(mke_test_small PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 endif (OPENMP_FOUND)
 
-if (WIN32)
-set (LUA ${EXECUTABLE_OUTPUT_PATH}/lua)
-else (WIN32)
-set (LUA lua)
-endif (WIN32)
+# TODO: check lua version (>= 5.3)
+find_program(LUA lua)
 
 add_test(mke_test_polynom ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_polynom)
 add_test(mke_test_quadrature ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_quadrature)

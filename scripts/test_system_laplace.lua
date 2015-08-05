@@ -13,8 +13,8 @@ function read_errors(f)
 
 	print (f)
 	for line in f:lines() do
-		e1 = extract(e1, line, "answer nev: U = ([0-9]*\.[0-9]*[eE]?[-+][0-9]*)")
-		e2 = extract(e2, line, "answer nev: V = ([0-9]*\.[0-9]*[eE]?[-+][0-9]*)")
+		e1 = extract(e1, line, "answer nev: U = ([0-9]*.[0-9]*[eE]?[-+][0-9]*)")
+		e2 = extract(e2, line, "answer nev: V = ([0-9]*.[0-9]*[eE]?[-+][0-9]*)")
 	end
 
 	print ("e1", e1)

@@ -14,9 +14,10 @@ function read_errors(f)
 
 	print (f)
 	for line in f:lines() do
-		e1 = extract(e1, line, "L1: invert  err=([0-9]*\.[0-9]*[eE]?[-+][0-9]*)")
-		e2 = extract(e2, line, "L2: laplace err=([0-9]*\.[0-9]*[eE]?[-+][0-9]*)", "%1")
-		e3 = extract(e3, line, "L3: laplace err=([0-9]*\.[0-9]*[eE]?[-+][0-9]*)", "%1")
+		print (line)
+		e1 = extract(e1, line, "L1: invert  err=([0-9]*.[0-9]*[eE]?[-+][0-9]*)")
+		e2 = extract(e2, line, "L2: laplace err=([0-9]*.[0-9]*[eE]?[-+][0-9]*)", "%1")
+		e3 = extract(e3, line, "L3: laplace err=([0-9]*.[0-9]*[eE]?[-+][0-9]*)", "%1")
 	end
 
 	print ("e1", e1)
