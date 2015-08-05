@@ -304,36 +304,7 @@ private:
 	 * Initialize arrays x and y of mesh points array.
 	 * @param ps - mesh points
 	 */
-	basis_t prepare_basis (int z) const
-	{
-		basis_t r;
-		r.reserve (3);
-
-		// p0
-		r.push_back ( (P2X - x (1, z) ) * (y (2, z) - y (1, z) )
-		            - (P2Y - y (1, z) ) * (x (2, z) - x (1, z) ) );
-		// p1
-		r.push_back ( (P2X - x (0, z) ) * (y (2, z) - y (0, z) )
-		            - (P2Y - y (0, z) ) * (x (2, z) - x (0, z) ) );
-		// p2
-		r.push_back ( (P2X - x (0, z) ) * (y (1, z) - y (0, z) )
-		            - (P2Y - y (0, z) ) * (x (1, z) - x (0, z) ) );
-
-		for (uint i = 0; i < 3; ++i)
-		{
-			r[i] /= r[i].apply (x (i, z), y (i, z) );
-		}
-
-		/*
-		x[0] = X (0, ps);
-		y[0] = Y (0, ps);
-		x[1] = X (1, ps);
-		y[1] = Y (1, ps);
-		x[2] = X (2, ps);
-		y[2] = Y (2, ps);
-		*/
-		return r;
-	}
+	basis_t prepare_basis(int z) const;
 
 public:
 	int point_number (int p1) const
@@ -350,6 +321,7 @@ public:
 		{
 			return 2;
 		}
+		abort();
 		return -1;
 	}
 
@@ -357,46 +329,14 @@ public:
 	 * Returns first order finite elements.
 	 * @return first order finite elements
 	 */
-	const std::vector < Polynom > & elem1(int zone) const
-	{
-		if (zone < 0) {
-			zone = z;
-		}
-
-		if ((int)phik.size() < zone + 1) {
-			phik.resize((size_t)(zone + 1));
-		}
-
-		if (phik[zone].empty()) {
-			phik[zone] = prepare_basis(zone);
-		}
-
-		return phik[zone];
-	}
+	const basis_t & elem1(int zone) const;
 
 	/**
 	 * Returns finite element in point p1.
 	 * @param p1 - point number
 	 * @return finite element
 	 */
-	const Polynom & elem1 (int p1, int zone) const
-	{
-		const basis_t & phik = elem1(zone);
-
-		if (p1 == p[0])
-		{
-			return phik[0];
-		}
-		else if (p1 == p[1])
-		{
-			return phik[1];
-		}
-		else if (p1 == p[2])
-		{
-			return phik[2];
-		}
-		return * ( (Polynom*) 0);
-	}
+	const Polynom & elem1(int p1, int zone) const;
 };
 
 using namespace linal;
