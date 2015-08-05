@@ -129,17 +129,32 @@ struct MeshPoint
 	 */
 	std::vector < Point > p;
 
+	enum {
+		POINT_REGULAR  = 0,
+		POINT_BOUNDARY = 1
+	};
+
+	int flags;
+
+	bool is_regular() const {
+		return flags == POINT_REGULAR;
+	}
+
+	bool is_boundary() const {
+		return flags & POINT_BOUNDARY;
+	}
+
 	/**
 	 * Default constructor.
 	 */
-	MeshPoint() {}
+	MeshPoint(): flags(0) {}
 
 	/**
 	 * Initialization of x and y.
 	 * @param x - x coordinate
 	 * @param y - y coordinate
 	 */
-	MeshPoint (double x, double y)
+	MeshPoint(double x, double y) : flags(0)
 	{
 		add (Point (x, y) );
 	}
@@ -148,7 +163,7 @@ struct MeshPoint
 	 * Initialization of array x[2].
 	 * @param x - array x[2]
 	 */
-	MeshPoint (double *x)
+	MeshPoint(double *x) : flags(0)
 	{
 		add (Point (x) );
 	}
@@ -376,17 +391,17 @@ struct Mesh
 {
 	typedef std::vector < Triangle > triangles_t;///<triangles container
 	typedef std::vector < MeshPoint > points_t;  ///<points container
-	typedef std::vector < int > points_flags_t;  ///<points properties container
 
 	triangles_t tr; ///<triangles array
 	points_t ps;    ///<points array
 
-	/**
-	 * Properties array/
-	 *  - 0 - inner point
-	 *  - 1 - boundary point
-	 */
-	points_flags_t ps_flags;
+	bool is_regular(int i) const {
+		return ps[i].is_regular();
+	}
+
+	bool is_boundary(int i) const {
+		return ps[i].is_boundary();
+	}
 
 	/**
 	 * mapping: point -> triangle in point.
@@ -414,7 +429,6 @@ struct Mesh
 		ArrayDevice < int > inner;
 		ArrayDevice < int > outer;
 		ArrayDevice < int > p2io;
-		ArrayDevice < int > ps_flags;
 	};
 
 	Device d;

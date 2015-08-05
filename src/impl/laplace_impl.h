@@ -86,7 +86,7 @@ laplace_rp_cb ( const Polynom & phi_i,
 {
 	double r = -laplace (phi_i, phi_j, trk, z);
 	
-	if (m.ps_flags[point_j] == 1) {
+	if (m.is_boundary(point_j)) {
 		double b = 0;
 		b += integrate(diff(diff(phi_j, 0) * phi_i, 0), trk, z);
 		b += integrate(diff(diff(phi_j, 1) * phi_i, 1), trk, z);

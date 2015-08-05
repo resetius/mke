@@ -84,7 +84,7 @@ chafe_right_part_cb (  const Polynom & phi_i,
 
 //	b = F[point_j] * integrate(phi_i * phi_j, trk, m.ps);
 
-	if (m.ps_flags[point_j] == 1)   // на границе
+	if (m.is_boundary(point_j))   // на границе
 	{
 		int j0         = m.p2io[point_j]; //номер внешней точки
 		const T  * bnd = d->bnd;

@@ -92,7 +92,7 @@ laplace_right_part_cb ( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1)
+	if (m.is_boundary(point_j))
 	{
 		int j0       = m.p2io[point_j];
 		const double * BU = d->BU;

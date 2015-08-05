@@ -238,7 +238,7 @@ right_part_cb ( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1)   // на границе
+	if (m.is_boundary(point_j))   // на границе
 	{
 		int j0        = m.p2io[point_j]; //номер внешней точки
 		elements_t r1 = integrate_cb (phi_i, phi_j,
@@ -335,7 +335,7 @@ right_part_backward_cb ( const Polynom & phi_i,
 	const double * F = d->F;
 	const double * G = d->G;
 
-	if (m.ps_flags[point_j] == 1)   // на границе
+	if (m.is_boundary(point_j))   // на границе
 	{
 		int j0        = m.p2io[point_j]; //номер внешней точки
 		elements_t r1 = integrate_backward_cb (phi_i, phi_j,

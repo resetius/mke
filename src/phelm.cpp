@@ -58,7 +58,7 @@ void smooth1 (double * out, const double * in, const Mesh & m)
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
-		if (m.ps_flags[i] == 0)
+		if (m.is_regular(i))
 		{
 			set < int > p;
 
@@ -185,7 +185,6 @@ bool Mesh::load (FILE * f)
 
 	size = (int) ps.size();
 
-	ps_flags.resize (size);
 	if (!fgets (s, _BUF_SZ - 1, f) )
 	{
 		goto bad;
@@ -258,7 +257,7 @@ bool Mesh::load (FILE * f)
 			goto bad;
 		}
 
-		ps_flags[n] = 1;
+		ps[n].flags = MeshPoint::POINT_BOUNDARY;
 		lineno++;
 	}
 	while (fgets (s, _BUF_SZ - 1, f) );
@@ -272,15 +271,19 @@ make_inner:
 
 	for (uint i = 0; i < ps.size(); ++i)
 	{
-		if (ps_flags[i] == 0)
+		if (ps[i].is_regular())
 		{
 			p2io[i] = (int) inner.size();
 			inner.push_back (i);
 		}
-		else if (ps_flags[i] == 1)
+		else if (ps[i].is_boundary())
 		{
 			p2io[i] = (int) outer.size();
 			outer.push_back (i);
+		}
+		else
+		{
+			abort();
 		}
 	}
 
@@ -306,11 +309,9 @@ void Mesh::prepare()
 	d.inner.resize (inner_size);
 	d.outer.resize (outer_size);
 	d.p2io.resize (size);
-	d.ps_flags.resize (size);
 	vec_copy_from_host (&d.inner[0],    &inner[0], inner_size);
 	vec_copy_from_host (&d.outer[0],    &outer[0], outer_size);
 	vec_copy_from_host (&d.p2io[0],     &p2io[0],  size);
-	vec_copy_from_host (&d.ps_flags[0], &ps_flags[0],  size);
 #endif
 }
 
@@ -371,9 +372,11 @@ void print_inner_function_ (FILE * to, T * ans, const Mesh & m,
 		int p2 = m.tr[i].p[1];
 		int p3 = m.tr[i].p[2];
 
-		if (m.ps_flags[p1] == 0
-		        && m.ps_flags[p2] == 0
-		        && m.ps_flags[p3] == 0)
+		if (
+			m.is_regular(p1) == 0 && 
+			m.is_regular(p2) == 0 && 
+			m.is_regular(p3) == 0
+			)
 		{
 			fprintf (to, "%d %d %d\n",
 			         m.p2io[p1] + 1,

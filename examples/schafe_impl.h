@@ -82,7 +82,7 @@ schafe_right_part_cb ( const Polynom & phi_i,
 	const T * F = d->F;
 	double b;
 
-	if (m.ps_flags[point_j] == 1)   // на границе
+	if (m.is_boundary(point_j))   // на границе
 	{
 		int j0       = m.p2io[point_j];  //номер внешней точки
 		const T * bnd = d->bnd;

@@ -54,7 +54,7 @@ void p2u_ (T * u, const T * p, const T * bnd, const Mesh & m)
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
-		if (m.ps_flags[i] == 1)
+		if (m.is_boundary(i))
 		{
 			//внешн€€
 			if (bnd)
@@ -113,7 +113,7 @@ void set_bnd_ (T * u, const T * bnd, const Mesh & m)
 #pragma omp parallel for
 	for (int i = 0; i < sz; ++i)
 	{
-		if (m.ps_flags[i] == 1)
+		if (m.is_boundary(i))
 		{
 			if (bnd)
 			{

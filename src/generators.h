@@ -148,7 +148,7 @@ void generate_matrix (Matrix & A, const Mesh & m,
 				int p2   = m.tr[trk_i].p[i0];
 				int j    = m.p2io[p2]; // номер внутренней точки
 				// номер столбца
-				if (m.ps_flags[p2] == 1)
+				if (m.is_boundary(p2))
 				{
 					; // граница
 				}
@@ -355,7 +355,7 @@ void generate_boundary_matrix (Matrix & A, const Mesh & m,
 			{
 				int p    = m.tr[trk_j].p[i0];
 
-				if (m.ps_flags[p] == 1)
+				if (m.is_boundary(p))
 				{
 					;
 				}
