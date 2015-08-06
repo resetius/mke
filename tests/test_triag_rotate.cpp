@@ -17,19 +17,13 @@ static double sign(double a) {
 void rotate_tr(const Triangle &tr, vector<Point> & ps)
 {
 	// единичная нормаль
-	Point n = Point(
-		ps[tr.v1].x + ps[tr.v2].x + ps[tr.v3].x,
-		ps[tr.v1].y + ps[tr.v2].y + ps[tr.v3].y,
-		ps[tr.v1].z + ps[tr.v2].z + ps[tr.v3].z
-	);
-
-	n = n / 3;
+	Point n = (ps[tr.v1] - ps[tr.v2]) * (ps[tr.v1] - ps[tr.v3]);
 	n = n / n.abs();
 
 	// углы в плоскости (x, y)
 	double cosa = fabs(n.x) / sqrt(n.x*n.x + n.y*n.y);
 	// углы в плоскости (y, z) (после первой ротации будет эта плоскость)
-	double cosb = sqrt(n.x*n.x + n.y*n.y);
+	double cosb = fabs(n.z);
 	// R1
 	// cosa -sina 0
 	// sina  cosa 0
@@ -45,16 +39,53 @@ void rotate_tr(const Triangle &tr, vector<Point> & ps)
 	double s = rn.scalar(Point(0, 1, 0));
 	assert(s < 1e-10);
 
-	double b = -sign(rn.x*rn.z)*acos(cosb);
+	double b =  sign(rn.x*rn.z)*acos(cosb);
 	rn = rn.rotate_y(b);
 
-	assert(fabs(rn.x*rn.x - 1.0) < 1e-10);
+	assert(fabs(rn.x) < 1e-10);
 	assert(fabs(rn.y) < 1e-10);
-	assert(fabs(rn.z) < 1e-10);
+	assert(fabs(rn.z*rn.z - 1.0) < 1e-10);
 
 	fprintf(stdout, ">\n");
 	n.print();
 	rn.print();
+
+	vector<Point> trps(3);
+	vector<Point> rtrps(3);
+	trps[0] = ps[tr.v1];
+	trps[1] = ps[tr.v2];
+	trps[2] = ps[tr.v3];
+
+	double aa = (trps[1] - trps[0]).len();
+	double ab = (trps[1] - trps[2]).len();
+	double ac = (trps[0] - trps[2]).len();
+	double p1 = aa + ab + ac;
+	double S1 = sqrt(p1 *(p1 - aa)*(p1 - ab)*(p1 - ac));
+
+	rtrps[0] = ps[tr.v1].rotate_z(a).rotate_y(b);
+	rtrps[1] = ps[tr.v2].rotate_z(a).rotate_y(b);
+	rtrps[2] = ps[tr.v3].rotate_z(a).rotate_y(b);
+
+	double ba = (rtrps[1] - rtrps[0]).len();
+	double bb = (rtrps[1] - rtrps[2]).len();
+	double bc = (rtrps[0] - rtrps[2]).len();
+	double p2 = ba + bb + bc;
+	double S2 = sqrt(p2 *(p2 - ba)*(p2 - bb)*(p2 - bc));
+
+	assert(fabs(S2 - S1) < 1e-10);
+	assert(fabs(rtrps[0].z - rtrps[1].z) < 1e-10);
+	assert(fabs(rtrps[0].z - rtrps[2].z) < 1e-10);
+
+	fprintf(stdout, "{\n");
+	trps[0].print();
+	trps[1].print();
+	trps[2].print();
+	fprintf(stdout, "} => \n");
+	fprintf(stdout, "{\n");
+	rtrps[0].print();
+	rtrps[1].print();
+	rtrps[2].print();
+	fprintf(stdout, "} \n\n");
 }
 
 extern "C" int test_triag_rotate(int argc, char ** argv)

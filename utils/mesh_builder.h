@@ -93,11 +93,29 @@ struct Point {
 	double scalar(const Point &a) const {
 		return x*a.x + y*a.y + z*a.z;
 	}
+
+	double len() const {
+		return sqrt(scalar(*this));
+	}
 };
+
+inline Point operator * (const Point & a, const Point & b)
+{
+	return Point(
+		a.z*b.y - a.y*b.z,
+		a.x*b.z - a.z*b.x,
+		a.y*b.x - a.x*b.y
+	);
+}
 
 inline Point operator + (const Point & a, const Point & b)
 {
 	return Point(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+inline Point operator - (const Point & a, const Point & b)
+{
+	return Point(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
 inline Point operator / (const Point & a, double k)
