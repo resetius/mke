@@ -2,7 +2,7 @@
 #define MESH_BUILDER_H
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2015 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 
 #include <vector>
 #include <stdio.h>
+#include <math.h>
 
 struct Point {
 	double x;
@@ -47,6 +48,51 @@ struct Point {
 	Point(double x1, double y1, double z1) : x(x1), y(y1), z(z1) {}
 	Point(double * x1) : x(x1[0]), y(x1[1]), z(x1[2]) {}
 	Point(): x(0), y(0), z(0) {}
+
+	void print() {
+		fprintf(stdout, "[%lf, %lf, %lf]\n", x, y, z);
+	}
+
+	double abs() const {
+		return sqrt(x*x + y*y + z*z);
+	}
+
+	/**
+	 * counterclockwise rotation about the positive z-axis by angle a
+	 */
+	Point rotate_x(double a) const {
+		double sina = sin(a);
+		double cosa = cos(a);
+		return Point(
+			x,
+			y * cosa - z * sina,
+			y * sina + z * cosa
+			);
+	}
+
+	Point rotate_y(double a) const {
+		double sina = sin(a);
+		double cosa = cos(a);
+		return Point(
+			x * cosa - z * sina,
+			y,
+			x * sina + z * cosa
+			);
+	}
+
+	Point rotate_z(double a) const {
+		double sina = sin(a);
+		double cosa = cos(a);
+		return Point(
+			x * cosa - y * sina,
+			x * sina + y * cosa,
+			z
+			);
+	}
+
+	double scalar(const Point &a) const {
+		return x*a.x + y*a.y + z*a.z;
+	}
 };
 
 inline Point operator + (const Point & a, const Point & b)
