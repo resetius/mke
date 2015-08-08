@@ -279,11 +279,27 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 	fprintf(f, "# zone1 ; zone2 ; zone 3; ... \n");
 	if (local) {
 		fprintf(f, "# u = theta  [-pi/2, pi/2]\n"
-				"# v = lambda [0, 2pi]\n"
-				"# x = cos u cos v \n"
-				"# y = cos u sin v \n"
-				"# z = sin u \n"
-				"# u v \n");
+				"# v = lambda [0, 2pi]\n");
+		fprintf(f,
+				"# zone 1\n"
+				"# x = cos(u)*cos(v) \n"
+				"# y = cos(u)*sin(v) \n"
+				"# z = sin(u) \n"
+				"# zone 2\n"
+				"# x = -cos(u)*cos(v) \n"
+				"# y = -cos(u)*sin(v) \n"
+				"# z = sin(u) \n");
+		if (type == 0 || type == 1 || type == 4) {
+			fprintf(f,
+					"# zone 3\n"
+					"# x = cos(u)*cos(v) \n"
+					"# y = cos(u)*sin(v) \n"
+					"# z = -sin(u) \n"
+					"# zone 4\n"
+					"# x = cos(u)*cos(v) \n"
+					"# y = -cos(u)*sin(v) \n"
+					"# z = sin(u) \n");
+		}
 	} else {
 		fprintf(f, "# x y z \n");
 	}

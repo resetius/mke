@@ -135,7 +135,7 @@ Triangle::basis_t Triangle::prepare_basis(int z) const
 
 const Triangle::NewElem & Triangle::new_elem1(int p1, int zone) const
 {
-	auto & phik = new_elem1(zone);
+	auto phik = new_elem1(zone);
 
 	if (p1 == p[0])
 	{
