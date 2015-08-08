@@ -54,10 +54,24 @@ FuncPtr BinOp::apply(const vars_t & vars) {
 	FuncPtr newb = b->apply(vars);
 
 	if (newa->has_value() && b->has_value()) {
-		return FuncPtr(new Const(op(newa->value(), newb->value())));
+		return op(newa, newb);
 	}
 	else {
-		return FuncPtr(new BinOp(newa, newb, op));
+		return FuncPtr(new BinOp(newa, newb, op, op_symb, lin_diff));
+	}
+}
+
+FuncPtr BinOp::diff(const std::string & symb) const {
+	if (has_symb(symb)) {
+		if (lin_diff) {
+			return op(a->diff(symb), b->diff(symb));
+		}
+		else {
+			return op(a->diff(symb), b) + op(a, b->diff(symb));
+		}
+	}
+	else {
+		return FuncPtr(new Const(0.0));
 	}
 }
 
@@ -79,4 +93,81 @@ FuncPtr Sin::apply(const vars_t & vars) {
 	else {
 		return FuncPtr(new Sin(newa));
 	}
+}
+
+FuncPtr Cos::diff(const std::string & symb) const {
+	if (a->has_symb(symb)) {
+		FuncPtr a(new Sin(a));
+		return a * -1.0;
+	}
+	else {
+		return FuncPtr(new Const(0));
+	}
+}
+
+FuncPtr Sin::diff(const std::string & symb) const {
+	if (a->has_symb(symb)) {
+		FuncPtr a(new Cos(a));
+		return a;
+	}
+	else {
+		return FuncPtr(new Const(0));
+	}
+}
+
+FuncPtr phelm::operator * (const FuncPtr & a, const FuncPtr & b) {
+	if (a->has_value() && b->has_value()) {
+		return FuncPtr(new Const(a->value() * b->value()));
+	}
+	if (a->has_value()) {
+		double aa = fabs(a->value());
+		if (aa < 1e-15) {
+			return FuncPtr(new Const(0.0));
+		}
+		if (fabs(aa - 1.0) < 1e-15) {
+			return b;
+		}
+	}
+	if (b->has_value()) {
+		double bb = fabs(b->value());
+		if (bb < 1e-15) {
+			return FuncPtr(new Const(0.0));
+		}
+		if (fabs(bb - 1.0) < 1e-15) {
+			return a;
+		}
+	}
+	return FuncPtr(new Mul(a, b));
+}
+
+FuncPtr phelm::operator + (const FuncPtr & a, const FuncPtr & b) {
+	if (a->has_value() && b->has_value()) {
+		return FuncPtr(new Const(a->value() + b->value()));
+	}
+	if (a->has_value()) {
+		double aa = fabs(a->value());
+		if (aa < 1e-15) {
+			return b;
+		}
+	}
+	if (b->has_value()) {
+		double bb = fabs(b->value());
+		if (bb < 1e-15) {
+			return a;
+		}
+	}
+	return FuncPtr(new Add(a, b));
+}
+
+FuncPtr phelm::operator - (const FuncPtr & a, const FuncPtr & b) {
+	if (a->has_value() && b->has_value()) {
+		return FuncPtr(new Const(a->value() - b->value()));
+	}
+	if (b->has_value()) {
+		double bb = fabs(b->value());
+		if (bb < 1e-15) {
+			return a;
+		}
+	}
+	return FuncPtr(new Sub(a, b));
 }

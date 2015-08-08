@@ -22,7 +22,7 @@ static void test_tr(const Triangle &tr, vector<Point> & ps)
 		(X - ps[tr.v2].x) *(ps[tr.v3].y - ps[tr.v2].y) -
 		(Y - ps[tr.v2].y) * (ps[tr.v3].x - ps[tr.v2].x);
 	p0->print();
-	printf("\n");
+	printf("\n\n");
 	FuncPtr x1 = FuncPtr(new Cos(phi))*FuncPtr(new Cos(la));
 	FuncPtr y1 = FuncPtr(new Cos(phi))*FuncPtr(new Sin(la));
 
@@ -32,7 +32,10 @@ static void test_tr(const Triangle &tr, vector<Point> & ps)
 
 	FuncPtr p01 = p0->apply(compose);
 	p01->print();
-	printf("\n");
+	printf("\n\n");
+
+	p01->diff("la")->print();
+	printf("\n\n");
 }
 
 extern "C" int test_func_op(int argc, char ** argv)

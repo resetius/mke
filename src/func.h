@@ -41,6 +41,7 @@
 #include <string>
 #include <stdexcept>
 #include <memory>
+#include <functional>
 #include <stdio.h>
 
 namespace phelm {
@@ -64,6 +65,8 @@ public:
 	}
 
 	virtual void print(FILE * f = stdout) const = 0;
+	virtual bool has_symb(const std::string & symb) const = 0;
+	virtual FuncPtr diff(const std::string & symb) const = 0;
 };
 
 class Const : public Func {
@@ -80,6 +83,15 @@ public:
 	void print(FILE * f) const {
 		fprintf(f, "%lf", value);
 	}
+	bool has_symb(const std::string & symb) const {
+		return false;
+	}
+	bool has_value() const {
+		return true;
+	}
+	FuncPtr diff(const std::string & symb) const {
+		return FuncPtr(new Const(0));
+	}
 };
 
 class Symb : public Func {
@@ -92,74 +104,74 @@ public:
 	void print(FILE * f) const {
 		fprintf(f, "%s", name.c_str());
 	}
+
+	bool has_symb(const std::string & symb) const {
+		return symb == name;
+	}
+	FuncPtr diff(const std::string & symb) const {
+		if (symb == name) {
+			return FuncPtr(new Const(1.0));
+		} else {
+			return FuncPtr(new Const(0.0));
+		}
+	}
 };
 
-typedef double(*Op)(double, double);
+FuncPtr operator - (const FuncPtr & a, const FuncPtr & b);
+FuncPtr operator + (const FuncPtr & a, const FuncPtr & b);
+FuncPtr operator * (const FuncPtr & a, const FuncPtr & b);
+
+typedef std::function<FuncPtr(FuncPtr, FuncPtr)> Op;
 
 class BinOp : public Func {
 protected:
 	FuncPtr a;
 	FuncPtr b;
 	Op op;
+	std::string op_symb;
+	bool lin_diff;
 
 public:
 
-	BinOp(FuncPtr a, FuncPtr b, Op op) : a(a), b(b), op(op) {}
+	BinOp(FuncPtr a, FuncPtr b, Op op, const std::string op_symb, bool lin_diff = true) : 
+		a(a), b(b), op(op), op_symb(op_symb), lin_diff(lin_diff) {}
 
 	FuncPtr apply(const vars_t & vars);
 
 	void print(FILE * f) const {
 		fprintf(f, "(");
 		a->print(f);
-		fprintf(f, "#");
+		fprintf(f, "%s", op_symb.c_str());
 		b->print(f);
 		fprintf(f, ")");
 	}
+
+	bool has_symb(const std::string & symb) const {
+		return a->has_symb(symb) || b->has_symb(symb);
+	}
+
+	FuncPtr diff(const std::string & symb) const;
 };
 
 class Mul : public BinOp {
 public:
-	Mul(FuncPtr a, FuncPtr b) : BinOp(a, b, [](double x, double y){
+	Mul(FuncPtr a, FuncPtr b) : BinOp(a, b, [](FuncPtr x, FuncPtr y){
 		return x * y;
-	}) {}
-
-	void print(FILE * f) const {
-		fprintf(f, "(");
-		a->print(f);
-		fprintf(f, "*");
-		b->print(f);
-		fprintf(f, ")");
-	}
+	}, "*", false) {}
 };
 
 class Add : public BinOp {
 public:
-	Add(FuncPtr a, FuncPtr b) : BinOp(a, b, [](double x, double y){
+	Add(FuncPtr a, FuncPtr b) : BinOp(a, b, [](FuncPtr x, FuncPtr y){
 		return x + y;
-	}) {}
-
-	void print(FILE * f) const {
-		fprintf(f, "(");
-		a->print(f);
-		fprintf(f, "+");
-		b->print(f);
-		fprintf(f, ")");
-	}
+	}, "+") {}
 };
 
 class Sub : public BinOp {
 public:
-	Sub(FuncPtr a, FuncPtr b) : BinOp(a, b, [](double x, double y){
+	Sub(FuncPtr a, FuncPtr b) : BinOp(a, b, [](FuncPtr x, FuncPtr y){
 		return x - y;
-	}) {}
-
-	void print(FILE * f) const {
-		fprintf(f, "(");
-		a->print(f);
-		fprintf(f, "-");
-		b->print(f);
-		fprintf(f, ")");
-	}
+	}, "-") {}
 };
 
 class Cos : public Func {
@@ -174,6 +186,12 @@ public:
 		a->print(f);
 		fprintf(f, ")");
 	}
+
+	bool has_symb(const std::string & symb) const {
+		return a->has_symb(symb);
+	}
+
+	FuncPtr diff(const std::string & symb) const;
 };
 
 class Sin : public Func {
@@ -188,26 +206,20 @@ public:
 		a->print(f);
 		fprintf(f, ")");
 	}
-};
 
-inline FuncPtr operator * (const FuncPtr & a, const FuncPtr & b) {
-	return FuncPtr(new Mul(a, b));
-}
+	bool has_symb(const std::string & symb) const {
+		return a->has_symb(symb);
+	}
+
+	FuncPtr diff(const std::string & symb) const;
+};
 
 inline FuncPtr operator * (const FuncPtr & a, double b) {
 	return FuncPtr(new Mul(a, FuncPtr(new Const(b))));
 }
 
-inline FuncPtr operator + (const FuncPtr & a, const FuncPtr & b) {
-	return FuncPtr(new Add(a, b));
-}
-
 inline FuncPtr operator + (const FuncPtr & a, double b) {
 	return FuncPtr(new Add(a, FuncPtr(new Const(b))));
-}
-
-inline FuncPtr operator - (const FuncPtr & a, const FuncPtr & b) {
-	return FuncPtr(new Sub(a, b));
 }
 
 inline FuncPtr operator - (const FuncPtr & a, double b) {
