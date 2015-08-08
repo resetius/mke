@@ -81,13 +81,13 @@ struct Point
 	Point (double x1, double y1, double z1 = 0) : x (x1), y (y1), z(z1) {}
 
 	Point(double * p, int size) {
-		if (size < 1) {
+		if (size >= 1) {
 			x = p[0];
 		}
-		if (size < 2) {
+		if (size >= 2) {
 			y = p[1];
 		}
-		if (size < 3) {
+		if (size >= 3) {
 			z = p[2];
 		}
 	}

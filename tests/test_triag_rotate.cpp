@@ -14,7 +14,7 @@ static double sign(double a) {
 	}
 }
 
-void rotate_tr(const Triangle &tr, vector<Point> & ps)
+static void rotate_tr(const Triangle &tr, vector<Point> & ps)
 {
 	// единичная нормаль
 	Point n = (ps[tr.v1] - ps[tr.v2]) * (ps[tr.v1] - ps[tr.v3]);

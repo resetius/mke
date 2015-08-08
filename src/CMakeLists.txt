@@ -20,6 +20,8 @@ set(SOURCE
 	norm.h
 	mesh.cpp
 	mesh.h
+	func.cpp
+	func.h
 	
 	deriv.h
 	impl/deriv_impl.h

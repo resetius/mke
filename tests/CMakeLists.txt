@@ -5,7 +5,13 @@ include_directories(../src)
 include_directories(../utils)
 include_directories(${LINAL_INCLUDE})
 
-create_test_sourcelist(small_tests test_small.c test_polynom.cpp test_integrate.cpp test_quadrature.c test_funcgen.cpp test_diff.cpp test_triag_rotate.cpp)
+create_test_sourcelist(small_tests 
+	test_small.c test_polynom.cpp 
+	test_integrate.cpp test_quadrature.c 
+	test_funcgen.cpp test_diff.cpp 
+	test_triag_rotate.cpp
+	test_func_op.cpp
+	)
 
 add_executable(mke_test_small ${small_tests})
 
