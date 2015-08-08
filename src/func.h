@@ -228,6 +228,10 @@ inline FuncPtr operator * (const FuncPtr & a, double b) {
 	return FuncPtr(new Mul(a, FuncPtr(new Const(b))));
 }
 
+inline FuncPtr operator * (double b, const FuncPtr & a) {
+	return FuncPtr(new Mul(a, FuncPtr(new Const(b))));
+}
+
 inline FuncPtr operator + (const FuncPtr & a, double b) {
 	return FuncPtr(new Add(a, FuncPtr(new Const(b))));
 }

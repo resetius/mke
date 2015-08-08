@@ -22,6 +22,8 @@ set(SOURCE
 	mesh.h
 	func.cpp
 	func.h
+	point.cpp
+	point.h
 	
 	deriv.h
 	impl/deriv_impl.h

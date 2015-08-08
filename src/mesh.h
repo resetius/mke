@@ -50,6 +50,7 @@
 #include "polynom.h"
 #include "linal.h"
 #include "func.h"
+#include "point.h"
 
 /**
  * @namespace phelm
@@ -63,96 +64,6 @@ namespace phelm
  * @defgroup main Mesh and mesh functions.
  * @{
  */
-
-/**
- * The Point class represents a 2-dimensional point on a plane.
- */
-struct Point
-{
-	double x; ///< x coordinate
-	double y; ///< y coordinate
-	double z; ///< z coordinate
-
-	/** Default constructor. */
-	Point() : x (0), y (0), z(0) {}
-	/**
-	 * The initialization of x1 and y1.
-	 * @param x1 - x coordinate
-	 * @param y1 - y coordinate
-	 * @param z1 - z coordinate
-	 */
-	Point (double x1, double y1, double z1 = 0) : x (x1), y (y1), z(z1) {}
-
-	Point(double * p, int size) {
-		if (size >= 1) {
-			x = p[0];
-		}
-		if (size >= 2) {
-			y = p[1];
-		}
-		if (size >= 3) {
-			z = p[2];
-		}
-	}
-
-	void print(FILE * f = stdout) const;
-	double len() const;
-	/**
-	 * counterclockwise rotation about the positive z-axis by angle a
-	 */
-	Point rotate_x(double a) const;
-	Point rotate_y(double a) const;
-	Point rotate_z(double a) const;
-};
-
-double scalar(const Point & a, const Point & b);
-
-/**
-* Divide each coordinate by k.
-* @param k - a number
-* @return the new point
-*/
-inline Point operator / (const Point & a, double k)
-{
-	return Point(a.x / k, a.y / k, a.z / k);
-}
-
-/**
-* Multiply each coordinate by k.
-* @param k - a number
-* @return new point
-*/
-inline Point operator * (const Point & a, double k)
-{
-	return Point(a.x * k, a.y * k, a.z * k);
-}
-
-inline Point operator * (const Point & a, const Point & b)
-{
-	return Point(
-		a.z*b.y - a.y*b.z,
-		a.x*b.z - a.z*b.x,
-		a.y*b.x - a.x*b.y
-		);
-}
-
-/**
-* Sum of two points.
-* @relates Point
-* @param p1 - input point
-* @param p2 - input point
-* @return p1 + p2
-*/
-
-inline Point operator + (const Point & a, const Point & b)
-{
-	return Point(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-inline Point operator - (const Point & a, const Point & b)
-{
-	return Point(a.x - b.x, a.y - b.y, a.z - b.z);
-}
 
 /**
  * A point of a manifold can be included into multiple subdomains.

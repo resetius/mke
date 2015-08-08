@@ -184,6 +184,11 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	std::vector<NewElem> r;
 	FuncPtr X1(new Symb("x1"));
 	FuncPtr Y1(new Symb("y1"));
+	FuncPtr Z1(new Symb("z1"));
+
+	FuncPtr X(new Symb("x"));
+	FuncPtr Y(new Symb("y"));
+	FuncPtr Z(new Symb("z"));
 
 	NewElem e0, e1, e2;
 	Point p0 = ps[p[0]].pr;
@@ -199,9 +204,19 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	double b =  sign(n.x*n.z)*acos(cosb);
 	n = n.rotate_y(b);
 
-	p0 = p0.rotate_z(a).rotate_y(b);
-	p1 = p1.rotate_z(a).rotate_y(b);
-	p2 = p2.rotate_z(a).rotate_y(b);
+	Matrix m;
+	m.rotate_z(a);
+	m.rotate_y(b);
+
+	Matrix m1;
+	m1.rotate_y(-b);
+	m1.rotate_z(-a);
+
+	p0 = p0.apply(m);
+	p1 = p1.apply(m);
+	p2 = p2.apply(m);
+
+	double zdiff = - p0.z;
 	
 	e0.f =
 		(X1 - p1.x) * (p2.y - p1.y) -
@@ -215,48 +230,15 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 		(X1 - p0.x) * (p1.y - p0.y) - 
 		(Y1 - p0.y) * (p1.x - p0.x);
 
+	e0.h1.h1x = m.m[0][0] * X + m.m[0][1] * Y + m.m[0][2] * Z;
+	e0.h1.h1y = m.m[1][0] * X + m.m[1][1] * Y + m.m[1][2] * Z;
+	e0.h1.h1z = m.m[2][0] * X + m.m[2][1] * Y + m.m[2][2] * Z + zdiff;
+	e2.h1 = e1.h1 = e0.h1;
+
+	e0.h.hx = m1.m[0][0] * X1 + m1.m[0][1] * Y1 + m1.m[0][2] * Z1;
+	e0.h.hy = m1.m[1][0] * X1 + m1.m[1][1] * Y1 + m1.m[1][2] * Z1;
+	e0.h.hz = m1.m[2][0] * X1 + m1.m[2][1] * Y1 + m1.m[2][2] * Z1 - zdiff;
+	e2.h = e1.h = e0.h;
 
 	return r;
-}
-
-void Point::print(FILE * f) const {
-	fprintf(f, "[%lf, %lf, %lf]\n", x, y, z);
-}
-
-double Point::len() const {
-	return sqrt(scalar(*this, *this));
-}
-
-Point Point::rotate_x(double a) const {
-	double sina = sin(a);
-	double cosa = cos(a);
-	return Point(
-		x,
-		y * cosa - z * sina,
-		y * sina + z * cosa
-		);
-}
-
-Point Point::rotate_y(double a) const {
-	double sina = sin(a);
-	double cosa = cos(a);
-	return Point(
-		x * cosa - z * sina,
-		y,
-		x * sina + z * cosa
-		);
-}
-
-Point Point::rotate_z(double a) const {
-	double sina = sin(a);
-	double cosa = cos(a);
-	return Point(
-		x * cosa - y * sina,
-		x * sina + y * cosa,
-		z
-		);
-}
-
-double phelm::scalar(const Point & a, const Point & b) {
-	return a.x*b.x + a.y*b.y + a.z*b.z;
 }

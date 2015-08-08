@@ -2,8 +2,10 @@
 
 #include <assert.h>
 #include "mesh_builder.h"
+#include "point.h"
 
 using namespace std;
+using phelm::Matrix;
 
 static double sign(double a) {
 	if (a < 0) {
@@ -33,6 +35,7 @@ static void rotate_tr(const Triangle &tr, vector<Point> & ps)
 	// 0    1  0
 	// sinb 0  cosb
 	
+	Matrix m;
 	Point rn = n;
 	double a = -sign(rn.x*rn.y)*acos(cosa);
 	rn = rn.rotate_z(a); // -> move to (x,z)
@@ -46,9 +49,17 @@ static void rotate_tr(const Triangle &tr, vector<Point> & ps)
 	assert(fabs(rn.y) < 1e-10);
 	assert(fabs(rn.z*rn.z - 1.0) < 1e-10);
 
+	m.rotate_z(a);
+	m.rotate_y(b);
+
+	Point rn2 = n.apply(m);
+
 	fprintf(stdout, ">\n");
 	n.print();
 	rn.print();
+	rn2.print();
+
+	assert((rn2 - rn).len() < 1e-15);
 
 	vector<Point> trps(3);
 	vector<Point> rtrps(3);
