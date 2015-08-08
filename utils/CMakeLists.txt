@@ -20,6 +20,8 @@ add_executable(mke_mesh_rectangle rectangle.cpp)
 add_executable(mke_topo30_mesh srtm2mesh.cpp)
 add_executable(mke_dump_operator_matrix dump_operator_matrix.cpp)
 
+target_compile_features(mesh_builder PUBLIC cxx_range_for)
+
 target_link_libraries(mke_mesh_sphere mesh_builder)
 target_link_libraries(mke_mesh_rectangle mesh_builder)
 target_link_libraries(mke_dump_operator_matrix phelm ${LINAL_LIBS})

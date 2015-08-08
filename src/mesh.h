@@ -49,6 +49,7 @@
 
 #include "polynom.h"
 #include "linal.h"
+#include "func.h"
 
 /**
  * @namespace phelm
@@ -246,7 +247,50 @@ struct Triangle
 
 	const std::vector < MeshPoint > & ps;
 
-	mutable std::vector < basis_t > phik; ///< basis functions in zone 
+	mutable std::vector < basis_t > phik; ///< basis functions in zone 	
+
+	struct NewElem {
+		// f(x1, y1, z1), z1 = 0
+		FuncPtr f;
+
+		// h, h1 depends on triangle normale
+		struct {
+			// x1<-(x, y, z)
+			FuncPtr hx;
+			// y1<-(x, y, z)
+			FuncPtr hy;
+			// z1<-(x, y, z)
+			FuncPtr hz;
+		} h;
+		
+		struct {
+			// x<-(x1, y1, z1)
+			FuncPtr h1x;
+			// y<-(x1, y1, z1)
+			FuncPtr h1y;
+			// z<-(x1, y1, z1)
+			FuncPtr h1z;
+		} h1;
+
+		// g, g1 depends on zone
+		struct {
+			// x<-(phi, la)
+			FuncPtr gx;
+			// y<-(phi, la)
+			FuncPtr gy;
+			// z<-(phi, la)
+			FuncPtr gz;
+		} g;
+
+		struct {
+			// phi<-(x, y, z)
+			FuncPtr g1phi;
+			// la<-(x, y, z)
+			FuncPtr g1la;
+		} g1;
+	};
+
+	mutable std::vector < std::vector<NewElem> > newphi;
 
 	/**
 	 * Initialization of point numbers and subdomain number.
@@ -321,25 +365,14 @@ private:
 	 * @param ps - mesh points
 	 */
 	basis_t prepare_basis(int z) const;
+	std::vector<NewElem> prepare_new_basis(int z) const;
 
 public:
-	int point_number (int p1) const
-	{
-		if (p1 == p[0])
-		{
-			return 0;
-		}
-		else if (p1 == p[1])
-		{
-			return 1;
-		}
-		else if (p1 == p[2])
-		{
-			return 2;
-		}
-		abort();
-		return -1;
-	}
+	/**
+	 * Returns triangle's vertex number (0,1,2)
+	 * @param p1 - mesh point number
+	 */
+	int point_number(int p1) const;
 
 	/**
 	 * Returns first order finite elements.
@@ -353,6 +386,9 @@ public:
 	 * @return finite element
 	 */
 	const Polynom & elem1(int p1, int zone) const;
+
+	const NewElem & new_elem1(int p1, int zone) const;
+	std::vector<NewElem> new_elem1(int zone) const;
 };
 
 using namespace linal;

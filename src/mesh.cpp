@@ -46,6 +46,25 @@
 
 using namespace phelm;
 
+int Triangle::point_number(int p1) const
+{
+	if (p1 == p[0])
+	{
+		return 0;
+	}
+	else if (p1 == p[1])
+	{
+		return 1;
+	}
+	else if (p1 == p[2])
+	{
+		return 2;
+	}
+	abort();
+	return -1;
+}
+
+
 const Triangle::basis_t & Triangle::elem1(int zone) const
 {
 	if (zone < 0) {
@@ -111,6 +130,92 @@ Triangle::basis_t Triangle::prepare_basis(int z) const
 	x[2] = X (2, ps);
 	y[2] = Y (2, ps);
 	*/
+	return r;
+}
+
+const Triangle::NewElem & Triangle::new_elem1(int p1, int zone) const
+{
+	auto & phik = new_elem1(zone);
+
+	if (p1 == p[0])
+	{
+		return phik[0];
+	}
+	else if (p1 == p[1])
+	{
+		return phik[1];
+	}
+	else if (p1 == p[2])
+	{
+		return phik[2];
+	}
+	abort();
+	return *((NewElem*)0);
+}
+
+std::vector<Triangle::NewElem> Triangle::new_elem1(int zone) const
+{
+	if (zone < 0) {
+		zone = z;
+	}
+
+	if ((int)newphi.size() < zone + 1) {
+		newphi.resize((size_t)(zone + 1));
+	}
+
+	if (newphi[zone].empty()) {
+		newphi[zone] = prepare_new_basis(zone);
+	}
+
+	return newphi[zone];
+}
+
+static double sign(double a) {
+	if (a < 0) {
+		return -1;
+	}
+	else {
+		return 1;
+	}
+}
+
+std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
+{
+	std::vector<NewElem> r;
+	FuncPtr X1(new Symb("x1"));
+	FuncPtr Y1(new Symb("y1"));
+
+	NewElem e0, e1, e2;
+	Point p0 = ps[p[0]].pr;
+	Point p1 = ps[p[1]].pr;
+	Point p2 = ps[p[2]].pr;
+
+	Point n = (p0 - p1) * (p0 - p2);
+	n = n / n.len();
+	double cosa = fabs(n.x) / sqrt(n.x*n.x + n.y*n.y);
+	double cosb = fabs(n.z);
+	double a = -sign(n.x*n.y)*acos(cosa);
+	n = n.rotate_z(a);
+	double b =  sign(n.x*n.z)*acos(cosb);
+	n = n.rotate_y(b);
+
+	p0 = p0.rotate_z(a).rotate_y(b);
+	p1 = p1.rotate_z(a).rotate_y(b);
+	p2 = p2.rotate_z(a).rotate_y(b);
+	
+	e0.f =
+		(X1 - p1.x) * (p2.y - p1.y) -
+		(Y1 - p1.y) * (p2.x - p1.x);
+	
+	e1.f = 
+		(X1 - p0.x) * (p2.y - p0.y) - 
+		(Y1 - p0.y) * (p2.x - p0.x);
+
+	e2.f = 
+		(X1 - p0.x) * (p1.y - p0.y) - 
+		(Y1 - p0.y) * (p1.x - p0.x);
+
+
 	return r;
 }
 
