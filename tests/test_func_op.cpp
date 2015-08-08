@@ -19,8 +19,24 @@ static void test_tr(const Triangle &tr, vector<Point> & ps)
 	FuncPtr X(new Symb("x"));
 	FuncPtr Y(new Symb("y"));
 	FuncPtr p0 =
-		(X - ps[tr.v2].x) *(ps[tr.v3].y - ps[tr.v2].y) -
+		(X - ps[tr.v2].x) * (ps[tr.v3].y - ps[tr.v2].y) -
 		(Y - ps[tr.v2].y) * (ps[tr.v3].x - ps[tr.v2].x);
+
+	FuncPtr p1 =
+		(X - ps[tr.v1].x) * (ps[tr.v3].y - ps[tr.v1].y) -
+		(Y - ps[tr.v1].y) * (ps[tr.v3].x - ps[tr.v1].x);
+
+	FuncPtr p2 =
+		(X - ps[tr.v1].x) * (ps[tr.v2].y - ps[tr.v1].y) -
+		(Y - ps[tr.v1].y) * (ps[tr.v2].x - ps[tr.v1].x);
+
+	p0->bind_args({ "x", "y" });
+	p1->bind_args({ "x", "y" });
+	p2->bind_args({ "x", "y" });
+	p0 = p0 * p0->apply({ ps[tr.v1].x, ps[tr.v1].y });
+	p1 = p1 * p1->apply({ ps[tr.v2].x, ps[tr.v2].y });
+	p2 = p2 * p2->apply({ ps[tr.v3].x, ps[tr.v3].y });
+
 	p0->print();
 	printf("\n\n");
 	FuncPtr x1 = FuncPtr(new Cos(phi))*FuncPtr(new Cos(la));

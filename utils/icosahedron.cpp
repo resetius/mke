@@ -1,6 +1,6 @@
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2015 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -302,7 +302,7 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 		 * y = cos u sin v
 		 * z = sin u
 		 */
-		fprintf(f, "%.16lf %.16lf %.16lf\n", x, y, z);
+		fprintf(f, "%.16lf %.16lf %.16lf", x, y, z);
 
 		if (local) {
 			double u_ = u(x, y, z), v_ = v(x, y, z);
@@ -322,10 +322,9 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 				u_ = u(x, z, -y);
 				v_ = v(x, z, -y);
 				fprintf(f, " ; %.16lf %.16lf ", u_, v_);
-			}
-
-			fprintf(f, "\n");
+			}			
 		}
+		fprintf(f, "\n");
 	}
 	fprintf(f, "# triangles %lu \n", mesh.size());
 

@@ -46,6 +46,7 @@ add_library(phelm
 	${SOURCE}
 	proj.cpp
 	)
+target_compile_features(phelm PUBLIC cxx_range_for)
 
 if (CUDA_FOUND)
 cuda_add_library(phelm_cu

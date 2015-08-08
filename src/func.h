@@ -43,6 +43,8 @@
 #include <memory>
 #include <functional>
 #include <stdio.h>
+#include <vector>
+#include <initializer_list>
 
 namespace phelm {
 
@@ -51,6 +53,7 @@ typedef std::shared_ptr<Func> FuncPtr;
 typedef std::map<std::string, FuncPtr> vars_t;
 
 class Func : public std::enable_shared_from_this<Func> {
+	std::vector<std::string> args;
 public:
 	virtual ~Func() {}
 	virtual FuncPtr apply(const vars_t & vars) = 0;
@@ -63,6 +66,13 @@ public:
 	double value() const {
 		return (double)*this;
 	}
+
+	void bind_args(std::initializer_list<std::string> a) {
+		args.clear();
+		args.insert(args.end(), a.begin(), a.end());
+	}
+
+	FuncPtr apply(std::initializer_list<double> a);
 
 	virtual void print(FILE * f = stdout) const = 0;
 	virtual bool has_symb(const std::string & symb) const = 0;

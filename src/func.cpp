@@ -35,9 +35,20 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <math.h>
 #include "func.h"
 
 using namespace phelm;
+
+FuncPtr Func::apply(std::initializer_list<double> a) {
+	std::vector<double> values;
+	values.insert(values.end(), a.begin(), a.end());
+	vars_t vars;
+	for (int i = 0; i < (int)args.size() && i < (int)values.size(); i++) {
+		vars[args[i]] = FuncPtr(new Const(values[i]));
+	}
+	return apply(vars);
+}
 
 FuncPtr Symb::apply(const vars_t & vars) {
 	vars_t::const_iterator it = vars.find(name);
