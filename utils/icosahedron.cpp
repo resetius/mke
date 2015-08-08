@@ -99,7 +99,7 @@ void build_test2(vector < Triangle > & r, vector < Point > & p)
 	}
 
 	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
+		p.push_back(Point(points[i], 3));
 	}
 }
 
@@ -140,7 +140,7 @@ void build_hemisphere(vector < Triangle > & r, vector < Point > & p)
 	}
 
 	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
+		p.push_back(Point(points[i], 3));
 	}
 }
 
@@ -178,7 +178,7 @@ void build_test(vector < Triangle > & r, vector < Point > & p)
 	}
 
 	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
+		p.push_back(Point(points[i], 3));
 	}
 }
 
@@ -213,7 +213,7 @@ void build_test5(vector < Triangle > & r, vector < Point > & p)
 	}
 
 	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
+		p.push_back(Point(points[i], 3));
 	}
 }
 

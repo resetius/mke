@@ -179,7 +179,7 @@ bool Mesh::load (FILE * f)
 			int i = sscanf(str, "%lf%lf%lf", &x, &y, &z);
 			switch (i) {
 			case 3:
-				p.pr = Point3(x, y, z);
+				p.pr = Point(x, y, z);
 				pr_isset = true;
 				break;
 			case 2:
@@ -191,7 +191,7 @@ bool Mesh::load (FILE * f)
 		}
 
 		if (!pr_isset) {
-			p.pr = Point3(p.x(0), p.y(0), 0);
+			p.pr = Point(p.x(0), p.y(0), 0);
 		}
 
 		ps.push_back (p);

@@ -113,3 +113,45 @@ Triangle::basis_t Triangle::prepare_basis(int z) const
 	*/
 	return r;
 }
+
+void Point::print(FILE * f) const {
+	fprintf(f, "[%lf, %lf, %lf]\n", x, y, z);
+}
+
+double Point::len() const {
+	return sqrt(scalar(*this, *this));
+}
+
+Point Point::rotate_x(double a) const {
+	double sina = sin(a);
+	double cosa = cos(a);
+	return Point(
+		x,
+		y * cosa - z * sina,
+		y * sina + z * cosa
+		);
+}
+
+Point Point::rotate_y(double a) const {
+	double sina = sin(a);
+	double cosa = cos(a);
+	return Point(
+		x * cosa - z * sina,
+		y,
+		x * sina + z * cosa
+		);
+}
+
+Point Point::rotate_z(double a) const {
+	double sina = sin(a);
+	double cosa = cos(a);
+	return Point(
+		x * cosa - y * sina,
+		x * sina + y * cosa,
+		z
+		);
+}
+
+double phelm::scalar(const Point & a, const Point & b) {
+	return a.x*b.x + a.y*b.y + a.z*b.z;
+}

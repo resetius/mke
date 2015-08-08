@@ -108,7 +108,7 @@ void build_icosahedron(vector < Triangle > & r, vector < Point > & p)
 	}
 
 	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
+		p.push_back(Point(points[i], 3));
 	}
 }
 

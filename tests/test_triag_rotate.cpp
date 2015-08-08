@@ -18,7 +18,7 @@ void rotate_tr(const Triangle &tr, vector<Point> & ps)
 {
 	// единичная нормаль
 	Point n = (ps[tr.v1] - ps[tr.v2]) * (ps[tr.v1] - ps[tr.v3]);
-	n = n / n.abs();
+	n = n / n.len();
 
 	// углы в плоскости (x, y)
 	double cosa = fabs(n.x) / sqrt(n.x*n.x + n.y*n.y);
@@ -36,7 +36,7 @@ void rotate_tr(const Triangle &tr, vector<Point> & ps)
 	Point rn = n;
 	double a = -sign(rn.x*rn.y)*acos(cosa);
 	rn = rn.rotate_z(a); // -> move to (x,z)
-	double s = rn.scalar(Point(0, 1, 0));
+	double s = scalar(rn, Point(0, 1, 0));
 	assert(s < 1e-10);
 
 	double b =  sign(rn.x*rn.z)*acos(cosb);

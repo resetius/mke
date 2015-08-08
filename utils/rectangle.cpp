@@ -70,7 +70,7 @@ void build_rectangle(double x, double y, double w, double h, vector < Triangle >
 	}
 
 	for (i = 0; i < v; ++i) {
-		p.push_back(points[i]);
+		p.push_back(Point(points[i], 3));
 	}
 }
 
