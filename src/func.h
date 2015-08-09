@@ -73,6 +73,7 @@ public:
 	}
 
 	FuncPtr apply(std::initializer_list<double> a);
+	FuncPtr apply(std::initializer_list<FuncPtr> a);
 
 	virtual void print(FILE * f = stdout) const = 0;
 	virtual bool has_symb(const std::string & symb) const = 0;
@@ -91,7 +92,7 @@ public:
 		return value;
 	}
 	void print(FILE * f) const {
-		fprintf(f, "%lf", value);
+		fprintf(f, "%le", value);
 	}
 	bool has_symb(const std::string & symb) const {
 		return false;
@@ -288,19 +289,19 @@ public:
 FuncPtr operator ^ (const FuncPtr & a, int n);
 
 inline FuncPtr operator * (const FuncPtr & a, double b) {
-	return FuncPtr(new Mul(a, FuncPtr(new Const(b))));
+	return a * FuncPtr(new Const(b));
 }
 
 inline FuncPtr operator * (double b, const FuncPtr & a) {
-	return FuncPtr(new Mul(a, FuncPtr(new Const(b))));
+	return FuncPtr(new Const(b)) * a;
 }
 
 inline FuncPtr operator + (const FuncPtr & a, double b) {
-	return FuncPtr(new Add(a, FuncPtr(new Const(b))));
+	return a + FuncPtr(new Const(b));
 }
 
 inline FuncPtr operator - (const FuncPtr & a, double b) {
-	return FuncPtr(new Sub(a, FuncPtr(new Const(b))));
+	return a - FuncPtr(new Const(b));
 }
 
 }

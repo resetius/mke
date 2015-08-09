@@ -534,15 +534,15 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 		(X1 - p0.x) * (p1.y - p0.y) - 
 		(Y1 - p0.y) * (p1.x - p0.x);
 
-	e0.h1.h1x = m.m[0][0] * X + m.m[0][1] * Y + m.m[0][2] * Z;
-	e0.h1.h1y = m.m[1][0] * X + m.m[1][1] * Y + m.m[1][2] * Z;
-	e0.h1.h1z = m.m[2][0] * X + m.m[2][1] * Y + m.m[2][2] * Z + zdiff;
-	e2.h1 = e1.h1 = e0.h1;
-
-	e0.h.hx = m1.m[0][0] * X1 + m1.m[0][1] * Y1 + m1.m[0][2] * Z1;
-	e0.h.hy = m1.m[1][0] * X1 + m1.m[1][1] * Y1 + m1.m[1][2] * Z1;
-	e0.h.hz = m1.m[2][0] * X1 + m1.m[2][1] * Y1 + m1.m[2][2] * Z1 - zdiff;
+	e0.h.hx = m.m[0][0] * X + m.m[0][1] * Y + m.m[0][2] * Z;
+	e0.h.hy = m.m[1][0] * X + m.m[1][1] * Y + m.m[1][2] * Z;
+	e0.h.hz = m.m[2][0] * X + m.m[2][1] * Y + m.m[2][2] * Z + zdiff;
 	e2.h = e1.h = e0.h;
+
+	e0.h1.h1x = m1.m[0][0] * X1 + m1.m[0][1] * Y1 + m1.m[0][2] * Z1;
+	e0.h1.h1y = m1.m[1][0] * X1 + m1.m[1][1] * Y1 + m1.m[1][2] * Z1;
+	e0.h1.h1z = m1.m[2][0] * X1 + m1.m[2][1] * Y1 + m1.m[2][2] * Z1 - zdiff;
+	e2.h1 = e1.h1 = e0.h1;
 
 	e0.g.gx = e1.g.gx = e2.g.gx = convs[z].g.gx;
 	e0.g.gy = e1.g.gy = e2.g.gy = convs[z].g.gy;

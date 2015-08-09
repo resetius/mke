@@ -23,7 +23,26 @@ static double id_cb(const Triangle::NewElem & phi_i,
 	FuncPtr f = phi_i.f * phi_j.f;
 	f->print();
 	printf(" <- \n\n");
-	exit(0);
+	/*
+	printf(" conv h:\n");
+	phi_i.h.hx->print(); printf("{:\n");
+	phi_i.h.hy->print(); printf("{:\n");
+	phi_i.h.hz->print(); printf("{:\n");
+	*/
+
+	f->bind_args({ "x1", "y1", "z1" });
+	FuncPtr fh = f->apply({ phi_i.h.hx, phi_i.h.hy, phi_i.h.hz });
+	fh->print();
+	printf(" <<- \n\n");
+	fh->bind_args({ "x", "y", "z" });
+	FuncPtr gfh = fh->apply({ phi_i.g.gx, phi_i.g.gy, phi_i.g.gz });
+	gfh->print();
+	printf(" <<- \n\n");
+
+	FuncPtr Dgfh = gfh->diff("u");
+	Dgfh->print();
+	printf(" <<<- \n\n");
+
 	return 0.0;
 }
 
@@ -65,6 +84,8 @@ int test_new_slaplace(int argc, char * argv[])
 			fclose(f);
 		}
 	}
+
+	set_num_threads(1);
 
 	if (mesh.ps.empty())
 	{

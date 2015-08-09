@@ -50,6 +50,16 @@ FuncPtr Func::apply(std::initializer_list<double> a) {
 	return apply(vars);
 }
 
+FuncPtr Func::apply(std::initializer_list<FuncPtr> a) {
+	std::vector<FuncPtr> values;
+	values.insert(values.end(), a.begin(), a.end());
+	vars_t vars;
+	for (int i = 0; i < (int)args.size() && i < (int)values.size(); i++) {
+		vars[args[i]] = values[i];
+	}
+	return apply(vars);
+}
+
 FuncPtr Symb::apply(const vars_t & vars) {
 	vars_t::const_iterator it = vars.find(name);
 	if (it == vars.end()) {
@@ -64,7 +74,7 @@ FuncPtr BinOp::apply(const vars_t & vars) {
 	FuncPtr newa = a->apply(vars);
 	FuncPtr newb = b->apply(vars);
 
-	if (newa->has_value() && b->has_value()) {
+	if (newa->has_value() || newb->has_value()) {
 		return op(newa, newb);
 	}
 	else {
@@ -108,8 +118,8 @@ FuncPtr Sin::apply(const vars_t & vars) {
 
 FuncPtr Cos::diff(const std::string & symb) const {
 	if (a->has_symb(symb)) {
-		FuncPtr a(new Sin(a));
-		return a * -1.0;
+		FuncPtr t(new Sin(a));
+		return t * -1.0;
 	}
 	else {
 		return FuncPtr(new Const(0));
@@ -118,8 +128,8 @@ FuncPtr Cos::diff(const std::string & symb) const {
 
 FuncPtr Sin::diff(const std::string & symb) const {
 	if (a->has_symb(symb)) {
-		FuncPtr a(new Cos(a));
-		return a;
+		FuncPtr t(new Cos(a));
+		return t;
 	}
 	else {
 		return FuncPtr(new Const(0));
