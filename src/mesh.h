@@ -285,6 +285,21 @@ struct Triangle
 		return ps[p[i]].x (z);
 	}
 
+	double px(int i) const
+	{
+		return ps[p[i]].pr.x;
+	}
+
+	double py(int i) const
+	{
+		return ps[p[i]].pr.y;
+	}
+
+	double pz(int i) const
+	{
+		return ps[p[i]].pr.z;
+	}
+
 	/**
 	 * Returns vertex y coordinate.
 	 * @param i - vertex number (from 0 to 2)

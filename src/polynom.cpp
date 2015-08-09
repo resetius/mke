@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2015 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+
+#include <functional>
 
 #include "polynom.h"
 #include "phelm.h"
@@ -610,6 +612,28 @@ double integrate_generic (const Triangle & tr, int z, fxy_t f, void * data)
 	double x1 = tr.x(0, z), x2 = tr.x(1, z), x3 = tr.x(2, z);
 	double y1 = tr.y(0, z), y2 = tr.y(1, z), y3 = tr.y(2, z);
 	return cubature7 (x1, y1, x2, y2, x3, y3, f, data);
+}
+
+struct ff_data {
+	std::function<double(double, double)> f;
+};
+
+static double ff(double x, double y, void * d) {
+	ff_data * data = (ff_data*)d;
+	return data->f(x, y);
+}
+
+double integrate_generic_new(
+	const Triangle & tr, 
+	std::function<double(double, double)> f)
+{
+	double x1 = tr.px(0), x2 = tr.px(1), x3 = tr.px(2);
+	double y1 = tr.py(0), y2 = tr.py(1), y3 = tr.py(2);
+
+	ff_data data;
+	data.f = f;
+	double r = cubature7(x1, y1, x2, y2, x3, y3, ff, &data);
+	return r;
 }
 
 Polynom operator * (const Polynom &p1, const Polynom &p2)

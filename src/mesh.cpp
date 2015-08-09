@@ -537,16 +537,26 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	e0.h.hx = m.m[0][0] * X + m.m[0][1] * Y + m.m[0][2] * Z;
 	e0.h.hy = m.m[1][0] * X + m.m[1][1] * Y + m.m[1][2] * Z;
 	e0.h.hz = m.m[2][0] * X + m.m[2][1] * Y + m.m[2][2] * Z + zdiff;
+	e0.h.hx->bind_args({ "x", "y", "z" });
+	e0.h.hy->bind_args({ "x", "y", "z" });
+	e0.h.hz->bind_args({ "x", "y", "z" });
 	e2.h = e1.h = e0.h;
 
-	e0.h1.h1x = m1.m[0][0] * X1 + m1.m[0][1] * Y1 + m1.m[0][2] * Z1;
-	e0.h1.h1y = m1.m[1][0] * X1 + m1.m[1][1] * Y1 + m1.m[1][2] * Z1;
-	e0.h1.h1z = m1.m[2][0] * X1 + m1.m[2][1] * Y1 + m1.m[2][2] * Z1 - zdiff;
+	// TODO: check this transforms
+	e0.h1.h1x = m1.m[0][0] * X1 + m1.m[0][1] * Y1 + m1.m[0][2] * (Z1 - zdiff);
+	e0.h1.h1y = m1.m[1][0] * X1 + m1.m[1][1] * Y1 + m1.m[1][2] * (Z1 - zdiff);
+	e0.h1.h1z = m1.m[2][0] * X1 + m1.m[2][1] * Y1 + m1.m[2][2] * (Z1 - zdiff);
+	e0.h1.h1x->bind_args({ "x1", "y1", "z1" });
+	e0.h1.h1y->bind_args({ "x1", "y1", "z1" });
+	e0.h1.h1z->bind_args({ "x1", "y1", "z1" });
 	e2.h1 = e1.h1 = e0.h1;
 
 	e0.g.gx = e1.g.gx = e2.g.gx = convs[z].g.gx;
 	e0.g.gy = e1.g.gy = e2.g.gy = convs[z].g.gy;
 	e0.g.gz = e1.g.gz = e2.g.gz = convs[z].g.gz;
+
+	convs[z].g1.g1u->bind_args({ "x", "y", "z" });
+	convs[z].g1.g1v->bind_args({ "x", "y", "z" });
 
 	e0.g1.g1u = e1.g1.g1u = e2.g1.g1u = convs[z].g1.g1u;
 	e0.g1.g1v = e1.g1.g1v = e2.g1.g1v = convs[z].g1.g1v;
@@ -554,5 +564,11 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	r.push_back(e0);
 	r.push_back(e1);
 	r.push_back(e2);
+
+	for (int i = 0; i < 3; ++i) {
+		r[i].f->bind_args({ "x1", "y1" });
+		r[i].f = r[i].f * (1.0/r[i].f->apply({ ps[p[i]].pr.x, ps[p[i]].pr.y })->value());
+	}
+
 	return r;
 }
