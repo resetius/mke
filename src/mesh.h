@@ -145,6 +145,29 @@ struct MeshPoint
 	}
 };
 
+struct CoordConv {
+	std::string name;
+	// g, g1 depends on zone
+	struct {
+		// x<-(u, v)
+		FuncPtr gx;
+		// y<-(u, v)
+		FuncPtr gy;
+		// z<-(u, v)
+		FuncPtr gz;
+	} g;
+
+	struct {
+		// u<-(x, y, z)
+		FuncPtr g1u;
+		// v<-(x, y, z)
+		FuncPtr g1v;
+	} g1;
+};
+
+typedef std::vector < CoordConv > convs_t;
+extern convs_t std_id_convs;
+
 /**
  * Triangle class.
  */
@@ -157,6 +180,7 @@ struct Triangle
 	typedef std::vector < Polynom > basis_t;
 
 	const std::vector < MeshPoint > & ps;
+	const convs_t & convs;
 
 	mutable std::vector < basis_t > phik; ///< basis functions in zone 	
 
@@ -185,19 +209,19 @@ struct Triangle
 
 		// g, g1 depends on zone
 		struct {
-			// x<-(phi, la)
+			// x<-(u, v)
 			FuncPtr gx;
-			// y<-(phi, la)
+			// y<-(u, v)
 			FuncPtr gy;
-			// z<-(phi, la)
+			// z<-(u, v)
 			FuncPtr gz;
 		} g;
 
 		struct {
-			// phi<-(x, y, z)
-			FuncPtr g1phi;
-			// la<-(x, y, z)
-			FuncPtr g1la;
+			// u<-(x, y, z)
+			FuncPtr g1u;
+			// v<-(x, y, z)
+			FuncPtr g1v;
 		} g1;
 	};
 
@@ -213,10 +237,12 @@ struct Triangle
 	Triangle (
 		int p1, int p2, int p3, 
 		const std::vector < MeshPoint > & ps, 
+		const convs_t & convs = std_id_convs,
 		int zone = 0)
 		:
 		z (zone),
-		ps (ps)
+		ps (ps),
+		convs(convs)
 	{
 		p[0] = p1;
 		p[1] = p2;
@@ -227,6 +253,7 @@ struct Triangle
 	Triangle (const Triangle & other):
 		z(other.z),
 		ps(other.ps),
+		convs(other.convs),
 		phik(other.phik)
 	{
 		p[0] = other.p[0];
@@ -314,26 +341,8 @@ struct Mesh
 
 	triangles_t tr; ///<triangles array
 	points_t ps;    ///<points array
-
-	struct CoordConv {
-		std::string name;
-		// g, g1 depends on zone
-		struct {
-			// x<-(u, v)
-			FuncPtr gx;
-			// y<-(u, v)
-			FuncPtr gy;
-			// z<-(u, v)
-			FuncPtr gz;
-		} g;
-
-		struct {
-			// u<-(x, y, z)
-			FuncPtr g1u;
-			// v<-(x, y, z)
-			FuncPtr g1v;
-		} g1;
-	};
+	
+	convs_t convs;
 
 	bool is_regular(int i) const {
 		return ps[i].is_regular();

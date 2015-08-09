@@ -49,11 +49,12 @@
 using namespace phelm;
 using namespace std;
 
-static map<string, Mesh::CoordConv> std_convs;
+static map<string, CoordConv> std_convs;
+convs_t phelm::std_id_convs;
 
 static bool load_std_convs() {
 	{
-		Mesh::CoordConv id;
+		CoordConv id;
 		id.name = "id";
 		id.g.gx = FuncPtr(new Symb("u"));
 		id.g.gy = FuncPtr(new Symb("v"));
@@ -62,10 +63,13 @@ static bool load_std_convs() {
 		id.g1.g1u = FuncPtr(new Symb("x"));
 		id.g1.g1v = FuncPtr(new Symb("y"));
 		std_convs[id.name] = id;
+
+		std_id_convs.resize(1);
+		std_id_convs[0] = id;
 	}
 
 	{
-		Mesh::CoordConv stdsphere1;
+		CoordConv stdsphere1;
 
 		stdsphere1.name = "stdsphere1";
 
@@ -86,7 +90,7 @@ static bool load_std_convs() {
 	}
 
 	{
-		Mesh::CoordConv stdsphere2;
+		CoordConv stdsphere2;
 
 		stdsphere2.name = "stdsphere2";
 
@@ -107,7 +111,7 @@ static bool load_std_convs() {
 	}
 
 	{
-		Mesh::CoordConv stdsphere3;
+		CoordConv stdsphere3;
 
 		stdsphere3.name = "stdsphere3";
 
@@ -128,9 +132,9 @@ static bool load_std_convs() {
 	}
 
 	{
-		Mesh::CoordConv stdsphere4;
+		CoordConv stdsphere4;
 
-		stdsphere4.name = "stdsphere3";
+		stdsphere4.name = "stdsphere4";
 
 		FuncPtr x(new Symb("x"));
 		FuncPtr y(new Symb("y"));
@@ -152,6 +156,199 @@ static bool load_std_convs() {
 }
 
 static bool loaded = load_std_convs();
+
+bool Mesh::load(FILE * f)
+{
+	int size;
+	int lineno = 1;
+
+#define _BUF_SZ 32768
+	char s[_BUF_SZ];
+
+	fprintf(stderr, "#loading mesh ... \n");
+
+	fgets(s, _BUF_SZ - 1, f);
+	lineno++;
+
+	//skip comments
+	const char * predef = "#predef: zone";
+	do
+	{
+		if (strstr(s, predef) == s) {
+			int zone;
+			char name[32768];
+			if (sscanf(s + strlen(predef), "%d %s", &zone, name) == 2) {
+				fprintf(stderr, "#zone %d conv: '%s'\n", zone, name);
+				if (convs.size() < zone) {
+					convs.resize(zone);
+				}
+				if (std_convs.find(name) == std_convs.end()) {
+					fprintf(stderr, "#conv '%s' not found\n", name);
+					exit(-1);
+				}
+				convs[zone - 1] = std_convs[name];
+			}
+		}
+		if (*s != '#')
+		{
+			break;
+		}
+		lineno++;
+	} while (fgets(s, _BUF_SZ - 1, f));
+
+	// points
+	do
+	{
+		double x, y, z;
+		const char * sep = ";";
+		char * str;
+
+		if (*s == '#')
+			break;
+
+		MeshPoint p;
+		bool pr_isset = false;
+
+		for (str = strtok(s, sep); str; str = strtok(0, sep))
+		{
+			x = 0;
+			y = 0;
+
+			int i = sscanf(str, "%lf%lf%lf", &x, &y, &z);
+			switch (i) {
+			case 3:
+				p.pr = Point(x, y, z);
+				pr_isset = true;
+				break;
+			case 2:
+				p.add(Point(x, y));
+				break;
+			default:
+				abort();
+			}
+		}
+
+		if (!pr_isset) {
+			p.pr = Point(p.x(0), p.y(0), 0);
+		}
+
+		ps.push_back(p);
+		lineno++;
+	} while (fgets(s, _BUF_SZ - 1, f));
+
+	size = (int)ps.size();
+
+	if (!fgets(s, _BUF_SZ - 1, f))
+	{
+		goto bad;
+	}
+	lineno++;
+
+	// triangles
+	do
+	{
+		int n1, n2, n3, tid, z = 1;
+
+		if (*s == '#')
+			break;
+
+		if (sscanf(s, "%d%d%d ; %d", &n1, &n2, &n3, &z) < 3)
+		{
+			goto bad;
+		}
+
+		//так как индексы в файле с 1 а не с 0
+		--n1;
+		--n2;
+		--n3;
+		--z;
+		if (n1 >= size || n2 >= size || n3 >= size)
+		{
+			goto bad;
+		}
+
+		if (n1 < 0 || n1 < 0 || n3 < 0)
+		{
+			goto bad;
+		}
+
+		Triangle t(n1, n2, n3, ps, convs, z);
+		tid = (int)tr.size();
+		tr.push_back(t);
+		if ((int)adj.size() <= n1) adj.resize(n1 + 1);
+		if ((int)adj.size() <= n2) adj.resize(n2 + 1);
+		if ((int)adj.size() <= n3) adj.resize(n3 + 1);
+		adj[n1].push_back(tid);
+		adj[n2].push_back(tid);
+		adj[n3].push_back(tid);
+		lineno++;
+	} while (fgets(s, _BUF_SZ - 1, f));
+
+	if (!fgets(s, _BUF_SZ - 1, f))
+	{
+		goto make_inner;
+	}
+	lineno++;
+
+	// boundary
+	do
+	{
+		int n;
+		if (*s == '#')
+			break;
+
+		if (sscanf(s, "%d", &n) != 1)
+		{
+			goto bad;
+		}
+
+		--n;
+
+		if (n >= size || n < 0)
+		{
+			goto bad;
+		}
+
+		ps[n].flags = MeshPoint::POINT_BOUNDARY;
+		lineno++;
+	} while (fgets(s, _BUF_SZ - 1, f));
+
+make_inner:
+	fprintf(stderr, "#done ... \n");
+	fprintf(stderr, "#preparing mesh ... \n");
+	inner.reserve(ps.size());
+	outer.reserve(ps.size());
+	p2io.resize(ps.size());
+
+	for (uint i = 0; i < ps.size(); ++i)
+	{
+		if (ps[i].is_regular())
+		{
+			p2io[i] = (int)inner.size();
+			inner.push_back(i);
+		}
+		else if (ps[i].is_boundary())
+		{
+			p2io[i] = (int)outer.size();
+			outer.push_back(i);
+		}
+		else
+		{
+			abort();
+		}
+	}
+
+	prepare();
+	fprintf(stderr, "#done ... \n");
+
+	return true;
+
+bad:
+	{
+		fprintf(stderr, "#bad file format, line = %d\n", lineno);
+		return false;
+	}
+}
 
 int Triangle::point_number(int p1) const
 {
@@ -346,6 +543,13 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	e0.h.hy = m1.m[1][0] * X1 + m1.m[1][1] * Y1 + m1.m[1][2] * Z1;
 	e0.h.hz = m1.m[2][0] * X1 + m1.m[2][1] * Y1 + m1.m[2][2] * Z1 - zdiff;
 	e2.h = e1.h = e0.h;
+
+	e0.g.gx = e1.g.gx = e2.g.gx = convs[z].g.gx;
+	e0.g.gy = e1.g.gy = e2.g.gy = convs[z].g.gy;
+	e0.g.gz = e1.g.gz = e2.g.gz = convs[z].g.gz;
+
+	e0.g1.g1u = e1.g1.g1u = e2.g1.g1u = convs[z].g1.g1u;
+	e0.g1.g1v = e1.g1.g1v = e2.g1.g1v = convs[z].g1.g1v;
 
 	return r;
 }
