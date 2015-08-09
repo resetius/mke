@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "phelm.h"
+#include "norm.h"
 
 using namespace phelm;
 
@@ -125,19 +126,90 @@ static double integrate_cb(const Triangle::NewElem & phi_i,
 	return r1+r2;
 }
 
+static double func_lapl(double x, double y)
+{
+	//return -6.0 * sin(y) * sin(2.0 * x);
+
+	double sx = sin(x);
+	double cx = cos(x);
+	double sy = sin(y);
+	double cy = cos(y);
+
+	double ans = 0.0;
+
+	ans += (sx * sx * (cx * cy - 1) * cy);
+	ans += -(cx * cy - 1) * cy;
+	ans += -2 * sx * (cx * cy - sx) * (-sx * cy - cx);
+	ans += -2 * (cx * cy - sx) * cy;
+	if (fabs(ans) > 1e-15)
+	{
+		ans /= cx;
+	}
+
+	ans += sx * sx * cy * cy;
+	ans += -cx * (cx * cy - 1) * cy;
+	ans += sy * sy;
+	ans += 2 * ipow(-sx * cy - cx, 2);
+	ans += 2 * (cx * cy - sx) * (-cx * cy + sx);
+	ans += 2 * sy * sy;
+	ans += -8 * (sx - 3.0) * sx + 4.0 * cx * cx;
+	return ans;
+}
+
+static double func(double x, double y)
+{
+	//return sin(y) * sin(2.0 * x);
+
+	double sx = sin(x);
+	double cx = cos(x);
+	//double sy = sin(y);
+	double cy = cos(y);
+
+	return 0.5 * ipow(cx * cy - 1.0, 2) +
+		ipow(cx * cy - sx, 2) +
+		2.0 * ipow(sx - 3, 2);
+}
+
 void test_laplace(const Mesh & mesh)
 {
 	typedef phelm::Solver<double> Matrix;
 	Matrix idt(mesh.inner_size);
 	Matrix laplace(mesh.inner_size);
+	Matrix bnd3(mesh.inner_size);
 
 	new_generate_matrix(idt, mesh, id_cb, (void*)0);
-
 	new_generate_matrix(laplace, mesh, integrate_cb, (void*)0);
+	new_generate_boundary_matrix(bnd3, mesh, integrate_cb, (void*)0);
 
-	laplace.print(stdout);
+	std::vector<double> U(mesh.size);
+	std::vector<double> LU(mesh.size);
+	std::vector<double> LU1(mesh.size);
+	std::vector<double> tLU1(mesh.inner_size);
+	std::vector<double> B1(std::max(mesh.outer_size, 1));
+
+	proj(&U[0], mesh, func);
+	proj(&LU[0], mesh, func_lapl);
+	proj_bnd(&B1[0], mesh, func_lapl);
+
+	std::vector<double> in(mesh.inner_size);
+	std::vector<double> out(mesh.inner_size);
+	std::vector<double> tmp(mesh.outer_size);
+	u2p(&in[0], &U[0], mesh);
+	proj_bnd(&tmp[0], &U[0], mesh);
+	laplace.mult_vector(&out[0], &in[0]);
+	bnd3.mult_vector(&in[0], &tmp[0]);
+	vec_sum(&out[0], &out[0], &in[0], (int)in.size());
+	idt.solve(&tLU1[0], &out[0]);
+	p2u(&LU1[0], &tLU1[0], &B1[0], mesh);
+
+	SphereNorm<double> nr(mesh);
+
+	fprintf(stdout, "L2: laplace err=%.2le\n", (double)nr.dist(&LU[0], &LU1[0]));
+
+//	laplace.print(stdout);
 //	idt.print(stdout);
-	printf("\n\n");
+//	bnd3.print(stdout);
+//	printf("\n\n");
 }
 
 int test_new_slaplace(int argc, char * argv[])

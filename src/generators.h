@@ -420,6 +420,49 @@ void generate_boundary_matrix (Matrix & A, const Mesh & m,
 	}
 }
 
+template < typename Matrix, typename Functor, typename Data >
+void new_generate_boundary_matrix(Matrix & A, const Mesh & m,
+							  Functor right_part_cb,
+							  Data user_data,
+							  bool transpose = false)
+{
+	using namespace phelm_private_;
+	int os = (int)m.outer.size(); // размер границы
+	for (int j = 0; j < os; ++j)
+	{
+		// по внешним точкам
+		int p2 = m.outer[j];
+		int zone = m.tr[m.adj[p2][0]].z;
+
+		for (uint tk = 0; tk < m.adj[p2].size(); ++tk)
+		{
+			// по треугольникам в точке
+			int trk_j = m.adj[p2][tk];
+			const Triangle & trk = m.tr[trk_j];
+			const std::vector < Triangle::NewElem > & phik = trk.new_elem1(zone);
+			const Triangle::NewElem & phi_j = trk.new_elem1(p2, zone);
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
+				int p = m.tr[trk_j].p[i0];
+
+				if (m.is_boundary(p))
+				{
+					;
+				}
+				else
+				{
+					// p - внутренняя точка
+					int i = m.p2io[p];
+					mat_add(A, i, j,
+							right_part_cb(phik[i0], phi_j,
+							trk, zone, m, p, p2, i, j, user_data), transpose);
+				}
+			}
+		}
+	}
+}
+
 /**
  * Convolution.
  * @param ans - answer
