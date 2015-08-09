@@ -224,6 +224,69 @@ public:
 	FuncPtr diff(const std::string & symb) const;
 };
 
+class ASin : public Func {
+	FuncPtr a;
+public:
+	ASin(FuncPtr a) : a(a) {}
+
+	void print(FILE * f) const {
+		fprintf(f, "asin(");
+		a->print(f);
+		fprintf(f, ")");
+	}
+
+	bool has_symb(const std::string & symb) const {
+		return a->has_symb(symb);
+	}
+
+	FuncPtr apply(const vars_t & vars);
+	FuncPtr diff(const std::string & symb) const;
+};
+
+class ATan2 : public Func {
+	FuncPtr x;
+	FuncPtr y;
+public:
+	ATan2(FuncPtr x, FuncPtr y) : x(x), y(y) {}
+
+	void print(FILE * f) const {
+		fprintf(f, "atan2(");
+		x->print(f);
+		fprintf(f, ",");
+		y->print(f);
+		fprintf(f, ")");
+	}
+
+	bool has_symb(const std::string & symb) const {
+		return x->has_symb(symb) || y->has_symb(symb);
+	}
+
+	FuncPtr apply(const vars_t & vars);
+	FuncPtr diff(const std::string & symb) const;
+};
+
+class Pow : public Func {
+	FuncPtr a;
+	int n;
+public:
+	Pow(FuncPtr a, int n) : a(a), n(n) {}
+
+	void print(FILE * f) const {
+		fprintf(f, "(");
+		a->print(f);
+		fprintf(f, ")^%d", n);
+	}
+
+	bool has_symb(const std::string & symb) const {
+		return a->has_symb(symb);
+	}
+
+	FuncPtr apply(const vars_t & vars);
+	FuncPtr diff(const std::string & symb) const;
+};
+
+FuncPtr operator ^ (const FuncPtr & a, int n);
+
 inline FuncPtr operator * (const FuncPtr & a, double b) {
 	return FuncPtr(new Mul(a, FuncPtr(new Const(b))));
 }

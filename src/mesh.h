@@ -315,6 +315,26 @@ struct Mesh
 	triangles_t tr; ///<triangles array
 	points_t ps;    ///<points array
 
+	struct CoordConv {
+		std::string name;
+		// g, g1 depends on zone
+		struct {
+			// x<-(u, v)
+			FuncPtr gx;
+			// y<-(u, v)
+			FuncPtr gy;
+			// z<-(u, v)
+			FuncPtr gz;
+		} g;
+
+		struct {
+			// u<-(x, y, z)
+			FuncPtr g1u;
+			// v<-(x, y, z)
+			FuncPtr g1v;
+		} g1;
+	};
+
 	bool is_regular(int i) const {
 		return ps[i].is_regular();
 	}

@@ -280,6 +280,8 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 	if (local) {
 		fprintf(f, "# u = theta  [-pi/2, pi/2]\n"
 				"# v = lambda [0, 2pi]\n");
+		fprintf(f, "#predef: zone 1: stdsphere1\n");
+		fprintf(f, "#predef: zone 2: stdsphere2\n");
 		fprintf(f,
 				"# zone 1\n"
 				"# x = cos(u)*cos(v) \n"
@@ -290,6 +292,8 @@ void print_mesh(FILE * f, const vector < Triangle > & mesh,
 				"# y = -cos(u)*sin(v) \n"
 				"# z = sin(u) \n");
 		if (type == 0 || type == 1 || type == 4) {
+			fprintf(f, "#predef: zone 3: stdsphere3\n");
+			fprintf(f, "#predef: zone 4: stdsphere4\n");
 			fprintf(f,
 					"# zone 3\n"
 					"# x = cos(u)*cos(v) \n"

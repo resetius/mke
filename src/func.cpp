@@ -182,3 +182,81 @@ FuncPtr phelm::operator - (const FuncPtr & a, const FuncPtr & b) {
 	}
 	return FuncPtr(new Sub(a, b));
 }
+
+FuncPtr phelm::operator ^ (const FuncPtr & a, int n) {
+	if (n == 0) {
+		return FuncPtr(new Const(1));
+	}
+
+	if (n == 1) {
+		return a;
+	}
+
+	if (a->has_value()) {
+		double s = 1.0;
+		double v = a->value();
+
+		if (n < 0) {
+			for (int i = 0; i < -n; ++i) {
+				s /= v;
+			}
+		}
+		else {
+			for (int i = 0; i < n; ++i) {
+				s *= v;
+			}
+		}
+
+		return FuncPtr(new Const(v));
+	}
+
+	return FuncPtr(new Pow(a, n));
+}
+
+FuncPtr Pow::apply(const vars_t & vars) {
+	FuncPtr b = a->apply(vars);
+	if (b->has_value()) {
+		return b ^ n;
+	}
+	else {
+		return FuncPtr(new Pow(b, n));
+	}
+}
+
+FuncPtr Pow::diff(const std::string & symb) const {	
+	if (!has_symb(symb)) {
+		return FuncPtr(new Const(0));
+	}
+	else {
+		return (double)n * a->diff(symb) * a ^ (n - 1);
+	}
+}
+
+FuncPtr ASin::apply(const vars_t & vars) {
+	FuncPtr newa = a->apply(vars);
+	if (newa->has_value()) {
+		return FuncPtr(new Const(asin(newa->value())));
+	}
+	else {
+		return FuncPtr(new ASin(newa));
+	}
+}
+
+FuncPtr ASin::diff(const std::string & symb) const {
+	throw std::runtime_error("not implemented");
+}
+
+FuncPtr ATan2::apply(const vars_t & vars) {
+	FuncPtr newx = x->apply(vars);
+	FuncPtr newy = y->apply(vars);
+	if (newx->has_value() && newy->has_value()) {
+		return FuncPtr(new Const(atan2(newx->value(), newy->value())));
+	}
+	else {
+		return FuncPtr(new ATan2(newx, newy));
+	}
+}
+
+FuncPtr ATan2::diff(const std::string & symb) const {
+	throw std::runtime_error("not implemented");
+}

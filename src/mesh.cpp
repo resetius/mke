@@ -42,9 +42,116 @@
  * @version $Revision$
  */
 
+#include <map>
+#include <string>
 #include "mesh.h"
 
 using namespace phelm;
+using namespace std;
+
+static map<string, Mesh::CoordConv> std_convs;
+
+static bool load_std_convs() {
+	{
+		Mesh::CoordConv id;
+		id.name = "id";
+		id.g.gx = FuncPtr(new Symb("u"));
+		id.g.gy = FuncPtr(new Symb("v"));
+		id.g.gz = FuncPtr(new Const(0));
+
+		id.g1.g1u = FuncPtr(new Symb("x"));
+		id.g1.g1v = FuncPtr(new Symb("y"));
+		std_convs[id.name] = id;
+	}
+
+	{
+		Mesh::CoordConv stdsphere1;
+
+		stdsphere1.name = "stdsphere1";
+
+		FuncPtr x(new Symb("x"));
+		FuncPtr y(new Symb("y"));
+		FuncPtr z(new Symb("z"));
+
+		FuncPtr u(new Symb("u"));
+		FuncPtr v(new Symb("v"));
+		stdsphere1.g.gx = FuncPtr(new Cos(u))*FuncPtr(new Cos(v));
+		stdsphere1.g.gy = FuncPtr(new Cos(u))*FuncPtr(new Sin(v));
+		stdsphere1.g.gz = FuncPtr(new Sin(u));
+
+		stdsphere1.g1.g1u = FuncPtr(new ASin(z));
+		stdsphere1.g1.g1v = FuncPtr(new ATan2(y, x));
+
+		std_convs[stdsphere1.name] = stdsphere1;
+	}
+
+	{
+		Mesh::CoordConv stdsphere2;
+
+		stdsphere2.name = "stdsphere2";
+
+		FuncPtr x(new Symb("x"));
+		FuncPtr y(new Symb("y"));
+		FuncPtr z(new Symb("z"));
+
+		FuncPtr u(new Symb("u"));
+		FuncPtr v(new Symb("v"));
+		stdsphere2.g.gx = FuncPtr(new Cos(u))*FuncPtr(new Cos(v))*-1.0;
+		stdsphere2.g.gy = FuncPtr(new Cos(u))*FuncPtr(new Sin(v))*-1.0;
+		stdsphere2.g.gz = FuncPtr(new Sin(u));
+
+		stdsphere2.g1.g1u = FuncPtr(new ASin(z));
+		stdsphere2.g1.g1v = FuncPtr(new ATan2(y, x));
+
+		std_convs[stdsphere2.name] = stdsphere2;
+	}
+
+	{
+		Mesh::CoordConv stdsphere3;
+
+		stdsphere3.name = "stdsphere3";
+
+		FuncPtr x(new Symb("x"));
+		FuncPtr y(new Symb("y"));
+		FuncPtr z(new Symb("z"));
+
+		FuncPtr u(new Symb("u"));
+		FuncPtr v(new Symb("v"));
+		stdsphere3.g.gx = FuncPtr(new Cos(u))*FuncPtr(new Cos(v));
+		stdsphere3.g.gy = FuncPtr(new Cos(u))*FuncPtr(new Sin(v));
+		stdsphere3.g.gz = FuncPtr(new Sin(u))*-1.0;
+
+		stdsphere3.g1.g1u = FuncPtr(new ASin(z))*-1.0;
+		stdsphere3.g1.g1v = FuncPtr(new ATan2(y, x));
+
+		std_convs[stdsphere3.name] = stdsphere3;
+	}
+
+	{
+		Mesh::CoordConv stdsphere4;
+
+		stdsphere4.name = "stdsphere3";
+
+		FuncPtr x(new Symb("x"));
+		FuncPtr y(new Symb("y"));
+		FuncPtr z(new Symb("z"));
+
+		FuncPtr u(new Symb("u"));
+		FuncPtr v(new Symb("v"));
+		stdsphere4.g.gx = FuncPtr(new Cos(u))*FuncPtr(new Cos(v));
+		stdsphere4.g.gy = FuncPtr(new Cos(u))*FuncPtr(new Sin(v))*-1.0;
+		stdsphere4.g.gz = FuncPtr(new Sin(u));
+
+		stdsphere4.g1.g1u = FuncPtr(new ASin(z));
+		stdsphere4.g1.g1v = FuncPtr(new ATan2(y, x))*-1.0;
+
+		std_convs[stdsphere4.name] = stdsphere4;
+	}
+
+	return true;
+}
+
+static bool loaded = load_std_convs();
 
 int Triangle::point_number(int p1) const
 {
