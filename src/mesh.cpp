@@ -439,7 +439,7 @@ Triangle::basis_t Triangle::prepare_basis(int z) const
 
 const Triangle::NewElem & Triangle::new_elem1(int p1, int zone) const
 {
-	auto phik = new_elem1(zone);
+	auto & phik = new_elem1(zone);
 
 	if (p1 == p[0])
 	{
@@ -457,7 +457,7 @@ const Triangle::NewElem & Triangle::new_elem1(int p1, int zone) const
 	return *((NewElem*)0);
 }
 
-std::vector<Triangle::NewElem> Triangle::new_elem1(int zone) const
+const std::vector<Triangle::NewElem> & Triangle::new_elem1(int zone) const
 {
 	if (zone < 0) {
 		zone = z;
@@ -551,5 +551,8 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	e0.g1.g1u = e1.g1.g1u = e2.g1.g1u = convs[z].g1.g1u;
 	e0.g1.g1v = e1.g1.g1v = e2.g1.g1v = convs[z].g1.g1v;
 
+	r.push_back(e0);
+	r.push_back(e1);
+	r.push_back(e2);
 	return r;
 }

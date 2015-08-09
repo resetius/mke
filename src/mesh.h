@@ -326,7 +326,7 @@ public:
 	const Polynom & elem1(int p1, int zone) const;
 
 	const NewElem & new_elem1(int p1, int zone) const;
-	std::vector<NewElem> new_elem1(int zone) const;
+	const std::vector<NewElem> & new_elem1(int zone) const;
 };
 
 using namespace linal;

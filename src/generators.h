@@ -166,6 +166,54 @@ void generate_matrix (Matrix & A, const Mesh & m,
 #endif
 }
 
+template < typename Matrix, typename Functor, typename Data >
+void new_generate_matrix(Matrix & A, const Mesh & m,
+					 Functor integrate_cb,
+					 Data user_data,
+					 bool transpose = false)
+{
+	using namespace phelm_private_;
+	int rs = (int)m.inner.size();    // размерность
+
+	Timer t;
+#pragma omp parallel for
+	for (int i = 0; i < rs; ++i)   // номер строки
+	{
+		// по внутренним точкам
+		int p = m.inner[i];
+		int zone = m.tr[m.adj[p][0]].z;
+
+		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
+		{
+			// по треугольникам в точке
+			int trk_i = m.adj[p][tk];
+			const Triangle & trk = m.tr[trk_i];
+			const std::vector<Triangle::NewElem> & phik = trk.new_elem1(zone);
+			const Triangle::NewElem & phi_i = trk.new_elem1(p, zone);
+
+			for (uint i0 = 0; i0 < phik.size(); ++i0)
+			{
+				int p2 = m.tr[trk_i].p[i0];
+				int j = m.p2io[p2]; // номер внутренней точки
+				// номер столбца
+				if (m.is_boundary(p2))
+				{
+					; // граница
+				}
+				else
+				{
+					mat_add(A, i, j,
+							integrate_cb(phi_i, phik[i0], trk, zone,
+							m, p, p2, i, j, user_data), transpose);
+				}
+			}
+		}
+	}
+#ifdef _DEBUG
+	fprintf(stderr, "generate_matrix: %lf \n", t.elapsed());
+#endif
+}
+
 /**
  * Generate full finite-elements matrix.
  * @param A - output matrix
