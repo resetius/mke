@@ -116,11 +116,14 @@ static double integrate_cb(const Triangle::NewElem & phi_i,
 		phi_i.f->diff("y1") * hgy->diff("v")) *
 		(phi_j.f->diff("x1") * hgx->diff("v") +
 		phi_j.f->diff("y1") * hgy->diff("v"));
+	f2->bind_args({ "x1", "y1", "z1", "u", "v" });
+//	f2->print();
+//	printf("\n\n");
 
-	double r2 = -integrate_generic_new(trk, [f1, g1u, g1v](double x1, double y1) {
+	double r2 = -integrate_generic_new(trk, [f2, g1u, g1v](double x1, double y1) {
 		double u = g1u->apply({ x1, y1, 0.0 })->value();
 		double v = g1v->apply({ x1, y1, 0.0 })->value();
-		return f1->apply({ x1, y1, 0.0, u, v })->value() / cos(u) / cos(u);
+		return f2->apply({ x1, y1, 0.0, u, v })->value() / cos(u) / cos(u);
 	});
 
 	return r1+r2;
