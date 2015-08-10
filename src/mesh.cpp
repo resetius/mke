@@ -483,6 +483,36 @@ static double sign(double a) {
 	}
 }
 
+void Triangle::proj() {
+	for (int i = 0; i < 3; ++i) {
+		pp[i] = ps[p[i]].pr;
+	}
+
+	Point n = (pp[0] - pp[1]) * (pp[0] - pp[2]);
+
+	n = n / n.len();
+	double cosa = fabs(n.x) / sqrt(n.x*n.x + n.y*n.y);
+	double cosb = fabs(n.z);
+	double a = -sign(n.x*n.y)*acos(cosa);
+	n = n.rotate_z(a);
+	double b = sign(n.x*n.z)*acos(cosb);
+	n = n.rotate_y(b);
+
+	m = Matrix();
+	m.rotate_z(a);
+	m.rotate_y(b);
+
+	m1 = Matrix();
+	m1.rotate_y(-b);
+	m1.rotate_z(-a);
+
+	for (int i = 0; i < 3; ++i) {
+		pp[i] = pp[i].apply(m);
+	}
+
+	assert(fabs(pp[0].z - pp[1].z) < 1e-15 && fabs(pp[1].z - pp[2].z) < 1e-15);
+}
+
 std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 {
 	std::vector<NewElem> r;
@@ -495,44 +525,20 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 	FuncPtr Z(new Symb("z"));
 
 	NewElem e0, e1, e2;
-	Point p0 = ps[p[0]].pr;
-	Point p1 = ps[p[1]].pr;
-	Point p2 = ps[p[2]].pr;
 
-	Point n = (p0 - p1) * (p0 - p2);
-	n = n / n.len();
-	double cosa = fabs(n.x) / sqrt(n.x*n.x + n.y*n.y);
-	double cosb = fabs(n.z);
-	double a = -sign(n.x*n.y)*acos(cosa);
-	n = n.rotate_z(a);
-	double b =  sign(n.x*n.z)*acos(cosb);
-	n = n.rotate_y(b);
-
-	Matrix m;
-	m.rotate_z(a);
-	m.rotate_y(b);
-
-	Matrix m1;
-	m1.rotate_y(-b);
-	m1.rotate_z(-a);
-
-	p0 = p0.apply(m);
-	p1 = p1.apply(m);
-	p2 = p2.apply(m);
-
-	double zdiff = - p0.z;
+	double zdiff = - pp[0].z;
 	
 	e0.f =
-		(X1 - p1.x) * (p2.y - p1.y) -
-		(Y1 - p1.y) * (p2.x - p1.x);
+		(X1 - pp[1].x) * (pp[2].y - pp[1].y) -
+		(Y1 - pp[1].y) * (pp[2].x - pp[1].x);
 	
 	e1.f = 
-		(X1 - p0.x) * (p2.y - p0.y) - 
-		(Y1 - p0.y) * (p2.x - p0.x);
+		(X1 - pp[0].x) * (pp[2].y - pp[0].y) - 
+		(Y1 - pp[0].y) * (pp[2].x - pp[0].x);
 
 	e2.f = 
-		(X1 - p0.x) * (p1.y - p0.y) - 
-		(Y1 - p0.y) * (p1.x - p0.x);
+		(X1 - pp[0].x) * (pp[1].y - pp[0].y) - 
+		(Y1 - pp[0].y) * (pp[1].x - pp[0].x);
 
 	e0.h.hx = m.m[0][0] * X + m.m[0][1] * Y + m.m[0][2] * Z;
 	e0.h.hy = m.m[1][0] * X + m.m[1][1] * Y + m.m[1][2] * Z;
@@ -567,7 +573,7 @@ std::vector<Triangle::NewElem> Triangle::prepare_new_basis(int z) const
 
 	for (int i = 0; i < 3; ++i) {
 		r[i].f->bind_args({ "x1", "y1" });
-		r[i].f = r[i].f * (1.0/r[i].f->apply({ ps[p[i]].pr.x, ps[p[i]].pr.y })->value());
+		r[i].f = r[i].f * (1.0/r[i].f->apply({ pp[i].x, pp[i].y })->value());
 	}
 
 	return r;

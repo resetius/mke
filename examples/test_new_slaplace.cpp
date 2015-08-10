@@ -181,6 +181,9 @@ void test_laplace(const Mesh & mesh)
 	new_generate_matrix(laplace, mesh, integrate_cb, (void*)0);
 	new_generate_boundary_matrix(bnd3, mesh, integrate_cb, (void*)0);
 
+//	idt.print(stdout);
+//	laplace.print(stdout);
+
 	std::vector<double> U(mesh.size);
 	std::vector<double> LU(mesh.size);
 	std::vector<double> LU1(mesh.size);

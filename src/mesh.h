@@ -182,6 +182,10 @@ struct Triangle
 	const std::vector < MeshPoint > & ps;
 	const convs_t & convs;
 
+	Point pp[3];
+	Matrix m;
+	Matrix m1;
+
 	mutable std::vector < basis_t > phik; ///< basis functions in zone 	
 
 	struct NewElem {
@@ -248,6 +252,7 @@ struct Triangle
 		p[1] = p2;
 		p[2] = p3;
 		phik.reserve(10); // max 10 zones
+		proj();
 	}
  
 	Triangle (const Triangle & other):
@@ -259,6 +264,7 @@ struct Triangle
 		p[0] = other.p[0];
 		p[1] = other.p[1];
 		p[2] = other.p[2];
+		proj();
 	}
 
 	Triangle & operator = (const Triangle & other)
@@ -270,6 +276,7 @@ struct Triangle
 		p[0] = other.p[0];
 		p[1] = other.p[1];
 		p[2] = other.p[2];
+		proj();
 		return *this;
 	}
 
@@ -283,21 +290,6 @@ struct Triangle
 	double x (int i, int z) const
 	{
 		return ps[p[i]].x (z);
-	}
-
-	double px(int i) const
-	{
-		return ps[p[i]].pr.x;
-	}
-
-	double py(int i) const
-	{
-		return ps[p[i]].pr.y;
-	}
-
-	double pz(int i) const
-	{
-		return ps[p[i]].pr.z;
 	}
 
 	/**
@@ -319,6 +311,7 @@ private:
 	 */
 	basis_t prepare_basis(int z) const;
 	std::vector<NewElem> prepare_new_basis(int z) const;
+	void proj();
 
 public:
 	/**

@@ -627,8 +627,8 @@ double integrate_generic_new(
 	const Triangle & tr, 
 	std::function<double(double, double)> f)
 {
-	double x1 = tr.px(0), x2 = tr.px(1), x3 = tr.px(2);
-	double y1 = tr.py(0), y2 = tr.py(1), y3 = tr.py(2);
+	double x1 = tr.pp[0].x, x2 = tr.pp[1].x, x3 = tr.pp[2].x;
+	double y1 = tr.pp[0].y, y2 = tr.pp[1].y, y3 = tr.pp[2].y;
 
 	ff_data data;
 	data.f = f;
