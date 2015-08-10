@@ -287,8 +287,9 @@ static void solve_lapl()
 	fprintf(stderr, "done\n");
 }
 
-int main(int argc, char ** argv)
+int test_laplace1d(int argc, char * argv[])
 {
 	//solve_lapl();
 	calc_lapl();
+	return 0;
 }

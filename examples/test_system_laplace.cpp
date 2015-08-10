@@ -14,29 +14,29 @@
 using namespace std;
 using namespace phelm;
 
-void usage (const char * name)
+static void usage (const char * name)
 {
 	fprintf (stderr, "usage: %s [mesh.txt|-]\n", name);
 	exit (1);
 }
 
-double u (double x, double y)
+static double u(double x, double y)
 {
 	return sin (M_PI * x) * sin (M_PI * y) + 1.0;
 }
 
-double v (double x, double y)
+static double v(double x, double y)
 {
 	return x * (x - 1) * y * (y - 1) + 1.0;
 }
 
-double f (double x, double y)
+static double f(double x, double y)
 {
 	return -2.0 * M_PI * M_PI * sin (M_PI * x) * sin (M_PI * y)
 	       + v (x, y);
 }
 
-double g (double x, double y)
+static double g(double x, double y)
 {
 	return 2.0 * y * y - 2.0 * y + 2.0 * x * x - 2.0 * x
 	       + u (x, y);
@@ -174,7 +174,7 @@ void test_invert (Mesh & m)
 	fprintf (stdout, "answer nev: V = %le\n", dist (&V[0], &RV[0], m) );
 }
 
-int main (int argc, char *argv[])
+int test_system_laplace (int argc, char *argv[])
 {
 	Mesh mesh;
 	if (argc > 1)

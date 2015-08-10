@@ -8,7 +8,14 @@ include_directories(${LINAL_INCLUDE})
 add_definitions(${LINAL_DEFINES})
 
 create_test_sourcelist(test_chafe_source test_chafe_driver.cpp test_chafe.cpp test_schafe.cpp)
-create_test_sourcelist(test_laplace_source test_laplace_driver.cpp test_laplace.cpp test_slaplace.cpp test_new_slaplace.cpp)
+create_test_sourcelist(test_laplace_source 
+	test_laplace_driver.cpp 
+	test_laplace.cpp
+	test_slaplace.cpp 
+	test_new_slaplace.cpp
+	test_laplace1d.cpp
+	test_system_laplace.cpp
+	)
 
 set(chafe_source
 	# Spheric Chafe-Infante equation
@@ -24,31 +31,25 @@ set(chafe_source
 add_executable(mke_test_laplace ${test_laplace_source})
 add_executable(mke_test_chafe ${test_chafe_source} ${chafe_source})
 
-add_executable(mke_test_system_laplace test_system_laplace.cpp)
 add_executable(mke_test_jacobian test_jacobian.cpp)
 add_executable(mke_test_barvortex test_barvortex.cpp barvortex.h barvortex_impl.h)
 add_executable(mke_test_baroclin test_baroclin.cpp baroclin.cpp baroclin.h)
 
-add_executable(mke_test_laplace1d test_laplace1d.cpp)
 add_executable(mke_test_deriv test_deriv.cpp)
 
 target_link_libraries(mke_test_laplace phelm ${LINAL_LIBS})
-target_link_libraries(mke_test_laplace1d phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_deriv phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_chafe phelm ${LINAL_LIBS})
 
-target_link_libraries(mke_test_system_laplace phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_jacobian phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_barvortex phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_baroclin phelm ${LINAL_LIBS})
 
 if (OPENMP_FOUND)
 set_target_properties(mke_test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(mke_test_laplace1d PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_deriv PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 
-set_target_properties(mke_test_system_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_jacobian PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_barvortex PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
 set_target_properties(mke_test_baroclin PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
