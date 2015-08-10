@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2015 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _USE_MATH_DEFINES
+
 #include <math.h>
 #include <stdio.h>
 #include <assert.h>
@@ -55,6 +57,32 @@ VERSION ("$Id$");
 
 extern "C"
 {
+	double atan3(double y, double x) {
+		if (fabs(x) < 1e-15) {
+			if (y > 0) {
+				return M_PI_2;
+			}
+			else if (y < 0) {
+				return M_PI + M_PI_2;
+			}
+		}
+
+		if (x > 0 && y >= 0) {
+			return atan(y / x);
+		}
+		if (x < 0 && y >= 0) {
+			return M_PI + atan(y / x);
+		}
+		if (x < 0 && y < 0) {
+			return M_PI + atan(y / x);
+		}
+		if (x > 0 && y < 0) {
+			return M_PI + M_PI + atan(y / x);
+		}
+		//abort();
+		return 0.0;
+	}
+
 	void write_header (int argc, char ** argv, const char * mes)
 	{
 		fprintf (stderr, "#%s\n", mes);

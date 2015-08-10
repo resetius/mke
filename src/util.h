@@ -3,7 +3,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2015 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,9 +57,7 @@ extern "C"
 	 * @{
 	 */
 
-#ifdef WIN32
-#define inline __inline
-#endif
+	double atan3(double y, double x);
 
 	/**
 	 * Take the integral of \f$x^k y^n\f$ over trapezoid.
