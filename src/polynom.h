@@ -204,6 +204,9 @@ double integrate_cos (const Polynom & p, const Triangle & t, int z);
 
 typedef double (*fxy_t) (double x, double y, void * data);
 double integrate_generic (const Triangle & t, int z, fxy_t f, void * data);
+double integrate_generic_new(
+	const Point & p1, const Point & p2, const Point & p3,
+	std::function<double(double, double)> f);
 double integrate_generic_new(const Triangle & t, std::function < double(double,double) > f);
 
 /**

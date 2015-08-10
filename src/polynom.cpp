@@ -624,16 +624,23 @@ static double ff(double x, double y, void * d) {
 }
 
 double integrate_generic_new(
-	const Triangle & tr, 
+	const Point & p1, const Point & p2, const Point & p3,
 	std::function<double(double, double)> f)
 {
-	double x1 = tr.pp[0].x, x2 = tr.pp[1].x, x3 = tr.pp[2].x;
-	double y1 = tr.pp[0].y, y2 = tr.pp[1].y, y3 = tr.pp[2].y;
+	double x1 = p1.x, x2 = p2.x, x3 = p3.x;
+	double y1 = p1.y, y2 = p2.y, y3 = p3.y;
 
 	ff_data data;
 	data.f = f;
 	double r = cubature7(x1, y1, x2, y2, x3, y3, ff, &data);
 	return r;
+}
+
+double integrate_generic_new(
+	const Triangle & tr, 
+	std::function<double(double, double)> f)
+{
+	return integrate_generic_new(tr.pp[0], tr.pp[1], tr.pp[2], f);
 }
 
 Polynom operator * (const Polynom &p1, const Polynom &p2)
