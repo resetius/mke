@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <math.h>
 #include "func.h"
+#include "util.h"
 #include "mesh_builder.h"
 
 using namespace std;
@@ -12,6 +13,8 @@ using phelm::FuncPtr;
 using phelm::Symb;
 using phelm::Cos;
 using phelm::Sin;
+using phelm::ATan2;
+using phelm::ATan3;
 using phelm::vars_t;
 
 static void check(double a, double b)
@@ -107,6 +110,7 @@ static void check_sin(FuncPtr sin_)
 
 static void test_func() {
 	FuncPtr X(new Symb("x"));
+	FuncPtr Y(new Symb("y"));
 	FuncPtr cos_(new Cos(X));
 	check_cos(cos_);
 	
@@ -122,6 +126,28 @@ static void test_func() {
 
 	check(X->diff("y")->value(), 0.0);
 	check(X->diff("x")->value(), 1.0);
+
+	FuncPtr atan2_(new ATan2(Y, X));
+	FuncPtr atan3_(new ATan3(Y, X));
+	atan2_->bind_args({ "y", "x" });
+	atan3_->bind_args({ "y", "x" });
+	check(atan2_->apply({ 1, 0 })->value(), atan2(1, 0));
+	check(atan2_->apply({ 1, 1 })->value(), atan2(1, 1));
+	check(atan2_->apply({ 0, 1 })->value(), atan2(0, 1));
+	check(atan2_->apply({ -1, 1 })->value(), atan2(-1, 1));
+	check(atan2_->apply({ -1, 0 })->value(), atan2(-1, 0));
+	check(atan2_->apply({ -1, -1 })->value(), atan2(-1, -1));
+	check(atan2_->apply({ 0, -1 })->value(), atan2(0, -1));
+	check(atan2_->apply({ 1, -1 })->value(), atan2(1, -1));
+
+	check(atan3_->apply({ 1, 0 })->value(), atan3(1, 0));
+	check(atan3_->apply({ 1, 1 })->value(), atan3(1, 1));
+	check(atan3_->apply({ 0, 1 })->value(), atan3(0, 1));
+	check(atan3_->apply({ -1, 1 })->value(), atan3(-1, 1));
+	check(atan3_->apply({ -1, 0 })->value(), atan3(-1, 0));
+	check(atan3_->apply({ -1, -1 })->value(), atan3(-1, -1));
+	check(atan3_->apply({ 0, -1 })->value(), atan3(0, -1));
+	check(atan3_->apply({ 1, -1 })->value(), atan3(1, -1));
 }
 
 extern "C" int test_func_op(int argc, char ** argv)
