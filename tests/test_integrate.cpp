@@ -63,6 +63,7 @@ static void test_simple3()
 	ps.push_back (p2);
 	ps.push_back (p3);
 	Triangle t1 (0, 1, 2, ps);
+	double r;
 
 	Polynom p = (P2X - 1) * (P2Y - 2);
 
@@ -70,16 +71,21 @@ static void test_simple3()
 	fprintf (stderr, "(x - 1) (y - 2) = ");
 	p.print();
 
-	fprintf (stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", integrate_cos (p, t1, 0) );
+	r = integrate_cos(p, t1, 0);
+	fprintf (stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", r );
 	ans = (4.0 * sin (1.) - 9.0 * cos (1.) ) / 2.0 + 1.0;
-	fprintf(stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", 
-			integrate_generic_new(p1.pr, p2.pr, p3.pr, [p](double x, double y){
+	check(r, ans);
+	r = integrate_generic_new(p1.pr, p2.pr, p3.pr, [p](double x, double y){
 		return p.apply(x, y) * cos(x);
-	}));
+	}, 5);
+	fprintf(stderr, "integral (x - 1) (y - 2) cos x = %.16lf\n", r);
+	check(r, ans);
 	fprintf (stderr, "                    double ans = %.16lf\n", ans);
 
-	fprintf (stderr, "integral (x - 1) (y - 2) sin x = %.16lf\n", integrate_sin (p, t1, 0) );
+	r = integrate_sin(p, t1, 0);
+	fprintf (stderr, "integral (x - 1) (y - 2) sin x = %.16lf\n", r );
 	ans = 5.0 - (9.0 * sin (1.) + 4.0 * cos (1.) ) / 2.0;
+	check(r, ans);
 	fprintf (stderr, "                    double ans = %.16lf\n", ans);
 
 	fprintf (stderr, "integral (x - 1) (y - 2) / cos x = %.16lf\n", integrate_1_cos (p, t1, 0) );

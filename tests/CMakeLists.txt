@@ -24,6 +24,7 @@ endif (OPENMP_FOUND)
 # TODO: check lua version (>= 5.3)
 find_program(LUA lua)
 
+add_test(mke_func_op ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_func_op)
 add_test(mke_test_polynom ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_triag_rotate)
 add_test(mke_test_polynom ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_polynom)
 add_test(mke_test_quadrature ${EXECUTABLE_OUTPUT_PATH}/mke_test_small test_quadrature)
