@@ -36,7 +36,9 @@
 */
 
 #include <math.h>
+#include <assert.h>
 #include "func.h"
+#include "util.h"
 
 using namespace phelm;
 
@@ -44,6 +46,7 @@ FuncPtr Func::apply(std::initializer_list<double> a) {
 	std::vector<double> values;
 	values.insert(values.end(), a.begin(), a.end());
 	vars_t vars;
+	assert(args.size() >= values.size());
 	for (int i = 0; i < (int)args.size() && i < (int)values.size(); i++) {
 		vars[args[i]] = FuncPtr(new Const(values[i]));
 	}
@@ -54,6 +57,7 @@ FuncPtr Func::apply(std::initializer_list<FuncPtr> a) {
 	std::vector<FuncPtr> values;
 	values.insert(values.end(), a.begin(), a.end());
 	vars_t vars;
+	assert(args.size() >= values.size());
 	for (int i = 0; i < (int)args.size() && i < (int)values.size(); i++) {
 		vars[args[i]] = values[i];
 	}
@@ -109,7 +113,7 @@ FuncPtr Cos::apply(const vars_t & vars) {
 FuncPtr Sin::apply(const vars_t & vars) {
 	FuncPtr newa = a->apply(vars);
 	if (newa->has_value()) {
-		return FuncPtr(new Const(cos(newa->value())));
+		return FuncPtr(new Const(sin(newa->value())));
 	}
 	else {
 		return FuncPtr(new Sin(newa));
@@ -141,8 +145,8 @@ FuncPtr phelm::operator * (const FuncPtr & a, const FuncPtr & b) {
 		return FuncPtr(new Const(a->value() * b->value()));
 	}
 	if (a->has_value()) {
-		double aa = fabs(a->value());
-		if (aa < 1e-15) {
+		double aa = a->value();
+		if (fabs(aa) < 1e-15) {
 			return FuncPtr(new Const(0.0));
 		}
 		if (fabs(aa - 1.0) < 1e-15) {
@@ -150,8 +154,8 @@ FuncPtr phelm::operator * (const FuncPtr & a, const FuncPtr & b) {
 		}
 	}
 	if (b->has_value()) {
-		double bb = fabs(b->value());
-		if (bb < 1e-15) {
+		double bb = b->value();
+		if (fabs(bb) < 1e-15) {
 			return FuncPtr(new Const(0.0));
 		}
 		if (fabs(bb - 1.0) < 1e-15) {
@@ -193,30 +197,17 @@ FuncPtr phelm::operator - (const FuncPtr & a, const FuncPtr & b) {
 	return FuncPtr(new Sub(a, b));
 }
 
-FuncPtr phelm::operator ^ (const FuncPtr & a, int n) {
-	if (n == 0) {
+FuncPtr phelm::operator ^ (const FuncPtr & a, double n) {
+	if (fabs(n) < 1e-15) {
 		return FuncPtr(new Const(1));
 	}
 
-	if (n == 1) {
+	if (fabs(n - 1) < 1e-15) {
 		return a;
 	}
 
 	if (a->has_value()) {
-		double s = 1.0;
-		double v = a->value();
-
-		if (n < 0) {
-			for (int i = 0; i < -n; ++i) {
-				s /= v;
-			}
-		}
-		else {
-			for (int i = 0; i < n; ++i) {
-				s *= v;
-			}
-		}
-
+		double v = pow(a->value(), n);
 		return FuncPtr(new Const(v));
 	}
 
@@ -238,7 +229,7 @@ FuncPtr Pow::diff(const std::string & symb) const {
 		return FuncPtr(new Const(0));
 	}
 	else {
-		return (double)n * a->diff(symb) * a ^ (n - 1);
+		return (n * a->diff(symb)) * (a ^ (n - 1));
 	}
 }
 
@@ -260,7 +251,8 @@ FuncPtr ATan2::apply(const vars_t & vars) {
 	FuncPtr newx = x->apply(vars);
 	FuncPtr newy = y->apply(vars);
 	if (newx->has_value() && newy->has_value()) {
-		return FuncPtr(new Const(atan2(newx->value(), newy->value())));
+		double v = atan2(newx->value(), newy->value());
+		return FuncPtr(new Const(v));
 	}
 	else {
 		return FuncPtr(new ATan2(newx, newy));
@@ -268,5 +260,21 @@ FuncPtr ATan2::apply(const vars_t & vars) {
 }
 
 FuncPtr ATan2::diff(const std::string & symb) const {
+	throw std::runtime_error("not implemented");
+}
+
+FuncPtr ATan3::apply(const vars_t & vars) {
+	FuncPtr newx = x->apply(vars);
+	FuncPtr newy = y->apply(vars);
+	if (newx->has_value() && newy->has_value()) {
+		double v = atan3(newx->value(), newy->value());
+		return FuncPtr(new Const(v));
+	}
+	else {
+		return FuncPtr(new ATan3(newx, newy));
+	}
+}
+
+FuncPtr ATan3::diff(const std::string & symb) const {
 	throw std::runtime_error("not implemented");
 }

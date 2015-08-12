@@ -266,11 +266,33 @@ public:
 	FuncPtr diff(const std::string & symb) const;
 };
 
+class ATan3 : public Func {
+	FuncPtr x;
+	FuncPtr y;
+public:
+	ATan3(FuncPtr x, FuncPtr y) : x(x), y(y) {}
+
+	void print(FILE * f) const {
+		fprintf(f, "atan3(");
+		x->print(f);
+		fprintf(f, ",");
+		y->print(f);
+		fprintf(f, ")");
+	}
+
+	bool has_symb(const std::string & symb) const {
+		return x->has_symb(symb) || y->has_symb(symb);
+	}
+
+	FuncPtr apply(const vars_t & vars);
+	FuncPtr diff(const std::string & symb) const;
+};
+
 class Pow : public Func {
 	FuncPtr a;
-	int n;
+	double n;
 public:
-	Pow(FuncPtr a, int n) : a(a), n(n) {}
+	Pow(FuncPtr a, double n) : a(a), n(n) {}
 
 	void print(FILE * f) const {
 		fprintf(f, "(");
@@ -286,7 +308,7 @@ public:
 	FuncPtr diff(const std::string & symb) const;
 };
 
-FuncPtr operator ^ (const FuncPtr & a, int n);
+FuncPtr operator ^ (const FuncPtr & a, double n);
 
 inline FuncPtr operator * (const FuncPtr & a, double b) {
 	return a * FuncPtr(new Const(b));

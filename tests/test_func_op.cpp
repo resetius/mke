@@ -13,6 +13,7 @@ using phelm::FuncPtr;
 using phelm::Symb;
 using phelm::Cos;
 using phelm::Sin;
+using phelm::Pow;
 using phelm::ATan2;
 using phelm::ATan3;
 using phelm::vars_t;
@@ -148,6 +149,21 @@ static void test_func() {
 	check(atan3_->apply({ -1, -1 })->value(), atan3(-1, -1));
 	check(atan3_->apply({ 0, -1 })->value(), atan3(0, -1));
 	check(atan3_->apply({ 1, -1 })->value(), atan3(1, -1));
+
+	FuncPtr sqrt_(new Pow(X, 0.5));
+	sqrt_->bind_args({ "x" });
+	check(sqrt_->apply({ 0 })->value(), 0);
+	check(sqrt_->apply({ 2 })->value(), sqrt(2));
+	check(sqrt_->apply({ M_PI })->value(), sqrt(M_PI));
+
+	FuncPtr dsqrt = sqrt_->diff("x");
+	dsqrt->bind_args({ "x" });
+	check(dsqrt->apply({ 2 })->value(), 0.5 / sqrt(2));
+	check(dsqrt->apply({ M_PI })->value(), 0.5 / sqrt(M_PI));
+
+	FuncPtr dsqrt1 = dsqrt->diff("x");
+	dsqrt1->bind_args({ "x" });
+	check(dsqrt1->apply({ 2 })->value(), 0.5*-0.5 * pow(2, -0.5-1));
 }
 
 extern "C" int test_func_op(int argc, char ** argv)
