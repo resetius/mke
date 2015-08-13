@@ -148,8 +148,7 @@ laplace_bnd1_cb ( const Polynom & phi_i,
                   const Mesh & m,
                   int point_i,
                   int point_j,
-                  int, int,
-                  void * d)
+                  int, int)
 {
 	Polynom poly = phi_i * phi_j;
 	return integrate_cos(poly, trk, z);
@@ -164,8 +163,7 @@ laplace_bnd2_cb ( const Polynom & phi_i,
                   const Mesh & m,
                   int point_i,
                   int point_j,
-                  int, int,
-                  void * )
+                  int, int)
 {
 	return -slaplace (phi_j, phi_i, trk, z);
 }
@@ -178,8 +176,7 @@ slaplace_integrate_cb ( const Polynom & phi_i,
                         const Mesh & m,
                         int point_i,
                         int point_j,
-                        int, int,
-                        void * user_data)
+                        int, int)
 {
 	double a = slaplace (phi_j, phi_i, trk, z);
 	return a;
@@ -192,8 +189,7 @@ double id_cb (const Polynom & phi_i,
               const Mesh & m,
               int point_i,
               int point_j,
-              int, int,
-              void *)
+              int, int)
 {
 	Polynom poly = phi_i * phi_j;
 	return integrate_cos(poly, trk, z);

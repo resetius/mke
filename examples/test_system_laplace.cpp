@@ -48,8 +48,7 @@ laplace_integrate_cb ( const Polynom & phi_i,
                        const Triangle & trk, int z,
                        const Mesh & m,
                        int point_i, int point_j,
-                       int i, int j,
-                       void * user_data)
+                       int i, int j)
 {
 	int rs = (int) m.inner.size();
 	elements_t r;
@@ -157,7 +156,7 @@ void test_invert (Mesh & m)
 	vector < double > RP (2 * rs);
 	vector < double > Ans (2 * rs);
 
-	generate_matrix (A, m, laplace_integrate_cb, (void*) 0);
+	generate_matrixv (A, m, laplace_integrate_cb);
 
 	laplace_right_part_cb_data data;
 	data.F = &F[0];

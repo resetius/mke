@@ -108,8 +108,18 @@ Chafe < T > ::Chafe (const Mesh & m, double tau, double sigma, double mu)
 {
 	/* Матрица левой части */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix (A_, m_, Chafe_Private::chafe_integrate_cb, this);
-	generate_boundary_matrix (bnd_, m_, Chafe_Private::chafe_integrate_cb, this);
+	auto func = [this](
+		const Polynom & phi_i, const Polynom & phi_j,
+		const Triangle & tr, int zone, const Mesh & m,
+		int point_i, int point_j, int i, int j
+		)
+	{
+		return Chafe_Private::chafe_integrate_cb(
+			phi_i, phi_j, tr, zone, m, point_i, point_j, i, j, this);
+	};
+
+	generate_matrix (A_, m_, func);
+	generate_boundary_matrix (bnd_, m_, func);
 }
 
 /* \frac{du}{dt} = \mu \Delta u - \sigma u + f (u) */

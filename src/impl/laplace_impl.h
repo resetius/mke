@@ -46,8 +46,7 @@ double id_cb (const Polynom & phi_i,
               int z,
               const Mesh & m,
               int point_i, int point_j,
-              int, int,
-              void *);
+              int, int);
 
 double
 laplace_bnd2_cb ( const Polynom & phi_i,
@@ -57,8 +56,7 @@ laplace_bnd2_cb ( const Polynom & phi_i,
                   const Mesh & m,
                   int point_i,
                   int point_j,
-                  int, int,
-                  void * );
+                  int, int);
 
 double
 laplace_integrate_cb ( const Polynom & phi_i,
@@ -68,8 +66,7 @@ laplace_integrate_cb ( const Polynom & phi_i,
                        const Mesh & m,
                        int point_i,
                        int point_j,
-                       int, int,
-                       void * user_data);
+                       int, int);
 
 
 template < typename T >
@@ -102,19 +99,16 @@ laplace_rp_cb ( const Polynom & phi_i,
 template < typename T, typename Matrix >
 Laplace < T, Matrix >::Laplace (const Mesh & m) : 
 	m_ (m),
-	idt_full_ ( m.size ), 
 	idt_ ( m.inner_size ), 
 	laplace_ ( m.inner_size ),
 	bnd2_ ( m.inner_size ),
 	bnd3_ ( m.inner_size ),
 	d_(m)
 {
-	generate_full_matrix (idt_full_, m, Laplace_Private::id_cb, (void*) 0);
-
-	generate_matrix (idt_, m, Laplace_Private::id_cb, (void*) 0);
-	generate_matrix (laplace_, m, Laplace_Private::laplace_integrate_cb, (void*) 0);
-	generate_boundary_matrix (bnd2_, m_, Laplace_Private::laplace_bnd2_cb, (void*) 0);
-	generate_boundary_matrix (bnd3_, m_, Laplace_Private::laplace_integrate_cb, (void*) 0);
+	generate_matrix (idt_, m, Laplace_Private::id_cb);
+	generate_matrix (laplace_, m, Laplace_Private::laplace_integrate_cb);
+	generate_boundary_matrix (bnd2_, m_, Laplace_Private::laplace_bnd2_cb);
+	generate_boundary_matrix (bnd3_, m_, Laplace_Private::laplace_integrate_cb);
 }
 
 template < typename T, typename Matrix >

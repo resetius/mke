@@ -14,6 +14,7 @@ set(SOURCE
 	quadrature.c
 	phelm.h
 	generators.h
+	generators.cpp
 	impl/generators_impl.h
 	polynom.h
 	util.h

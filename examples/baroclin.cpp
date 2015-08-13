@@ -83,8 +83,26 @@ Baroclin::Baroclin (const Mesh & m, rp_t f, rp_t g,
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix (A_, m_,  integrate_cb, this);
-	generate_matrix (Ab_, m_, integrate_backward_cb, this);
+	auto func = [this](
+		const Polynom & phi_i, const Polynom & phi_j,
+		const Triangle & tr, int zone, const Mesh & m,
+		int point_i, int point_j, int i, int j
+		)
+	{
+		return integrate_cb(phi_i, phi_j, tr, zone, m, point_i, point_j, i, j, this);
+	};
+
+	auto func_b = [this](
+		const Polynom & phi_i, const Polynom & phi_j,
+		const Triangle & tr, int zone, const Mesh & m,
+		int point_i, int point_j, int i, int j
+		)
+	{
+		return integrate_backward_cb(phi_i, phi_j, tr, zone, m, point_i, point_j, i, j, this);
+	};
+
+	generate_matrixv (A_, m_,  func);
+	generate_matrixv (Ab_, m_, func_b);
 }
 
 struct right_part_cb_data

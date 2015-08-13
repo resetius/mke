@@ -46,8 +46,10 @@
  */
 
 #include <math.h>
+#include <functional>
 #include "solver.h"
 #include "util.h"
+#include "mesh.h"
 
 namespace phelm
 {
@@ -118,53 +120,25 @@ typedef std::vector < Element > elements_t;
  * @param user_data - user data
  * @param transpose - generate transposed matrix ?
  */
-template < typename Matrix, typename Functor, typename Data >
-void generate_matrix (Matrix & A, const Mesh & m,
-                      Functor integrate_cb,
-                      Data user_data,
-                      bool transpose = false)
-{
-	using namespace phelm_private_;
-	int rs  = (int) m.inner.size();    // размерность
+void generate_matrixv(
+	SparseSolverAdder & A, const Mesh & m,
+	std::function<std::vector<Element>(
+		const Polynom &,
+		const Polynom &,
+		const Triangle &,
+		int, const Mesh &,
+		int, int, int, int
+		)> integrate_cb);
 
-	Timer t;
-#pragma omp parallel for
-	for (int i = 0; i < rs; ++i)   // номер строки
-	{
-		// по внутренним точкам
-		int p    = m.inner[i];
-		int zone = m.tr[m.adj[p][0]].z;
-
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
-		{
-			// по треугольникам в точке
-			int trk_i = m.adj[p][tk];
-			const Triangle & trk           = m.tr[trk_i];
-			const Triangle::basis_t & phik = trk.elem1(zone);
-			const Polynom & phi_i          = trk.elem1 (p, zone);
-
-			for (uint i0 = 0; i0 < phik.size(); ++i0)
-			{
-				int p2   = m.tr[trk_i].p[i0];
-				int j    = m.p2io[p2]; // номер внутренней точки
-				// номер столбца
-				if (m.is_boundary(p2))
-				{
-					; // граница
-				}
-				else
-				{
-					mat_add (A, i, j,
-					         integrate_cb (phi_i, phik[i0], trk, zone,
-					                       m, p, p2, i, j, user_data), transpose);
-				}
-			}
-		}
-	}
-#ifdef _DEBUG
-	fprintf (stderr, "generate_matrix: %lf \n", t.elapsed() );
-#endif
-}
+void generate_matrix(
+	SparseSolverAdder & A, const Mesh & m,
+	std::function<double (
+		const Polynom &,
+		const Polynom &,
+		const Triangle &,
+		int, const Mesh &,
+		int, int, int, int
+		)> integrate_cb);
 
 template < typename Matrix, typename Functor, typename Data >
 void new_generate_matrix(Matrix & A, const Mesh & m,
@@ -377,48 +351,28 @@ void generate_full_right_part (T * b, const Mesh & m,
  * @param user_data - user data
  * @param transpose - generate transposed matrix?
  */
-template < typename Matrix, typename Functor, typename Data >
-void generate_boundary_matrix (Matrix & A, const Mesh & m,
-                               Functor right_part_cb,
-                               Data user_data,
-                               bool transpose = false)
-{
-	using namespace phelm_private_;
-	int os = (int) m.outer.size(); // размер границы
-	for (int j = 0; j < os; ++j)
-	{
-		// по внешним точкам
-		int p2 = m.outer[j];
-		int zone = m.tr[m.adj[p2][0]].z;
 
-		for (uint tk = 0; tk < m.adj[p2].size(); ++tk)
-		{
-			// по треугольникам в точке
-			int trk_j = m.adj[p2][tk];
-			const Triangle & trk    = m.tr[trk_j];
-			const std::vector < Polynom > & phik = trk.elem1(zone);
-			const Polynom & phi_j           = trk.elem1 (p2, zone);
+void generate_boundary_matrixv(
+	SparseSolverAdder & A, const Mesh & m,
+	std::function<std::vector<Element>(
+	const Polynom &,
+	const Polynom &,
+	const Triangle &,
+	int,
+	const Mesh &,
+	int, int, int, int
+	)> integrate_cb);
 
-			for (uint i0 = 0; i0 < phik.size(); ++i0)
-			{
-				int p    = m.tr[trk_j].p[i0];
-
-				if (m.is_boundary(p))
-				{
-					;
-				}
-				else
-				{
-					// p - внутренняя точка
-					int i = m.p2io[p];
-					mat_add (A, i, j,
-					         right_part_cb (phik[i0], phi_j,
-					                        trk, zone, m, p, p2, i, j, user_data), transpose);
-				}
-			}
-		}
-	}
-}
+void generate_boundary_matrix(
+	SparseSolverAdder & A, const Mesh & m,
+	std::function<double(
+	const Polynom &,
+	const Polynom &,
+	const Triangle &,
+	int,
+	const Mesh &,
+	int, int, int, int
+	)> integrate_cb);
 
 template < typename Matrix, typename Functor, typename Data >
 void new_generate_boundary_matrix(Matrix & A, const Mesh & m,

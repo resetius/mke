@@ -65,8 +65,8 @@ static double id_cb (const Polynom & phi_i,
                      int point_i,
                      int point_j,
                      int i,
-                     int j,
-                     void *)
+                     int j/*,
+                     void **/)
 {
 	Polynom poly = phi_i * phi_j;
 	//return integrate_cos(poly, trk, m.ps);
@@ -78,11 +78,11 @@ static double diff_1_rp (const Polynom & phi_i,
                          const Triangle & trk, int z,
                          const Mesh & m,
                          int i, int j,
-                         int, int,
-                         const double * u)
+                         int, int/*,
+                         const double * u*/)
 {
 	Polynom poly = diff (phi_j, 0) * phi_i;
-	double v = (u) ? u[i] : 1; //?
+	double v = 1;// (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
 	double r = v * integrate_generic (trk, z, (fxy_t) integrate_func, &poly);
 	return r;
@@ -93,11 +93,11 @@ static double diff_1_cos_rp (const Polynom & phi_i,
                              const Triangle & trk, int z,
                              const Mesh & m,
                              int i, int j,
-                             int, int,
-                             const double * u)
+                             int, int/*,
+                             const double * u*/)
 {
 	Polynom poly = diff (phi_j, 0) * phi_i;
-	double v = (u) ? u[i] : 1; //?
+	double v = 1; //(u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
 	double r = v * integrate_generic (trk, z, (fxy_t) integrate_cos_func, &poly);
 	return r;
@@ -108,11 +108,11 @@ static double diff_2_rp (const Polynom & phi_i,
                          const Triangle & trk, int z,
                          const Mesh & m,
                          int i, int j,
-                         int, int,
-                         const double * u)
+                         int, int/*,
+                         const double * u*/)
 {
 	Polynom poly = diff (phi_j, 1) * phi_i;
-	double v = (u) ? u[i] : 1; //?
+	double v = 1;// (u) ? u[i] : 1; //?
 	//double r = v * integrate(poly, trk, m.ps);
 	double r = v * integrate_generic (trk, z, (fxy_t) integrate_func, &poly);
 	return r;
@@ -123,11 +123,11 @@ static double diff_2_cos_rp (const Polynom & phi_i,
                              const Triangle & trk, int z,
                              const Mesh & m,
                              int i, int j,
-                             int, int,
-                             const double * u)
+                             int, int/*,
+                             const double * u*/)
 {
 	Polynom poly = diff (phi_j, 1) * phi_i;
-	double v = (u) ? u[i] : 1; //?
+	double v = 1;// (u) ? u[i] : 1; //?
 	//double r = v * integrate_cos(poly, trk, m.ps);
 	double r = v * integrate_generic (trk, z, (fxy_t) integrate_cos_func, &poly);
 	return r;
@@ -430,27 +430,27 @@ SphereJacobian::SphereJacobian (const Mesh & m) : m_ (m),
 		diff1_cos_rp_t_ ( (int) m.inner.size() ),
 		diff2_cos_rp_t_ ( (int) m.inner.size() )
 {
-	generate_matrix (idt_, m, id_cb, (void*) 0);
+	generate_matrix (idt_, m, id_cb);
 
-	generate_matrix (diff1_, m_, diff_1_rp, (double*) 0);
-	generate_matrix (diff2_, m_, diff_2_rp, (double*) 0);
-	generate_matrix (diff1_cos_, m_, diff_1_cos_rp, (double*) 0);
-	generate_matrix (diff2_cos_, m_, diff_2_cos_rp, (double*) 0);
+	generate_matrix (diff1_, m_, diff_1_rp);
+	generate_matrix (diff2_, m_, diff_2_rp);
+	generate_matrix (diff1_cos_, m_, diff_1_cos_rp);
+	generate_matrix (diff2_cos_, m_, diff_2_cos_rp);
 
-	generate_boundary_matrix (diff1_rp_, m_, diff_1_rp, (double*) 0);
-	generate_boundary_matrix (diff2_rp_, m_, diff_2_rp, (double*) 0);
-	generate_boundary_matrix (diff1_cos_rp_, m_, diff_1_cos_rp, (double*) 0);
-	generate_boundary_matrix (diff2_cos_rp_, m_, diff_2_cos_rp, (double*) 0);
+	generate_boundary_matrix (diff1_rp_, m_, diff_1_rp);
+	generate_boundary_matrix (diff2_rp_, m_, diff_2_rp);
+	generate_boundary_matrix (diff1_cos_rp_, m_, diff_1_cos_rp);
+	generate_boundary_matrix (diff2_cos_rp_, m_, diff_2_cos_rp);
 
-	generate_matrix (diff1_t_, m_, diff_1_rp, (double*) 0);
-	generate_matrix (diff2_t_, m_, diff_2_rp, (double*) 0);
-	generate_matrix (diff1_cos_t_, m_, diff_1_cos_rp, (double*) 0);
-	generate_matrix (diff2_cos_t_, m_, diff_2_cos_rp, (double*) 0);
+	generate_matrix (diff1_t_, m_, diff_1_rp);
+	generate_matrix (diff2_t_, m_, diff_2_rp);
+	generate_matrix (diff1_cos_t_, m_, diff_1_cos_rp);
+	generate_matrix (diff2_cos_t_, m_, diff_2_cos_rp);
 
-	generate_boundary_matrix (diff1_rp_t_, m_, diff_1_rp, (double*) 0);
-	generate_boundary_matrix (diff2_rp_t_, m_, diff_2_rp, (double*) 0);
-	generate_boundary_matrix (diff1_cos_rp_t_, m_, diff_1_cos_rp, (double*) 0);
-	generate_boundary_matrix (diff2_cos_rp_t_, m_, diff_2_cos_rp, (double*) 0);
+	generate_boundary_matrix (diff1_rp_t_, m_, diff_1_rp);
+	generate_boundary_matrix (diff2_rp_t_, m_, diff_2_rp);
+	generate_boundary_matrix (diff1_cos_rp_t_, m_, diff_1_cos_rp);
+	generate_boundary_matrix (diff2_cos_rp_t_, m_, diff_2_cos_rp);
 }
 
 void SphereJacobian::calc1 (double * Ans, const double * u, const double * v, const double * bnd)

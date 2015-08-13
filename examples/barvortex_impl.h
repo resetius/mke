@@ -123,11 +123,34 @@ BarVortex < L, J, N > ::BarVortex (const Mesh & m, const BarVortexConf & conf)
 
 	/* Матрица левой части совпадает с Чафе-Инфантом на сфере */
 	/* оператор(u) = u/dt-mu \Delta u/2 + sigma u/2*/
-	generate_matrix (A_, m_, bv_private::integrate_cb < BarVortex > , &conf);
-	generate_boundary_matrix (bnd_, m_, bv_private::integrate_cb < BarVortex >, &conf);
 
-	generate_matrix (Ab_, m_, bv_private::integrate_backward_cb < BarVortex > , &conf);
-	generate_boundary_matrix (bndb_, m_, bv_private::integrate_backward_cb < BarVortex >, &conf);
+	auto func = [&conf](
+		const Polynom & phi_i, const Polynom & phi_j,
+		const Triangle & tr, int zone, const Mesh & m,
+		int point_i, int point_j, int i, int j
+		) 
+	{
+		return bv_private::integrate_cb<BarVortex>(
+			phi_i, phi_j, tr, zone, m,
+			point_i, point_j, i, j, &conf);
+	};
+
+	auto func_backward = [&conf](
+		const Polynom & phi_i, const Polynom & phi_j,
+		const Triangle & tr, int zone, const Mesh & m,
+		int point_i, int point_j, int i, int j
+		)
+	{
+		return bv_private::integrate_backward_cb<BarVortex>(
+			phi_i, phi_j, tr, zone, m,
+			point_i, point_j, i, j, &conf);
+	};
+
+	generate_matrix (A_, m_, func);
+	generate_boundary_matrix (bnd_, m_, func);
+
+	generate_matrix (Ab_, m_, func_backward);
+	generate_boundary_matrix(bndb_, m_, func_backward);
 }
 
 template < typename L, typename J, typename N >
