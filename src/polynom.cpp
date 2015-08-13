@@ -623,7 +623,7 @@ static double ff(double x, double y, void * d) {
 	return data->f(x, y);
 }
 
-double integrate_generic_new(
+static double integrate_generic_new_0(
 	const Point & p1, const Point & p2, const Point & p3,
 	std::function<double(double, double)> f)
 {
@@ -637,10 +637,31 @@ double integrate_generic_new(
 }
 
 double integrate_generic_new(
-	const Triangle & tr, 
-	std::function<double(double, double)> f)
+	const Point & p1, const Point & p2, const Point & p3,
+	std::function<double(double, double)> f, int iter)
 {
-	return integrate_generic_new(tr.pp[0], tr.pp[1], tr.pp[2], f);
+	if (iter == 0) {
+		return integrate_generic_new_0(p1, p2, p3, f);
+	}
+	else {
+		double s = 0;
+		iter--;
+		Point p12 = (p1 + p2) / 2;
+		Point p23 = (p2 + p3) / 2;
+		Point p31 = (p3 + p1) / 2;
+		s += integrate_generic_new(p1, p12, p31, f, iter);
+		s += integrate_generic_new(p2, p12, p23, f, iter);
+		s += integrate_generic_new(p3, p23, p31, f, iter);
+		s += integrate_generic_new(p12, p23, p31, f, iter);
+		return s;
+	}
+}
+
+double integrate_generic_new(
+	const Triangle & tr, 
+	std::function<double(double, double)> f, int iter)
+{
+	return integrate_generic_new(tr.pp[0], tr.pp[1], tr.pp[2], f, iter);
 }
 
 Polynom operator * (const Polynom &p1, const Polynom &p2)
