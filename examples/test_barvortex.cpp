@@ -8,8 +8,9 @@
 #include "barvortex.h"
 #include "util.h"
 
-using namespace std;
 using namespace phelm;
+using std::string;
+using std::vector;
 
 void usage (const char * name)
 {

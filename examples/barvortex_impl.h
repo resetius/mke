@@ -1,7 +1,7 @@
 /* -*- charset: utf-8 -*- */
 /*$Id$*/
 
-/* Copyright (c) 2009, 2010 Alexey Ozeritsky (Алексей Озерицкий)
+/* Copyright (c) 2009-2015 Alexey Ozeritsky
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@
 
 VERSION ("$Id$");
 
-using namespace std;
 using namespace phelm;
+using std::vector;
 
 #ifndef BARVORTEX_H
 #error "do not include this file!"
