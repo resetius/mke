@@ -18,7 +18,7 @@ using namespace linal;
 
 static void usage (const char * name)
 {
-	fprintf (stderr, "usage: %s [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
+	fprintf (stderr, "usage: %s  [--order order(1|2|3, before -f)] [-f|--file mesh.txt|-] [-d|--double] [-t|--threads number]\n", name);
 	exit (1);
 }
 
@@ -202,6 +202,7 @@ int test_slaplace (int argc, char *argv[])
 {
 	Mesh mesh;
 	bool use_double = false;
+	int order = 1;
 
 	for (int i = 0; i < argc; ++i)
 	{
@@ -222,7 +223,7 @@ int test_slaplace (int argc, char *argv[])
 			{
 				usage (argv[0]);
 			}
-			if (!mesh.load (f) )
+			if (!mesh.load (f, order) )
 			{
 				usage (argv[0]);
 			}
@@ -242,6 +243,15 @@ int test_slaplace (int argc, char *argv[])
 		else if (!strcmp (argv[i], "--double") || !strcmp (argv[i], "-d") )
 		{
 			use_double = true;
+		}
+		else if (!strcmp(argv[i], "--order"))
+		{
+			if (i == argc - 1)
+			{
+				usage(argv[0]);
+			}
+
+			order = atoi(argv[i + 1]);
 		}
 	}
 

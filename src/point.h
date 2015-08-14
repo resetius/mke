@@ -108,6 +108,13 @@ struct Point
 	Point rotate_z(double a) const;
 
 	Point apply(const Matrix & m) const;
+
+	bool operator == (const Point & other) const {
+		return
+			fabs(x - other.x) < 1e-13 &&
+			fabs(y - other.y) < 1e-13 &&
+			fabs(z - other.z) < 1e-13;
+	}
 };
 
 double scalar(const Point & a, const Point & b);

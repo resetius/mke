@@ -16,7 +16,7 @@ int fk(int n)
 
 int main(int agrc, char * argv[])
 {
-	int m = 6;
+	int m = 10;
 	int n, k;
 
 	printf("const static double Cnk[][%d] = \n{ \n", m);

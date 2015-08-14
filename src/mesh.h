@@ -173,8 +173,9 @@ extern convs_t std_id_convs;
  */
 struct Triangle
 {
-	int p[3];  ///< point number
+	std::vector<int> p;  ///< point number
 	int z;     ///< default zone number
+	int order;
 
 	typedef Polynom elem_t;
 	typedef std::vector < Polynom > basis_t;
@@ -242,12 +243,14 @@ struct Triangle
 		int p1, int p2, int p3, 
 		const std::vector < MeshPoint > & ps, 
 		const convs_t & convs = std_id_convs,
-		int zone = 0)
+		int zone = 0, int order = 1)
 		:
 		z (zone),
+		order(order),
 		ps (ps),
 		convs(convs)
 	{
+		p.resize(3);
 		p[0] = p1;
 		p[1] = p2;
 		p[2] = p3;
@@ -257,13 +260,12 @@ struct Triangle
  
 	Triangle (const Triangle & other):
 		z(other.z),
+		order(other.order),
 		ps(other.ps),
 		convs(other.convs),
 		phik(other.phik)
 	{
-		p[0] = other.p[0];
-		p[1] = other.p[1];
-		p[2] = other.p[2];
+		p = other.p;
 		proj();
 	}
 
@@ -272,10 +274,9 @@ struct Triangle
 		// do not change ps link
 		assert(&ps == &other.ps);
 		z = other.z;
+		order = other.order;
 		phik = other.phik;
-		p[0] = other.p[0];
-		p[1] = other.p[1];
-		p[2] = other.p[2];
+		p = other.p;
 		proj();
 		return *this;
 	}
@@ -310,6 +311,11 @@ private:
 	 * @param ps - mesh points
 	 */
 	basis_t prepare_basis(int z) const;
+
+	basis_t prepare_basis1(int z) const;
+	basis_t prepare_basis2(int z) const;
+	basis_t prepare_basis3(int z) const;
+
 	std::vector<NewElem> prepare_new_basis(int z) const;
 	void proj();
 
@@ -381,6 +387,10 @@ struct Mesh
 	int outer_size;
 	int size;
 
+	int order;
+
+	Mesh(int order = 1) : order(order) {}
+
 	struct Device
 	{
 		ArrayDevice < int > inner;
@@ -395,7 +405,12 @@ struct Mesh
 	 * @param f - file
 	 * @return true if success
 	 */
-	bool load (FILE * f);
+	bool load (FILE * f, int order = 1);
+	void prepare_additional_points();
+	template <typename T>
+	int find_point2(T & seen, int p1, int p2);
+	template <typename T>
+	int find_point3(T & seen, int p1, int p2, int p3, int flag = 0);
 
 	/**
 	 * Prepare all of mesh triangles.

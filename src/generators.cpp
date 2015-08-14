@@ -72,10 +72,14 @@ void phelm::generate_matrixv(
 	for (int i = 0; i < rs; ++i)   // номер строки
 	{
 		// по внутренним точкам
-		int p = m.inner[i];
+		int p = m.inner[i]; // get global point number
 		int zone = m.tr[m.adj[p][0]].z;
+		uint n_triangles = m.adj[p].size();
 
-		for (uint tk = 0; tk < m.adj[p].size(); ++tk)
+		assert(n_triangles > 0);
+		assert(n_triangles > 1 || (m.order == 3 && m.tr[m.adj[p][0]].p[9] == p));
+
+		for (uint tk = 0; tk < n_triangles; ++tk)
 		{
 			// по треугольникам в точке
 			int trk_i = m.adj[p][tk];
@@ -83,9 +87,11 @@ void phelm::generate_matrixv(
 			const Triangle::basis_t & phik = trk.elem1(zone);
 			const Polynom & phi_i = trk.elem1(p, zone);
 
+			assert(phik.size() == trk.p.size());
+
 			for (uint i0 = 0; i0 < phik.size(); ++i0)
 			{
-				int p2 = m.tr[trk_i].p[i0];
+				int p2 = trk.p[i0];
 				int j = m.p2io[p2]; // номер внутренней точки
 				// номер столбца
 				if (m.is_boundary(p2))

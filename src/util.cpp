@@ -99,7 +99,7 @@ extern "C"
 //це из ен по ка
 	inline double CNK (int n, int k)
 	{
-		assert (n < 6 && k < 6);
+		assert (n < 10 && k < 10);
 		return Cnk[n][k];
 	}
 
