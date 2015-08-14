@@ -119,6 +119,9 @@ struct MeshPoint
 	 */
 	void add (const Point & p1)
 	{
+		if (p.empty() && pr.len() < 1e-15) {
+			pr = p1;
+		}
 		p.push_back (p1);
 	}
 
