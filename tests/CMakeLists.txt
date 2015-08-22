@@ -17,10 +17,6 @@ add_executable(mke_test_small ${small_tests})
 
 target_link_libraries(mke_test_small phelm ${MATH} ${LINAL_LIBS} mesh_builder)
 
-if (OPENMP_FOUND)
-set_target_properties(mke_test_small PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-endif (OPENMP_FOUND)
-
 # TODO: check lua version (>= 5.3)
 find_program(LUA lua)
 

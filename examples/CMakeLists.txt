@@ -45,16 +45,6 @@ target_link_libraries(mke_test_jacobian phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_barvortex phelm ${LINAL_LIBS})
 target_link_libraries(mke_test_baroclin phelm ${LINAL_LIBS})
 
-if (OPENMP_FOUND)
-set_target_properties(mke_test_laplace PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(mke_test_deriv PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(mke_test_chafe PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-
-set_target_properties(mke_test_jacobian PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(mke_test_barvortex PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-set_target_properties(mke_test_baroclin PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-endif (OPENMP_FOUND)
-
 if (CUDA_FOUND)
 	cuda_add_executable(mke_test_laplace_cu ${test_laplace_source})
 	target_link_libraries(mke_test_laplace_cu phelm_cu ${LINAL_CUDA_LIBS})
@@ -65,10 +55,5 @@ if (CUDA_FOUND)
 	target_link_libraries(mke_test_chafe_cu phelm_cu ${LINAL_CUDA_LIBS})
 	cuda_add_cublas_to_target(mke_test_chafe_cu)
 	set_target_properties(mke_test_chafe_cu PROPERTIES COMPILE_FLAGS "-DGPGPU")
-
-	if (OPENMP_FOUND)
-		set_target_properties(mke_test_laplace_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-		set_target_properties(mke_test_chafe_cu PROPERTIES LINK_FLAGS ${OpenMP_C_FLAGS})
-	endif (OPENMP_FOUND)
 endif (CUDA_FOUND)
 
