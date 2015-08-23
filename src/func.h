@@ -297,7 +297,7 @@ public:
 	void print(FILE * f) const {
 		fprintf(f, "(");
 		a->print(f);
-		fprintf(f, ")^%d", n);
+		fprintf(f, ")^%lf", n);
 	}
 
 	bool has_symb(const std::string & symb) const {
